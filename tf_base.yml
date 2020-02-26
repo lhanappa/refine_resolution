@@ -1,7 +1,9 @@
 name: TF_base
 channels:
   - conda-forge
+  - bioconda
   - defaults
+  - r
 dependencies:
   - _tflow_select=2.3.0=mkl
   - absl-py=0.7.1=py37_0
@@ -51,6 +53,7 @@ dependencies:
   - parso=0.5.1=py_0
   - pexpect=4.7.0=py37_0
   - pickleshare=0.7.5=py37_0
+  - pillow=5.3.0=py37hbddbef0_1000
   - pip=19.2.2=py37_0
   - prompt_toolkit=2.0.9=py37_0
   - protobuf=3.8.0=py37h0a44026_0
@@ -66,6 +69,7 @@ dependencies:
   - six=1.12.0=py37_0
   - sqlite=3.29.0=ha441bb4_0
   - tensorboard=1.14.0=py37h80053f4_0
+  - tensorflow=1.14.0=mkl_py37h085be34_0
   - tensorflow-base=1.14.0=mkl_py37h5a24fda_0
   - tensorflow-estimator=1.14.0=py_0
   - termcolor=1.1.0=py37_1
@@ -79,26 +83,5 @@ dependencies:
   - xz=5.2.4=h1de35cc_4
   - zlib=1.2.11=h1de35cc_3
   - zstd=1.4.0=ha9f0a20_0
-  - pip:
-    - attrs==19.1.0
-    - chardet==3.0.4
-    - dill==0.3.0
-    - future==0.17.1
-    - google-pasta==0.1.7
-    - googleapis-common-protos==1.6.0
-    - idna==2.8
-    - opt-einsum==3.0.1
-    - pillow==6.1.0
-    - promise==2.2.1
-    - psutil==5.6.3
-    - requests==2.22.0
-    - tb-nightly==1.15.0a20190806
-    - tensorflow==2.0.0rc1
-    - tensorflow-datasets==1.2.0
-    - tensorflow-examples==683776ab06c79b79578a1ef3d4aa0951f865b573-
-    - tensorflow-metadata==0.14.0
-    - tf-estimator-nightly==1.14.0.dev2019080601
-    - tqdm==4.35.0
-    - urllib3==1.25.3
-prefix: /Users/huyangyang/anaconda3/envs/TF_base
+prefix: /Users/huyangyang/opt/anaconda3/envs/TF_base
 
