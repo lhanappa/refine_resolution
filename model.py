@@ -1,7 +1,8 @@
 import numpy as np
 import tensorflow as tf
-
-
+import time
+from IPython import display
+import datetime
 class Reconstruct_R1M(tf.keras.layers.Layer):
     def __init__(self, filters, name='RR'):
         super(Reconstruct_R1M, self).__init__(name=name)
@@ -102,18 +103,16 @@ def make_generator_model():
     #trans_2 = tf.keras.layers.Conv2DTranspose(filters=16, kernel_size=(5,1), strides=(2,1), padding='same', data_format="channels_last", activation='relu', use_bias=False, kernel_constraint=tf.keras.constraints.NonNeg(), name='C2DT2')(trans_1)
     Rech = Reconstruct_R1M(32, name='Rech')(up_1)
     # DepthwiseConv2D or SeparableConv2D https://eli.thegreenplace.net/2018/depthwise-separable-convolutions-for-machine-learning/
-    trans_1_1 = tf.keras.layers.DepthwiseConv2D(kernel_size=(3, 3), strides=(
-        1, 1), padding='same', data_format="channels_last", activation='relu', use_bias=True, name='C2DT1_1')(Rech)
-    trans_1_2 = tf.keras.layers.DepthwiseConv2D(kernel_size=(3, 3), strides=(
-        1, 1), padding='same', data_format="channels_last", activation='relu', use_bias=True, name='C2DT1_2')(Rech)
+    #trans_1_1 = tf.keras.layers.DepthwiseConv2D(kernel_size=(3, 3), strides=(1, 1), padding='same', data_format="channels_last", activation='relu', use_bias=True, name='C2DT1_1')(Rech)
+    #trans_1_2 = tf.keras.layers.DepthwiseConv2D(kernel_size=(3, 3), strides=(1, 1), padding='same', data_format="channels_last", activation='relu', use_bias=True, name='C2DT1_2')(Rech)
     #trans_2_1 = tf.keras.layers.DepthwiseConv2D(kernel_size=(5,5), strides=(1,1), padding='same', data_format="channels_last", activation='relu', use_bias=True, name='C2DT2_1')(Rech)
     #trans_2_2 = tf.keras.layers.DepthwiseConv2D(kernel_size=(5,5), strides=(1,1), padding='same', data_format="channels_last", activation='relu', use_bias=True, name='C2DT2_2')(Rech)
     #trans_3_1 = tf.keras.layers.DepthwiseConv2D(kernel_size=(7,7), strides=(1,1), padding='same', data_format="channels_last", activation='relu', use_bias=True, name='C2DT3_1')(Rech)
     #trans_3_2 = tf.keras.layers.DepthwiseConv2D(kernel_size=(7,7), strides=(1,1), padding='same', data_format="channels_last", activation='relu', use_bias=True, name='C2DT3_2')(Rech)
     # , trans_2_1, trans_2_2, trans_3_1, trans_3_2])
-    Concat = tf.keras.layers.concatenate([trans_1_1, trans_1_2])
-    WeiR1Mh = Weight_R1M(name='WR1Mh')(Concat)
-    Sumh = Sum_R1M(name='Sumh')(WeiR1Mh)
+    #Concat = tf.keras.layers.concatenate([trans_1_1, trans_1_2])
+    #WeiR1Mh = Weight_R1M(name='WR1Mh')(trans_1_1)
+    Sumh = Sum_R1M(name='Sumh')(Rech)
     high_out = Normal(512, name='Out_high')(Sumh)
 
     model = tf.keras.models.Model(
@@ -141,18 +140,8 @@ def make_discriminator_model():
                                     kernel_initializer=initializer)(zero_pad2)'''
     return tf.keras.Model(inputs=[inp, tar], outputs=conv)
 
-
-Gen = make_generator_model()
-Dis = make_discriminator_model()
-print(Gen.summary())
-tf.keras.utils.plot_model(Gen, to_file='G.png', show_shapes=True)
-print(Dis.summary())
-tf.keras.utils.plot_model(Dis, to_file='D.png', show_shapes=True)
-
-loss_object = tf.keras.losses.BinaryCrossentropy(from_logits=True)
-
-
 def discriminator_KL_loss(real_output, fake_output):
+    loss_object = tf.keras.losses.BinaryCrossentropy(from_logits=True)
     real_loss = loss_object(tf.ones_like(real_output), real_output)
     generated_loss = loss_object(tf.zeros_like(fake_output), fake_output)
     total_disc_loss = real_loss + generated_loss
@@ -165,75 +154,92 @@ def generator_ssim_loss(y_pred, y_true):
 
 
 def generator_KL_loss(d_pred):
+    loss_object = tf.keras.losses.BinaryCrossentropy(from_logits=True)
     gan_loss = loss_object(tf.ones_like(d_pred), d_pred)
     return gan_loss
 
 
-generator_optimizer_low = tf.keras.optimizers.Adam()
-generator_optimizer_high = tf.keras.optimizers.Adam()
-discriminator_optimizer = tf.keras.optimizers.Adagrad()
 @tf.function
-def train_step(imgl, imgr):
+def train_step(Gen, Dis, imgl, imgr, epoch_flag, opts, train_losses):
     with tf.GradientTape() as gen_tape_low, tf.GradientTape() as gen_tape_high, tf.GradientTape() as disc_tape:
         fake_hic = Gen(imgl, training=True)
         fake_hic_l = fake_hic[0]
         fake_hic_h = fake_hic[1]
         img_l_h = fake_hic[2]
-        gen_loss_low = generator_lowr_loss(fake_hic_l, imgl)
+        
         #gen_low_v = Gen.trainable_variables
         gen_low_v = []
         gen_low_v += Gen.get_layer('Decl').trainable_variables
         gen_low_v += Gen.get_layer('WR1Ml').trainable_variables
         gen_low_v += Gen.get_layer('Recl').trainable_variables
         gen_low_v += Gen.get_layer('Out_low').trainable_variables
-        gradients_of_generator_low = gen_tape_low.gradient(
-            gen_loss_low, gen_low_v)
-        generator_optimizer_low.apply_gradients(
-            zip(gradients_of_generator_low, gen_low_v))
+        gen_loss_low = generator_ssim_loss(fake_hic_l, imgl)
+        gradients_of_generator_low = gen_tape_low.gradient(gen_loss_low, gen_low_v)
+        opts[0].apply_gradients(zip(gradients_of_generator_low, gen_low_v))
+        train_losses[0](gen_loss_low)
+        #if(epoch_flag):
+        disc_generated_output = Dis([fake_hic_h, img_l_h], training=True)
 
-        #disc_generated_output = Dis([fake_hic_h, imgr], training=True)
-
-        # + generator_highr_loss(disc_generated_output)
-        gen_loss_high = generator_lowr_loss(fake_hic_h, imgr)
         gen_high_v = []
         gen_high_v += Gen.get_layer('Rech').trainable_variables
-        gen_high_v += Gen.get_layer('C2DT1_1').trainable_variables
-        gen_high_v += Gen.get_layer('C2DT1_2').trainable_variables
-        #gen_high_v += Gen.get_layer('C2DT2_1').trainable_variables
-        #gen_high_v += Gen.get_layer('C2DT2_2').trainable_variables
-        #gen_high_v += Gen.get_layer('C2DT3_1').trainable_variables
-        #gen_high_v += Gen.get_layer('C2DT3_2').trainable_variables
-        gen_high_v += Gen.get_layer('WR1Mh').trainable_variables
+        #gen_high_v += Gen.get_layer('C2DT1_1').trainable_variables
+        #gen_high_v += Gen.get_layer('C2DT1_2').trainable_variables
+        #gen_high_v += Gen.get_layer('WR1Mh').trainable_variables
         gen_high_v += Gen.get_layer('Out_high').trainable_variables
-        #gen_high_v += Gen.get_layer('C2DT2').trainable_variables
-        #gen_high_v += Gen.get_layer('Rech').trainable_variables
-        gradients_of_generator_high = gen_tape_high.gradient(
-            gen_loss_high, gen_high_v)
-        generator_optimizer_high.apply_gradients(
-            zip(gradients_of_generator_high, gen_high_v))
+        gen_loss_high_0 = generator_ssim_loss(fake_hic_h, imgr)
+        gen_loss_high_1 = generator_KL_loss(disc_generated_output)
+        gen_loss_high = gen_loss_high_0# + gen_loss_high_1
+        gradients_of_generator_high = gen_tape_high.gradient(gen_loss_high, gen_high_v)
+        opts[1].apply_gradients(zip(gradients_of_generator_high, gen_high_v))
+        train_losses[1](gen_loss_high_0)
+        train_losses[2](gen_loss_high_1)
 
-        '''disc_real_output = Dis([img_l_h, imgr], training=True)
-        disc_loss = discriminator_loss(disc_real_output, disc_generated_output)
+        disc_real_output = Dis([imgr, img_l_h], training=True)
+        disc_loss = discriminator_KL_loss( disc_real_output, disc_generated_output)
         discriminator_gradients = disc_tape.gradient(disc_loss, Dis.trainable_variables)
-        discriminator_optimizer.apply_gradients(zip(discriminator_gradients, Dis.trainable_variables))'''
+        opts[2].apply_gradients(zip(discriminator_gradients, Dis.trainable_variables))
+        train_losses[3](disc_loss)
 
 
-def train(dataset, epochs, BATCH_SIZE):
-    # print(dataset)
+def train(gen, dis, dataset, epochs, BATCH_SIZE):
+    generator_optimizer_low = tf.keras.optimizers.Adam()
+    generator_optimizer_high = tf.keras.optimizers.Adam()
+    discriminator_optimizer = tf.keras.optimizers.Adagrad()
+    opts = [generator_optimizer_low, generator_optimizer_high, discriminator_optimizer]
+    generator_log_low = tf.keras.metrics.Mean('train_gen_low_loss', dtype=tf.float32)
+    generator_log_0_high = tf.keras.metrics.Mean('train_gen_high_ssim_loss', dtype=tf.float32)
+    generator_log_1_high = tf.keras.metrics.Mean('train_gen_high_KL_loss', dtype=tf.float32)
+    discriminator_log = tf.keras.metrics.Mean('train_discriminator_loss', dtype=tf.float32)
+    logs = [generator_log_low, generator_log_0_high, generator_log_1_high, discriminator_log]
+    current_time = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+    train_log_dir = 'logs/gradient_tape/' + current_time + '/generator'
+    train_summary_G_writer = tf.summary.create_file_writer(train_log_dir)
+    train_log_dir = 'logs/gradient_tape/' + current_time + '/discriminator'
+    train_summary_D_writer = tf.summary.create_file_writer(train_log_dir)
     for epoch in range(epochs):
         start = time.time()
         for i, (low_m, high_m) in enumerate(dataset.take(1)):
-            train_step(tf.dtypes.cast(low_m, tf.float32),
-                       tf.dtypes.cast(high_m, tf.float32))
-
-        # Save the model every 15 epochs
-        if (epoch + 1) % 25 == 0:
-            display.clear_output(wait=True)
-            generate_and_save_images(Gen, epoch + 1, None)
-            #checkpoint.save(file_prefix = checkpoint_prefix)
+            train_step(
+                gen, dis, 
+                tf.dtypes.cast(low_m, tf.float32), tf.dtypes.cast(high_m, tf.float32), 
+                epoch>0,
+                opts, 
+                logs
+                )
+        # log the model epochs
+        with train_summary_G_writer.as_default():
+            tf.summary.scalar('loss', generator_log_low.result(), step=epoch)
+            tf.summary.scalar('loss', generator_log_0_high.result(), step=epoch)
+            tf.summary.scalar('loss', generator_log_1_high.result(), step=epoch)
+        with train_summary_D_writer.as_default():
+            tf.summary.scalar('loss', discriminator_log.result(), step=epoch)
+        
         print('Time for epoch {} is {} sec.'.format(
             epoch + 1, time.time()-start))
 
-    # Generate after the final epoch
-    # display.clear_output(wait=True)
-    #generate_and_save_images(Gen, epochs, None)
+
+'''Gen = make_generator_model()
+Dis = make_discriminator_model()
+print(Gen.summary())
+tf.keras.utils.plot_model(Gen, to_file='G.png', show_shapes=True)
+print(Dis.summary())'''

@@ -33,48 +33,45 @@ for i in list(range(0, len(Mh))):
         img_l[x, y] = img_l[x, y] + Mh[i, j]
 
 Ml = img_l
-plt.matshow(np.log2(Ml), cmap='YlOrRd')
-print(Ml.shape)
+print('ML', Ml.shape)
 Ml = img_l
-#print('original Ml: ', Ml)
-#Ml = normalization.ICE_normalization(Ml)
+
+# Normalization
 Ml = normalization.SCN_normalization(Ml)
 Mh = normalization.SCN_normalization(Mh)
 hic_lr = []
 IMG_HEIGHT, IMG_WIDTH = int(512/4), int(512/4)
-print(IMG_HEIGHT, IMG_WIDTH)
+print('Height: ', IMG_HEIGHT, 'Weight: ', IMG_WIDTH)
 for i in range(len(Ml)-IMG_HEIGHT+1):
     hic_lr.append(Ml[i:i+IMG_HEIGHT, i:i+IMG_WIDTH])
 hic_lr = np.array(hic_lr)
-print(hic_lr.shape)
-fig = plt.figure(figsize=(5, 5))
-for i in range(16):
-    plt.subplot(4, 4, i+1)
-    plt.imshow(np.log2(hic_lr[i*25, :, :]), cmap='YlOrRd')
-    plt.axis('off')
+print('hic_lr: ', hic_lr.shape)
 
 hic_hr = []
 IMG_HEIGHT, IMG_WIDTH = int(512), int(512)
-print(IMG_HEIGHT, IMG_WIDTH)
+print('Height: ', IMG_HEIGHT, 'Weight: ', IMG_WIDTH)
 for i in range(0, len(Mh)-IMG_HEIGHT+1, 4):
     hic_hr.append(Mh[i:i+IMG_HEIGHT, i:i+IMG_WIDTH])
 hic_hr = np.array(hic_hr)
-print(hic_hr.shape)
-fig = plt.figure(figsize=(5, 5))
-for i in range(16):
-    plt.subplot(4, 4, i+1)
-    plt.imshow(np.log2(hic_hr[i*25, :, :]), cmap='YlOrRd')
-    plt.axis('off')
+print('hic_hr: ', hic_hr.shape)
 
-EPOCHS = 800
+
+EPOCHS = 6
 BUFFER_SIZE = 1
 BATCH_SIZE = 3
 train_data = tf.data.Dataset.from_tensor_slices(
     (hic_lr[..., np.newaxis], hic_hr[..., np.newaxis])).batch(BATCH_SIZE)
-model.train(train_data, EPOCHS, BATCH_SIZE)
 
+Gen = model.make_generator_model()
+Dis = model.make_discriminator_model()
+print(Gen.summary())
+tf.keras.utils.plot_model(Gen, to_file='G.png', show_shapes=True)
+print(Dis.summary())
+tf.keras.utils.plot_model(Dis, to_file='D.png', show_shapes=True)
 
-anim_file = 'gcn_1.gif'
+model.train(Gen, Dis, train_data, EPOCHS, BATCH_SIZE)
+
+'''anim_file = 'gan.gif'
 with imageio.get_writer(anim_file, mode='I') as writer:
     filenames = glob.glob('./lvl2/image*.png')
     filenames = sorted(filenames)
@@ -88,4 +85,4 @@ with imageio.get_writer(anim_file, mode='I') as writer:
         image = imageio.imread(filename)
         writer.append_data(image)
     image = imageio.imread(filename)
-    writer.append_data(image)
+    writer.append_data(image)'''

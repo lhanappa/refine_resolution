@@ -5,3 +5,5 @@ Dixon2012-H1hESC-HindIII-allreps-filtered.100kb.cool
 saved_model/gen_model/variables/*
 saved_model/gen_model/variables/variables*
 training_checkpoints/*
+logs/*
+__pycache__/*
