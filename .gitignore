@@ -7,3 +7,6 @@ saved_model/gen_model/variables/variables*
 training_checkpoints/*
 logs/*
 __pycache__/*
+test_tensorboard.py
+model.pyc
+slurm*.out

@@ -102,6 +102,10 @@ def make_generator_model():
     #trans_1 = tf.keras.layers.Conv2D(filters=128, kernel_size=(17,1), strides=(1,1), padding='same', data_format="channels_last", activation='relu', use_bias=True, name='C2DT1')(up_1)
     #trans_2 = tf.keras.layers.Conv2DTranspose(filters=16, kernel_size=(5,1), strides=(2,1), padding='same', data_format="channels_last", activation='relu', use_bias=False, kernel_constraint=tf.keras.constraints.NonNeg(), name='C2DT2')(trans_1)
     Rech = Reconstruct_R1M(32, name='Rech')(up_1)
+    trans_1 = tf.keras.layers.Conv2DTranspose(filters=16, kernel_size=(5,5), 
+    strides=(1,1), padding='same', 
+    data_format="channels_last", 
+    activation='relu', use_bias=True, name='C2DT1')(Rech)
     # DepthwiseConv2D or SeparableConv2D https://eli.thegreenplace.net/2018/depthwise-separable-convolutions-for-machine-learning/
     #trans_1_1 = tf.keras.layers.DepthwiseConv2D(kernel_size=(3, 3), strides=(1, 1), padding='same', data_format="channels_last", activation='relu', use_bias=True, name='C2DT1_1')(Rech)
     #trans_1_2 = tf.keras.layers.DepthwiseConv2D(kernel_size=(3, 3), strides=(1, 1), padding='same', data_format="channels_last", activation='relu', use_bias=True, name='C2DT1_2')(Rech)
@@ -112,7 +116,7 @@ def make_generator_model():
     # , trans_2_1, trans_2_2, trans_3_1, trans_3_2])
     #Concat = tf.keras.layers.concatenate([trans_1_1, trans_1_2])
     #WeiR1Mh = Weight_R1M(name='WR1Mh')(trans_1_1)
-    Sumh = Sum_R1M(name='Sumh')(Rech)
+    Sumh = Sum_R1M(name='Sumh')(trans_1)
     high_out = Normal(512, name='Out_high')(Sumh)
 
     model = tf.keras.models.Model(
@@ -182,7 +186,7 @@ def train_step(Gen, Dis, imgl, imgr, epoch_flag, opts, train_losses):
 
         gen_high_v = []
         gen_high_v += Gen.get_layer('Rech').trainable_variables
-        #gen_high_v += Gen.get_layer('C2DT1_1').trainable_variables
+        gen_high_v += Gen.get_layer('C2DT1').trainable_variables
         #gen_high_v += Gen.get_layer('C2DT1_2').trainable_variables
         #gen_high_v += Gen.get_layer('WR1Mh').trainable_variables
         gen_high_v += Gen.get_layer('Out_high').trainable_variables
@@ -218,7 +222,7 @@ def train(gen, dis, dataset, epochs, BATCH_SIZE):
     train_summary_D_writer = tf.summary.create_file_writer(train_log_dir)
     for epoch in range(epochs):
         start = time.time()
-        for i, (low_m, high_m) in enumerate(dataset.take(1)):
+        for i, (low_m, high_m) in enumerate(dataset):
             train_step(
                 gen, dis, 
                 tf.dtypes.cast(low_m, tf.float32), tf.dtypes.cast(high_m, tf.float32), 
