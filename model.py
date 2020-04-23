@@ -256,9 +256,11 @@ def train(gen, dis, dataset, epochs, BATCH_SIZE):
 
     loss_filter_low = np.ones(shape=(128,128)) - np.diag(np.ones(shape=(128,)), k=0) - np.diag(np.ones(shape=(127,)), k=-1) - np.diag(np.ones(shape=(127,)), k=1)
     loss_filter_high = np.ones(shape=(512,512)) - np.diag(np.ones(shape=(512,)), k=0) - np.diag(np.ones(shape=(511,)), k=-1) - np.diag(np.ones(shape=(511,)), k=1)
+    
+    [_, (demo_input_low, demo_input_high)] = next(enumerate(dataset.take(1)))
     for epoch in range(epochs):
         start = time.time()
-        for i, (low_m, high_m) in enumerate(dataset.take(2)):
+        for i, (low_m, high_m) in enumerate(dataset):
             train_step(
                 gen, dis,
                 tf.dtypes.cast(low_m, tf.float32), tf.dtypes.cast(high_m, tf.float32),
@@ -267,16 +269,61 @@ def train(gen, dis, dataset, epochs, BATCH_SIZE):
                 logs
                 )
         # log the model epochs
+        [demo_pred_low, demo_pred_high, demo_up] = gen(demo_input_low, training=False)
+        demo_disc_generated = dis([demo_pred_high, demo_up], training=False)
+        demo_disc_true = dis([demo_input_high, demo_up], training=False)
         with train_summary_G_writer.as_default():
             tf.summary.scalar('loss_gen_low_ssim', generator_log_ssim_low.result(), step=epoch)
             tf.summary.scalar('loss_gen_low_mse', generator_log_mse_low.result(), step=epoch)
             tf.summary.scalar('loss_gen_high_ssim', generator_log_ssim_high.result(), step=epoch)
             tf.summary.scalar('loss_gen_high_kl', generator_log_kl_high.result(), step=epoch)
+            m = np.log1p(tf.squeeze(demo_pred_low))
+            fig = plot_matrix(m)
+            image = plot_to_image(fig)
+            tf.summary.image(name='gen_low', data=image ,step=epoch)
+            m = np.log1p(tf.squeeze(demo_pred_high))
+            fig = plot_matrix(m)
+            image = plot_to_image(fig)
+            tf.summary.image(name='gen_high', data=image, step=epoch)
         with train_summary_D_writer.as_default():
             tf.summary.scalar('loss_dis', discriminator_log.result(), step=epoch)
-
+            m = np.squeeze(demo_disc_generated)
+            fig = plot_matrix(m)
+            image = plot_to_image(fig)
+            tf.summary.image(name='dis_gen', data=image, step=epoch)
+            m = np.squeeze(demo_disc_true)
+            fig = plot_matrix(m)
+            image = plot_to_image(fig)
+            tf.summary.image(name='dis_true', data=image, step=epoch)
         print('Time for epoch {} is {} sec.'.format(
             epoch + 1, time.time()-start))
+
+def plot_matrix(m):
+    import numpy as np
+    import matplotlib.pyplot as plt
+    figure = plt.figure(figsize=(6,6))
+    plt.matshow(m, cmap='RdBu_r')
+    plt.colorbar()
+    plt.tight_layout()
+    return figure
+
+def plot_to_image(figure):
+    import io
+    import matplotlib.pyplot as plt
+    """Converts the matplotlib plot specified by 'figure' to a PNG image and
+    returns it. The supplied figure is closed and inaccessible after this call."""
+    # Save the plot to a PNG in memory.
+    buf = io.BytesIO()
+    plt.savefig(buf, format='png')
+    # Closing the figure prevents it from being displayed directly inside
+    # the notebook.
+    plt.close(figure)
+    buf.seek(0)
+    # Convert PNG buffer to TF image
+    image = tf.image.decode_png(buf.getvalue(), channels=4)
+    # Add the batch dimension
+    image = tf.expand_dims(image, 0)
+    return image
 
 if __name__ == '__main__':
     Gen = make_generator_model()
