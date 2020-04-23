@@ -115,7 +115,7 @@ def make_generator_model():
     #trans_1_1 = tf.keras.layers.DepthwiseConv2D(kernel_size=(3, 3), strides=(1, 1), padding='same', data_format="channels_last", activation='relu', use_bias=True, name='C2DT1_1')(Rech)
     #Concat = tf.keras.layers.concatenate([trans_1_1, trans_1_2])
     #WeiR1Mh = Weight_R1M(name='WR1Mh')(trans_1_1)
-    Sumh = Sum_R1M(name='Sumh')(trans_1)
+    Sumh = Sum_R1M(name='Sumh')(trans_2)
     high_out = Normal(512, name='Out_high')(Sumh)
 
     model = tf.keras.models.Model(
