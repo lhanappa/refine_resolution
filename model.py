@@ -103,13 +103,13 @@ def make_generator_model():
     #trans_1 = tf.keras.layers.Conv2D(filters=128, kernel_size=(17,1), strides=(1,1), padding='same', data_format="channels_last", activation='relu', use_bias=True, name='C2DT1')(up_1)
     #trans_2 = tf.keras.layers.Conv2DTranspose(filters=16, kernel_size=(5,1), strides=(2,1), padding='same', data_format="channels_last", activation='relu', use_bias=False, kernel_constraint=tf.keras.constraints.NonNeg(), name='C2DT2')(trans_1)
     Rech = Reconstruct_R1M(32, name='Rech')(up_1)
-    trans_1 = tf.keras.layers.Conv2DTranspose(filters=64, kernel_size=(5,5), 
-    strides=(1,1), padding='same', 
-    data_format="channels_last", 
+    trans_1 = tf.keras.layers.Conv2DTranspose(filters=64, kernel_size=(5,5),
+    strides=(1,1), padding='same',
+    data_format="channels_last",
     activation='relu', use_bias=True, name='C2DT1')(Rech)
-    trans_2 = tf.keras.layers.Conv2DTranspose(filters=64, kernel_size=(5,5), 
-    strides=(1,1), padding='same', 
-    data_format="channels_last", 
+    trans_2 = tf.keras.layers.Conv2DTranspose(filters=64, kernel_size=(5,5),
+    strides=(1,1), padding='same',
+    data_format="channels_last",
     activation='relu', use_bias=True, name='C2DT2')(trans_1)
     # DepthwiseConv2D or SeparableConv2D https://eli.thegreenplace.net/2018/depthwise-separable-convolutions-for-machine-learning/
     #trans_1_1 = tf.keras.layers.DepthwiseConv2D(kernel_size=(3, 3), strides=(1, 1), padding='same', data_format="channels_last", activation='relu', use_bias=True, name='C2DT1_1')(Rech)
@@ -184,7 +184,7 @@ def train_step(Gen, Dis, imgl, imgr, loss_filter, opts, train_logs):
         fake_hic_l = fake_hic[0]
         fake_hic_h = fake_hic[1]
         img_l_h = fake_hic[2]
-        
+
         #gen_low_v = Gen.trainable_variables
         gen_low_v = []
         gen_low_v += Gen.get_layer('Decl').trainable_variables
@@ -253,17 +253,17 @@ def train(gen, dis, dataset, epochs, BATCH_SIZE):
     tracegraph([tf.zeros((1, 512, 512, 1)), tf.zeros((1,512,512,1))], dis)
     with writer.as_default():
         tf.summary.trace_export(name="model_dis_trace", step=0, profiler_outdir=train_log_dir)
-    
+
     loss_filter_low = np.ones(shape=(128,128)) - np.diag(np.ones(shape=(128,)), k=0) - np.diag(np.ones(shape=(127,)), k=-1) - np.diag(np.ones(shape=(127,)), k=1)
     loss_filter_high = np.ones(shape=(512,512)) - np.diag(np.ones(shape=(512,)), k=0) - np.diag(np.ones(shape=(511,)), k=-1) - np.diag(np.ones(shape=(511,)), k=1)
     for epoch in range(epochs):
         start = time.time()
-        for i, (low_m, high_m) in enumerate(dataset):
+        for i, (low_m, high_m) in enumerate(dataset.take(2)):
             train_step(
-                gen, dis, 
-                tf.dtypes.cast(low_m, tf.float32), tf.dtypes.cast(high_m, tf.float32), 
-                [loss_filter_low, loss_filter_high], 
-                opts, 
+                gen, dis,
+                tf.dtypes.cast(low_m, tf.float32), tf.dtypes.cast(high_m, tf.float32),
+                [loss_filter_low, loss_filter_high],
+                opts,
                 logs
                 )
         # log the model epochs
@@ -274,7 +274,7 @@ def train(gen, dis, dataset, epochs, BATCH_SIZE):
             tf.summary.scalar('loss_gen_high_kl', generator_log_kl_high.result(), step=epoch)
         with train_summary_D_writer.as_default():
             tf.summary.scalar('loss_dis', discriminator_log.result(), step=epoch)
-        
+
         print('Time for epoch {} is {} sec.'.format(
             epoch + 1, time.time()-start))
 
