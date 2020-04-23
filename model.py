@@ -153,12 +153,14 @@ def discriminator_KL_loss(real_output, fake_output):
 
 def generator_ssim_loss(y_pred, y_true, m_filter):
     mfilter = tf.expand_dims(m_filter, axis=0)
+    mfilter = tf.expand_dims(m_filter, axis=-1)
     y_pred = tf.multiply(y_pred, mfilter)
     y_true = tf.multiply(y_true, mfilter)
     return (1 - tf.image.ssim(y_pred, y_true, max_val=1.0))/2.0
 
 def generator_mse_loss(y_pred, y_true, m_filter):
     mfilter = tf.expand_dims(m_filter, axis=0)
+    mfilter = tf.expand_dims(m_filter, axis=-1)
     y_pred = tf.multiply(y_pred, mfilter)
     y_true = tf.multiply(y_true, mfilter)
     diff = tf.math.squared_difference(y_pred, y_true)
