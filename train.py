@@ -56,7 +56,7 @@ hic_hr = np.array(hic_hr)
 print('hic_hr: ', hic_hr.shape)
 
 
-EPOCHS = 600
+EPOCHS = 1000
 BUFFER_SIZE = 1
 BATCH_SIZE = 3
 train_data = tf.data.Dataset.from_tensor_slices(

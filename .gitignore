@@ -10,3 +10,5 @@ __pycache__/*
 test_tensorboard.py
 model.pyc
 slurm*.out
+tf*.log
+

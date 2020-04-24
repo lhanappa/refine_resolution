@@ -256,11 +256,11 @@ def train(gen, dis, dataset, epochs, BATCH_SIZE):
 
     loss_filter_low = np.ones(shape=(128,128)) - np.diag(np.ones(shape=(128,)), k=0) - np.diag(np.ones(shape=(127,)), k=-1) - np.diag(np.ones(shape=(127,)), k=1)
     loss_filter_high = np.ones(shape=(512,512)) - np.diag(np.ones(shape=(512,)), k=0) - np.diag(np.ones(shape=(511,)), k=-1) - np.diag(np.ones(shape=(511,)), k=1)
-    
+
     [_, (demo_input_low, demo_input_high)] = next(enumerate(dataset.take(1)))
     for epoch in range(epochs):
         start = time.time()
-        for i, (low_m, high_m) in enumerate(dataset):
+        for i, (low_m, high_m) in enumerate(dataset.take(3)):
             train_step(
                 gen, dis,
                 tf.dtypes.cast(low_m, tf.float32), tf.dtypes.cast(high_m, tf.float32),
@@ -278,12 +278,12 @@ def train(gen, dis, dataset, epochs, BATCH_SIZE):
             tf.summary.scalar('loss_gen_high_ssim', generator_log_ssim_high.result(), step=epoch)
             tf.summary.scalar('loss_gen_high_kl', generator_log_kl_high.result(), step=epoch)
             mpy = demo_pred_low.numpy()
-            m = np.log1p(np.squeeze(mpy[0,:,:,0]))
+            m = np.log1p(100*np.squeeze(mpy[0,:,:,0]))
             fig = plot_matrix(m)
             image = plot_to_image(fig)
             tf.summary.image(name='gen_low', data=image ,step=epoch)
             mpy = demo_pred_high.numpy()
-            m = np.log1p(np.squeeze(mpy[0,:,:,0]))
+            m = np.log1p(100*np.squeeze(mpy[0,:,:,0]))
             fig = plot_matrix(m)
             image = plot_to_image(fig)
             tf.summary.image(name='gen_high', data=image, step=epoch)
