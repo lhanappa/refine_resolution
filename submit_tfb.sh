@@ -5,8 +5,9 @@
 #SBATCH --mem=1G
 #SBATCH --time=1-10:00:00
 #SBATCH --job-name=tf_board
-#SBATCH --output=tfboard-%J.log
+#SBATCH --output=tfboard-%J.out
 
+#rm tfboard-*.out
 # Change to HOME dir to give access to all folders within Jupyter-Lab
 cd $HOME
 

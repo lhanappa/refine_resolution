@@ -178,7 +178,7 @@ def generator_KL_loss(d_pred):
 
 
 @tf.function
-def train_step(Gen, Dis, imgl, imgr, loss_filter, opts, train_logs):
+def train_step_generator(Gen, Dis, imgl, imgr, loss_filter, opts, train_logs):
     with tf.GradientTape() as gen_tape_low, tf.GradientTape() as gen_tape_high, tf.GradientTape() as disc_tape:
         fake_hic = Gen(imgl, training=True)
         fake_hic_l = fake_hic[0]
@@ -206,13 +206,13 @@ def train_step(Gen, Dis, imgl, imgr, loss_filter, opts, train_logs):
 
         gen_loss_low_ssim = generator_ssim_loss(fake_hic_l, imgl_filter)
         gen_loss_low_mse = generator_mse_loss(fake_hic_l, imgl_filter)
-        gen_loss_low = gen_loss_low_ssim + gen_loss_low_mse
+        gen_loss_low = gen_loss_low_ssim # + gen_loss_low_mse
         gradients_of_generator_low = gen_tape_low.gradient(gen_loss_low, gen_low_v)
         opts[0].apply_gradients(zip(gradients_of_generator_low, gen_low_v))
         train_logs[0](gen_loss_low_ssim)
         train_logs[1](gen_loss_low_mse)
         #if(epoch_flag):
-        disc_generated_output = Dis([fake_hic_h, img_l_h], training=True)
+        disc_generated_output = Dis([fake_hic_h, img_l_h], training=False)
 
         gen_high_v = []
         gen_high_v += Gen.get_layer('Rech').trainable_variables
@@ -220,19 +220,39 @@ def train_step(Gen, Dis, imgl, imgr, loss_filter, opts, train_logs):
         gen_high_v += Gen.get_layer('C2DT2').trainable_variables
         #gen_high_v += Gen.get_layer('WR1Mh').trainable_variables
         gen_high_v += Gen.get_layer('Out_high').trainable_variables
-        gen_loss_high_0 = generator_ssim_loss(fake_hic_h, imgr_filter)
+        gen_loss_high_0 = generator_mse_loss(fake_hic_h, imgr_filter)
         gen_loss_high_1 = generator_KL_loss(disc_generated_output)
-        gen_loss_high = gen_loss_high_0# + gen_loss_high_1
+        gen_loss_high = gen_loss_high_0*10 + gen_loss_high_1
         gradients_of_generator_high = gen_tape_high.gradient(gen_loss_high, gen_high_v)
         opts[1].apply_gradients(zip(gradients_of_generator_high, gen_high_v))
         train_logs[2](gen_loss_high_0)
         train_logs[3](gen_loss_high_1)
 
-        disc_real_output = Dis([imgr_filter, img_l_h], training=True)
+        '''disc_real_output = Dis([imgr_filter, img_l_h], training=True)
         disc_loss = discriminator_KL_loss( disc_real_output, disc_generated_output)
         discriminator_gradients = disc_tape.gradient(disc_loss, Dis.trainable_variables)
         opts[2].apply_gradients(zip(discriminator_gradients, Dis.trainable_variables))
-        train_logs[4](disc_loss)
+        train_logs[4](disc_loss)'''
+
+@tf.function
+def train_step_discriminator(Gen, Dis, imgl, imgr, loss_filter, opts, train_logs):
+    with tf.GradientTape() as disc_tape:
+        fake_hic = Gen(imgl, training=False)
+        #fake_hic_l = fake_hic[0]
+        fake_hic_h = fake_hic[1]
+        img_l_h = fake_hic[2]
+        mfilter_high = tf.expand_dims(loss_filter[1], axis=0)
+        mfilter_high = tf.expand_dims(mfilter_high, axis=-1)
+        mfilter_high = tf.cast(mfilter_high, tf.float32)
+        fake_hic_h = tf.multiply(fake_hic_h, mfilter_high)
+        img_l_h = tf.multiply(img_l_h, mfilter_high)
+        imgr_filter = tf.multiply(imgr, mfilter_high)
+        disc_generated_output = Dis([fake_hic_h, img_l_h], training=True)
+        disc_real_output = Dis([imgr_filter, img_l_h], training=True)
+        disc_loss = discriminator_KL_loss( disc_real_output, disc_generated_output)
+        discriminator_gradients = disc_tape.gradient(disc_loss, Dis.trainable_variables)
+        opts[0].apply_gradients(zip(discriminator_gradients, Dis.trainable_variables))
+        train_logs[0](disc_loss)
 
 @tf.function
 def tracegraph(x, model):
@@ -242,13 +262,13 @@ def train(gen, dis, dataset, epochs, BATCH_SIZE):
     generator_optimizer_low = tf.keras.optimizers.Adam()
     generator_optimizer_high = tf.keras.optimizers.Adam()
     discriminator_optimizer = tf.keras.optimizers.Adagrad()
-    opts = [generator_optimizer_low, generator_optimizer_high, discriminator_optimizer]
+    opts = [generator_optimizer_low, generator_optimizer_high]# for generator#, discriminator_optimizer]
     generator_log_ssim_low = tf.keras.metrics.Mean('train_gen_low_ssim_loss', dtype=tf.float32)
     generator_log_mse_low = tf.keras.metrics.Mean('train_gen_low_mse_loss', dtype=tf.float32)
-    generator_log_ssim_high = tf.keras.metrics.Mean('train_gen_high_ssim_loss', dtype=tf.float32)
+    generator_log_ssim_high = tf.keras.metrics.Mean('train_gen_high_mse_loss', dtype=tf.float32)
     generator_log_kl_high = tf.keras.metrics.Mean('train_gen_high_KL_loss', dtype=tf.float32)
     discriminator_log = tf.keras.metrics.Mean('train_discriminator_loss', dtype=tf.float32)
-    logs = [generator_log_ssim_low, generator_log_mse_low, generator_log_ssim_high, generator_log_kl_high, discriminator_log]
+    logs = [generator_log_ssim_low, generator_log_mse_low, generator_log_ssim_high, generator_log_kl_high]# for generator, discriminator_log]
     current_time = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
     train_log_dir = 'logs/gradient_tape/' + current_time + '/generator'
     train_summary_G_writer = tf.summary.create_file_writer(train_log_dir)
@@ -274,21 +294,24 @@ def train(gen, dis, dataset, epochs, BATCH_SIZE):
     for epoch in range(epochs):
         start = time.time()
         for i, (low_m, high_m) in enumerate(dataset.take(3)):
-            train_step(
-                gen, dis,
-                tf.dtypes.cast(low_m, tf.float32), tf.dtypes.cast(high_m, tf.float32),
-                [loss_filter_low, loss_filter_high],
-                opts,
-                logs
-                )
+            train_step_generator(gen, dis, 
+                                tf.dtypes.cast(low_m, tf.float32), tf.dtypes.cast(high_m, tf.float32),
+                                [loss_filter_low, loss_filter_high],
+                                opts, logs)
+            if((epoch+1) % 20 >= 10):
+                train_step_discriminator(gen, dis, 
+                                tf.dtypes.cast(low_m, tf.float32), tf.dtypes.cast(high_m, tf.float32),
+                                [loss_filter_low, loss_filter_high],
+                                [discriminator_optimizer], [discriminator_log])
+
         # log the model epochs
         [demo_pred_low, demo_pred_high, demo_up] = gen(demo_input_low, training=False)
         demo_disc_generated = dis([demo_pred_high, demo_up], training=False)
         demo_disc_true = dis([demo_input_high, demo_up], training=False)
         with train_summary_G_writer.as_default():
-            tf.summary.scalar('loss_gen_low_ssim', generator_log_ssim_low.result(), step=epoch)
+            tf.summary.scalar('loss_gen_low_disssim', generator_log_ssim_low.result(), step=epoch)
             tf.summary.scalar('loss_gen_low_mse', generator_log_mse_low.result(), step=epoch)
-            tf.summary.scalar('loss_gen_high_ssim', generator_log_ssim_high.result(), step=epoch)
+            tf.summary.scalar('loss_gen_high_mse', generator_log_ssim_high.result(), step=epoch)
             tf.summary.scalar('loss_gen_high_kl', generator_log_kl_high.result(), step=epoch)
             mpy = demo_pred_low.numpy()
             m = np.log1p(100*np.squeeze(mpy[0,:,:,0]))
