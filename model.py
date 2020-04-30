@@ -275,7 +275,7 @@ def train(gen, dis, dataset, epochs, len_low_size, scale):
     with writer.as_default():
         tf.summary.trace_export(name="model_dis_trace", step=0, profiler_outdir=train_log_dir)
 
-    loss_filter_low = np.ones(shape=(len_low_size,len_low_size)) - np.diag(np.ones(shape=(len_low_size,)), k=0) - np.diag(np.ones(shape=(len_low_size-1,)), k=-1) - np.diag(np.ones(shape=(len_low_size,)), k=1)
+    loss_filter_low = np.ones(shape=(len_low_size,len_low_size)) - np.diag(np.ones(shape=(len_low_size,)), k=0) - np.diag(np.ones(shape=(len_low_size-1,)), k=-1) - np.diag(np.ones(shape=(len_low_size-1,)), k=1)
     loss_filter_high = np.ones(shape=(len_high_size,len_high_size)) - np.diag(np.ones(shape=(len_high_size,)), k=0) - np.diag(np.ones(shape=(len_high_size-1,)), k=-1) - np.diag(np.ones(shape=(len_high_size-1,)), k=1)
 
     [_, (demo_input_low, demo_input_high)] = next(enumerate(dataset.take(1)))
