@@ -2,6 +2,7 @@ import model
 import glob
 import imageio
 import time
+import datetime
 from IPython import display
 import matplotlib.pyplot as plt
 from iced import normalization
@@ -24,7 +25,7 @@ M = mat[idxy, :]
 Mh = M[:, idxy]
 print('MH: ', Mh.shape)
 scale = 4
-len_size = 64
+len_size = 128
 IMG_HEIGHT, IMG_WIDTH = int(Mh.shape[0]/scale), int(Mh.shape[1]/scale)
 img_l = np.zeros(shape=(IMG_HEIGHT, IMG_WIDTH))
 for i in list(range(0, len(Mh))):
@@ -51,9 +52,9 @@ Ml_d1 = list(map(lambda x: np.split(x, np.arange(block_width, Ml_w, block_width)
 hic_half_l = np.array(Ml_d1)
 hic_half_l = hic_half_l[0:-1,0:-1]
 print('hic_lr: ', hic_half_l.shape)
-for i in np.arange(hic_half_l.shape[0]):
-    for j in np.arange(i+1, hic_half_l.shape[1]):
-        hic_lr.append(np.block([[hic_half_l[i,i], hic_half_l[i,j]],[hic_half_l[j,i], hic_half_l[j,j]]]))
+for dis in np.arange(1, hic_half_l.shape[0]):
+    for i in np.arange(0, hic_half_l.shape[1]-dis):
+        hic_lr.append(np.block([[hic_half_l[i,i], hic_half_l[i,i+dis]],[hic_half_l[i+dis,i], hic_half_l[i+dis,i+dis]]]))
 print('len hic_lr: ', len(hic_lr))
 
 hic_hr = []
@@ -67,25 +68,45 @@ Mh_d1 = list(map(lambda x: np.split(x, np.arange(block_width, Mh_w, block_width)
 hic_half_h = np.array(Mh_d1)
 hic_half_h = hic_half_h[0:-1,0:-1]
 print('hic_hr: ', hic_half_h.shape)
-for i in np.arange(hic_half_h.shape[0]):
-    for j in np.arange(i+1, hic_half_h.shape[1]):
-        hic_hr.append(np.block([[hic_half_h[i,i], hic_half_h[i,j]],[hic_half_h[j,i], hic_half_h[j,j]]]))
+for dis in np.arange(1, hic_half_h.shape[0]):
+    for i in np.arange(0, hic_half_h.shape[1]-dis):
+        hic_hr.append(np.block([[hic_half_h[i,i], hic_half_h[i,i+dis]],[hic_half_h[i+dis,i], hic_half_h[i+dis,i+dis]]]))
 print('len hic_hr: ', len(hic_hr))
+
+'''plt.figure(figsize=(5,8))
+plt.subplot(2,3,1)
+plt.imshow(np.log2(hic_lr[0]))
+plt.subplot(2,3,2)
+plt.imshow(np.log2(hic_lr[1]))
+plt.subplot(2,3,3)
+plt.imshow(np.log2(hic_lr[2]))
+plt.subplot(2,3,4)
+plt.imshow(np.log2(hic_hr[0]))
+plt.subplot(2,3,5)
+plt.imshow(np.log2(hic_hr[1]))
+plt.subplot(2,3,6)
+plt.imshow(np.log2(hic_hr[2]))
+plt.show()'''
 
 EPOCHS = 1000
 BUFFER_SIZE = 1
-BATCH_SIZE = 3
-train_data = tf.data.Dataset.from_tensor_slices(
-    (hic_lr[..., np.newaxis], hic_hr[..., np.newaxis])).batch(BATCH_SIZE)
+BATCH_SIZE = 10
+len_low_size = 32
+scale = 4
 
-Gen = model.make_generator_model()
-Dis = model.make_discriminator_model()
+train_data = tf.data.Dataset.from_tensor_slices((hic_lr[..., np.newaxis], hic_hr[..., np.newaxis])).batch(BATCH_SIZE)
+
+Gen = model.make_generator_model(len_low_size=len_low_size, scale=scale)
+Dis = model.make_discriminator_model(len_low_size=len_low_size, scale=scale)
 print(Gen.summary())
 tf.keras.utils.plot_model(Gen, to_file='G.png', show_shapes=True)
 print(Dis.summary())
 tf.keras.utils.plot_model(Dis, to_file='D.png', show_shapes=True)
+current_time = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+Gen.save('./saved_model/'+current_time+'/gen_model') 
+Dis.save('./saved_model/'+current_time+'dis_model')
 
-model.train(Gen, Dis, train_data, EPOCHS, BATCH_SIZE)
+model.train(Gen, Dis, train_data, EPOCHS, len_low_size, scale)
 
 '''anim_file = 'gan.gif'
 with imageio.get_writer(anim_file, mode='I') as writer:

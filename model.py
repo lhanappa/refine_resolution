@@ -83,39 +83,32 @@ def downsample(filters, size, apply_batchnorm=True):
 def make_generator_model(len_low_size=16, scale=4):
     In = tf.keras.layers.Input(
         shape=(len_low_size, len_low_size, 1), name='In', dtype=tf.float32)
-    Decl = tf.keras.layers.Conv2D(32, [1, len_low_size], strides=1, padding='valid', data_format="channels_last", activation='relu', use_bias=False,
+    Decl = tf.keras.layers.Conv2D(1024, [1, len_low_size], strides=1, padding='valid', data_format="channels_last", activation='relu', use_bias=False,
                                   kernel_constraint=tf.keras.constraints.NonNeg(), kernel_initializer=tf.keras.initializers.RandomNormal(mean=0.01, stddev=0.1),  name='Decl')(In)
 
     WeiR1Ml = Weight_R1M(name='WR1Ml')(Decl)
-    Recl = Reconstruct_R1M(32, name='Recl')(WeiR1Ml)
+    Recl = Reconstruct_R1M(1024, name='Recl')(WeiR1Ml)
     Suml = Sum_R1M(name='Suml')(Recl)
     low_out = Normal(len_low_size, name='Out_low')(Suml)
 
-    up_o = tf.keras.layers.UpSampling2D(
-        size=(4, 4), data_format='channels_last', name='Upo')(In)
+    up_o = tf.keras.layers.UpSampling2D(size=(4, 4), data_format='channels_last', name='Upo')(In)
     m_F = tf.constant(1/16.0, shape=(1, 1, 1, 1))
     up_o = tf.keras.layers.Multiply()([up_o, m_F])
 
-    up_1 = tf.keras.layers.UpSampling2D(
-        size=(4, 1), data_format='channels_last', name='UpSample')(WeiR1Ml)
+    up_1 = tf.keras.layers.UpSampling2D(size=(4, 1), data_format='channels_last', name='UpSample')(WeiR1Ml)
     m_F = tf.constant(1/4.0, shape=(1, 1, 1, 1))
     up_1 = tf.keras.layers.Multiply()([up_1, m_F])
-    #trans_1 = tf.keras.layers.Conv2D(filters=128, kernel_size=(17,1), strides=(1,1), padding='same', data_format="channels_last", activation='relu', use_bias=True, name='C2DT1')(up_1)
-    #trans_2 = tf.keras.layers.Conv2DTranspose(filters=16, kernel_size=(5,1), strides=(2,1), padding='same', data_format="channels_last", activation='relu', use_bias=False, kernel_constraint=tf.keras.constraints.NonNeg(), name='C2DT2')(trans_1)
-    Rech = Reconstruct_R1M(32, name='Rech')(up_1)
-    trans_1 = tf.keras.layers.Conv2DTranspose(filters=64, kernel_size=(5,5),
-    strides=(1,1), padding='same',
-    data_format="channels_last",
-    activation='relu', use_bias=True, name='C2DT1')(Rech)
+    Rech = Reconstruct_R1M(1024, name='Rech')(up_1)
+    trans_1 = tf.keras.layers.Conv2DTranspose(  filters=64, kernel_size=(3,3),
+                                                strides=(1,1), padding='same',
+                                                data_format="channels_last",
+                                                activation='relu', use_bias=False, name='C2DT1')(Rech)
     batchnorm_1 = tf.keras.layers.BatchNormalization()(trans_1)
-    trans_2 = tf.keras.layers.Conv2DTranspose(filters=64, kernel_size=(3,3),
-    strides=(1,1), padding='same',
-    data_format="channels_last",
-    activation='relu', use_bias=True, name='C2DT2')(batchnorm_1)
-    # DepthwiseConv2D or SeparableConv2D https://eli.thegreenplace.net/2018/depthwise-separable-convolutions-for-machine-learning/
-    #trans_1_1 = tf.keras.layers.DepthwiseConv2D(kernel_size=(3, 3), strides=(1, 1), padding='same', data_format="channels_last", activation='relu', use_bias=True, name='C2DT1_1')(Rech)
-    #Concat = tf.keras.layers.concatenate([trans_1_1, trans_1_2])
-    #WeiR1Mh = Weight_R1M(name='WR1Mh')(trans_1_1)
+    trans_2 = tf.keras.layers.Conv2DTranspose(  filters=64, kernel_size=(5,5),
+                                                strides=(1,1), padding='same',
+                                                data_format="channels_last",
+                                                activation='relu', use_bias=True, name='C2DT2')(batchnorm_1)
+    
     Sumh = Sum_R1M(name='Sumh')(trans_2)
     high_out = Normal(int(len_low_size*scale), name='Out_high')(Sumh)
 
@@ -152,21 +145,10 @@ def discriminator_KL_loss(real_output, fake_output):
     total_disc_loss = real_loss + generated_loss
     return total_disc_loss
 
-
 def generator_ssim_loss(y_pred, y_true):#, m_filter):
-    '''mfilter = tf.expand_dims(m_filter, axis=0)
-    mfilter = tf.expand_dims(m_filter, axis=-1)
-    mfilter = tf.cast(mfilter, tf.float32)
-    y_pred = tf.multiply(y_pred, mfilter)
-    y_true = tf.multiply(y_true, mfilter)'''
     return (1 - tf.image.ssim(y_pred, y_true, max_val=1.0))/2.0
 
 def generator_mse_loss(y_pred, y_true):#, m_filter):
-    '''mfilter = tf.expand_dims(m_filter, axis=0)
-    mfilter = tf.expand_dims(m_filter, axis=-1)
-    mfilter = tf.cast(mfilter, tf.float32)
-    y_pred = tf.multiply(y_pred, mfilter)
-    y_true = tf.multiply(y_true, mfilter)'''
     diff = tf.math.squared_difference(y_pred, y_true)
     s = tf.reduce_sum(diff, axis=-1)
     s = tf.reduce_sum(s, axis=-1)
@@ -219,8 +201,7 @@ def train_step_generator(Gen, Dis, imgl, imgr, loss_filter, opts, train_logs):
         gen_high_v = []
         gen_high_v += Gen.get_layer('Rech').trainable_variables
         gen_high_v += Gen.get_layer('C2DT1').trainable_variables
-        gen_high_v += Gen.get_layer('C2DT2').trainable_variables
-        #gen_high_v += Gen.get_layer('WR1Mh').trainable_variables
+        gen_high_v += Gen.get_layer('C2DT2').trainable_variables        
         gen_high_v += Gen.get_layer('Out_high').trainable_variables
         gen_loss_high_0 = generator_mse_loss(fake_hic_h, imgr_filter)
         gen_loss_high_1 = generator_KL_loss(disc_generated_output)
@@ -260,7 +241,8 @@ def train_step_discriminator(Gen, Dis, imgl, imgr, loss_filter, opts, train_logs
 def tracegraph(x, model):
     return model(x)
 
-def train(gen, dis, dataset, epochs, BATCH_SIZE):
+def train(gen, dis, dataset, epochs, len_low_size, scale):
+    len_high_size = int(len_low_size*scale)
     generator_optimizer_low = tf.keras.optimizers.Adam()
     generator_optimizer_high = tf.keras.optimizers.Adam()
     discriminator_optimizer = tf.keras.optimizers.Adagrad()
@@ -281,26 +263,26 @@ def train(gen, dis, dataset, epochs, BATCH_SIZE):
     writer = tf.summary.create_file_writer(train_log_dir)
     tf.summary.trace_on(graph=True, profiler=False)
     # Forward pass
-    tracegraph(tf.zeros((1, 128, 128, 1)), gen)
+    tracegraph(tf.zeros((1, len_low_size, len_low_size, 1)), gen)
     with writer.as_default():
         tf.summary.trace_export(name="model_gen_trace", step=0, profiler_outdir=train_log_dir)
     tf.summary.trace_on(graph=True, profiler=False)
-    tracegraph([tf.zeros((1, 512, 512, 1)), tf.zeros((1,512,512,1))], dis)
+    tracegraph([tf.zeros((1, len_high_size, len_high_size, 1)), tf.zeros((1,len_high_size,len_high_size,1))], dis)
     with writer.as_default():
         tf.summary.trace_export(name="model_dis_trace", step=0, profiler_outdir=train_log_dir)
 
-    loss_filter_low = np.ones(shape=(128,128)) - np.diag(np.ones(shape=(128,)), k=0) - np.diag(np.ones(shape=(127,)), k=-1) - np.diag(np.ones(shape=(127,)), k=1)
-    loss_filter_high = np.ones(shape=(512,512)) - np.diag(np.ones(shape=(512,)), k=0) - np.diag(np.ones(shape=(511,)), k=-1) - np.diag(np.ones(shape=(511,)), k=1)
+    loss_filter_low = np.ones(shape=(len_low_size,len_low_size)) - np.diag(np.ones(shape=(len_low_size,)), k=0) - np.diag(np.ones(shape=(len_low_size-1,)), k=-1) - np.diag(np.ones(shape=(len_low_size,)), k=1)
+    loss_filter_high = np.ones(shape=(len_high_size,len_high_size)) - np.diag(np.ones(shape=(len_high_size,)), k=0) - np.diag(np.ones(shape=(len_high_size-1,)), k=-1) - np.diag(np.ones(shape=(len_high_size-1,)), k=1)
 
     [_, (demo_input_low, demo_input_high)] = next(enumerate(dataset.take(1)))
     for epoch in range(epochs):
         start = time.time()
-        for i, (low_m, high_m) in enumerate(dataset.take(3)):
+        for i, (low_m, high_m) in enumerate(dataset):
             train_step_generator(gen, dis, 
                                 tf.dtypes.cast(low_m, tf.float32), tf.dtypes.cast(high_m, tf.float32),
                                 [loss_filter_low, loss_filter_high],
                                 opts, logs)
-            if((epoch+1) % 20 >= 10):
+            if((epoch+1) % 2):
                 train_step_discriminator(gen, dis, 
                                 tf.dtypes.cast(low_m, tf.float32), tf.dtypes.cast(high_m, tf.float32),
                                 [loss_filter_low, loss_filter_high],
@@ -368,8 +350,8 @@ def plot_to_image(figure):
     return image
 
 if __name__ == '__main__':
-    Gen = make_generator_model()
-    Dis = make_discriminator_model()
+    Gen = make_generator_model(len_low_size=32, scale=4)
+    Dis = make_discriminator_model(len_low_size=32, scale=4)
     print(Gen.summary())
     tf.keras.utils.plot_model(Gen, to_file='G.png', show_shapes=True)
     print(Dis.summary())
