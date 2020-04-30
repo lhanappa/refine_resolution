@@ -80,16 +80,16 @@ def downsample(filters, size, apply_batchnorm=True):
     return result
 
 
-def make_generator_model():
+def make_generator_model(len_low_size=16, scale=4):
     In = tf.keras.layers.Input(
-        shape=(128, 128, 1), name='In', dtype=tf.float32)
-    Decl = tf.keras.layers.Conv2D(32, [1, 128], strides=1, padding='valid', data_format="channels_last", activation='relu', use_bias=False,
+        shape=(len_low_size, len_low_size, 1), name='In', dtype=tf.float32)
+    Decl = tf.keras.layers.Conv2D(32, [1, len_low_size], strides=1, padding='valid', data_format="channels_last", activation='relu', use_bias=False,
                                   kernel_constraint=tf.keras.constraints.NonNeg(), kernel_initializer=tf.keras.initializers.RandomNormal(mean=0.01, stddev=0.1),  name='Decl')(In)
 
     WeiR1Ml = Weight_R1M(name='WR1Ml')(Decl)
     Recl = Reconstruct_R1M(32, name='Recl')(WeiR1Ml)
     Suml = Sum_R1M(name='Suml')(Recl)
-    low_out = Normal(128, name='Out_low')(Suml)
+    low_out = Normal(len_low_size, name='Out_low')(Suml)
 
     up_o = tf.keras.layers.UpSampling2D(
         size=(4, 4), data_format='channels_last', name='Upo')(In)
@@ -107,26 +107,28 @@ def make_generator_model():
     strides=(1,1), padding='same',
     data_format="channels_last",
     activation='relu', use_bias=True, name='C2DT1')(Rech)
-    trans_2 = tf.keras.layers.Conv2DTranspose(filters=64, kernel_size=(5,5),
+    batchnorm_1 = tf.keras.layers.BatchNormalization()(trans_1)
+    trans_2 = tf.keras.layers.Conv2DTranspose(filters=64, kernel_size=(3,3),
     strides=(1,1), padding='same',
     data_format="channels_last",
-    activation='relu', use_bias=True, name='C2DT2')(trans_1)
+    activation='relu', use_bias=True, name='C2DT2')(batchnorm_1)
     # DepthwiseConv2D or SeparableConv2D https://eli.thegreenplace.net/2018/depthwise-separable-convolutions-for-machine-learning/
     #trans_1_1 = tf.keras.layers.DepthwiseConv2D(kernel_size=(3, 3), strides=(1, 1), padding='same', data_format="channels_last", activation='relu', use_bias=True, name='C2DT1_1')(Rech)
     #Concat = tf.keras.layers.concatenate([trans_1_1, trans_1_2])
     #WeiR1Mh = Weight_R1M(name='WR1Mh')(trans_1_1)
     Sumh = Sum_R1M(name='Sumh')(trans_2)
-    high_out = Normal(512, name='Out_high')(Sumh)
+    high_out = Normal(int(len_low_size*scale), name='Out_high')(Sumh)
 
     model = tf.keras.models.Model(
         inputs=[In], outputs=[low_out, high_out, up_o])
     return model
 
 
-def make_discriminator_model():
+def make_discriminator_model(len_low_size=16, scale=4):
+    len_high_size = int(len_low_size*scale)
     initializer = tf.random_normal_initializer(0., 0.02)
-    inp = tf.keras.layers.Input(shape=[512, 512, 1], name='input_image')
-    tar = tf.keras.layers.Input(shape=[512, 512, 1], name='target_image')
+    inp = tf.keras.layers.Input(shape=[len_high_size, len_high_size, 1], name='input_image')
+    tar = tf.keras.layers.Input(shape=[len_high_size, len_high_size, 1], name='target_image')
     x = tf.keras.layers.concatenate([inp, tar])
     down1 = downsample(64, 4, False)(x)
     down2 = downsample(128, 4)(down1)
@@ -136,12 +138,12 @@ def make_discriminator_model():
                                   kernel_initializer=initializer,
                                   use_bias=False)(zero_pad1)
 
-    '''batchnorm1 = tf.keras.layers.BatchNormalization()(conv)
+    batchnorm1 = tf.keras.layers.BatchNormalization()(conv)
     leaky_relu = tf.keras.layers.LeakyReLU()(batchnorm1)
     zero_pad2 = tf.keras.layers.ZeroPadding2D()(leaky_relu)
     last = tf.keras.layers.Conv2D(1, 4, strides=1,
-                                    kernel_initializer=initializer)(zero_pad2)'''
-    return tf.keras.Model(inputs=[inp, tar], outputs=conv)
+                                    kernel_initializer=initializer)(zero_pad2)
+    return tf.keras.Model(inputs=[inp, tar], outputs=last)
 
 def discriminator_KL_loss(real_output, fake_output):
     loss_object = tf.keras.losses.BinaryCrossentropy(from_logits=True)
@@ -371,5 +373,6 @@ if __name__ == '__main__':
     print(Gen.summary())
     tf.keras.utils.plot_model(Gen, to_file='G.png', show_shapes=True)
     print(Dis.summary())
+    tf.keras.utils.plot_model(Dis, to_file='D.png', show_shapes=True)
 
-    train(Gen, Dis, None, 0, 3)
+    #train(Gen, Dis, None, 0, 3)
