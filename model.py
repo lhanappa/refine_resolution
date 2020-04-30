@@ -82,23 +82,26 @@ def downsample(filters, size, apply_batchnorm=True):
 
 def make_generator_model(len_low_size=16, scale=4):
     In = tf.keras.layers.Input(
-        shape=(len_low_size, len_low_size, 1), name='In', dtype=tf.float32)
-    Decl = tf.keras.layers.Conv2D(1024, [1, len_low_size], strides=1, padding='valid', data_format="channels_last", activation='relu', use_bias=False,
-                                  kernel_constraint=tf.keras.constraints.NonNeg(), kernel_initializer=tf.keras.initializers.RandomNormal(mean=0.01, stddev=0.1),  name='Decl')(In)
+        shape=(len_low_size, len_low_size, 1), name='in', dtype=tf.float32)
+    Decl = tf.keras.layers.Conv2D(1024, [1, len_low_size], strides=1, padding='valid', data_format="channels_last", 
+                                    activation='relu', use_bias=False,
+                                    kernel_constraint=tf.keras.constraints.NonNeg(), 
+                                    kernel_initializer=tf.keras.initializers.RandomNormal(mean=0.01, stddev=0.1), 
+                                    name='dec_low')(In)
 
     WeiR1Ml = Weight_R1M(name='WR1Ml')(Decl)
-    Recl = Reconstruct_R1M(1024, name='Recl')(WeiR1Ml)
-    Suml = Sum_R1M(name='Suml')(Recl)
-    low_out = Normal(len_low_size, name='Out_low')(Suml)
+    Recl = Reconstruct_R1M(1024, name='rec_low')(WeiR1Ml)
+    Suml = Sum_R1M(name='sum_low')(Recl)
+    low_out = Normal(len_low_size, name='out_low')(Suml)
 
-    up_o = tf.keras.layers.UpSampling2D(size=(4, 4), data_format='channels_last', name='Upo')(In)
+    up_o = tf.keras.layers.UpSampling2D(size=(4, 4), data_format='channels_last', name='up_in')(In)
     m_F = tf.constant(1/16.0, shape=(1, 1, 1, 1))
-    up_o = tf.keras.layers.Multiply()([up_o, m_F])
+    up_o = tf.keras.layers.Multiply(name='scale_value_in')([up_o, m_F])
 
-    up_1 = tf.keras.layers.UpSampling2D(size=(4, 1), data_format='channels_last', name='UpSample')(WeiR1Ml)
+    up_1 = tf.keras.layers.UpSampling2D(size=(4, 1), data_format='channels_last', name='upsample_low')(WeiR1Ml)
     m_F = tf.constant(1/4.0, shape=(1, 1, 1, 1))
-    up_1 = tf.keras.layers.Multiply()([up_1, m_F])
-    Rech = Reconstruct_R1M(1024, name='Rech')(up_1)
+    up_1 = tf.keras.layers.Multiply(name='scale_value_high')([up_1, m_F])
+    Rech = Reconstruct_R1M(1024, name='rec_high')(up_1)
     trans_1 = tf.keras.layers.Conv2DTranspose(  filters=64, kernel_size=(3,3),
                                                 strides=(1,1), padding='same',
                                                 data_format="channels_last",
@@ -109,8 +112,8 @@ def make_generator_model(len_low_size=16, scale=4):
                                                 data_format="channels_last",
                                                 activation='relu', use_bias=True, name='C2DT2')(batchnorm_1)
     
-    Sumh = Sum_R1M(name='Sumh')(trans_2)
-    high_out = Normal(int(len_low_size*scale), name='Out_high')(Sumh)
+    Sumh = Sum_R1M(name='sum_high')(trans_2)
+    high_out = Normal(int(len_low_size*scale), name='out_high')(Sumh)
 
     model = tf.keras.models.Model(
         inputs=[In], outputs=[low_out, high_out, up_o])
@@ -183,14 +186,14 @@ def train_step_generator(Gen, Dis, imgl, imgr, loss_filter, opts, train_logs):
         imgr_filter = tf.multiply(imgr, mfilter_high)
         #gen_low_v = Gen.trainable_variables
         gen_low_v = []
-        gen_low_v += Gen.get_layer('Decl').trainable_variables
+        gen_low_v += Gen.get_layer('dec_low').trainable_variables
         gen_low_v += Gen.get_layer('WR1Ml').trainable_variables
-        gen_low_v += Gen.get_layer('Recl').trainable_variables
-        gen_low_v += Gen.get_layer('Out_low').trainable_variables
+        gen_low_v += Gen.get_layer('rec_low').trainable_variables
+        gen_low_v += Gen.get_layer('out_low').trainable_variables
 
         gen_loss_low_ssim = generator_ssim_loss(fake_hic_l, imgl_filter)
         gen_loss_low_mse = generator_mse_loss(fake_hic_l, imgl_filter)
-        gen_loss_low = gen_loss_low_ssim # + gen_loss_low_mse
+        gen_loss_low = gen_loss_low_ssim + gen_loss_low_mse
         gradients_of_generator_low = gen_tape_low.gradient(gen_loss_low, gen_low_v)
         opts[0].apply_gradients(zip(gradients_of_generator_low, gen_low_v))
         train_logs[0](gen_loss_low_ssim)
@@ -199,10 +202,11 @@ def train_step_generator(Gen, Dis, imgl, imgr, loss_filter, opts, train_logs):
         disc_generated_output = Dis([fake_hic_h, img_l_h], training=False)
 
         gen_high_v = []
-        gen_high_v += Gen.get_layer('Rech').trainable_variables
+        gen_high_v += Gen.get_layer('rec_high').trainable_variables
         gen_high_v += Gen.get_layer('C2DT1').trainable_variables
-        gen_high_v += Gen.get_layer('C2DT2').trainable_variables        
-        gen_high_v += Gen.get_layer('Out_high').trainable_variables
+        gen_high_v += Gen.get_layer('batch_normalization').trainable_variables
+        gen_high_v += Gen.get_layer('C2DT2').trainable_variables
+        gen_high_v += Gen.get_layer('out_high').trainable_variables
         gen_loss_high_0 = generator_mse_loss(fake_hic_h, imgr_filter)
         gen_loss_high_1 = generator_KL_loss(disc_generated_output)
         gen_loss_high = gen_loss_high_0*10 + gen_loss_high_1
@@ -249,10 +253,10 @@ def train(gen, dis, dataset, epochs, len_low_size, scale):
     opts = [generator_optimizer_low, generator_optimizer_high]# for generator#, discriminator_optimizer]
     generator_log_ssim_low = tf.keras.metrics.Mean('train_gen_low_ssim_loss', dtype=tf.float32)
     generator_log_mse_low = tf.keras.metrics.Mean('train_gen_low_mse_loss', dtype=tf.float32)
-    generator_log_ssim_high = tf.keras.metrics.Mean('train_gen_high_mse_loss', dtype=tf.float32)
+    generator_log_mse_high = tf.keras.metrics.Mean('train_gen_high_mse_loss', dtype=tf.float32)
     generator_log_kl_high = tf.keras.metrics.Mean('train_gen_high_KL_loss', dtype=tf.float32)
     discriminator_log = tf.keras.metrics.Mean('train_discriminator_loss', dtype=tf.float32)
-    logs = [generator_log_ssim_low, generator_log_mse_low, generator_log_ssim_high, generator_log_kl_high]# for generator, discriminator_log]
+    logs = [generator_log_ssim_low, generator_log_mse_low, generator_log_mse_high, generator_log_kl_high]# for generator, discriminator_log]
     current_time = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
     train_log_dir = 'logs/gradient_tape/' + current_time + '/generator'
     train_summary_G_writer = tf.summary.create_file_writer(train_log_dir)
@@ -295,7 +299,7 @@ def train(gen, dis, dataset, epochs, len_low_size, scale):
         with train_summary_G_writer.as_default():
             tf.summary.scalar('loss_gen_low_disssim', generator_log_ssim_low.result(), step=epoch)
             tf.summary.scalar('loss_gen_low_mse', generator_log_mse_low.result(), step=epoch)
-            tf.summary.scalar('loss_gen_high_mse', generator_log_ssim_high.result(), step=epoch)
+            tf.summary.scalar('loss_gen_high_mse', generator_log_mse_high.result(), step=epoch)
             tf.summary.scalar('loss_gen_high_kl', generator_log_kl_high.result(), step=epoch)
             mpy = demo_pred_low.numpy()
             m = np.log1p(100*np.squeeze(mpy[0,:,:,0]))
