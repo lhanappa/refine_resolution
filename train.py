@@ -88,12 +88,13 @@ plt.subplot(2,3,6)
 plt.imshow(np.log2(hic_hr[2]))
 plt.show()'''
 
-EPOCHS = 1000
+EPOCHS = 1
 BUFFER_SIZE = 1
 BATCH_SIZE = 10
 len_low_size = 32
 scale = 4
-
+hic_lr = np.array(hic_lr)
+hic_hr = np.array(hic_hr)
 train_data = tf.data.Dataset.from_tensor_slices((hic_lr[..., np.newaxis], hic_hr[..., np.newaxis])).batch(BATCH_SIZE)
 
 Gen = model.make_generator_model(len_low_size=len_low_size, scale=scale)
