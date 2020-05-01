@@ -67,6 +67,14 @@ class Normal(tf.keras.layers.Layer):
         #return tf.add(tf.multiply(Div, M), opd)
         return tf.multiply(Div, M)
 
+class symmetry_constraints(tf.keras.constraints):
+    def __init__(self, max_value=2, axis=0):
+        pass
+
+    def __call__(self, w): 
+        #for conv2d the shape of kernel = [W, H, C, K] C:channels, K:output number of filters
+        Tw = tf.transpose(w, perm=[1,0,2,3])
+        return (w + Tw)/2.0
 
 def downsample(filters, size, apply_batchnorm=True):
     initializer = tf.random_normal_initializer(0., 0.02)
@@ -105,11 +113,13 @@ def make_generator_model(len_low_size=16, scale=4):
     trans_1 = tf.keras.layers.Conv2DTranspose(  filters=64, kernel_size=(3,3),
                                                 strides=(1,1), padding='same',
                                                 data_format="channels_last",
+                                                kernel_constraint=symmetry_constraints(), 
                                                 activation='relu', use_bias=False, name='C2DT1')(Rech)
     batchnorm_1 = tf.keras.layers.BatchNormalization()(trans_1)
     trans_2 = tf.keras.layers.Conv2DTranspose(  filters=64, kernel_size=(5,5),
                                                 strides=(1,1), padding='same',
                                                 data_format="channels_last",
+                                                kernel_constraint=symmetry_constraints(),
                                                 activation='relu', use_bias=True, name='C2DT2')(batchnorm_1)
     
     Sumh = Sum_R1M(name='sum_high')(trans_2)
