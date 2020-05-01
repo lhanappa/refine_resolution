@@ -77,7 +77,10 @@ def downsample(filters, size, apply_batchnorm=True):
     initializer = tf.random_normal_initializer(0., 0.02)
     result = tf.keras.Sequential()
     result.add(
-        tf.keras.layers.Conv2D(filters, size, strides=2, padding='same', kernel_initializer=initializer, use_bias=False))
+        tf.keras.layers.Conv2D(filters, size, strides=2, padding='same', 
+                                kernel_initializer=initializer, 
+                                kennel_constraint=symmetry_constraints(), 
+                                use_bias=False))
     if apply_batchnorm:
         result.add(tf.keras.layers.BatchNormalization())
     result.add(tf.keras.layers.LeakyReLU())
@@ -139,12 +142,14 @@ def make_discriminator_model(len_low_size=16, scale=4):
     zero_pad1 = tf.keras.layers.ZeroPadding2D()(down2)
     conv = tf.keras.layers.Conv2D(1, 4, strides=1,
                                   kernel_initializer=initializer,
+                                  kennel_constraint=symmetry_constraints(), 
                                   use_bias=False)(zero_pad1)
 
     batchnorm1 = tf.keras.layers.BatchNormalization()(conv)
     leaky_relu = tf.keras.layers.LeakyReLU()(batchnorm1)
     zero_pad2 = tf.keras.layers.ZeroPadding2D()(leaky_relu)
     last = tf.keras.layers.Conv2D(1, 4, strides=1,
+                                    kennel_constraint=symmetry_constraints(), 
                                     kernel_initializer=initializer)(zero_pad2)
     return tf.keras.Model(inputs=[inp, tar], outputs=last)
 
@@ -347,10 +352,10 @@ def train(gen, dis, dataset, epochs, len_low_size, scale, test_dataset=None):
 def plot_matrix(m):
     import numpy as np
     import matplotlib.pyplot as plt
-    figure = plt.figure(figsize=(6,6))
+    figure = plt.figure(figsize=(10,10))
     if len(m.shape)==3:
-        for i in range(m.shape[0]):
-            ax = figure.add_subplot(4,4,i+1)
+        for i in range(min(9, m.shape[0])):
+            ax = figure.add_subplot(3,3,i+1)
             ax.matshow(np.squeeze(m[i,:,:]), cmap='RdBu_r')
         plt.tight_layout()
     else:
