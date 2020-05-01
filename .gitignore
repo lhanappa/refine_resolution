@@ -12,3 +12,4 @@ model.pyc
 slurm*.out
 tf*.log
 *.out
+saved_model/*

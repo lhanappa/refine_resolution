@@ -225,7 +225,7 @@ def train_step_generator(Gen, Dis, imgl, imgr, loss_filter, opts, train_logs):
         gen_high_v += Gen.get_layer('out_high').trainable_variables
         gen_loss_high_0 = generator_mse_loss(fake_hic_h, imgr_filter)
         gen_loss_high_1 = generator_KL_loss(disc_generated_output)
-        gen_loss_high = gen_loss_high_0*100 + gen_loss_high_1
+        gen_loss_high = gen_loss_high_0*20 + gen_loss_high_1
         gradients_of_generator_high = gen_tape_high.gradient(gen_loss_high, gen_high_v)
         opts[1].apply_gradients(zip(gradients_of_generator_high, gen_high_v))
         train_logs[2](gen_loss_high_0)
