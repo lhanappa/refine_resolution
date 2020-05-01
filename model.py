@@ -275,13 +275,13 @@ def train(gen, dis, dataset, epochs, len_low_size, scale, test_dataset=None):
     with test_writer.as_default():
         [_, (test_input_low, test_input_high)] = next(enumerate(test_dataset.take(1)))
         mpy = test_input_low.numpy()
-        m = np.squeeze(mpy[:,:,:,0])
+        m = np.log1p(100*np.squeeze(mpy[:,:,:,0]))
         fig = plot_matrix(m)
         images = plot_to_image(fig)
         #images = np.reshape(test_input_low[0:16], (-1, 32, 32, 1))
         tf.summary.image("16 training data low examples", images, max_outputs=16, step=0)
         mpy = test_input_high.numpy()
-        m = np.squeeze(mpy[:,:,:,0])
+        m = np.log1p(100*np.squeeze(mpy[:,:,:,0]))
         fig = plot_matrix(m)
         images = plot_to_image(fig)
         #images = np.reshape(test_input_high[0:16], (-1, 128, 128, 1))
@@ -345,7 +345,6 @@ def plot_matrix(m):
         for i in range(m.shape[0]):
             ax = figure.add_subplot(4,4,i+1)
             ax.matshow(np.squeeze(m[i,:,:]), cmap='RdBu_r')
-            ax.colorbar()
         plt.tight_layout()
     else:
         plt.matshow(m, cmap='RdBu_r')
