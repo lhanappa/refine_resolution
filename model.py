@@ -257,7 +257,7 @@ def train(gen, dis, dataset, epochs, len_low_size, scale, test_dataset=None):
     train_summary_G_writer = tf.summary.create_file_writer(train_log_dir)
     train_log_dir = 'logs/gradient_tape/' + current_time + '/discriminator'
     train_summary_D_writer = tf.summary.create_file_writer(train_log_dir)
-    test_log_dir = 'logs/gradient_tape/' + current_time + './test'
+    test_log_dir = 'logs/gradient_tape/' + current_time + '/test'
     test_writer = tf.summary.create_file_writer(test_log_dir)
 
     train_log_dir = 'logs/gradient_tape/' + current_time + '/model'
