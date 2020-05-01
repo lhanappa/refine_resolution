@@ -343,9 +343,9 @@ def plot_matrix(m):
     figure = plt.figure(figsize=(6,6))
     if len(m.shape)==3:
         for i in range(m.shape[0]):
-            plt.subplot(4,4,i+1)
-            plt.matshow(np.squeeze(m[i,:,:]), cmap='RdBu_r')
-            plt.colorbar()
+            ax = figure.add_subplot(4,4,i+1)
+            ax.matshow(np.squeeze(m[i,:,:]), cmap='RdBu_r')
+            ax.colorbar()
         plt.tight_layout()
     else:
         plt.matshow(m, cmap='RdBu_r')
