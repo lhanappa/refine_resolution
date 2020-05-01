@@ -325,12 +325,12 @@ def train(gen, dis, dataset, epochs, len_low_size, scale, test_dataset=None):
         with train_summary_D_writer.as_default():
             tf.summary.scalar('loss_dis', discriminator_log.result(), step=epoch)
             mpy = demo_disc_generated.numpy()
-            m = np.squeeze(mpy[:,:,:,0], axis=-1)
+            m = np.squeeze(mpy[:,:,:,0])
             fig = plot_matrix(m)
             image = plot_to_image(fig)
             tf.summary.image(name='dis_gen', data=image, step=epoch)
             mpy = demo_disc_true.numpy()
-            m = np.squeeze(mpy[:,:,:,0], axis=-1)
+            m = np.squeeze(mpy[:,:,:,0])
             fig = plot_matrix(m)
             image = plot_to_image(fig)
             tf.summary.image(name='dis_true', data=image, step=epoch)
@@ -341,11 +341,16 @@ def plot_matrix(m):
     import numpy as np
     import matplotlib.pyplot as plt
     figure = plt.figure(figsize=(6,6))
-    for i in range(m.shape[0]):
-        plt.subplot(4,4,i)
+    if len(m.shape)==3:
+        for i in range(m.shape[0]):
+            plt.subplot(4,4,i)
+            plt.matshow(np.squeeze(m[i,:,:]), cmap='RdBu_r')
+            plt.colorbar()
+        plt.tight_layout()
+    else:
         plt.matshow(m, cmap='RdBu_r')
         plt.colorbar()
-    plt.tight_layout()
+        plt.tight_layout()
     return figure
 
 def plot_to_image(figure):
