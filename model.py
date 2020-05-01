@@ -272,7 +272,7 @@ def train(gen, dis, dataset, epochs, len_low_size, scale, test_dataset=None):
     with writer.as_default():
         tf.summary.trace_export(name="model_dis_trace", step=0, profiler_outdir=train_log_dir)
 
-    with test_log_dir.as_default():
+    with test_writer.as_default():
         [_, (test_input_low, test_input_high)] = next(enumerate(test_dataset.take(1)))
         mpy = test_input_low.numpy()
         m = np.squeeze(mpy[:,:,:,0], axis=-1)
