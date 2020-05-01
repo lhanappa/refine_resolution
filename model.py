@@ -215,11 +215,6 @@ def train_step_generator(Gen, Dis, imgl, imgr, loss_filter, opts, train_logs):
         train_logs[2](gen_loss_high_0)
         train_logs[3](gen_loss_high_1)
 
-        '''disc_real_output = Dis([imgr_filter, img_l_h], training=True)
-        disc_loss = discriminator_KL_loss( disc_real_output, disc_generated_output)
-        discriminator_gradients = disc_tape.gradient(disc_loss, Dis.trainable_variables)
-        opts[2].apply_gradients(zip(discriminator_gradients, Dis.trainable_variables))
-        train_logs[4](disc_loss)'''
 
 @tf.function
 def train_step_discriminator(Gen, Dis, imgl, imgr, loss_filter, opts, train_logs):
@@ -245,7 +240,7 @@ def train_step_discriminator(Gen, Dis, imgl, imgr, loss_filter, opts, train_logs
 def tracegraph(x, model):
     return model(x)
 
-def train(gen, dis, dataset, epochs, len_low_size, scale):
+def train(gen, dis, dataset, epochs, len_low_size, scale, test_dataset=None):
     len_high_size = int(len_low_size*scale)
     generator_optimizer_low = tf.keras.optimizers.Adam()
     generator_optimizer_high = tf.keras.optimizers.Adam()
@@ -262,6 +257,8 @@ def train(gen, dis, dataset, epochs, len_low_size, scale):
     train_summary_G_writer = tf.summary.create_file_writer(train_log_dir)
     train_log_dir = 'logs/gradient_tape/' + current_time + '/discriminator'
     train_summary_D_writer = tf.summary.create_file_writer(train_log_dir)
+    test_log_dir = 'logs/gradient_tape/' + current_time + './test'
+    test_writer = tf.summary.create_file_writer(test_log_dir)
 
     train_log_dir = 'logs/gradient_tape/' + current_time + '/model'
     writer = tf.summary.create_file_writer(train_log_dir)
@@ -275,10 +272,25 @@ def train(gen, dis, dataset, epochs, len_low_size, scale):
     with writer.as_default():
         tf.summary.trace_export(name="model_dis_trace", step=0, profiler_outdir=train_log_dir)
 
+    with test_log_dir.as_default():
+        [_, (test_input_low, test_input_high)] = next(enumerate(test_dataset.take(1)))
+        mpy = test_input_low.numpy()
+        m = np.squeeze(mpy[:,:,:,0], axis=-1)
+        fig = plot_matrix(m)
+        images = plot_to_image(fig)
+        #images = np.reshape(test_input_low[0:16], (-1, 32, 32, 1))
+        tf.summary.image("16 training data low examples", images, max_outputs=16, step=0)
+        mpy = test_input_high.numpy()
+        m = np.squeeze(mpy[:,:,:,0], axis=-1)
+        fig = plot_matrix(m)
+        images = plot_to_image(fig)
+        #images = np.reshape(test_input_high[0:16], (-1, 128, 128, 1))
+        tf.summary.image("16 training data high examples", images, max_outputs=16, step=0)
+
     loss_filter_low = np.ones(shape=(len_low_size,len_low_size)) - np.diag(np.ones(shape=(len_low_size,)), k=0) - np.diag(np.ones(shape=(len_low_size-1,)), k=-1) - np.diag(np.ones(shape=(len_low_size-1,)), k=1)
     loss_filter_high = np.ones(shape=(len_high_size,len_high_size)) - np.diag(np.ones(shape=(len_high_size,)), k=0) - np.diag(np.ones(shape=(len_high_size-1,)), k=-1) - np.diag(np.ones(shape=(len_high_size-1,)), k=1)
 
-    [_, (demo_input_low, demo_input_high)] = next(enumerate(dataset.take(1)))
+    [_, (demo_input_low, demo_input_high)] = next(enumerate(test_dataset.take(1)))
     for epoch in range(epochs):
         start = time.time()
         for i, (low_m, high_m) in enumerate(dataset):
@@ -291,7 +303,6 @@ def train(gen, dis, dataset, epochs, len_low_size, scale):
                                 tf.dtypes.cast(low_m, tf.float32), tf.dtypes.cast(high_m, tf.float32),
                                 [loss_filter_low, loss_filter_high],
                                 [discriminator_optimizer], [discriminator_log])
-
         # log the model epochs
         [demo_pred_low, demo_pred_high, demo_up] = gen(demo_input_low, training=False)
         demo_disc_generated = dis([demo_pred_high, demo_up], training=False)
@@ -314,12 +325,12 @@ def train(gen, dis, dataset, epochs, len_low_size, scale):
         with train_summary_D_writer.as_default():
             tf.summary.scalar('loss_dis', discriminator_log.result(), step=epoch)
             mpy = demo_disc_generated.numpy()
-            m = np.squeeze(mpy[0,:,:,0])
+            m = np.squeeze(mpy[:,:,:,0], axis=-1)
             fig = plot_matrix(m)
             image = plot_to_image(fig)
             tf.summary.image(name='dis_gen', data=image, step=epoch)
             mpy = demo_disc_true.numpy()
-            m = np.squeeze(mpy[0,:,:,0])
+            m = np.squeeze(mpy[:,:,:,0], axis=-1)
             fig = plot_matrix(m)
             image = plot_to_image(fig)
             tf.summary.image(name='dis_true', data=image, step=epoch)
@@ -330,8 +341,10 @@ def plot_matrix(m):
     import numpy as np
     import matplotlib.pyplot as plt
     figure = plt.figure(figsize=(6,6))
-    plt.matshow(m, cmap='RdBu_r')
-    plt.colorbar()
+    for i in range(m.shape[0]):
+        plt.subplot(4,4,i)
+        plt.matshow(m, cmap='RdBu_r')
+        plt.colorbar()
     plt.tight_layout()
     return figure
 

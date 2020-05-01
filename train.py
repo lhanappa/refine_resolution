@@ -88,14 +88,15 @@ plt.subplot(2,3,6)
 plt.imshow(np.log2(hic_hr[2]))
 plt.show()'''
 
-EPOCHS = 1
+EPOCHS = 1000
 BUFFER_SIZE = 1
-BATCH_SIZE = 10
+BATCH_SIZE = 16
 len_low_size = 32
 scale = 4
 hic_lr = np.array(hic_lr)
 hic_hr = np.array(hic_hr)
-train_data = tf.data.Dataset.from_tensor_slices((hic_lr[..., np.newaxis], hic_hr[..., np.newaxis])).batch(BATCH_SIZE)
+train_data = tf.data.Dataset.from_tensor_slices((hic_lr[0::2,..., np.newaxis], hic_hr[0::2,..., np.newaxis])).batch(BATCH_SIZE)
+test_data = tf.data.Dataset.from_tensor_slices((hic_lr[1::2,..., np.newaxis], hic_hr[1::2,..., np.newaxis])).batch(BATCH_SIZE)
 
 Gen = model.make_generator_model(len_low_size=len_low_size, scale=scale)
 Dis = model.make_discriminator_model(len_low_size=len_low_size, scale=scale)
@@ -106,8 +107,10 @@ tf.keras.utils.plot_model(Dis, to_file='D.png', show_shapes=True)
 current_time = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
 Gen.save('./saved_model/'+current_time+'/gen_model') 
 Dis.save('./saved_model/'+current_time+'dis_model')
+model.train(Gen, Dis, train_data, EPOCHS, len_low_size, scale, test_data)
 
-model.train(Gen, Dis, train_data, EPOCHS, len_low_size, scale)
+Gen.save('./saved_model/'+current_time+'/gen_model') 
+Dis.save('./saved_model/'+current_time+'dis_model')
 
 '''anim_file = 'gan.gif'
 with imageio.get_writer(anim_file, mode='I') as writer:
