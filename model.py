@@ -79,7 +79,7 @@ def downsample(filters, size, apply_batchnorm=True):
     result.add(
         tf.keras.layers.Conv2D(filters, size, strides=2, padding='same', 
                                 kernel_initializer=initializer, 
-                                kennel_constraint=symmetry_constraints(), 
+                                kernel_constraint=symmetry_constraints(), 
                                 use_bias=False))
     if apply_batchnorm:
         result.add(tf.keras.layers.BatchNormalization())
@@ -142,14 +142,14 @@ def make_discriminator_model(len_low_size=16, scale=4):
     zero_pad1 = tf.keras.layers.ZeroPadding2D()(down2)
     conv = tf.keras.layers.Conv2D(1, 4, strides=1,
                                   kernel_initializer=initializer,
-                                  kennel_constraint=symmetry_constraints(), 
+                                  kernel_constraint=symmetry_constraints(), 
                                   use_bias=False)(zero_pad1)
 
     batchnorm1 = tf.keras.layers.BatchNormalization()(conv)
     leaky_relu = tf.keras.layers.LeakyReLU()(batchnorm1)
     zero_pad2 = tf.keras.layers.ZeroPadding2D()(leaky_relu)
     last = tf.keras.layers.Conv2D(1, 4, strides=1,
-                                    kennel_constraint=symmetry_constraints(), 
+                                    kernel_constraint=symmetry_constraints(), 
                                     kernel_initializer=initializer)(zero_pad2)
     return tf.keras.Model(inputs=[inp, tar], outputs=last)
 
