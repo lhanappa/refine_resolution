@@ -67,10 +67,7 @@ class Normal(tf.keras.layers.Layer):
         #return tf.add(tf.multiply(Div, M), opd)
         return tf.multiply(Div, M)
 
-class symmetry_constraints(tf.keras.constraints):
-    def __init__(self, max_value=2, axis=0):
-        pass
-
+class symmetry_constraints(tf.keras.constraints.Constraint):
     def __call__(self, w): 
         #for conv2d the shape of kernel = [W, H, C, K] C:channels, K:output number of filters
         Tw = tf.transpose(w, perm=[1,0,2,3])
