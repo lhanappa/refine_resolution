@@ -110,14 +110,14 @@ def make_generator_model(len_low_size=16, scale=4):
     up_1 = tf.keras.layers.Multiply(name='scale_value_high')([up_1, m_F])
     Rech = Reconstruct_R1M(1024, name='rec_high')(up_1)
     #trans_0 = tf.keras.layers.Conv2D(filters=128, kernel_size=(1,1), strides=(1,1), padding='valid', data_format="channels_last", kernel_constraint=symmetry_constraints(),  activation='relu', use_bias=False, name='C2DT0')(Rech)
-    batchnorm_0 = tf.keras.layers.BatchNormalization()(Rech)
-    paddings = tf.constant([[0,0],[1, 1], [1, 1], [0,0]])
-    batchnorm_0 = tf.pad(batchnorm_0, paddings, "SYMMETRIC")
-    trans_1 = tf.keras.layers.Conv2D(filters=128, kernel_size=(3,3),
+    #batchnorm_0 = tf.keras.layers.BatchNormalization()(Rech)
+    paddings = tf.constant([[0,0],[2, 2], [2, 2], [0,0]])
+    Rech = tf.pad(Rech, paddings, "SYMMETRIC")
+    trans_1 = tf.keras.layers.Conv2D(filters=64, kernel_size=(5,5),
                                     strides=(1,1), padding='valid',
                                     data_format="channels_last",
                                     kernel_constraint=symmetry_constraints(), 
-                                    activation='relu', use_bias=False, name='C2DT1')(batchnorm_0)
+                                    activation='relu', use_bias=False, name='C2DT1')(Rech)
     batchnorm_1 = tf.keras.layers.BatchNormalization()(trans_1)
     paddings = tf.constant([[0,0],[1, 1], [1, 1], [0,0]])
     batchnorm_1 = tf.pad(batchnorm_1, paddings, "SYMMETRIC")
@@ -222,7 +222,7 @@ def train_step_generator(Gen, Dis, imgl, imgr, loss_filter, opts, train_logs):
         gen_high_v = []
         gen_high_v += Gen.get_layer('rec_high').trainable_variables
         #gen_high_v += Gen.get_layer('C2DT0').trainable_variables
-        gen_high_v += Gen.get_layer('batch_normalization').trainable_variables
+        #gen_high_v += Gen.get_layer('batch_normalization').trainable_variables
         gen_high_v += Gen.get_layer('C2DT1').trainable_variables
         gen_high_v += Gen.get_layer('batch_normalization_1').trainable_variables
         gen_high_v += Gen.get_layer('C2DT2').trainable_variables
