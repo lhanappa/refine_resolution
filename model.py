@@ -225,8 +225,10 @@ def train_step_generator(Gen, Dis, imgl, imgr, loss_filter, opts, train_logs):
         disc_generated_output = Dis(fake_hic_h, training=False)
         gen_high_v = []
         gen_high_v += Gen.get_layer('rec_high').trainable_variables
-        gen_high_v += Gen.get_layer('C2DT1').trainable_variables
+        gen_high_v += Gen.get_layer('C2DT0').trainable_variables
         gen_high_v += Gen.get_layer('batch_normalization').trainable_variables
+        gen_high_v += Gen.get_layer('C2DT1').trainable_variables
+        gen_high_v += Gen.get_layer('batch_normalization_1').trainable_variables
         gen_high_v += Gen.get_layer('C2DT2').trainable_variables
         gen_high_v += Gen.get_layer('out_high').trainable_variables
         gen_loss_high_0 = generator_mse_loss(fake_hic_h, imgr_filter)
