@@ -181,8 +181,8 @@ def make_discriminator_model(len_low_size=16, scale=4):
     last = tf.keras.layers.Conv2D(1, 4, strides=1,
                                     kernel_constraint=symmetry_constraints(), 
                                     kernel_initializer=initializer)(zero_pad2)
-    #return tf.keras.Model(inputs=[inp, tar], outputs=last)
-    return tf.keras.Model(inputs=inp, outputs=last)
+    return tf.keras.Model(inputs=[inp, tar], outputs=last)
+    #return tf.keras.Model(inputs=inp, outputs=last)
 
 def discriminator_KL_loss(real_output, fake_output):
     loss_object = tf.keras.losses.BinaryCrossentropy(from_logits=True)
