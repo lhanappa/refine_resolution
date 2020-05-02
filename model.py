@@ -84,7 +84,6 @@ def downsample(filters, size, apply_batchnorm=True):
     if apply_batchnorm:
         result.add(tf.keras.layers.BatchNormalization())
     result.add(tf.keras.layers.LeakyReLU())
-    result.add(tf.keras.layers.MaxPool2D())
     return result
 
 
@@ -153,9 +152,9 @@ def make_discriminator_model(len_low_size=16, scale=4):
     x = inp
     down1 = downsample(64, 4, False)(x)
     down2 = downsample(128, 4)(down1)
-    #down3 = downsample(256, 4)(down2)
-    zero_pad1 = tf.keras.layers.ZeroPadding2D()(down2)
-    conv = tf.keras.layers.Conv2D(1, 4, strides=1,
+    down3 = downsample(256, 4)(down2)
+    zero_pad1 = tf.keras.layers.ZeroPadding2D()(down3)
+    conv = tf.keras.layers.Conv2D(512, 4, strides=1,
                                   kernel_initializer=initializer,
                                   kernel_constraint=symmetry_constraints(), 
                                   use_bias=False)(zero_pad1)
