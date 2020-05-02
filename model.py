@@ -229,11 +229,13 @@ def train_step_generator(Gen, Dis, imgl, imgr, loss_filter, opts, train_logs):
         gen_high_v += Gen.get_layer('out_high').trainable_variables
         gen_loss_high_0 = generator_mse_loss(fake_hic_h, imgr_filter)
         gen_loss_high_1 = generator_KL_loss(disc_generated_output)
-        gen_loss_high = gen_loss_high_0*20 + gen_loss_high_1
+        gen_loss_high_2 = generator_ssim_loss(fake_hic_h, imgr_filter)
+        gen_loss_high = gen_loss_high_0*10+ gen_loss_high_2*10 + gen_loss_high_1
         gradients_of_generator_high = gen_tape_high.gradient(gen_loss_high, gen_high_v)
         opts[1].apply_gradients(zip(gradients_of_generator_high, gen_high_v))
         train_logs[2](gen_loss_high_0)
         train_logs[3](gen_loss_high_1)
+        train_logs[4](gen_loss_high_2)
 
 
 @tf.function
@@ -272,8 +274,9 @@ def train(gen, dis, dataset, epochs, len_low_size, scale, test_dataset=None):
     generator_log_mse_low = tf.keras.metrics.Mean('train_gen_low_mse_loss', dtype=tf.float32)
     generator_log_mse_high = tf.keras.metrics.Mean('train_gen_high_mse_loss', dtype=tf.float32)
     generator_log_kl_high = tf.keras.metrics.Mean('train_gen_high_KL_loss', dtype=tf.float32)
+    generator_log_ssim_high = tf.keras.metrics.Mean('train_gen_high_ssim_loss', dtype=tf.float32)
     discriminator_log = tf.keras.metrics.Mean('train_discriminator_loss', dtype=tf.float32)
-    logs = [generator_log_ssim_low, generator_log_mse_low, generator_log_mse_high, generator_log_kl_high]# for generator, discriminator_log]
+    logs = [generator_log_ssim_low, generator_log_mse_low, generator_log_mse_high, generator_log_kl_high, generator_log_ssim_high]# for generator, discriminator_log]
     current_time = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
     train_log_dir = 'logs/gradient_tape/' + current_time + '/generator'
     train_summary_G_writer = tf.summary.create_file_writer(train_log_dir)
@@ -334,6 +337,7 @@ def train(gen, dis, dataset, epochs, len_low_size, scale, test_dataset=None):
             tf.summary.scalar('loss_gen_low_mse', generator_log_mse_low.result(), step=epoch)
             tf.summary.scalar('loss_gen_high_mse', generator_log_mse_high.result(), step=epoch)
             tf.summary.scalar('loss_gen_high_kl', generator_log_kl_high.result(), step=epoch)
+            tf.summary.scalar('loss_gen_high_ssim', generator_log_ssim_high.result(), step=epoch)
             mpy = demo_pred_low.numpy()
             m = np.log1p(100*np.squeeze(mpy[:,:,:,0]))
             fig = plot_matrix(m)
