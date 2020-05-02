@@ -106,18 +106,18 @@ def make_generator_model(len_low_size=16, scale=4):
     m_F = tf.constant(1/16.0, shape=(1, 1, 1, 1))
     up_o = tf.keras.layers.Multiply(name='scale_value_in')([up_o, m_F])
 
-    #up_1 = tf.keras.layers.UpSampling2D(size=(4, 1), data_format='channels_last', name='upsample_low')(WeiR1Ml)
-    #m_F = tf.constant(1/4.0, shape=(1, 1, 1, 1))
-    #up_1 = tf.keras.layers.Multiply(name='scale_value_high')([up_1, m_F])
-    Rech = Reconstruct_R1M(1024, name='rec_high')(WeiR1Ml)
-    trans_1 = tf.keras.layers.Conv2DTranspose(64, 3, strides=2,kernel_constraint=symmetry_constraints(), 
+    up_1 = tf.keras.layers.UpSampling2D(size=(2, 1), data_format='channels_last', name='upsample_low')(WeiR1Ml)
+    m_F = tf.constant(1/2.0, shape=(1, 1, 1, 1))
+    up_1 = tf.keras.layers.Multiply(name='scale_value_high')([up_1, m_F])
+    Rech = Reconstruct_R1M(1024, name='rec_high')(up_1)
+    '''trans_1 = tf.keras.layers.Conv2DTranspose(256, 5, strides=2,kernel_constraint=symmetry_constraints(), 
                                                 activation='relu', use_bias=False, name='C2DT1',
                                             padding='same')(Rech)
     batchnorm_1 = tf.keras.layers.BatchNormalization()(trans_1)
-    trans_2 = tf.keras.layers.Conv2DTranspose(64, 3, strides=2,kernel_constraint=symmetry_constraints(), 
+    trans_2 = tf.keras.layers.Conv2DTranspose(64, 5, strides=2,kernel_constraint=symmetry_constraints(), 
                                                 activation='relu', use_bias=False, name='C2DT2',
-                                            padding='same')(batchnorm_1)
-    '''paddings = tf.constant([[0,0],[1, 1], [1, 1], [0,0]])
+                                            padding='same')(batchnorm_1)'''
+    paddings = tf.constant([[0,0],[1, 1], [1, 1], [0,0]])
     Rech = tf.pad(Rech, paddings, "SYMMETRIC")
     trans_1 = tf.keras.layers.Conv2D(  filters=64, kernel_size=(3,3),
                                                 strides=(1,1), padding='valid',
@@ -125,13 +125,16 @@ def make_generator_model(len_low_size=16, scale=4):
                                                 kernel_constraint=symmetry_constraints(), 
                                                 activation='relu', use_bias=False, name='C2DT1')(Rech)
     batchnorm_1 = tf.keras.layers.BatchNormalization()(trans_1)
+    up_2 = tf.keras.layers.UpSampling2D(size=(2, 2), data_format='channels_last', name='upsample_low')(batchnorm_1)
+    m_F = tf.constant(1/4.0, shape=(1, 1, 1, 1))
+    up_2 = tf.keras.layers.Multiply(name='scale_value_high')([up_2, m_F])
     paddings = tf.constant([[0,0],[2, 2], [2, 2], [0,0]])
-    batchnorm_1 = tf.pad(batchnorm_1, paddings, "SYMMETRIC")
+    batchnorm_1 = tf.pad(up_2, paddings, "SYMMETRIC")
     trans_2 = tf.keras.layers.Conv2D(  filters=64, kernel_size=(5,5),
                                                 strides=(1,1), padding='valid',
                                                 data_format="channels_last",
                                                 kernel_constraint=symmetry_constraints(),
-                                                activation='relu', use_bias=False, name='C2DT2')(batchnorm_1)'''
+                                                activation='relu', use_bias=False, name='C2DT2')(batchnorm_1)
     
     Sumh = Sum_R1M(name='sum_high')(trans_2)
     high_out = Normal(int(len_low_size*scale), name='out_high')(Sumh)
