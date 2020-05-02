@@ -105,12 +105,10 @@ def make_generator_model(len_low_size=16, scale=4):
     m_F = tf.constant(1/16.0, shape=(1, 1, 1, 1))
     up_o = tf.keras.layers.Multiply(name='scale_value_in')([up_o, m_F])
 
-    up_1 = tf.keras.layers.UpSampling2D(size=(4, 1), data_format='channels_last', name='upsample_low_1')(WeiR1Ml)
+    '''up_1 = tf.keras.layers.UpSampling2D(size=(4, 1), data_format='channels_last', name='upsample_low_1')(WeiR1Ml)
     m_F = tf.constant(1/4.0, shape=(1, 1, 1, 1))
     up_1 = tf.keras.layers.Multiply(name='scale_value_high')([up_1, m_F])
     Rech = Reconstruct_R1M(1024, name='rec_high')(up_1)
-    #trans_0 = tf.keras.layers.Conv2D(filters=128, kernel_size=(1,1), strides=(1,1), padding='valid', data_format="channels_last", kernel_constraint=symmetry_constraints(),  activation='relu', use_bias=False, name='C2DT0')(Rech)
-    #batchnorm_0 = tf.keras.layers.BatchNormalization()(Rech)
     paddings = tf.constant([[0,0],[2, 2], [2, 2], [0,0]])
     Rech = tf.pad(Rech, paddings, "SYMMETRIC")
     trans_1 = tf.keras.layers.Conv2D(filters=64, kernel_size=(5,5),
@@ -127,6 +125,33 @@ def make_generator_model(len_low_size=16, scale=4):
                                     kernel_constraint=symmetry_constraints(),
                                     activation='relu', use_bias=False, name='C2DT2')(batchnorm_1)
     Sumh = Sum_R1M(name='sum_high')(trans_2)
+    high_out = Normal(int(len_low_size*scale), name='out_high')(Sumh)'''
+
+    
+    Rech = Reconstruct_R1M(1024, name='rec_high')(WeiR1Ml)
+    paddings = tf.constant([[0,0],[1, 1], [1, 1], [0,0]])
+    Rech = tf.pad(Rech, paddings, "SYMMETRIC")
+    trans_1 = tf.keras.layers.Conv2D(filters=32, kernel_size=(3,3),
+                                    strides=(1,1), padding='valid',
+                                    data_format="channels_last",
+                                    kernel_constraint=symmetry_constraints(),
+                                    activation='relu', use_bias=False, name='C2DT1')(Rech)
+    batchnorm_1 = tf.keras.layers.BatchNormalization()(trans_1)
+    up_1 = tf.keras.layers.UpSampling2D(size=(4, 4), data_format='channels_last', interpolation='bilinear' , name='upsample_low_1')(batchnorm_1)
+    m_F = tf.constant(1/16.0, shape=(1, 1, 1, 1))
+    up_1 = tf.keras.layers.Multiply(name='scale_value_high')([up_1, m_F])
+    paddings = tf.constant([[0,0],[1, 1], [1, 1], [0,0]])
+    batchnorm_1 = tf.pad(up_1, paddings, "SYMMETRIC")
+    trans_2 = tf.keras.layers.Conv2D(filters=128, kernel_size=(3,3),
+                                    strides=(1,1), padding='valid',
+                                    data_format="channels_last",
+                                    kernel_constraint=symmetry_constraints(),
+                                    activation='relu', use_bias=False, name='C2DT2')(batchnorm_1)
+    Sumh = tf.keras.layers.Conv2D(filters=1, kernel_size=(1,1),
+                                    strides=(1,1), padding='same',
+                                    data_format="channels_last",
+                                    kernel_constraint=tf.keras.constraints.NonNeg(),
+                                    activation='relu', use_bias=False, name='sum_high')(trans_2)
     high_out = Normal(int(len_low_size*scale), name='out_high')(Sumh)
 
     model = tf.keras.models.Model(
@@ -226,6 +251,7 @@ def train_step_generator(Gen, Dis, imgl, imgr, loss_filter, opts, train_logs):
         gen_high_v += Gen.get_layer('C2DT1').trainable_variables
         gen_high_v += Gen.get_layer('batch_normalization').trainable_variables
         gen_high_v += Gen.get_layer('C2DT2').trainable_variables
+        gen_high_v += Gen.get_layer('sum_high').trainable_variables
         gen_high_v += Gen.get_layer('out_high').trainable_variables
         gen_loss_high_0 = generator_mse_loss(fake_hic_h, imgr_filter)
         gen_loss_high_1 = generator_KL_loss(disc_generated_output)
@@ -337,7 +363,7 @@ def train(gen, dis, dataset, epochs, len_low_size, scale, test_dataset=None):
             tf.summary.scalar('loss_gen_low_mse', generator_log_mse_low.result(), step=epoch)
             tf.summary.scalar('loss_gen_high_mse', generator_log_mse_high.result(), step=epoch)
             tf.summary.scalar('loss_gen_high_kl', generator_log_kl_high.result(), step=epoch)
-            tf.summary.scalar('loss_gen_high_ssim', generator_log_ssim_high.result(), step=epoch)
+            tf.summary.scalar('loss_gen_high_disssim', generator_log_ssim_high.result(), step=epoch)
             mpy = demo_pred_low.numpy()
             m = np.log1p(100*np.squeeze(mpy[:,:,:,0]))
             fig = plot_matrix(m)
