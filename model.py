@@ -106,11 +106,18 @@ def make_generator_model(len_low_size=16, scale=4):
     m_F = tf.constant(1/16.0, shape=(1, 1, 1, 1))
     up_o = tf.keras.layers.Multiply(name='scale_value_in')([up_o, m_F])
 
-    up_1 = tf.keras.layers.UpSampling2D(size=(4, 1), data_format='channels_last', name='upsample_low')(WeiR1Ml)
-    m_F = tf.constant(1/4.0, shape=(1, 1, 1, 1))
-    up_1 = tf.keras.layers.Multiply(name='scale_value_high')([up_1, m_F])
-    Rech = Reconstruct_R1M(1024, name='rec_high')(up_1)
-    paddings = tf.constant([[0,0],[1, 1], [1, 1], [0,0]])
+    #up_1 = tf.keras.layers.UpSampling2D(size=(4, 1), data_format='channels_last', name='upsample_low')(WeiR1Ml)
+    #m_F = tf.constant(1/4.0, shape=(1, 1, 1, 1))
+    #up_1 = tf.keras.layers.Multiply(name='scale_value_high')([up_1, m_F])
+    Rech = Reconstruct_R1M(1024, name='rec_high')(WeiR1Ml)
+    trans_1 = tf.keras.layers.Conv2DTranspose(64, 3, strides=2,kernel_constraint=symmetry_constraints(), 
+                                                activation='relu', use_bias=False, name='C2DT1',
+                                            padding='same')(Rech)
+    batchnorm_1 = tf.keras.layers.BatchNormalization()(trans_1)
+    trans_2 = tf.keras.layers.Conv2DTranspose(64, 3, strides=2,kernel_constraint=symmetry_constraints(), 
+                                                activation='relu', use_bias=False, name='C2DT2',
+                                            padding='same')(batchnorm_1)
+    '''paddings = tf.constant([[0,0],[1, 1], [1, 1], [0,0]])
     Rech = tf.pad(Rech, paddings, "SYMMETRIC")
     trans_1 = tf.keras.layers.Conv2D(  filters=64, kernel_size=(3,3),
                                                 strides=(1,1), padding='valid',
@@ -124,7 +131,7 @@ def make_generator_model(len_low_size=16, scale=4):
                                                 strides=(1,1), padding='valid',
                                                 data_format="channels_last",
                                                 kernel_constraint=symmetry_constraints(),
-                                                activation='relu', use_bias=False, name='C2DT2')(batchnorm_1)
+                                                activation='relu', use_bias=False, name='C2DT2')(batchnorm_1)'''
     
     Sumh = Sum_R1M(name='sum_high')(trans_2)
     high_out = Normal(int(len_low_size*scale), name='out_high')(Sumh)
@@ -138,8 +145,9 @@ def make_discriminator_model(len_low_size=16, scale=4):
     len_high_size = int(len_low_size*scale)
     initializer = tf.random_normal_initializer(0., 0.02)
     inp = tf.keras.layers.Input(shape=[len_high_size, len_high_size, 1], name='input_image')
-    tar = tf.keras.layers.Input(shape=[len_high_size, len_high_size, 1], name='target_image')
-    x = tf.keras.layers.concatenate([inp, tar])
+    #tar = tf.keras.layers.Input(shape=[len_high_size, len_high_size, 1], name='target_image')
+    #x = tf.keras.layers.concatenate([inp, tar])
+    x = inp
     down1 = downsample(64, 4, False)(x)
     down2 = downsample(128, 4)(down1)
     #down3 = downsample(256, 4)(down2)
@@ -155,7 +163,8 @@ def make_discriminator_model(len_low_size=16, scale=4):
     last = tf.keras.layers.Conv2D(1, 4, strides=1,
                                     kernel_constraint=symmetry_constraints(), 
                                     kernel_initializer=initializer)(zero_pad2)
-    return tf.keras.Model(inputs=[inp, tar], outputs=last)
+    #return tf.keras.Model(inputs=[inp, tar], outputs=last)
+    return tf.keras.Model(inputs=inp, outputs=last)
 
 def discriminator_KL_loss(real_output, fake_output):
     loss_object = tf.keras.losses.BinaryCrossentropy(from_logits=True)
@@ -186,7 +195,7 @@ def train_step_generator(Gen, Dis, imgl, imgr, loss_filter, opts, train_logs):
         fake_hic = Gen(imgl, training=True)
         fake_hic_l = fake_hic[0]
         fake_hic_h = fake_hic[1]
-        img_l_h = fake_hic[2]
+        #img_l_h = fake_hic[2]
 
         mfilter_low = tf.expand_dims(loss_filter[0], axis=0)
         mfilter_low = tf.expand_dims(mfilter_low, axis=-1)
@@ -198,7 +207,7 @@ def train_step_generator(Gen, Dis, imgl, imgr, loss_filter, opts, train_logs):
         mfilter_high = tf.expand_dims(mfilter_high, axis=-1)
         mfilter_high = tf.cast(mfilter_high, tf.float32)
         fake_hic_h = tf.multiply(fake_hic_h, mfilter_high)
-        img_l_h = tf.multiply(img_l_h, mfilter_high)
+        #img_l_h = tf.multiply(img_l_h, mfilter_high)
         imgr_filter = tf.multiply(imgr, mfilter_high)
         #gen_low_v = Gen.trainable_variables
         gen_low_v = []
@@ -215,8 +224,8 @@ def train_step_generator(Gen, Dis, imgl, imgr, loss_filter, opts, train_logs):
         train_logs[0](gen_loss_low_ssim)
         train_logs[1](gen_loss_low_mse)
         #if(epoch_flag):
-        disc_generated_output = Dis([fake_hic_h, img_l_h], training=False)
-
+        #disc_generated_output = Dis([fake_hic_h, img_l_h], training=False)
+        disc_generated_output = Dis(fake_hic_h, training=False)
         gen_high_v = []
         gen_high_v += Gen.get_layer('rec_high').trainable_variables
         gen_high_v += Gen.get_layer('C2DT1').trainable_variables
@@ -238,15 +247,17 @@ def train_step_discriminator(Gen, Dis, imgl, imgr, loss_filter, opts, train_logs
         fake_hic = Gen(imgl, training=False)
         #fake_hic_l = fake_hic[0]
         fake_hic_h = fake_hic[1]
-        img_l_h = fake_hic[2]
+        #img_l_h = fake_hic[2]
         mfilter_high = tf.expand_dims(loss_filter[1], axis=0)
         mfilter_high = tf.expand_dims(mfilter_high, axis=-1)
         mfilter_high = tf.cast(mfilter_high, tf.float32)
         fake_hic_h = tf.multiply(fake_hic_h, mfilter_high)
-        img_l_h = tf.multiply(img_l_h, mfilter_high)
+        #img_l_h = tf.multiply(img_l_h, mfilter_high)
         imgr_filter = tf.multiply(imgr, mfilter_high)
-        disc_generated_output = Dis([fake_hic_h, img_l_h], training=True)
-        disc_real_output = Dis([imgr_filter, img_l_h], training=True)
+        #disc_generated_output = Dis([fake_hic_h, img_l_h], training=True)
+        #disc_real_output = Dis([imgr_filter, img_l_h], training=True)
+        disc_generated_output = Dis(fake_hic_h, training=True)
+        disc_real_output = Dis(imgr_filter, training=True)
         disc_loss = discriminator_KL_loss( disc_real_output, disc_generated_output)
         discriminator_gradients = disc_tape.gradient(disc_loss, Dis.trainable_variables)
         opts[0].apply_gradients(zip(discriminator_gradients, Dis.trainable_variables))
