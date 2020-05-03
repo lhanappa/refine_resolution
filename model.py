@@ -32,6 +32,72 @@ class Weight_R1M(tf.keras.layers.Layer):
         return tf.multiply(input, self.w)
 
 
+class Subpixel(tf.keras.layers.Conv2D):
+    def __init__(self,
+                 filters,
+                 kernel_size,
+                 r,
+                 padding='valid',
+                 data_format=None,
+                 strides=(1,1),
+                 activation=None,
+                 use_bias=True,
+                 kernel_initializer='glorot_uniform',
+                 bias_initializer='zeros',
+                 kernel_regularizer=None,
+                 bias_regularizer=None,
+                 activity_regularizer=None,
+                 kernel_constraint=None,
+                 bias_constraint=None,
+                 **kwargs):
+        super(Subpixel, self).__init__(
+            filters=r*r*filters,
+            kernel_size=kernel_size,
+            strides=strides,
+            padding=padding,
+            data_format=data_format,
+            activation=activation,
+            use_bias=use_bias,
+            kernel_initializer=kernel_initializer,
+            bias_initializer=bias_initializer,
+            kernel_regularizer=kernel_regularizer,
+            bias_regularizer=bias_regularizer,
+            activity_regularizer=activity_regularizer,
+            kernel_constraint=kernel_constraint,
+            bias_constraint=bias_constraint,
+            **kwargs)
+        self.r = r
+
+    def _phase_shift(self, I):
+        r = self.r
+        bsize, a, b, c = I.get_shape().as_list()
+        bsize = tf.keras.backend.shape(I)[0] # Handling Dimension(None) type for undefined batch dim
+        X = tf.keras.backend.reshape(I, [int(bsize), int(a), int(b), int(c/(r*r)),int(r), int(r)]) # bsize, a, b, c/(r*r), r, r
+        #X = tf.keras.permute_dimensions(X, (0, 1, 2, 5, 4, 3))  # bsize, a, b, r, r, c/(r*r)
+        X = tf.transpose(X, perm=[0,1,2,5,4,3])
+        #Keras backend does not support tf.split, so in future versions this could be nicer
+        X = [X[:,i,:,:,:,:] for i in range(a)] # a, [bsize, b, r, r, c/(r*r)
+        X = tf.keras.backend.concatenate(X, 2)  # bsize, b, a*r, r, c/(r*r)
+        X = [X[:,i,:,:,:] for i in range(b)] # b, [bsize, r, r, c/(r*r)
+        X = tf.keras.backend.concatenate(X, 2)  # bsize, a*r, b*r, c/(r*r)
+        return X
+
+    def call(self, inputs):
+        return self._phase_shift(super(Subpixel, self).call(inputs))
+
+    def compute_output_shape(self, input_shape):
+        unshifted = super(Subpixel, self).compute_output_shape(input_shape)
+        return (unshifted[0], self.r*unshifted[1], self.r*unshifted[2], unshifted[3]/(self.r*self.r))
+
+    def get_config(self):
+        config = super(tf.keras.layers.Conv2D, self).get_config()
+        config.pop('rank')
+        config.pop('dilation_rate')
+        config['filters']/=self.r*self.r
+        config['r'] = self.r
+        return config
+
+
 class Sum_R1M(tf.keras.layers.Layer):
     def __init__(self, name='SR1M'):
         super(Sum_R1M, self).__init__(name=name)
@@ -56,15 +122,11 @@ class Normal(tf.keras.layers.Layer):
         colsr = tf.math.sqrt(tf.math.reduce_sum(
             tf.multiply(inputs, inputs), axis=2, keepdims=True))
         sumele = tf.math.multiply(rowsr, colsr)
-        #tf.math.divide_no_nan(inputs, sumele)
         Div = tf.math.divide_no_nan(inputs, sumele)
         self.w.assign(tf.nn.relu(self.w))
-        #self.d.assign(tf.nn.relu(self.d))
         WT = tf.transpose(self.w, perm=[0, 2, 1, 3])
         M = tf.multiply(self.w, WT)
-        #opd = tf.linalg.LinearOperatorToeplitz(self.d, self.d)
-        #opd = tf.expand_dims(opd.to_dense(), axis=-1)
-        #return tf.add(tf.multiply(Div, M), opd)
+
         return tf.multiply(Div, M)
 
 class symmetry_constraints(tf.keras.constraints.Constraint):
@@ -127,35 +189,27 @@ def make_generator_model(len_low_size=16, scale=4):
     Sumh = Sum_R1M(name='sum_high')(trans_2)
     high_out = Normal(int(len_low_size*scale), name='out_high')(Sumh)'''
 
-    
     Rech = Reconstruct_R1M(1024, name='rec_high')(WeiR1Ml)
     paddings = tf.constant([[0,0],[1, 1], [1, 1], [0,0]])
     Rech = tf.pad(Rech, paddings, "SYMMETRIC")
     trans_1 = tf.keras.layers.Conv2D(filters=32, kernel_size=(3,3),
                                     strides=(1,1), padding='valid',
                                     data_format="channels_last",
-                                    kernel_constraint=symmetry_constraints(),
+                                    kernel_constraint=symmetry_constraints(), 
                                     activation='relu', use_bias=False, name='C2DT1')(Rech)
     batchnorm_1 = tf.keras.layers.BatchNormalization()(trans_1)
-    up_1 = tf.keras.layers.UpSampling2D(size=(4, 4), data_format='channels_last', interpolation='bilinear' , name='upsample_low_1')(batchnorm_1)
-    m_F = tf.constant(1/16.0, shape=(1, 1, 1, 1))
-    up_1 = tf.keras.layers.Multiply(name='scale_value_high')([up_1, m_F])
-    paddings = tf.constant([[0,0],[1, 1], [1, 1], [0,0]])
-    batchnorm_1 = tf.pad(up_1, paddings, "SYMMETRIC")
-    trans_2 = tf.keras.layers.Conv2D(filters=128, kernel_size=(3,3),
-                                    strides=(1,1), padding='valid',
-                                    data_format="channels_last",
-                                    kernel_constraint=symmetry_constraints(),
-                                    activation='relu', use_bias=False, name='C2DT2')(batchnorm_1)
+    trans_2 = Subpixel(filters= int(32), kernel_size=(5,5), r=4, 
+                        activation='relu', use_bias=False, padding='same',
+                        kernel_constraint=symmetry_constraints(), name='subpixel')(batchnorm_1)
+    batchnorm_2 = tf.keras.layers.BatchNormalization()(trans_2)
     Sumh = tf.keras.layers.Conv2D(filters=1, kernel_size=(1,1),
                                     strides=(1,1), padding='same',
                                     data_format="channels_last",
                                     kernel_constraint=tf.keras.constraints.NonNeg(),
-                                    activation='relu', use_bias=False, name='sum_high')(trans_2)
+                                    activation='relu', use_bias=False, name='sum_high')(batchnorm_2)
     high_out = Normal(int(len_low_size*scale), name='out_high')(Sumh)
 
-    model = tf.keras.models.Model(
-        inputs=[In], outputs=[low_out, high_out, up_o])
+    model = tf.keras.models.Model(inputs=[In], outputs=[low_out, high_out, up_o])
     return model
 
 
@@ -250,7 +304,8 @@ def train_step_generator(Gen, Dis, imgl, imgr, loss_filter, opts, train_logs):
         #gen_high_v += Gen.get_layer('batch_normalization').trainable_variables
         gen_high_v += Gen.get_layer('C2DT1').trainable_variables
         gen_high_v += Gen.get_layer('batch_normalization').trainable_variables
-        gen_high_v += Gen.get_layer('C2DT2').trainable_variables
+        gen_high_v += Gen.get_layer('subpixel').trainable_variables
+        gen_high_v += Gen.get_layer('batch_normalization_1').trainable_variables
         gen_high_v += Gen.get_layer('sum_high').trainable_variables
         gen_high_v += Gen.get_layer('out_high').trainable_variables
         gen_loss_high_0 = generator_mse_loss(fake_hic_h, imgr_filter)
