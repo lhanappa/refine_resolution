@@ -71,8 +71,8 @@ class Subpixel(tf.keras.layers.Conv2D):
     def _phase_shift(self, I):
         r = self.r
         bsize, a, b, c = I.get_shape().as_list()
-        bsize = tf.keras.backend.shape(I)[0] # Handling Dimension(None) type for undefined batch dim
-        X = tf.keras.backend.reshape(I, [int(bsize), int(a), int(b), int(c/(r*r)),int(r), int(r)]) # bsize, a, b, c/(r*r), r, r
+        bsize = tf.cast(tf.keras.backend.shape(I)[0], tf.int32) # Handling Dimension(None) type for undefined batch dim
+        X = tf.keras.backend.reshape(I, [bsize, tf.cast(a, tf.int32), tf.cast(b, tf.int32), tf.cast(c/(r*r), tf.int32), r, r]) # bsize, a, b, c/(r*r), r, r
         #X = tf.keras.permute_dimensions(X, (0, 1, 2, 5, 4, 3))  # bsize, a, b, r, r, c/(r*r)
         X = tf.transpose(X, perm=[0,1,2,5,4,3])
         #Keras backend does not support tf.split, so in future versions this could be nicer
