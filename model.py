@@ -180,45 +180,17 @@ def make_generator_model(len_low_size=16, scale=4):
     m_F = tf.constant(1/16.0, shape=(1, 1, 1, 1))
     up_o = tf.keras.layers.Multiply(name='scale_value_in')([up_o, m_F])
 
-    '''up_1 = tf.keras.layers.UpSampling2D(size=(4, 1), data_format='channels_last', name='upsample_low_1')(WeiR1Ml)
-    m_F = tf.constant(1/4.0, shape=(1, 1, 1, 1))
-    up_1 = tf.keras.layers.Multiply(name='scale_value_high')([up_1, m_F])
-    Rech = Reconstruct_R1M(1024, name='rec_high')(up_1)
-    paddings = tf.constant([[0,0],[2, 2], [2, 2], [0,0]])
-    Rech = tf.pad(Rech, paddings, "SYMMETRIC")
-    trans_1 = tf.keras.layers.Conv2D(filters=64, kernel_size=(5,5),
-                                    strides=(1,1), padding='valid',
-                                    data_format="channels_last",
-                                    kernel_constraint=symmetry_constraints(), 
-                                    activation='relu', use_bias=False, name='C2DT1')(Rech)
-    batchnorm_1 = tf.keras.layers.BatchNormalization()(trans_1)
-    paddings = tf.constant([[0,0],[1, 1], [1, 1], [0,0]])
-    batchnorm_1 = tf.pad(batchnorm_1, paddings, "SYMMETRIC")
-    trans_2 = tf.keras.layers.Conv2D(filters=64, kernel_size=(3,3),
-                                    strides=(1,1), padding='valid',
-                                    data_format="channels_last",
-                                    kernel_constraint=symmetry_constraints(),
-                                    activation='relu', use_bias=False, name='C2DT2')(batchnorm_1)
-    Sumh = Sum_R1M(name='sum_high')(trans_2)
-    high_out = Normal(int(len_low_size*scale), name='out_high')(Sumh)'''
-
     Rech = Reconstruct_R1M(1024, name='rec_high')(WeiR1Ml)
-
-    '''trans_1 = tf.keras.layers.Conv2D(filters=128, kernel_size=(1,1),
-                                    strides=(1,1), padding='valid',
-                                    data_format="channels_last",
-                                    kernel_initializer=tf.keras.initializers.RandomNormal(mean=0.01, stddev=0.1),
-                                    activation='relu', use_bias=False, name='C2DT1')(Rech)
+    trans_1 = Subpixel(filters= int(128), kernel_size=(3,3), r=2, 
+                        activation='relu', use_bias=False, padding='same', 
+                        kernel_initializer=tf.keras.initializers.RandomNormal(mean=0.01, stddev=0.1), 
+                        name='subpixel_1')(Rech)
     sym = Symmetry_R1M(name='SYM_1')(trans_1)
-    batchnorm_1 = tf.keras.layers.BatchNormalization()(sym)'''
     trans_2 = Subpixel(filters= int(128), kernel_size=(3,3), r=2, 
                         activation='relu', use_bias=False, padding='same', 
-                        kernel_initializer=tf.keras.initializers.RandomNormal(mean=0.01, stddev=0.1), name='subpixel_1')(Rech)
+                        kernel_initializer=tf.keras.initializers.RandomNormal(mean=0.01, stddev=0.1), 
+                        name='subpixel_2')(sym)
     sym = Symmetry_R1M(name='SYM_2')(trans_2)
-    trans_3 = Subpixel(filters= int(128), kernel_size=(3,3), r=2, 
-                        activation='relu', use_bias=False, padding='same', 
-                        kernel_initializer=tf.keras.initializers.RandomNormal(mean=0.01, stddev=0.1), name='subpixel_2')(sym)
-    sym = Symmetry_R1M(name='SYM_3')(trans_3)
     Sumh = tf.keras.layers.Conv2D(filters=1, kernel_size=(1,1),
                                     strides=(1,1), padding='same',
                                     data_format="channels_last",
