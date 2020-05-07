@@ -71,15 +71,15 @@ class Subpixel(tf.keras.layers.Conv2D):
     def _phase_shift(self, I):
         r = self.r
         bsize, a, b, c = I.get_shape().as_list()
-        bsize = tf.keras.backend.shape(I)[0] # Handling Dimension(None) type for undefined batch dim
-        X = tf.keras.backend.reshape(I, [bsize, a, b, tf.cast(c/(r*r), tf.int32), r, r]) # bsize, a, b, c/(r*r), r, r
+        bsize = tf.shape(I)[0] # Handling Dimension(None) type for undefined batch dim
+        X = tf.reshape(I, [bsize, a, b, tf.cast(c/(r*r), tf.int32), r, r]) # bsize, a, b, c/(r*r), r, r
         #X = tf.keras.permute_dimensions(X, (0, 1, 2, 5, 4, 3))  # bsize, a, b, r, r, c/(r*r)
         X = tf.transpose(X, perm=[0,1,2,5,4,3])
         #Keras backend does not support tf.split, so in future versions this could be nicer
         X = [X[:,i,:,:,:,:] for i in range(a)] # a, [bsize, b, r, r, c/(r*r)
-        X = tf.keras.backend.concatenate(X, 2)  # bsize, b, a*r, r, c/(r*r)
+        X = tf.keras.backend.concatenate(X, axis=2)  # bsize, b, a*r, r, c/(r*r)
         X = [X[:,i,:,:,:] for i in range(b)] # b, [bsize, r, r, c/(r*r)
-        X = tf.keras.backend.concatenate(X, 2)  # bsize, a*r, b*r, c/(r*r)
+        X = tf.keras.backend.concatenate(X, axis=2)  # bsize, a*r, b*r, c/(r*r)
         return X
 
     def call(self, inputs):
@@ -105,6 +105,23 @@ class Sum_R1M(tf.keras.layers.Layer):
     def call(self, input):
         return tf.reduce_sum(input, axis=-1, keepdims=True)
 
+class Symmetry_R1M(tf.keras.layers.Layer):
+    def __init__(self, name='SYMR1M'):
+        super(Symmetry_R1M, self).__init__(name=name)
+
+    def build(self, input_shape):
+        ones = tf.ones(shape=(input_shape[1], input_shape[2]), dtype='float32')
+        diag = tf.matrix_band_part(ones, 0, 0)*0.5
+        upper = tf.matrix_band_part(ones, 0, -1)
+
+        self.w = upper - diag
+        self.w = tf.expand_dims(self.w, 0)
+        self.w = tf.expand_dims(self.w, -1)
+
+    def call(self, input):
+        up = tf.multiply(input, self.w)
+        low = tf.transpose(up, perm=[0,2,1,3])
+        return up + low
 
 class Normal(tf.keras.layers.Layer):
     def __init__(self, input_dim, name='DW'):
@@ -112,9 +129,6 @@ class Normal(tf.keras.layers.Layer):
         w_init = tf.ones_initializer()
         self.w = tf.Variable(initial_value=w_init(
             shape=(1, input_dim, 1, 1), dtype='float32'), trainable=True)
-        '''d_init = tf.zeros_initializer()
-        self.d = tf.Variable(initial_value=d_init(
-            shape=(1, input_dim), dtype='float32'), trainable=True)'''
 
     def call(self, inputs):
         rowsr = tf.math.sqrt(tf.math.reduce_sum(
@@ -129,11 +143,11 @@ class Normal(tf.keras.layers.Layer):
 
         return tf.multiply(Div, M)
 
-class symmetry_constraints(tf.keras.constraints.Constraint):
+'''class symmetry_constraints(tf.keras.constraints.Constraint):
     def __call__(self, w): 
         #for conv2d the shape of kernel = [W, H, C, K] C:channels, K:output number of filters
         Tw = tf.transpose(w, perm=[1,0,2,3])
-        return (w + Tw)/2.0
+        return (w + Tw)/2.0'''
 
 def downsample(filters, size, apply_batchnorm=True):
     initializer = tf.random_normal_initializer(0., 0.02)
@@ -141,7 +155,6 @@ def downsample(filters, size, apply_batchnorm=True):
     result.add(
         tf.keras.layers.Conv2D(filters, size, strides=2, padding='same', 
                                 kernel_initializer=initializer, 
-                                kernel_constraint=symmetry_constraints(), 
                                 use_bias=False))
     if apply_batchnorm:
         result.add(tf.keras.layers.BatchNormalization())
@@ -190,23 +203,27 @@ def make_generator_model(len_low_size=16, scale=4):
     high_out = Normal(int(len_low_size*scale), name='out_high')(Sumh)'''
 
     Rech = Reconstruct_R1M(1024, name='rec_high')(WeiR1Ml)
-    paddings = tf.constant([[0,0],[1, 1], [1, 1], [0,0]])
-    Rech = tf.pad(Rech, paddings, "SYMMETRIC")
-    trans_1 = tf.keras.layers.Conv2D(filters=32, kernel_size=(3,3),
+
+    '''trans_1 = tf.keras.layers.Conv2D(filters=128, kernel_size=(1,1),
                                     strides=(1,1), padding='valid',
                                     data_format="channels_last",
-                                    kernel_constraint=symmetry_constraints(), 
+                                    kernel_initializer=tf.keras.initializers.RandomNormal(mean=0.01, stddev=0.1),
                                     activation='relu', use_bias=False, name='C2DT1')(Rech)
-    batchnorm_1 = tf.keras.layers.BatchNormalization()(trans_1)
-    trans_2 = Subpixel(filters= int(32), kernel_size=(5,5), r=4, 
-                        activation='relu', use_bias=False, padding='same',
-                        kernel_constraint=symmetry_constraints(), name='subpixel')(batchnorm_1)
-    batchnorm_2 = tf.keras.layers.BatchNormalization()(trans_2)
+    sym = Symmetry_R1M(name='SYM_1')(trans_1)
+    batchnorm_1 = tf.keras.layers.BatchNormalization()(sym)'''
+    trans_2 = Subpixel(filters= int(128), kernel_size=(3,3), r=2, 
+                        activation='relu', use_bias=False, padding='same', 
+                        kernel_initializer=tf.keras.initializers.RandomNormal(mean=0.01, stddev=0.1), name='subpixel_1')(Rech)
+    sym = Symmetry_R1M(name='SYM_2')(trans_2)
+    trans_3 = Subpixel(filters= int(128), kernel_size=(3,3), r=2, 
+                        activation='relu', use_bias=False, padding='same', 
+                        kernel_initializer=tf.keras.initializers.RandomNormal(mean=0.01, stddev=0.1), name='subpixel_2')(sym)
+    sym = Symmetry_R1M(name='SYM_3')(trans_3)
     Sumh = tf.keras.layers.Conv2D(filters=1, kernel_size=(1,1),
                                     strides=(1,1), padding='same',
                                     data_format="channels_last",
                                     kernel_constraint=tf.keras.constraints.NonNeg(),
-                                    activation='relu', use_bias=False, name='sum_high')(batchnorm_2)
+                                    activation='relu', use_bias=False, name='sum_high')(sym)
     high_out = Normal(int(len_low_size*scale), name='out_high')(Sumh)
 
     model = tf.keras.models.Model(inputs=[In], outputs=[low_out, high_out, up_o])
@@ -226,14 +243,12 @@ def make_discriminator_model(len_low_size=16, scale=4):
     zero_pad1 = tf.keras.layers.ZeroPadding2D()(down3)
     conv = tf.keras.layers.Conv2D(512, 4, strides=1,
                                   kernel_initializer=initializer,
-                                  kernel_constraint=symmetry_constraints(), 
                                   use_bias=False)(zero_pad1)
 
     batchnorm1 = tf.keras.layers.BatchNormalization()(conv)
     leaky_relu = tf.keras.layers.LeakyReLU()(batchnorm1)
     zero_pad2 = tf.keras.layers.ZeroPadding2D()(leaky_relu)
     last = tf.keras.layers.Conv2D(1, 4, strides=1,
-                                    kernel_constraint=symmetry_constraints(), 
                                     kernel_initializer=initializer)(zero_pad2)
     return tf.keras.Model(inputs=[inp, tar], outputs=last)
     #return tf.keras.Model(inputs=inp, outputs=last)
@@ -302,10 +317,11 @@ def train_step_generator(Gen, Dis, imgl, imgr, loss_filter, opts, train_logs):
         gen_high_v += Gen.get_layer('rec_high').trainable_variables
         #gen_high_v += Gen.get_layer('C2DT0').trainable_variables
         #gen_high_v += Gen.get_layer('batch_normalization').trainable_variables
-        gen_high_v += Gen.get_layer('C2DT1').trainable_variables
-        gen_high_v += Gen.get_layer('batch_normalization').trainable_variables
-        gen_high_v += Gen.get_layer('subpixel').trainable_variables
-        gen_high_v += Gen.get_layer('batch_normalization_1').trainable_variables
+        #gen_high_v += Gen.get_layer('C2DT1').trainable_variables
+        #gen_high_v += Gen.get_layer('batch_normalization').trainable_variables
+        gen_high_v += Gen.get_layer('subpixel_1').trainable_variables
+        gen_high_v += Gen.get_layer('subpixel_2').trainable_variables
+        #gen_high_v += Gen.get_layer('batch_normalization_1').trainable_variables
         gen_high_v += Gen.get_layer('sum_high').trainable_variables
         gen_high_v += Gen.get_layer('out_high').trainable_variables
         gen_loss_high_0 = generator_mse_loss(fake_hic_h, imgr_filter)
@@ -404,7 +420,7 @@ def train(gen, dis, dataset, epochs, len_low_size, scale, test_dataset=None):
                                 tf.dtypes.cast(low_m, tf.float32), tf.dtypes.cast(high_m, tf.float32),
                                 [loss_filter_low, loss_filter_high],
                                 opts, logs)
-            if((epoch+1) % 2):
+            if(epoch > 70 and (epoch%5==1)):
                 train_step_discriminator(gen, dis, 
                                 tf.dtypes.cast(low_m, tf.float32), tf.dtypes.cast(high_m, tf.float32),
                                 [loss_filter_low, loss_filter_high],
