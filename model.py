@@ -111,8 +111,8 @@ class Symmetry_R1M(tf.keras.layers.Layer):
 
     def build(self, input_shape):
         ones = tf.ones(shape=(input_shape[1], input_shape[2]), dtype='float32')
-        diag = tf.matrix_band_part(ones, 0, 0)*0.5
-        upper = tf.matrix_band_part(ones, 0, -1)
+        diag = tf.linalg.band_part(ones, 0, 0)*0.5
+        upper = tf.linalg.band_part(ones, 0, -1)
 
         self.w = upper - diag
         self.w = tf.expand_dims(self.w, 0)
@@ -148,19 +148,6 @@ class Normal(tf.keras.layers.Layer):
         #for conv2d the shape of kernel = [W, H, C, K] C:channels, K:output number of filters
         Tw = tf.transpose(w, perm=[1,0,2,3])
         return (w + Tw)/2.0'''
-
-def downsample(filters, size, apply_batchnorm=True):
-    initializer = tf.random_normal_initializer(0., 0.02)
-    result = tf.keras.Sequential()
-    result.add(
-        tf.keras.layers.Conv2D(filters, size, strides=2, padding='same', 
-                                kernel_initializer=initializer, 
-                                use_bias=False))
-    if apply_batchnorm:
-        result.add(tf.keras.layers.BatchNormalization())
-    result.add(tf.keras.layers.LeakyReLU())
-    return result
-
 
 def make_generator_model(len_low_size=16, scale=4):
     In = tf.keras.layers.Input(
@@ -201,6 +188,17 @@ def make_generator_model(len_low_size=16, scale=4):
     model = tf.keras.models.Model(inputs=[In], outputs=[low_out, high_out, up_o])
     return model
 
+def downsample(filters, size, apply_batchnorm=True):
+    initializer = tf.random_normal_initializer(0., 0.02)
+    result = tf.keras.Sequential()
+    result.add(
+        tf.keras.layers.Conv2D(filters, size, strides=2, padding='same', 
+                                kernel_initializer=initializer, 
+                                use_bias=False))
+    if apply_batchnorm:
+        result.add(tf.keras.layers.BatchNormalization())
+    result.add(tf.keras.layers.LeakyReLU())
+    return result
 
 def make_discriminator_model(len_low_size=16, scale=4):
     len_high_size = int(len_low_size*scale)
@@ -299,7 +297,7 @@ def train_step_generator(Gen, Dis, imgl, imgr, loss_filter, opts, train_logs):
         gen_loss_high_0 = generator_mse_loss(fake_hic_h, imgr_filter)
         gen_loss_high_1 = generator_KL_loss(disc_generated_output)
         gen_loss_high_2 = generator_ssim_loss(fake_hic_h, imgr_filter)
-        gen_loss_high = gen_loss_high_0*10+ gen_loss_high_2*10 + gen_loss_high_1
+        gen_loss_high = gen_loss_high_0*10+ gen_loss_high_2*10# + gen_loss_high_1
         gradients_of_generator_high = gen_tape_high.gradient(gen_loss_high, gen_high_v)
         opts[1].apply_gradients(zip(gradients_of_generator_high, gen_high_v))
         train_logs[2](gen_loss_high_0)
