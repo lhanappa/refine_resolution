@@ -192,7 +192,7 @@ def downsample(filters, size, apply_batchnorm=True):
     initializer = tf.random_normal_initializer(0., 0.02)
     result = tf.keras.Sequential()
     result.add(
-        tf.keras.layers.Conv2D(filters, size, strides=2, padding='same', 
+        tf.keras.layers.Conv2D(filters, size, strides=2, padding='valid', 
                                 kernel_initializer=initializer, 
                                 use_bias=False))
     if apply_batchnorm:
@@ -207,19 +207,18 @@ def make_discriminator_model(len_low_size=16, scale=4):
     tar = tf.keras.layers.Input(shape=[len_high_size, len_high_size, 1], name='target_image')
     x = tf.keras.layers.concatenate([inp, tar])
     #x = inp
-    down1 = downsample(64, 4, False)(x)
-    down2 = downsample(128, 4)(down1)
-    down3 = downsample(256, 4)(down2)
-    zero_pad1 = tf.keras.layers.ZeroPadding2D()(down3)
-    conv = tf.keras.layers.Conv2D(512, 4, strides=1,
+    down1 = downsample(128, 3, False)(x)
+    down2 = downsample(256, 3)(down1)
+    #down3 = downsample(256, 3)(down2)
+    zero_pad1 = tf.keras.layers.ZeroPadding2D()(down2)
+    conv = tf.keras.layers.Conv2D(512, 3, strides=1,
                                   kernel_initializer=initializer,
                                   use_bias=False)(zero_pad1)
 
     batchnorm1 = tf.keras.layers.BatchNormalization()(conv)
     leaky_relu = tf.keras.layers.LeakyReLU()(batchnorm1)
-    zero_pad2 = tf.keras.layers.ZeroPadding2D()(leaky_relu)
-    last = tf.keras.layers.Conv2D(1, 4, strides=1,
-                                    kernel_initializer=initializer)(zero_pad2)
+    #zero_pad2 = tf.keras.layers.ZeroPadding2D()(leaky_relu)
+    last = tf.keras.layers.Conv2D(1, 3, strides=1, padding='valid', kernel_initializer=initializer)(leaky_relu)
     return tf.keras.Model(inputs=[inp, tar], outputs=last)
     #return tf.keras.Model(inputs=inp, outputs=last)
 
@@ -297,7 +296,7 @@ def train_step_generator(Gen, Dis, imgl, imgr, loss_filter, opts, train_logs):
         gen_loss_high_0 = generator_mse_loss(fake_hic_h, imgr_filter)
         gen_loss_high_1 = generator_KL_loss(disc_generated_output)
         gen_loss_high_2 = generator_ssim_loss(fake_hic_h, imgr_filter)
-        gen_loss_high = gen_loss_high_0*10+ gen_loss_high_2*10# + gen_loss_high_1
+        gen_loss_high = gen_loss_high_0*10+ gen_loss_high_2*10 + gen_loss_high_1
         gradients_of_generator_high = gen_tape_high.gradient(gen_loss_high, gen_high_v)
         opts[1].apply_gradients(zip(gradients_of_generator_high, gen_high_v))
         train_logs[2](gen_loss_high_0)
