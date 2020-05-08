@@ -200,7 +200,13 @@ def downsample(filters, size, apply_batchnorm=True):
     result.add(tf.keras.layers.LeakyReLU())
     return result
 
-def make_discriminator_model(len_low_size=16, scale=4):
+'''def make_discriminator_model(len_low_size=16, scale=4):
+    ''''''PatchGAN 1 pixel of output represents X pixels of input: https://github.com/junyanz/pytorch-CycleGAN-and-pix2pix/issues/39
+     The "70" is implicit, it's not written anywhere in the code but instead emerges as a mathematical consequence of the network architecture.
+    The math is here: https://github.com/phillipi/pix2pix/blob/master/scripts/receptive_field_sizes.m
+    compute input size from a given output size:
+    f = @(output_size, ksize, stride) (output_size - 1) * stride + ksize; fix output_size as 1 
+    ''''''
     len_high_size = int(len_low_size*scale)
     initializer = tf.random_normal_initializer(0., 0.02)
     inp = tf.keras.layers.Input(shape=[len_high_size, len_high_size, 1], name='input_image')
@@ -220,7 +226,53 @@ def make_discriminator_model(len_low_size=16, scale=4):
     #zero_pad2 = tf.keras.layers.ZeroPadding2D()(leaky_relu)
     last = tf.keras.layers.Conv2D(1, 3, strides=1, padding='valid', kernel_initializer=initializer)(leaky_relu)
     return tf.keras.Model(inputs=[inp, tar], outputs=last)
-    #return tf.keras.Model(inputs=inp, outputs=last)
+    #return tf.keras.Model(inputs=inp, outputs=last)'''
+
+def make_discriminator_model(len_low_size=16, scale=4):
+    '''PatchGAN 1 pixel of output represents X pixels of input: https://github.com/junyanz/pytorch-CycleGAN-and-pix2pix/issues/39
+     The "70" is implicit, it's not written anywhere in the code but instead emerges as a mathematical consequence of the network architecture.
+    The math is here: https://github.com/phillipi/pix2pix/blob/master/scripts/receptive_field_sizes.m
+    compute input size from a given output size:
+    f = @(output_size, ksize, stride) (output_size - 1) * stride + ksize; fix output_size as 1 
+    '''
+    len_high_size = int(len_low_size*scale)
+    initializer = tf.random_normal_initializer(0., 0.02)
+    inp = tf.keras.layers.Input(shape=[len_high_size, len_high_size, 1], name='input_image')
+    dec = tf.keras.layers.Conv2D(256, [1, len_high_size], strides=1, padding='valid', data_format="channels_last", 
+                                    activation='relu', use_bias=False,
+                                    kernel_initializer=initializer, 
+                                    name='dec')(inp)
+
+    conv = tf.keras.layers.Conv2D(512, [1, 1], strides=1, padding='same', data_format="channels_last", 
+                                    activation=None, use_bias=True,
+                                    kernel_initializer=initializer, 
+                                    )(dec)
+    batchnorm = tf.keras.layers.BatchNormalization()(conv)
+    leaky_relu = tf.keras.layers.LeakyReLU()(batchnorm)
+    conv = tf.keras.layers.Conv2D(1024, [1, 1], strides=1, padding='same', data_format="channels_last", 
+                                    activation=None, use_bias=True,
+                                    kernel_initializer=initializer, 
+                                    )(leaky_relu)
+    batchnorm = tf.keras.layers.BatchNormalization()(conv)
+    leaky_relu = tf.keras.layers.LeakyReLU()(batchnorm)
+
+    conv = tf.keras.layers.Conv2D(256, [3, 1], strides=2, padding='valid', data_format="channels_last", 
+                                    activation=None, use_bias=True,
+                                    kernel_initializer=initializer, 
+                                    )(leaky_relu)
+    batchnorm = tf.keras.layers.BatchNormalization()(conv)
+    leaky_relu = tf.keras.layers.LeakyReLU()(batchnorm)
+
+    conv = tf.keras.layers.Conv2D(64, [3, 1], strides=2, padding='valid', data_format="channels_last", 
+                                    activation=None, use_bias=True,
+                                    kernel_initializer=initializer, 
+                                    )(leaky_relu)
+    batchnorm = tf.keras.layers.BatchNormalization()(conv)
+    leaky_relu = tf.keras.layers.LeakyReLU()(batchnorm)
+
+    last = tf.keras.layers.Conv2D(32, 1, strides=1, padding='valid', kernel_initializer=initializer)(leaky_relu)
+    last = tf.squeeze(last, axis=2)
+    return tf.keras.Model(inputs=inp, outputs=last)
 
 def discriminator_KL_loss(real_output, fake_output):
     loss_object = tf.keras.losses.BinaryCrossentropy(from_logits=True)
@@ -389,7 +441,7 @@ def train(gen, dis, dataset, epochs, len_low_size, scale, test_dataset=None):
                                 tf.dtypes.cast(low_m, tf.float32), tf.dtypes.cast(high_m, tf.float32),
                                 [loss_filter_low, loss_filter_high],
                                 opts, logs)
-            if(epoch > 70 and (epoch%5==1)):
+            if(epoch > 70 and (epoch%3==1)):
                 train_step_discriminator(gen, dis, 
                                 tf.dtypes.cast(low_m, tf.float32), tf.dtypes.cast(high_m, tf.float32),
                                 [loss_filter_low, loss_filter_high],

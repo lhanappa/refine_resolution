@@ -13,3 +13,4 @@ slurm*.out
 tf*.log
 *.out
 saved_model/*
+D1.png
