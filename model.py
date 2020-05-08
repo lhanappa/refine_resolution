@@ -238,28 +238,33 @@ def make_discriminator_model(len_low_size=16, scale=4):
     len_high_size = int(len_low_size*scale)
     initializer = tf.random_normal_initializer(0., 0.2)
     inp = tf.keras.layers.Input(shape=[len_high_size, len_high_size, 1], name='input_image')
-    dec = tf.keras.layers.Conv2D(1024, [1, len_high_size], strides=1, padding='valid', data_format="channels_last", 
+    dec = tf.keras.layers.Conv2D(128, [1, 3], strides=[1,2], padding='valid', data_format="channels_last", 
                                     use_bias=True,
                                     kernel_initializer=tf.random_normal_initializer(0., 1.0), 
                                     name='dec')(inp)
     batchnorm = tf.keras.layers.BatchNormalization()(dec)
 
-    conv = tf.keras.layers.Conv2D(256, [3, 1], strides=2, padding='valid', data_format="channels_last", 
+    conv = tf.keras.layers.Conv2D(256, [1, 3], strides=[1,2], padding='valid', data_format="channels_last", 
+                                    activation=None, use_bias=True,
+                                    kernel_initializer=initializer, 
+                                    )(batchnorm)
+    batchnorm = tf.keras.layers.BatchNormalization()(conv)
+
+    conv = tf.keras.layers.Conv2D(512, [3, 1], strides=[2,1], padding='valid', data_format="channels_last", 
                                     activation=None, use_bias=True,
                                     kernel_initializer=initializer, 
                                     )(batchnorm)
     batchnorm = tf.keras.layers.BatchNormalization()(conv)
     #leaky_relu = tf.keras.layers.LeakyReLU()(batchnorm)
 
-    conv = tf.keras.layers.Conv2D(64, [3, 1], strides=2, padding='valid', data_format="channels_last", 
+    conv = tf.keras.layers.Conv2D(256, [3, 1], strides=[2,1], padding='valid', data_format="channels_last", 
                                     activation=None, use_bias=True,
                                     kernel_initializer=initializer, 
                                     )(batchnorm)
-    #batchnorm = tf.keras.layers.BatchNormalization()(conv)
-    #leaky_relu = tf.keras.layers.LeakyReLU()(batchnorm)
+    batchnorm = tf.keras.layers.BatchNormalization()(conv)
 
-    last = tf.keras.layers.Conv2D(64, 1, strides=1, padding='valid', kernel_initializer=initializer)(conv)
-    last = tf.squeeze(last, axis=2)
+    last = tf.keras.layers.Conv2D(1, 1, strides=1, padding='valid', kernel_initializer=initializer)(batchnorm)
+    last = tf.keras.layers.Dense(1)(last)
     return tf.keras.Model(inputs=inp, outputs=last)
 
 def discriminator_KL_loss(real_output, fake_output):
