@@ -236,11 +236,11 @@ def make_discriminator_model(len_low_size=16, scale=4):
     f = @(output_size, ksize, stride) (output_size - 1) * stride + ksize; fix output_size as 1 
     '''
     len_high_size = int(len_low_size*scale)
-    initializer = tf.random_normal_initializer(0., 0.02)
+    initializer = tf.random_normal_initializer(0., 0.2)
     inp = tf.keras.layers.Input(shape=[len_high_size, len_high_size, 1], name='input_image')
     dec = tf.keras.layers.Conv2D(1024, [1, len_high_size], strides=1, padding='valid', data_format="channels_last", 
                                     use_bias=True,
-                                    kernel_initializer=initializer, 
+                                    kernel_initializer=tf.random_normal_initializer(0., 1.0), 
                                     name='dec')(inp)
     batchnorm = tf.keras.layers.BatchNormalization()(dec)
 
@@ -255,10 +255,10 @@ def make_discriminator_model(len_low_size=16, scale=4):
                                     activation=None, use_bias=True,
                                     kernel_initializer=initializer, 
                                     )(batchnorm)
-    batchnorm = tf.keras.layers.BatchNormalization()(conv)
+    #batchnorm = tf.keras.layers.BatchNormalization()(conv)
     #leaky_relu = tf.keras.layers.LeakyReLU()(batchnorm)
 
-    last = tf.keras.layers.Conv2D(32, 1, strides=1, padding='valid', kernel_initializer=initializer)(batchnorm)
+    last = tf.keras.layers.Conv2D(64, 1, strides=1, padding='valid', kernel_initializer=initializer)(conv)
     last = tf.squeeze(last, axis=2)
     return tf.keras.Model(inputs=inp, outputs=last)
 
