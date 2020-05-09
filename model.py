@@ -200,13 +200,13 @@ def downsample(filters, size, apply_batchnorm=True):
     result.add(tf.keras.layers.LeakyReLU())
     return result
 
-'''def make_discriminator_model(len_low_size=16, scale=4):
-    ''''''PatchGAN 1 pixel of output represents X pixels of input: https://github.com/junyanz/pytorch-CycleGAN-and-pix2pix/issues/39
+def make_discriminator_model(len_low_size=16, scale=4):
+    '''PatchGAN 1 pixel of output represents X pixels of input: https://github.com/junyanz/pytorch-CycleGAN-and-pix2pix/issues/39
      The "70" is implicit, it's not written anywhere in the code but instead emerges as a mathematical consequence of the network architecture.
     The math is here: https://github.com/phillipi/pix2pix/blob/master/scripts/receptive_field_sizes.m
     compute input size from a given output size:
     f = @(output_size, ksize, stride) (output_size - 1) * stride + ksize; fix output_size as 1 
-    ''''''
+    '''
     len_high_size = int(len_low_size*scale)
     initializer = tf.random_normal_initializer(0., 0.02)
     inp = tf.keras.layers.Input(shape=[len_high_size, len_high_size, 1], name='input_image')
@@ -225,16 +225,17 @@ def downsample(filters, size, apply_batchnorm=True):
     leaky_relu = tf.keras.layers.LeakyReLU()(batchnorm1)
     #zero_pad2 = tf.keras.layers.ZeroPadding2D()(leaky_relu)
     last = tf.keras.layers.Conv2D(1, 3, strides=1, padding='valid', kernel_initializer=initializer)(leaky_relu)
+    last = tf.keras.layers.Activation('sigmoid')(last)
     return tf.keras.Model(inputs=[inp, tar], outputs=last)
-    #return tf.keras.Model(inputs=inp, outputs=last)'''
+    #return tf.keras.Model(inputs=inp, outputs=last)
 
-def make_discriminator_model(len_low_size=16, scale=4):
-    '''PatchGAN 1 pixel of output represents X pixels of input: https://github.com/junyanz/pytorch-CycleGAN-and-pix2pix/issues/39
+'''def make_discriminator_model(len_low_size=16, scale=4):
+    ''''''PatchGAN 1 pixel of output represents X pixels of input: https://github.com/junyanz/pytorch-CycleGAN-and-pix2pix/issues/39
      The "70" is implicit, it's not written anywhere in the code but instead emerges as a mathematical consequence of the network architecture.
     The math is here: https://github.com/phillipi/pix2pix/blob/master/scripts/receptive_field_sizes.m
     compute input size from a given output size:
     f = @(output_size, ksize, stride) (output_size - 1) * stride + ksize; fix output_size as 1 
-    '''
+    ''''''
     len_high_size = int(len_low_size*scale)
     initializer = tf.random_normal_initializer(0., 0.2)
     inp = tf.keras.layers.Input(shape=[len_high_size, len_high_size, 1], name='input_image')
@@ -261,12 +262,13 @@ def make_discriminator_model(len_low_size=16, scale=4):
                                     kernel_initializer=initializer, 
                                     )(batchnorm)
 
-    last = tf.keras.layers.Flatten()(conv)
-    last = tf.keras.layers.Dense(1, activation='sigmoid')(last)
+    last = tf.keras.layers.S
+    last = tf.keras.layers.Activation(activation='sigmoid')(last)
+    #last = tf.keras.layers.Dense(1, activation='sigmoid')(last)
     #last = tf.keras.layers.Reshape((32, 32))(last)
-    return tf.keras.Model(inputs=inp, outputs=last)
+    return tf.keras.Model(inputs=inp, outputs=last)'''
 
-def discriminator_KL_loss(real_output, fake_output):
+def discriminator_bce_loss(real_output, fake_output):
     loss_object = tf.keras.losses.BinaryCrossentropy(from_logits=False)
     real_loss = loss_object(tf.ones_like(real_output), real_output)
     generated_loss = loss_object(tf.zeros_like(fake_output), fake_output)
@@ -283,14 +285,14 @@ def generator_mse_loss(y_pred, y_true):#, m_filter):
     s = tf.reduce_mean(s, axis=-1)
     return s
 
-def generator_KL_loss(d_pred):
+def generator_bce_loss(d_pred):
     loss_object = tf.keras.losses.BinaryCrossentropy(from_logits=False)
     gan_loss = loss_object(tf.ones_like(d_pred), d_pred)
     return gan_loss
 
 
 @tf.function
-def train_step_generator(Gen, Dis, imgl, imgr, loss_filter, opts, train_logs):
+def train_step_generator(Gen, Dis, imgl, imgr, loss_filter, loss_weights, opts, train_logs):
     with tf.GradientTape() as gen_tape_low, tf.GradientTape() as gen_tape_high, tf.GradientTape() as disc_tape:
         fake_hic = Gen(imgl, training=True)
         fake_hic_l = fake_hic[0]
@@ -337,10 +339,10 @@ def train_step_generator(Gen, Dis, imgl, imgr, loss_filter, opts, train_logs):
         #gen_high_v += Gen.get_layer('batch_normalization_1').trainable_variables
         gen_high_v += Gen.get_layer('sum_high').trainable_variables
         gen_high_v += Gen.get_layer('out_high').trainable_variables
-        gen_loss_high_0 = generator_mse_loss(fake_hic_h, imgr_filter)
-        gen_loss_high_1 = generator_KL_loss(disc_generated_output)
+        gen_loss_high_0 = generator_bce_loss(disc_generated_output) 
+        gen_loss_high_1 = generator_mse_loss(fake_hic_h, imgr_filter)
         gen_loss_high_2 = generator_ssim_loss(fake_hic_h, imgr_filter)
-        gen_loss_high = gen_loss_high_0*40+ gen_loss_high_2*40# + gen_loss_high_1
+        gen_loss_high = gen_loss_high_0*loss_weights[0]+ gen_loss_high_1*loss_weights[1] + gen_loss_high_2*loss_weights[2]
         gradients_of_generator_high = gen_tape_high.gradient(gen_loss_high, gen_high_v)
         opts[1].apply_gradients(zip(gradients_of_generator_high, gen_high_v))
         train_logs[2](gen_loss_high_0)
@@ -365,7 +367,7 @@ def train_step_discriminator(Gen, Dis, imgl, imgr, loss_filter, opts, train_logs
         #disc_real_output = Dis([img_l_h, imgr_filter], training=True)
         disc_generated_output = Dis(fake_hic_h, training=True)
         disc_real_output = Dis(imgr_filter, training=True)
-        disc_loss = discriminator_KL_loss( disc_real_output, disc_generated_output)
+        disc_loss = discriminator_bce_loss( disc_real_output, disc_generated_output)
         discriminator_gradients = disc_tape.gradient(disc_loss, Dis.trainable_variables)
         opts[0].apply_gradients(zip(discriminator_gradients, Dis.trainable_variables))
         train_logs[0](disc_loss)
@@ -383,10 +385,10 @@ def train(gen, dis, dataset, epochs, len_low_size, scale, test_dataset=None):
     generator_log_ssim_low = tf.keras.metrics.Mean('train_gen_low_ssim_loss', dtype=tf.float32)
     generator_log_mse_low = tf.keras.metrics.Mean('train_gen_low_mse_loss', dtype=tf.float32)
     generator_log_mse_high = tf.keras.metrics.Mean('train_gen_high_mse_loss', dtype=tf.float32)
-    generator_log_kl_high = tf.keras.metrics.Mean('train_gen_high_KL_loss', dtype=tf.float32)
+    generator_log_bce_high = tf.keras.metrics.Mean('train_gen_high_bce_loss', dtype=tf.float32)
     generator_log_ssim_high = tf.keras.metrics.Mean('train_gen_high_ssim_loss', dtype=tf.float32)
     discriminator_log = tf.keras.metrics.Mean('train_discriminator_loss', dtype=tf.float32)
-    logs = [generator_log_ssim_low, generator_log_mse_low, generator_log_mse_high, generator_log_kl_high, generator_log_ssim_high]# for generator, discriminator_log]
+    logs = [generator_log_ssim_low, generator_log_mse_low, generator_log_bce_high, generator_log_mse_high, generator_log_ssim_high]# for generator, discriminator_log]
     current_time = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
     train_log_dir = 'logs/gradient_tape/' + current_time + '/generator'
     train_summary_G_writer = tf.summary.create_file_writer(train_log_dir)
@@ -429,12 +431,15 @@ def train(gen, dis, dataset, epochs, len_low_size, scale, test_dataset=None):
     for epoch in range(epochs):
         start = time.time()
         for i, (low_m, high_m) in enumerate(dataset):
-            if(epoch%20<20):
-                train_step_generator(gen, dis, 
-                                    tf.dtypes.cast(low_m, tf.float32), tf.dtypes.cast(high_m, tf.float32),
-                                    [loss_filter_low, loss_filter_high],
-                                    opts, logs)
-            if(epoch>15):
+            if(epoch<300):
+                loss_weights = [1.0, 1.0, 0.0]
+            else:
+                loss_weights = [1.0, 1.0, 2.0]
+            train_step_generator(gen, dis, 
+                                tf.dtypes.cast(low_m, tf.float32), tf.dtypes.cast(high_m, tf.float32),
+                                [loss_filter_low, loss_filter_high], loss_weights,
+                                opts, logs)
+            if(epoch>0):
                 train_step_discriminator(gen, dis, 
                                 tf.dtypes.cast(low_m, tf.float32), tf.dtypes.cast(high_m, tf.float32),
                                 [loss_filter_low, loss_filter_high],
@@ -447,8 +452,8 @@ def train(gen, dis, dataset, epochs, len_low_size, scale, test_dataset=None):
             tf.summary.scalar('loss_gen_low_disssim', generator_log_ssim_low.result(), step=epoch)
             tf.summary.scalar('loss_gen_low_mse', generator_log_mse_low.result(), step=epoch)
             tf.summary.scalar('loss_gen_high_mse', generator_log_mse_high.result(), step=epoch)
-            tf.summary.scalar('loss_gen_high_kl', generator_log_kl_high.result(), step=epoch)
             tf.summary.scalar('loss_gen_high_disssim', generator_log_ssim_high.result(), step=epoch)
+            tf.summary.scalar('loss_gen_high_bce', generator_log_bce_high.result(), step=epoch)
             mpy = demo_pred_low.numpy()
             m = np.log1p(100*np.squeeze(mpy[:,:,:,0]))
             fig = plot_matrix(m)
@@ -462,13 +467,13 @@ def train(gen, dis, dataset, epochs, len_low_size, scale, test_dataset=None):
         with train_summary_D_writer.as_default():
             tf.summary.scalar('loss_dis', discriminator_log.result(), step=epoch)
             mpy = demo_disc_generated.numpy()
-            m = np.squeeze(mpy).reshape((4,4))
-            fig = plot_matrix(m)
+            m = np.squeeze(mpy)
+            fig = plot_prob_matrix(m)
             image = plot_to_image(fig)
             tf.summary.image(name='dis_gen', data=image, step=epoch)
             mpy = demo_disc_true.numpy()
-            m = np.squeeze(mpy).reshape((4,4))
-            fig = plot_matrix(m)
+            m = np.squeeze(mpy)
+            fig = plot_prob_matrix(m)
             image = plot_to_image(fig)
             tf.summary.image(name='dis_true', data=image, step=epoch)
         print('Time for epoch {} is {} sec.'.format(
@@ -482,6 +487,22 @@ def plot_matrix(m):
         for i in range(min(9, m.shape[0])):
             ax = figure.add_subplot(3,3,i+1)
             ax.matshow(np.squeeze(m[i,:,:]), cmap='RdBu_r')
+        plt.tight_layout()
+    else:
+        plt.matshow(m, cmap='RdBu_r')
+        plt.colorbar()
+        plt.tight_layout()
+    return figure
+
+def plot_prob_matrix(m):
+    import numpy as np
+    import matplotlib.pyplot as plt
+    figure = plt.figure(figsize=(10,10))
+    if len(m.shape)==3:
+        for i in range(min(9, m.shape[0])):
+            ax = figure.add_subplot(3,3,i+1)
+            im = ax.matshow(np.squeeze(m[i,:,:]), cmap='RdBu_r')
+            im.set_clim(0.001, 1.001)
         plt.tight_layout()
     else:
         plt.matshow(m, cmap='RdBu_r')
