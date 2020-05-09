@@ -262,12 +262,12 @@ def make_discriminator_model(len_low_size=16, scale=4):
                                     )(batchnorm)
 
     last = tf.keras.layers.Flatten()(conv)
-    last = tf.keras.layers.Dense(1)(last)
+    last = tf.keras.layers.Dense(1, activation='sigmoid')(last)
     #last = tf.keras.layers.Reshape((32, 32))(last)
     return tf.keras.Model(inputs=inp, outputs=last)
 
 def discriminator_KL_loss(real_output, fake_output):
-    loss_object = tf.keras.losses.BinaryCrossentropy(from_logits=True)
+    loss_object = tf.keras.losses.BinaryCrossentropy(from_logits=False)
     real_loss = loss_object(tf.ones_like(real_output), real_output)
     generated_loss = loss_object(tf.zeros_like(fake_output), fake_output)
     total_disc_loss = real_loss + generated_loss
@@ -284,7 +284,7 @@ def generator_mse_loss(y_pred, y_true):#, m_filter):
     return s
 
 def generator_KL_loss(d_pred):
-    loss_object = tf.keras.losses.BinaryCrossentropy(from_logits=True)
+    loss_object = tf.keras.losses.BinaryCrossentropy(from_logits=False)
     gan_loss = loss_object(tf.ones_like(d_pred), d_pred)
     return gan_loss
 
