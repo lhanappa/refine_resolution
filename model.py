@@ -256,10 +256,14 @@ def make_discriminator_model(len_low_size=16, scale=4):
                                     kernel_initializer=initializer, 
                                     )(batchnorm)
     batchnorm = tf.keras.layers.BatchNormalization()(conv)
+    conv = tf.keras.layers.Conv2D(32, [1, 1], strides=[1,1], padding='same', data_format="channels_last", 
+                                    activation=None, use_bias=True,
+                                    kernel_initializer=initializer, 
+                                    )(batchnorm)
 
-    last = tf.keras.layers.Flatten()(batchnorm)
-    last = tf.keras.layers.Dense(1024)(last)
-    last = tf.keras.layers.Reshape((32, 32))(last)
+    last = tf.keras.layers.Flatten()(conv)
+    last = tf.keras.layers.Dense(1)(last)
+    #last = tf.keras.layers.Reshape((32, 32))(last)
     return tf.keras.Model(inputs=inp, outputs=last)
 
 def discriminator_KL_loss(real_output, fake_output):
