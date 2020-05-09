@@ -336,7 +336,7 @@ def train_step_generator(Gen, Dis, imgl, imgr, loss_filter, opts, train_logs):
         gen_loss_high_0 = generator_mse_loss(fake_hic_h, imgr_filter)
         gen_loss_high_1 = generator_KL_loss(disc_generated_output)
         gen_loss_high_2 = generator_ssim_loss(fake_hic_h, imgr_filter)
-        gen_loss_high = gen_loss_high_0*10+ gen_loss_high_2*10 + gen_loss_high_1
+        gen_loss_high = gen_loss_high_0*40+ gen_loss_high_2*40# + gen_loss_high_1
         gradients_of_generator_high = gen_tape_high.gradient(gen_loss_high, gen_high_v)
         opts[1].apply_gradients(zip(gradients_of_generator_high, gen_high_v))
         train_logs[2](gen_loss_high_0)
@@ -425,12 +425,12 @@ def train(gen, dis, dataset, epochs, len_low_size, scale, test_dataset=None):
     for epoch in range(epochs):
         start = time.time()
         for i, (low_m, high_m) in enumerate(dataset):
-            if(epoch%20<10):
+            if(epoch%20<20):
                 train_step_generator(gen, dis, 
                                     tf.dtypes.cast(low_m, tf.float32), tf.dtypes.cast(high_m, tf.float32),
                                     [loss_filter_low, loss_filter_high],
                                     opts, logs)
-            if(epoch%30>15):
+            if(epoch>15):
                 train_step_discriminator(gen, dis, 
                                 tf.dtypes.cast(low_m, tf.float32), tf.dtypes.cast(high_m, tf.float32),
                                 [loss_filter_low, loss_filter_high],
