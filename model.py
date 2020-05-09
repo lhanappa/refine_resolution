@@ -297,7 +297,7 @@ def train_step_generator(Gen, Dis, imgl, imgr, loss_filter, loss_weights, opts, 
         fake_hic = Gen(imgl, training=True)
         fake_hic_l = fake_hic[0]
         fake_hic_h = fake_hic[1]
-        #img_l_h = fake_hic[2]
+        img_l_h = fake_hic[2]
 
         mfilter_low = tf.expand_dims(loss_filter[0], axis=0)
         mfilter_low = tf.expand_dims(mfilter_low, axis=-1)
@@ -309,7 +309,7 @@ def train_step_generator(Gen, Dis, imgl, imgr, loss_filter, loss_weights, opts, 
         mfilter_high = tf.expand_dims(mfilter_high, axis=-1)
         mfilter_high = tf.cast(mfilter_high, tf.float32)
         fake_hic_h = tf.multiply(fake_hic_h, mfilter_high)
-        #img_l_h = tf.multiply(img_l_h, mfilter_high)
+        img_l_h = tf.multiply(img_l_h, mfilter_high)
         imgr_filter = tf.multiply(imgr, mfilter_high)
         #gen_low_v = Gen.trainable_variables
         gen_low_v = []
@@ -326,8 +326,8 @@ def train_step_generator(Gen, Dis, imgl, imgr, loss_filter, loss_weights, opts, 
         train_logs[0](gen_loss_low_ssim)
         train_logs[1](gen_loss_low_mse)
         #if(epoch_flag):
-        #disc_generated_output = Dis([img_l_h, fake_hic_h], training=False)
-        disc_generated_output = Dis(fake_hic_h, training=False)
+        disc_generated_output = Dis([img_l_h, fake_hic_h], training=False)
+        #disc_generated_output = Dis(fake_hic_h, training=False)
         gen_high_v = []
         gen_high_v += Gen.get_layer('rec_high').trainable_variables
         #gen_high_v += Gen.get_layer('C2DT0').trainable_variables
@@ -356,17 +356,17 @@ def train_step_discriminator(Gen, Dis, imgl, imgr, loss_filter, opts, train_logs
         fake_hic = Gen(imgl, training=False)
         fake_hic_l = fake_hic[0]
         fake_hic_h = fake_hic[1]
-        #img_l_h = fake_hic[2]
+        img_l_h = fake_hic[2]
         mfilter_high = tf.expand_dims(loss_filter[1], axis=0)
         mfilter_high = tf.expand_dims(mfilter_high, axis=-1)
         mfilter_high = tf.cast(mfilter_high, tf.float32)
         fake_hic_h = tf.multiply(fake_hic_h, mfilter_high)
-        #img_l_h = tf.multiply(img_l_h, mfilter_high)
+        img_l_h = tf.multiply(img_l_h, mfilter_high)
         imgr_filter = tf.multiply(imgr, mfilter_high)
-        #disc_generated_output = Dis([img_l_h, fake_hic_h], training=True)
-        #disc_real_output = Dis([img_l_h, imgr_filter], training=True)
-        disc_generated_output = Dis(fake_hic_h, training=True)
-        disc_real_output = Dis(imgr_filter, training=True)
+        disc_generated_output = Dis([img_l_h, fake_hic_h], training=True)
+        disc_real_output = Dis([img_l_h, imgr_filter], training=True)
+        #disc_generated_output = Dis(fake_hic_h, training=True)
+        #disc_real_output = Dis(imgr_filter, training=True)
         disc_loss = discriminator_bce_loss( disc_real_output, disc_generated_output)
         discriminator_gradients = disc_tape.gradient(disc_loss, Dis.trainable_variables)
         opts[0].apply_gradients(zip(discriminator_gradients, Dis.trainable_variables))
