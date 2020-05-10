@@ -288,7 +288,7 @@ def make_discriminator_model(len_low_size=16, scale=4):
     zero_pad = tf.keras.layers.ZeroPadding2D()(leaky_relu)
     conv = tf.keras.layers.Conv2D(512, 4, strides=2, padding='valid', use_bias=False)(zero_pad)
     batchnorm = tf.keras.layers.BatchNormalization()(conv)
-    leaky_relu = tf.keras.layers.LeakyReLU(0.2)(batchnorm)
+    leaky_relu = tf.keras.layers.Activation('tanh')(batchnorm)
 
     last = tf.keras.layers.Conv2D(1, 1, strides=1, padding='valid', use_bias=False)(leaky_relu)
     last = tf.keras.layers.Flatten()(last)
