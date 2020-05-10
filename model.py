@@ -200,13 +200,13 @@ def downsample(filters, size, apply_batchnorm=True):
     result.add(tf.keras.layers.LeakyReLU())
     return result
 
-'''def make_discriminator_model(len_low_size=16, scale=4):
-    ''''''PatchGAN 1 pixel of output represents X pixels of input: https://github.com/junyanz/pytorch-CycleGAN-and-pix2pix/issues/39
+"""def make_discriminator_model(len_low_size=16, scale=4):
+    '''PatchGAN 1 pixel of output represents X pixels of input: https://github.com/junyanz/pytorch-CycleGAN-and-pix2pix/issues/39
      The "70" is implicit, it's not written anywhere in the code but instead emerges as a mathematical consequence of the network architecture.
     The math is here: https://github.com/phillipi/pix2pix/blob/master/scripts/receptive_field_sizes.m
     compute input size from a given output size:
     f = @(output_size, ksize, stride) (output_size - 1) * stride + ksize; fix output_size as 1 
-    ''''''
+    '''
     len_high_size = int(len_low_size*scale)
     initializer = tf.random_normal_initializer(0., 0.02)
     inp = tf.keras.layers.Input(shape=[len_high_size, len_high_size, 1], name='input_image')
@@ -227,9 +227,9 @@ def downsample(filters, size, apply_batchnorm=True):
     last = tf.keras.layers.Conv2D(1, 3, strides=1, padding='valid', kernel_initializer=initializer,use_bias=True)(leaky_relu)
     last = tf.keras.layers.Activation('sigmoid')(last)
     #return tf.keras.Model(inputs=[inp, tar], outputs=last)
-    return tf.keras.Model(inputs=inp, outputs=last)'''
+    return tf.keras.Model(inputs=inp, outputs=last)"""
 
-def make_discriminator_model(len_low_size=16, scale=4):
+"""def make_discriminator_model(len_low_size=16, scale=4):
     '''PatchGAN 1 pixel of output represents X pixels of input: https://github.com/junyanz/pytorch-CycleGAN-and-pix2pix/issues/39
      The "70" is implicit, it's not written anywhere in the code but instead emerges as a mathematical consequence of the network architecture.
     The math is here: https://github.com/phillipi/pix2pix/blob/master/scripts/receptive_field_sizes.m
@@ -265,6 +265,34 @@ def make_discriminator_model(len_low_size=16, scale=4):
     last = tf.keras.layers.Flatten()(conv)
     last = tf.keras.layers.Dense(1, activation='sigmoid')(last)
     #last = tf.keras.layers.Reshape((31, 32))(last)
+    return tf.keras.Model(inputs=inp, outputs=last)"""
+
+def make_discriminator_model(len_low_size=16, scale=4):
+    len_high_size = int(len_low_size*scale)
+    inp = tf.keras.layers.Input(shape=[len_high_size, len_high_size, 1], name='input_image')
+
+    zero_pad = tf.keras.layers.ZeroPadding2D()(inp)
+    conv = tf.keras.layers.Conv2D(64, 4, strides=2, padding='valid', use_bias=False)(zero_pad)
+    leaky_relu = tf.keras.layers.LeakyReLU(0.2)(conv)
+
+    zero_pad = tf.keras.layers.ZeroPadding2D()(leaky_relu)
+    conv = tf.keras.layers.Conv2D(128, 4, strides=2, padding='valid', use_bias=False)(zero_pad)
+    batchnorm = tf.keras.layers.BatchNormalization()(conv)
+    leaky_relu = tf.keras.layers.LeakyReLU(0.2)(batchnorm)
+
+    zero_pad = tf.keras.layers.ZeroPadding2D()(leaky_relu)
+    conv = tf.keras.layers.Conv2D(256, 4, strides=2, padding='valid', use_bias=False)(zero_pad)
+    batchnorm = tf.keras.layers.BatchNormalization()(conv)
+    leaky_relu = tf.keras.layers.LeakyReLU(0.2)(batchnorm)
+
+    zero_pad = tf.keras.layers.ZeroPadding2D()(leaky_relu)
+    conv = tf.keras.layers.Conv2D(512, 4, strides=2, padding='valid', use_bias=False)(zero_pad)
+    batchnorm = tf.keras.layers.BatchNormalization()(conv)
+    leaky_relu = tf.keras.layers.LeakyReLU(0.2)(batchnorm)
+
+    last = tf.keras.layers.Conv2D(1, 1, strides=1, padding='valid', use_bias=False)(leaky_relu)
+    last = tf.keras.layers.Flatten()(last)
+    last = tf.keras.layers.Dense(1, activation='sigmoid')(last)
     return tf.keras.Model(inputs=inp, outputs=last)
 
 def discriminator_bce_loss(real_output, fake_output):
