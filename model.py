@@ -106,7 +106,7 @@ class Sum_R1M(tf.keras.layers.Layer):
         return tf.reduce_sum(input, axis=-1, keepdims=True)
 
 class Symmetry_R1M(tf.keras.layers.Layer):
-    def __init__(self, name='SYMR1M'):
+    def __init__(self, name=None):
         super(Symmetry_R1M, self).__init__(name=name)
 
     def build(self, input_shape):
@@ -273,26 +273,29 @@ def make_discriminator_model(len_low_size=16, scale=4):
 
     zero_pad = tf.keras.layers.ZeroPadding2D()(inp)
     conv = tf.keras.layers.Conv2D(64, 4, strides=2, padding='valid', use_bias=False)(zero_pad)
-    leaky_relu = tf.keras.layers.LeakyReLU(0.2)(conv)
+    sym = Symmetry_R1M()(conv)
+    leaky_relu = tf.keras.layers.LeakyReLU(0.2)(sym)
 
     zero_pad = tf.keras.layers.ZeroPadding2D()(leaky_relu)
     conv = tf.keras.layers.Conv2D(128, 4, strides=2, padding='valid', use_bias=False)(zero_pad)
-    batchnorm = tf.keras.layers.BatchNormalization()(conv)
+    sym = Symmetry_R1M()(conv)
+    batchnorm = tf.keras.layers.BatchNormalization()(sym)
     leaky_relu = tf.keras.layers.LeakyReLU(0.2)(batchnorm)
 
-    zero_pad = tf.keras.layers.ZeroPadding2D()(leaky_relu)
+    '''zero_pad = tf.keras.layers.ZeroPadding2D()(leaky_relu)
     conv = tf.keras.layers.Conv2D(256, 4, strides=2, padding='valid', use_bias=False)(zero_pad)
     batchnorm = tf.keras.layers.BatchNormalization()(conv)
-    leaky_relu = tf.keras.layers.LeakyReLU(0.2)(batchnorm)
+    leaky_relu = tf.keras.layers.LeakyReLU(0.2)(batchnorm)'''
 
     zero_pad = tf.keras.layers.ZeroPadding2D()(leaky_relu)
     conv = tf.keras.layers.Conv2D(512, 4, strides=2, padding='valid', use_bias=False)(zero_pad)
-    batchnorm = tf.keras.layers.BatchNormalization()(conv)
+    sym = Symmetry_R1M()(conv)
+    batchnorm = tf.keras.layers.BatchNormalization()(sym)
     leaky_relu = tf.keras.layers.LeakyReLU(0.2)(batchnorm)
 
-    last = tf.keras.layers.Conv2D(1, 1, strides=1, padding='valid', use_bias=False)(leaky_relu)
-    last = tf.keras.layers.Flatten()(last)
-    last = tf.keras.layers.Dense(1, activation='sigmoid')(last)
+    last = tf.keras.layers.Conv2D(1, 1, strides=1, padding='valid', use_bias=False, activation='sigmoid')(leaky_relu)
+    #last = tf.keras.layers.Flatten()(last)
+    #last = tf.keras.layers.Dense(1, activation='sigmoid')(last)
     return tf.keras.Model(inputs=inp, outputs=last)
 
 def discriminator_bce_loss(real_output, fake_output):
@@ -458,23 +461,25 @@ def train(gen, dis, dataset, epochs, len_low_size, scale, test_dataset=None):
     for epoch in range(epochs):
         start = time.time()
         for i, (low_m, high_m) in enumerate(dataset):
-            if(epoch<300):
+            if(epoch<800):
                 loss_weights = [0.0, 1.0, 1.0]
             else:
-                loss_weights = [2.0, 1.0, 1.0]
+                loss_weights = [1.0, 10.0, 10.0]
             train_step_generator(gen, dis, 
                                 tf.dtypes.cast(low_m, tf.float32), tf.dtypes.cast(high_m, tf.float32),
                                 [loss_filter_low, loss_filter_high], loss_weights,
                                 opts, logs)
-            if(epoch>0):
+            if(epoch>100):
                 train_step_discriminator(gen, dis, 
                                 tf.dtypes.cast(low_m, tf.float32), tf.dtypes.cast(high_m, tf.float32),
                                 [loss_filter_low, loss_filter_high],
                                 [discriminator_optimizer], [discriminator_log])
         # log the model epochs
         [demo_pred_low, demo_pred_high, demo_up] = gen(demo_input_low, training=False)
-        demo_disc_generated = dis([demo_pred_high, demo_up], training=False)
-        demo_disc_true = dis([demo_input_high, demo_up], training=False)
+        #demo_disc_generated = dis([demo_pred_high, demo_up], training=False)
+        #demo_disc_true = dis([demo_input_high, demo_up], training=False)
+        demo_disc_generated = dis(demo_pred_high, training=False)
+        demo_disc_true = dis(demo_input_high, training=False)
         with train_summary_G_writer.as_default():
             tf.summary.scalar('loss_gen_low_disssim', generator_log_ssim_low.result(), step=epoch)
             tf.summary.scalar('loss_gen_low_mse', generator_log_mse_low.result(), step=epoch)
@@ -494,14 +499,14 @@ def train(gen, dis, dataset, epochs, len_low_size, scale, test_dataset=None):
         with train_summary_D_writer.as_default():
             tf.summary.scalar('loss_dis', discriminator_log.result(), step=epoch)
             mpy = demo_disc_generated.numpy()
-            #m = np.squeeze(mpy[:,:,:])
-            m = np.squeeze(mpy).reshape((4,4))
+            m = np.squeeze(mpy[:,:,:,0])
+            #m = np.squeeze(mpy).reshape((4,4))
             fig = plot_prob_matrix(m)
             image = plot_to_image(fig)
             tf.summary.image(name='dis_gen', data=image, step=epoch)
             mpy = demo_disc_true.numpy()
-            #m = np.squeeze(mpy[:,:,:])
-            m = np.squeeze(mpy).reshape((4,4))
+            m = np.squeeze(mpy[:,:,:,0])
+            #m = np.squeeze(mpy).reshape((4,4))
             fig = plot_prob_matrix(m)
             image = plot_to_image(fig)
             tf.summary.image(name='dis_true', data=image, step=epoch)

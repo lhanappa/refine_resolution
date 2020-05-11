@@ -88,7 +88,7 @@ plt.subplot(2,3,6)
 plt.imshow(np.log2(hic_hr[2]))
 plt.show()'''
 
-EPOCHS = 1000
+EPOCHS = 2000
 BUFFER_SIZE = 1
 BATCH_SIZE = 16
 len_low_size = 32
