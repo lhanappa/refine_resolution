@@ -351,7 +351,7 @@ def make_discriminator_model(len_low_size=16, scale=4):
     n = tf.keras.layers.LeakyReLU(0.2)(n)
 
     n = tf.keras.layers.Flatten()(n)
-    no = tf.keras.layers.Dense(1, kernel_initializer=w_init)(n)
+    no = tf.keras.layers.Dense(1, kernel_initializer=w_init, activation='sigmoid')(n)
     D = tf.keras.Model(inputs=nin, outputs=no)
     #D = Model(inputs=nin, outputs=no)
     return D
