@@ -267,7 +267,7 @@ def downsample(filters, size, apply_batchnorm=True):
     #last = tf.keras.layers.Reshape((31, 32))(last)
     return tf.keras.Model(inputs=inp, outputs=last)"""
 
-def make_discriminator_model(len_low_size=16, scale=4):
+"""def make_discriminator_model(len_low_size=16, scale=4):
     len_high_size = int(len_low_size*scale)
     inp = tf.keras.layers.Input(shape=[len_high_size, len_high_size, 1], name='input_image')
 
@@ -296,7 +296,46 @@ def make_discriminator_model(len_low_size=16, scale=4):
     last = tf.keras.layers.Conv2D(1, 1, strides=1, padding='valid', use_bias=False, activation='sigmoid')(leaky_relu)
     #last = tf.keras.layers.Flatten()(last)
     #last = tf.keras.layers.Dense(1, activation='sigmoid')(last)
-    return tf.keras.Model(inputs=inp, outputs=last)
+    return tf.keras.Model(inputs=inp, outputs=last)"""
+
+def make_discriminator_model(len_low_size=16, scale=4):
+    from tensorlayer.layers import (Input, Conv2d, BatchNorm2d, Elementwise, SubpixelConv2d, Flatten, Dense)
+    len_high_size = int(len_low_size*scale)
+    w_init = tf.random_normal_initializer(stddev=0.02)
+    gamma_init = tf.random_normal_initializer(1., 0.02)
+    df_dim = 64
+    lrelu = lambda x: tl.act.lrelu(x, 0.2)
+
+    nin = Input(shape=(len_high_size, len_high_size, 1))
+    n = Conv2d(df_dim, (4, 4), (2, 2), act=lrelu, padding='SAME', W_init=w_init)(nin)
+
+    n = Conv2d(df_dim * 2, (4, 4), (2, 2), padding='SAME', W_init=w_init, b_init=None)(n)
+    n = BatchNorm2d(act=lrelu, gamma_init=gamma_init)(n)
+    n = Conv2d(df_dim * 4, (4, 4), (2, 2), padding='SAME', W_init=w_init, b_init=None)(n)
+    n = BatchNorm2d(act=lrelu, gamma_init=gamma_init)(n)
+    n = Conv2d(df_dim * 8, (4, 4), (2, 2), padding='SAME', W_init=w_init, b_init=None)(n)
+    n = BatchNorm2d(act=lrelu, gamma_init=gamma_init)(n)
+    n = Conv2d(df_dim * 16, (4, 4), (2, 2), padding='SAME', W_init=w_init, b_init=None)(n)
+    n = BatchNorm2d(act=lrelu, gamma_init=gamma_init)(n)
+    n = Conv2d(df_dim * 32, (4, 4), (2, 2), padding='SAME', W_init=w_init, b_init=None)(n)
+    n = BatchNorm2d(act=lrelu, gamma_init=gamma_init)(n)
+    n = Conv2d(df_dim * 16, (1, 1), (1, 1), padding='SAME', W_init=w_init, b_init=None)(n)
+    n = BatchNorm2d(act=lrelu, gamma_init=gamma_init)(n)
+    n = Conv2d(df_dim * 8, (1, 1), (1, 1), padding='SAME', W_init=w_init, b_init=None)(n)
+    nn = BatchNorm2d(gamma_init=gamma_init)(n)
+
+    n = Conv2d(df_dim * 2, (1, 1), (1, 1), padding='SAME', W_init=w_init, b_init=None)(nn)
+    n = BatchNorm2d(act=lrelu, gamma_init=gamma_init)(n)
+    n = Conv2d(df_dim * 2, (3, 3), (1, 1), padding='SAME', W_init=w_init, b_init=None)(n)
+    n = BatchNorm2d(act=lrelu, gamma_init=gamma_init)(n)
+    n = Conv2d(df_dim * 8, (3, 3), (1, 1), padding='SAME', W_init=w_init, b_init=None)(n)
+    n = BatchNorm2d(gamma_init=gamma_init)(n)
+    n = Elementwise(combine_fn=tf.add, act=lrelu)([n, nn])
+
+    n = Flatten()(n)
+    no = Dense(n_units=1, W_init=w_init)(n)
+    D = Model(inputs=nin, outputs=no)
+    return D
 
 def discriminator_bce_loss(real_output, fake_output):
     loss_object = tf.keras.losses.BinaryCrossentropy(from_logits=False)
@@ -461,15 +500,16 @@ def train(gen, dis, dataset, epochs, len_low_size, scale, test_dataset=None):
     for epoch in range(epochs):
         start = time.time()
         for i, (low_m, high_m) in enumerate(dataset):
-            if(epoch<800):
+            if(epoch<400):
                 loss_weights = [0.0, 1.0, 1.0]
             else:
                 loss_weights = [1.0, 10.0, 10.0]
-            train_step_generator(gen, dis, 
-                                tf.dtypes.cast(low_m, tf.float32), tf.dtypes.cast(high_m, tf.float32),
-                                [loss_filter_low, loss_filter_high], loss_weights,
-                                opts, logs)
-            if(epoch>100):
+            if(epoch<400):
+                train_step_generator(gen, dis, 
+                                    tf.dtypes.cast(low_m, tf.float32), tf.dtypes.cast(high_m, tf.float32),
+                                    [loss_filter_low, loss_filter_high], loss_weights,
+                                    opts, logs)
+            if(epoch>0):
                 train_step_discriminator(gen, dis, 
                                 tf.dtypes.cast(low_m, tf.float32), tf.dtypes.cast(high_m, tf.float32),
                                 [loss_filter_low, loss_filter_high],
