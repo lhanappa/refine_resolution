@@ -2,7 +2,7 @@
 #SBATCH --partition=wmalab
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
-#SBATCH --mem=1G
+#SBATCH --mem=10G
 #SBATCH --time=1-10:00:00
 #SBATCH --job-name=tf_board
 #SBATCH --output=tfboard-%J.out
