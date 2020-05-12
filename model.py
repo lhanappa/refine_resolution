@@ -188,7 +188,7 @@ def make_generator_model(len_low_size=16, scale=4):
     model = tf.keras.models.Model(inputs=[In], outputs=[low_out, high_out, up_o])
     return model
 
-def downsample(filters, size, apply_batchnorm=True):
+"""def downsample(filters, size, apply_batchnorm=True):
     initializer = tf.random_normal_initializer(0., 0.02)
     result = tf.keras.Sequential()
     result.add(
@@ -198,7 +198,7 @@ def downsample(filters, size, apply_batchnorm=True):
     if apply_batchnorm:
         result.add(tf.keras.layers.BatchNormalization())
     result.add(tf.keras.layers.LeakyReLU())
-    return result
+    return result"""
 
 """def make_discriminator_model(len_low_size=16, scale=4):
     '''PatchGAN 1 pixel of output represents X pixels of input: https://github.com/junyanz/pytorch-CycleGAN-and-pix2pix/issues/39
@@ -272,12 +272,12 @@ def make_discriminator_model(len_low_size=16, scale=4):
     inp = tf.keras.layers.Input(shape=[len_high_size, len_high_size, 1], name='input_image')
 
     zero_pad = tf.keras.layers.ZeroPadding2D()(inp)
-    conv = tf.keras.layers.Conv2D(256, 4, strides=2, padding='valid', use_bias=False)(zero_pad)
+    conv = tf.keras.layers.Conv2D(128, 4, strides=2, padding='valid', use_bias=False)(zero_pad)
     sym = Symmetry_R1M()(conv)
     leaky_relu = tf.keras.layers.LeakyReLU(0.2)(sym)
 
     zero_pad = tf.keras.layers.ZeroPadding2D()(leaky_relu)
-    conv = tf.keras.layers.Conv2D(512, 4, strides=2, padding='valid', use_bias=False)(zero_pad)
+    conv = tf.keras.layers.Conv2D(256, 4, strides=2, padding='valid', use_bias=False)(zero_pad)
     sym = Symmetry_R1M()(conv)
     batchnorm = tf.keras.layers.BatchNormalization()(sym)
     leaky_relu = tf.keras.layers.LeakyReLU(0.2)(batchnorm)
@@ -288,7 +288,7 @@ def make_discriminator_model(len_low_size=16, scale=4):
     leaky_relu = tf.keras.layers.LeakyReLU(0.2)(batchnorm)'''
 
     zero_pad = tf.keras.layers.ZeroPadding2D()(leaky_relu)
-    conv = tf.keras.layers.Conv2D(1024, 4, strides=2, padding='valid', use_bias=False)(zero_pad)
+    conv = tf.keras.layers.Conv2D(512, 4, strides=2, padding='valid', use_bias=False)(zero_pad)
     sym = Symmetry_R1M()(conv)
     batchnorm = tf.keras.layers.BatchNormalization()(sym)
     leaky_relu = tf.keras.layers.LeakyReLU(0.2)(batchnorm)
@@ -517,25 +517,22 @@ def train(gen, dis, dataset, epochs, len_low_size, scale, test_dataset=None):
     loss_filter_high = np.ones(shape=(len_high_size,len_high_size)) - np.diag(np.ones(shape=(len_high_size,)), k=0) - np.diag(np.ones(shape=(len_high_size-1,)), k=-1) - np.diag(np.ones(shape=(len_high_size-1,)), k=1)
 
     [_, (demo_input_low, demo_input_high)] = next(enumerate(test_dataset.take(1)))
-    gen_dis = tf.keras.models.clone_model(gen)
+
     for epoch in range(epochs):
         start = time.time()
         for i, (low_m, high_m) in enumerate(dataset):
-            if(epoch<800):
+            if(epoch<1200):
                 loss_weights = [0.0, 10.0, 10.0]
             else:
                 loss_weights = [0.10, 10.0, 0.0]
 
-            if(epoch%100==1):
-                gen_dis = tf.keras.models.clone_model(gen)
-
-            if(epoch>0):
+            if(epoch<450 or (epoch>=1050 and epoch%150<40)):
                 train_step_generator(gen, dis, 
                                     tf.dtypes.cast(low_m, tf.float32), tf.dtypes.cast(high_m, tf.float32),
                                     [loss_filter_low, loss_filter_high], loss_weights,
                                     opts, logs)
-            if(epoch>100):
-                train_step_discriminator(gen_dis, dis, 
+            if(epoch%150>=40 or (epoch>=450 and epoch<1050)):
+                train_step_discriminator(gen, dis, 
                                 tf.dtypes.cast(low_m, tf.float32), tf.dtypes.cast(high_m, tf.float32),
                                 [loss_filter_low, loss_filter_high],
                                 [discriminator_optimizer], [discriminator_log])
