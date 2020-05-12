@@ -517,20 +517,25 @@ def train(gen, dis, dataset, epochs, len_low_size, scale, test_dataset=None):
     loss_filter_high = np.ones(shape=(len_high_size,len_high_size)) - np.diag(np.ones(shape=(len_high_size,)), k=0) - np.diag(np.ones(shape=(len_high_size-1,)), k=-1) - np.diag(np.ones(shape=(len_high_size-1,)), k=1)
 
     [_, (demo_input_low, demo_input_high)] = next(enumerate(test_dataset.take(1)))
+    gen_dis = tf.keras.models.clone_model(gen)
     for epoch in range(epochs):
         start = time.time()
         for i, (low_m, high_m) in enumerate(dataset):
-            if(epoch<400):
-                loss_weights = [0.0, 1.0, 1.0]
+            if(epoch<800):
+                loss_weights = [0.0, 10.0, 10.0]
             else:
-                loss_weights = [1.0, 10.0, 10.0]
-            if(epoch<400 or epoch >1500):
+                loss_weights = [0.10, 10.0, 0.0]
+
+            if(epoch%100==1):
+                gen_dis = tf.keras.models.clone_model(gen)
+
+            if(epoch>0):
                 train_step_generator(gen, dis, 
                                     tf.dtypes.cast(low_m, tf.float32), tf.dtypes.cast(high_m, tf.float32),
                                     [loss_filter_low, loss_filter_high], loss_weights,
                                     opts, logs)
-            if(epoch>0):
-                train_step_discriminator(gen, dis, 
+            if(epoch>100):
+                train_step_discriminator(gen_dis, dis, 
                                 tf.dtypes.cast(low_m, tf.float32), tf.dtypes.cast(high_m, tf.float32),
                                 [loss_filter_low, loss_filter_high],
                                 [discriminator_optimizer], [discriminator_log])
