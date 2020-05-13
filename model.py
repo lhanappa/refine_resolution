@@ -416,9 +416,9 @@ def train_step_generator(Gen, Dis, imgl, imgr, loss_filter, loss_weights, opts, 
         mfilter_high = tf.expand_dims(loss_filter[1], axis=0)
         mfilter_high = tf.expand_dims(mfilter_high, axis=-1)
         mfilter_high = tf.cast(mfilter_high, tf.float32)
-        fake_hic_h = tf.math.log1p(100*tf.multiply(fake_hic_h, mfilter_high))
+        fake_hic_h = tf.multiply(fake_hic_h, mfilter_high)
         #img_l_h = tf.multiply(img_l_h, mfilter_high)
-        imgr_filter = tf.math.log1p(100*tf.multiply(imgr, mfilter_high))
+        imgr_filter = tf.multiply(imgr, mfilter_high)
         #gen_low_v = Gen.trainable_variables
         gen_low_v = []
         gen_low_v += Gen.get_layer('dec_low').trainable_variables
@@ -435,7 +435,7 @@ def train_step_generator(Gen, Dis, imgl, imgr, loss_filter, loss_weights, opts, 
         train_logs[1](gen_loss_low_mse)
         #if(epoch_flag):
         #disc_generated_output = Dis([img_l_h, fake_hic_h], training=False)
-        disc_generated_output = Dis(fake_hic_h, training=False)
+        disc_generated_output = Dis(tf.math.log1p(100*fake_hic_h), training=False)
         gen_high_v = []
         gen_high_v += Gen.get_layer('rec_high').trainable_variables
         gen_high_v += Gen.get_layer('conv1_1').trainable_variables
