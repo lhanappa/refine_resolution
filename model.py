@@ -169,20 +169,25 @@ def make_generator_model(len_low_size=16, scale=4):
 
     Rech = Reconstruct_R1M(1024, name='rec_high')(WeiR1Ml)
 
-    conv = tf.keras.layers.Conv2D(256, [3, 3], strides=1, padding='same', data_format="channels_last", 
+    conv1 = tf.keras.layers.Conv2D(128, [3, 3], strides=1, padding='same', data_format="channels_last", 
                                     activation='relu', use_bias=False,
                                     kernel_initializer=tf.keras.initializers.RandomNormal(mean=0.01, stddev=0.1), 
-                                    name='conv')(Rech)
-    trans_1 = Subpixel(filters= int(256), kernel_size=(3,3), r=2, 
+                                    name='conv1')(Rech)
+    trans_1 = Subpixel(filters= int(128), kernel_size=(3,3), r=2, 
                         activation='relu', use_bias=False, padding='same', 
                         kernel_initializer=tf.keras.initializers.RandomNormal(mean=0.01, stddev=0.1), 
-                        name='subpixel_1')(conv)
+                        name='subpixel_1')(conv1)
     batchnorm = tf.keras.layers.BatchNormalization()(trans_1)
     sym = Symmetry_R1M(name='SYM_1')(batchnorm)
-    trans_2 = Subpixel(filters= int(256), kernel_size=(3,3), r=2, 
+
+    conv2 = tf.keras.layers.Conv2D(128, [3, 3], strides=1, padding='same', data_format="channels_last", 
+                                    activation='relu', use_bias=False,
+                                    kernel_initializer=tf.keras.initializers.RandomNormal(mean=0.01, stddev=0.1), 
+                                    name='conv2')(sym)
+    trans_2 = Subpixel(filters= int(128), kernel_size=(3,3), r=2, 
                         activation='relu', use_bias=False, padding='same', 
                         kernel_initializer=tf.keras.initializers.RandomNormal(mean=0.01, stddev=0.1), 
-                        name='subpixel_2')(sym)
+                        name='subpixel_2')(conv2)
     batchnorm = tf.keras.layers.BatchNormalization()(trans_2)
     sym = Symmetry_R1M(name='SYM_2')(batchnorm)
     Sumh = tf.keras.layers.Conv2D(filters=1, kernel_size=(1,1),
@@ -425,11 +430,12 @@ def train_step_generator(Gen, Dis, imgl, imgr, loss_filter, loss_weights, opts, 
         disc_generated_output = Dis(fake_hic_h, training=False)
         gen_high_v = []
         gen_high_v += Gen.get_layer('rec_high').trainable_variables
-        gen_high_v += Gen.get_layer('conv').trainable_variables
+        gen_high_v += Gen.get_layer('conv1').trainable_variables
         #gen_high_v += Gen.get_layer('batch_normalization').trainable_variables
         #gen_high_v += Gen.get_layer('C2DT1').trainable_variables
         gen_high_v += Gen.get_layer('subpixel_1').trainable_variables
         gen_high_v += Gen.get_layer('batch_normalization').trainable_variables
+        gen_high_v += Gen.get_layer('conv2').trainable_variables
         gen_high_v += Gen.get_layer('subpixel_2').trainable_variables
         gen_high_v += Gen.get_layer('batch_normalization_1').trainable_variables
         gen_high_v += Gen.get_layer('sum_high').trainable_variables
