@@ -169,7 +169,7 @@ def make_generator_model(len_low_size=16, scale=4):
 
     Rech = Reconstruct_R1M(1024, name='rec_high')(WeiR1Ml)
 
-    conv = tf.keras.layers.Conv2D(512, [3, 3], strides=1, padding='same', data_format="channels_last", 
+    conv = tf.keras.layers.Conv2D(256, [3, 3], strides=1, padding='same', data_format="channels_last", 
                                     activation='relu', use_bias=False,
                                     kernel_initializer=tf.keras.initializers.RandomNormal(mean=0.01, stddev=0.1), 
                                     name='conv')(Rech)
