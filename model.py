@@ -416,9 +416,9 @@ def train_step_generator(Gen, Dis, imgl, imgr, loss_filter, loss_weights, opts, 
         mfilter_high = tf.expand_dims(loss_filter[1], axis=0)
         mfilter_high = tf.expand_dims(mfilter_high, axis=-1)
         mfilter_high = tf.cast(mfilter_high, tf.float32)
-        fake_hic_h = tf.multiply(fake_hic_h, mfilter_high)
+        fake_hic_h = tf.math.log1p(100*tf.multiply(fake_hic_h, mfilter_high))
         #img_l_h = tf.multiply(img_l_h, mfilter_high)
-        imgr_filter = tf.multiply(imgr, mfilter_high)
+        imgr_filter = tf.math.log1p(100*tf.multiply(imgr, mfilter_high))
         #gen_low_v = Gen.trainable_variables
         gen_low_v = []
         gen_low_v += Gen.get_layer('dec_low').trainable_variables
@@ -471,9 +471,9 @@ def train_step_discriminator(Gen, Dis, imgl, imgr, loss_filter, opts, train_logs
         mfilter_high = tf.expand_dims(loss_filter[1], axis=0)
         mfilter_high = tf.expand_dims(mfilter_high, axis=-1)
         mfilter_high = tf.cast(mfilter_high, tf.float32)
-        fake_hic_h = tf.multiply(fake_hic_h, mfilter_high)
+        fake_hic_h = tf.math.log1p(100*tf.multiply(fake_hic_h, mfilter_high))
         #img_l_h = tf.multiply(img_l_h, mfilter_high)
-        imgr_filter = tf.multiply(imgr, mfilter_high)
+        imgr_filter = tf.math.log1p(100*tf.multiply(imgr, mfilter_high))
         #disc_generated_output = Dis([img_l_h, fake_hic_h], training=True)
         #disc_real_output = Dis([img_l_h, imgr_filter], training=True)
         disc_generated_output = Dis(fake_hic_h, training=True)
