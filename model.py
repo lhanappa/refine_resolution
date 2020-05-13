@@ -168,16 +168,23 @@ def make_generator_model(len_low_size=16, scale=4):
     up_o = tf.keras.layers.Multiply(name='scale_value_in')([up_o, m_F])
 
     Rech = Reconstruct_R1M(1024, name='rec_high')(WeiR1Ml)
-    trans_1 = Subpixel(filters= int(128), kernel_size=(3,3), r=2, 
+
+    conv = tf.keras.layers.Conv2D(512, [3, 3], strides=1, padding='same', data_format="channels_last", 
+                                    activation='relu', use_bias=False,
+                                    kernel_initializer=tf.keras.initializers.RandomNormal(mean=0.01, stddev=0.1), 
+                                    name='conv')(Rech)
+    trans_1 = Subpixel(filters= int(256), kernel_size=(3,3), r=2, 
                         activation='relu', use_bias=False, padding='same', 
                         kernel_initializer=tf.keras.initializers.RandomNormal(mean=0.01, stddev=0.1), 
-                        name='subpixel_1')(Rech)
-    sym = Symmetry_R1M(name='SYM_1')(trans_1)
-    trans_2 = Subpixel(filters= int(128), kernel_size=(3,3), r=2, 
+                        name='subpixel_1')(conv)
+    batchnorm = tf.keras.layers.BatchNormalization()(trans_1)
+    sym = Symmetry_R1M(name='SYM_1')(batchnorm)
+    trans_2 = Subpixel(filters= int(256), kernel_size=(3,3), r=2, 
                         activation='relu', use_bias=False, padding='same', 
                         kernel_initializer=tf.keras.initializers.RandomNormal(mean=0.01, stddev=0.1), 
                         name='subpixel_2')(sym)
-    sym = Symmetry_R1M(name='SYM_2')(trans_2)
+    batchnorm = tf.keras.layers.BatchNormalization()(trans_2)
+    sym = Symmetry_R1M(name='SYM_2')(batchnorm)
     Sumh = tf.keras.layers.Conv2D(filters=1, kernel_size=(1,1),
                                     strides=(1,1), padding='same',
                                     data_format="channels_last",
@@ -364,6 +371,11 @@ def discriminator_bce_loss(real_output, fake_output):
     total_disc_loss = real_loss + generated_loss
     return total_disc_loss
 
+def generator_bce_loss(d_pred):
+    loss_object = tf.keras.losses.BinaryCrossentropy(from_logits=False)
+    gan_loss = loss_object(tf.ones_like(d_pred), d_pred)
+    return gan_loss
+
 def generator_ssim_loss(y_pred, y_true):#, m_filter):
     return (1 - tf.image.ssim(y_pred, y_true, max_val=1.0))/2.0
 
@@ -373,12 +385,6 @@ def generator_mse_loss(y_pred, y_true):#, m_filter):
     s = tf.reduce_sum(s, axis=-1)
     s = tf.reduce_mean(s, axis=-1)
     return s
-
-def generator_bce_loss(d_pred):
-    loss_object = tf.keras.losses.BinaryCrossentropy(from_logits=False)
-    gan_loss = loss_object(tf.ones_like(d_pred), d_pred)
-    return gan_loss
-
 
 @tf.function
 def train_step_generator(Gen, Dis, imgl, imgr, loss_filter, loss_weights, opts, train_logs):
@@ -419,13 +425,13 @@ def train_step_generator(Gen, Dis, imgl, imgr, loss_filter, loss_weights, opts, 
         disc_generated_output = Dis(fake_hic_h, training=False)
         gen_high_v = []
         gen_high_v += Gen.get_layer('rec_high').trainable_variables
-        #gen_high_v += Gen.get_layer('C2DT0').trainable_variables
+        gen_high_v += Gen.get_layer('conv').trainable_variables
         #gen_high_v += Gen.get_layer('batch_normalization').trainable_variables
         #gen_high_v += Gen.get_layer('C2DT1').trainable_variables
-        #gen_high_v += Gen.get_layer('batch_normalization').trainable_variables
         gen_high_v += Gen.get_layer('subpixel_1').trainable_variables
+        gen_high_v += Gen.get_layer('batch_normalization').trainable_variables
         gen_high_v += Gen.get_layer('subpixel_2').trainable_variables
-        #gen_high_v += Gen.get_layer('batch_normalization_1').trainable_variables
+        gen_high_v += Gen.get_layer('batch_normalization_1').trainable_variables
         gen_high_v += Gen.get_layer('sum_high').trainable_variables
         gen_high_v += Gen.get_layer('out_high').trainable_variables
         gen_loss_high_0 = generator_bce_loss(disc_generated_output) 
@@ -524,7 +530,7 @@ def train(gen, dis, dataset, epochs, len_low_size, scale, test_dataset=None):
             if(epoch<1200):
                 loss_weights = [0.0, 10.0, 10.0]
             else:
-                loss_weights = [0.10, 10.0, 0.0]
+                loss_weights = [0.10, 10.0, 10.0]
 
             if(epoch<450 or (epoch>=1050 and epoch%150<40)):
                 train_step_generator(gen, dis, 
