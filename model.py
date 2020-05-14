@@ -220,20 +220,20 @@ def make_discriminator_model(len_low_size=16, scale=4):
 
     #zero_pad = tf.keras.layers.ZeroPadding2D()(inp)
     conv = tf.keras.layers.Conv2D(128, 3, strides=1, padding='same', use_bias=False)(inp)
-    pool = tf.keras.layers.MaxPool2D()(conv)
+    pool = tf.keras.layers.AveragePooling2D()(conv)
     sym = Symmetry_R1M()(pool)
     leaky_relu = tf.keras.layers.LeakyReLU(0.2)(sym)
 
     conv = tf.keras.layers.Conv2D(256, 3, strides=1, padding='same', use_bias=False)(leaky_relu)
     conv = tf.keras.layers.Dropout(0.1)(conv)
-    pool = tf.keras.layers.MaxPool2D()(conv)
+    pool = tf.keras.layers.AveragePooling2D()(conv)
     sym = Symmetry_R1M()(pool)
     batchnorm = tf.keras.layers.BatchNormalization()(sym)
     leaky_relu = tf.keras.layers.LeakyReLU(0.2)(batchnorm)
 
     conv = tf.keras.layers.Conv2D(512, 3, strides=1, padding='same', use_bias=False)(leaky_relu)
     conv = tf.keras.layers.Dropout(0.1)(conv)
-    pool = tf.keras.layers.MaxPool2D()(conv)
+    pool = tf.keras.layers.AveragePooling2D()(conv)
     sym = Symmetry_R1M()(pool)
     batchnorm = tf.keras.layers.BatchNormalization()(sym)
     leaky_relu = tf.keras.layers.LeakyReLU(0.2)(batchnorm)
@@ -243,7 +243,7 @@ def make_discriminator_model(len_low_size=16, scale=4):
     batchnorm = tf.keras.layers.BatchNormalization()(sym)
     leaky_relu = tf.keras.layers.LeakyReLU(0.2)(batchnorm)
 
-    last = tf.keras.layers.LocallyConnected2D(1, 1, strides=1, padding='valid', use_bias=False, activation='sigmoid')(leaky_relu)
+    last = tf.keras.layers.Conv2D(1, 1, strides=1, padding='valid', use_bias=False, activation='sigmoid')(leaky_relu)
     return tf.keras.Model(inputs=inp, outputs=last)
 
 def discriminator_bce_loss(real_output, fake_output):
