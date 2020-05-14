@@ -426,8 +426,8 @@ def train_step_generator(Gen, Dis, imgl, imgr, loss_filter, loss_weights, opts, 
         gen_low_v += Gen.get_layer('rec_low').trainable_variables
         gen_low_v += Gen.get_layer('out_low').trainable_variables
 
-        gen_loss_low_ssim = generator_ssim_loss(tf.math.log1p(100*fake_hic_l), tf.math.log1p(100*imgl_filter))
-        #gen_loss_low_ssim = generator_ssim_loss(fake_hic_l, imgl_filter)
+        #gen_loss_low_ssim = generator_ssim_loss(tf.math.log1p(100*fake_hic_l), tf.math.log1p(100*imgl_filter))
+        gen_loss_low_ssim = generator_ssim_loss(fake_hic_l, imgl_filter)
         gen_loss_low_mse = generator_mse_loss(fake_hic_l, imgl_filter)
         gen_loss_low = gen_loss_low_ssim + gen_loss_low_mse
         gradients_of_generator_low = gen_tape_low.gradient(gen_loss_low, gen_low_v)
@@ -545,7 +545,7 @@ def train(gen, dis, dataset, epochs, len_low_size, scale, test_dataset=None):
     for epoch in range(epochs):
         start = time.time()
         for i, (low_m, high_m) in enumerate(dataset):
-            if(epoch<=200):
+            if(epoch<=2000):
                 loss_weights = [0.0, 10.0, 10.0]
             else:
                 loss_weights = [0.10, 10.0, 10.0]
