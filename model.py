@@ -163,9 +163,9 @@ def make_generator_model(len_low_size=16, scale=4):
     Suml = Sum_R1M(name='sum_low')(Recl)
     low_out = Normal(len_low_size, name='out_low')(Suml)
 
-    up_o = tf.keras.layers.UpSampling2D(size=(4, 4), data_format='channels_last', name='up_in')(In)
+    '''up_o = tf.keras.layers.UpSampling2D(size=(4, 4), data_format='channels_last', name='up_in')(In)
     m_F = tf.constant(1/16.0, shape=(1, 1, 1, 1))
-    up_o = tf.keras.layers.Multiply(name='scale_value_in')([up_o, m_F])
+    up_o = tf.keras.layers.Multiply(name='scale_value_in')([up_o, m_F])'''
 
     Rech = Reconstruct_R1M(1024, name='rec_high')(WeiR1Ml)
 
@@ -205,178 +205,46 @@ def make_generator_model(len_low_size=16, scale=4):
                                     activation='relu', use_bias=False, name='sum_high')(sym)
     high_out = Normal(int(len_low_size*scale), name='out_high')(Sumh)
 
-    model = tf.keras.models.Model(inputs=[In], outputs=[low_out, high_out, up_o])
+    model = tf.keras.models.Model(inputs=[In], outputs=[low_out, high_out])
     return model
 
-"""def downsample(filters, size, apply_batchnorm=True):
-    initializer = tf.random_normal_initializer(0., 0.02)
-    result = tf.keras.Sequential()
-    result.add(
-        tf.keras.layers.Conv2D(filters, size, strides=2, padding='valid', 
-                                kernel_initializer=initializer, 
-                                use_bias=False))
-    if apply_batchnorm:
-        result.add(tf.keras.layers.BatchNormalization())
-    result.add(tf.keras.layers.LeakyReLU())
-    return result"""
-
-"""def make_discriminator_model(len_low_size=16, scale=4):
-    '''PatchGAN 1 pixel of output represents X pixels of input: https://github.com/junyanz/pytorch-CycleGAN-and-pix2pix/issues/39
-     The "70" is implicit, it's not written anywhere in the code but instead emerges as a mathematical consequence of the network architecture.
-    The math is here: https://github.com/phillipi/pix2pix/blob/master/scripts/receptive_field_sizes.m
-    compute input size from a given output size:
-    f = @(output_size, ksize, stride) (output_size - 1) * stride + ksize; fix output_size as 1 
-    '''
-    len_high_size = int(len_low_size*scale)
-    initializer = tf.random_normal_initializer(0., 0.02)
-    inp = tf.keras.layers.Input(shape=[len_high_size, len_high_size, 1], name='input_image')
-    #tar = tf.keras.layers.Input(shape=[len_high_size, len_high_size, 1], name='target_image')
-    #x = tf.keras.layers.concatenate([inp, tar])
-    x = inp
-    down1 = downsample(256, 3, False)(x)
-    down2 = downsample(512, 3)(down1)
-    #down3 = downsample(256, 3)(down2)
-    zero_pad1 = tf.keras.layers.ZeroPadding2D()(down2)
-    conv = tf.keras.layers.Conv2D(512, 3, strides=1,
-                                  kernel_initializer=initializer,
-                                  use_bias=True)(zero_pad1)
-
-    batchnorm1 = tf.keras.layers.BatchNormalization()(conv)
-    leaky_relu = tf.keras.layers.LeakyReLU()(batchnorm1)
-    #zero_pad2 = tf.keras.layers.ZeroPadding2D()(leaky_relu)
-    last = tf.keras.layers.Conv2D(1, 3, strides=1, padding='valid', kernel_initializer=initializer,use_bias=True)(leaky_relu)
-    last = tf.keras.layers.Activation('sigmoid')(last)
-    #return tf.keras.Model(inputs=[inp, tar], outputs=last)
-    return tf.keras.Model(inputs=inp, outputs=last)"""
-
-"""def make_discriminator_model(len_low_size=16, scale=4):
-    '''PatchGAN 1 pixel of output represents X pixels of input: https://github.com/junyanz/pytorch-CycleGAN-and-pix2pix/issues/39
-     The "70" is implicit, it's not written anywhere in the code but instead emerges as a mathematical consequence of the network architecture.
-    The math is here: https://github.com/phillipi/pix2pix/blob/master/scripts/receptive_field_sizes.m
-    compute input size from a given output size:
-    f = @(output_size, ksize, stride) (output_size - 1) * stride + ksize; fix output_size as 1 
-    '''
-    len_high_size = int(len_low_size*scale)
-    initializer = tf.random_normal_initializer(0., 0.2)
-    inp = tf.keras.layers.Input(shape=[len_high_size, len_high_size, 1], name='input_image')
-    dec = tf.keras.layers.Conv2D(1024, [1, len_high_size], strides=1, padding='valid', data_format="channels_last", 
-                                    use_bias=True,
-                                    kernel_initializer=tf.random_normal_initializer(0., 0.01), 
-                                    name='dec')(inp)
-    batchnorm = tf.keras.layers.BatchNormalization()(dec)
-
-    conv = tf.keras.layers.Conv2D(128, [3, 1], strides=[2,1], padding='valid', data_format="channels_last", 
-                                    activation='relu', use_bias=True,
-                                    kernel_initializer=initializer, 
-                                    )(batchnorm)
-    batchnorm = tf.keras.layers.BatchNormalization()(conv)
-    #leaky_relu = tf.keras.layers.LeakyReLU()(batchnorm)
-
-    conv = tf.keras.layers.Conv2D(128, [3, 1], strides=[2,1], padding='valid', data_format="channels_last", 
-                                    activation='relu', use_bias=True,
-                                    kernel_initializer=initializer, 
-                                    )(batchnorm)
-    batchnorm = tf.keras.layers.BatchNormalization()(conv)
-    conv = tf.keras.layers.Conv2D(1, [1, 1], strides=[1,1], padding='same', data_format="channels_last", 
-                                    activation=None, use_bias=True,
-                                    kernel_initializer=initializer, 
-                                    )(batchnorm)
-
-    last = tf.keras.layers.Flatten()(conv)
-    last = tf.keras.layers.Dense(1, activation='sigmoid')(last)
-    #last = tf.keras.layers.Reshape((31, 32))(last)
-    return tf.keras.Model(inputs=inp, outputs=last)"""
-
 def make_discriminator_model(len_low_size=16, scale=4):
+    '''PatchGAN 1 pixel of output represents X pixels of input: https://github.com/junyanz/pytorch-CycleGAN-and-pix2pix/issues/39
+     The "70" is implicit, it's not written anywhere in the code but instead emerges as a mathematical consequence of the network architecture.
+    The math is here: https://github.com/phillipi/pix2pix/blob/master/scripts/receptive_field_sizes.m
+    compute input size from a given output size:
+    f = @(output_size, ksize, stride) (output_size - 1) * stride + ksize; fix output_size as 1 
+    '''
     len_high_size = int(len_low_size*scale)
     inp = tf.keras.layers.Input(shape=[len_high_size, len_high_size, 1], name='input_image')
 
     #zero_pad = tf.keras.layers.ZeroPadding2D()(inp)
-    conv = tf.keras.layers.Conv2D(128, 2, strides=2, padding='valid', use_bias=False)(inp)
-    sym = Symmetry_R1M()(conv)
+    conv = tf.keras.layers.Conv2D(128, 3, strides=1, padding='same', use_bias=False)(inp)
+    pool = tf.keras.layers.MaxPool2D()(conv)
+    sym = Symmetry_R1M()(pool)
     leaky_relu = tf.keras.layers.LeakyReLU(0.2)(sym)
 
-    #zero_pad = tf.keras.layers.ZeroPadding2D()(leaky_relu)
-    conv = tf.keras.layers.Conv2D(256, 2, strides=2, padding='valid', use_bias=False)(leaky_relu)
+    conv = tf.keras.layers.Conv2D(256, 3, strides=1, padding='same', use_bias=False)(leaky_relu)
+    conv = tf.keras.layers.Dropout(0.1)(conv)
+    pool = tf.keras.layers.MaxPool2D()(conv)
+    sym = Symmetry_R1M()(pool)
+    batchnorm = tf.keras.layers.BatchNormalization()(sym)
+    leaky_relu = tf.keras.layers.LeakyReLU(0.2)(batchnorm)
+
+    conv = tf.keras.layers.Conv2D(512, 3, strides=1, padding='same', use_bias=False)(leaky_relu)
+    conv = tf.keras.layers.Dropout(0.1)(conv)
+    pool = tf.keras.layers.MaxPool2D()(conv)
+    sym = Symmetry_R1M()(pool)
+    batchnorm = tf.keras.layers.BatchNormalization()(sym)
+    leaky_relu = tf.keras.layers.LeakyReLU(0.2)(batchnorm)
+
+    conv = tf.keras.layers.Conv2D(1, 3, strides=1, padding='same', use_bias=False)(leaky_relu)
     sym = Symmetry_R1M()(conv)
     batchnorm = tf.keras.layers.BatchNormalization()(sym)
     leaky_relu = tf.keras.layers.LeakyReLU(0.2)(batchnorm)
 
-    #zero_pad = tf.keras.layers.ZeroPadding2D()(leaky_relu)
-    conv = tf.keras.layers.Conv2D(256, 2, strides=2, padding='valid', use_bias=False)(leaky_relu)
-    sym = Symmetry_R1M()(conv)
-    batchnorm = tf.keras.layers.BatchNormalization()(sym)
-    leaky_relu = tf.keras.layers.LeakyReLU(0.2)(batchnorm)
-
-    #zero_pad = tf.keras.layers.ZeroPadding2D()(leaky_relu)
-    conv = tf.keras.layers.Conv2D(128, 3, strides=1, padding='same', use_bias=False)(leaky_relu)
-    sym = Symmetry_R1M()(conv)
-    batchnorm = tf.keras.layers.BatchNormalization()(sym)
-    leaky_relu = tf.keras.layers.LeakyReLU(0.2)(batchnorm)
-    leaky_relu = tf.keras.layers.Dropout(0.1)(leaky_relu)
-
-    last = tf.keras.layers.Conv2D(1, 1, strides=1, padding='valid', use_bias=False, activation='sigmoid')(leaky_relu)
-    #last = tf.keras.layers.Flatten()(last)
-    #last = tf.keras.layers.Dense(1, activation='sigmoid')(last)
+    last = tf.keras.layers.LocallyConnected2D(1, 1, strides=1, padding='valid', use_bias=False, activation='sigmoid')(leaky_relu)
     return tf.keras.Model(inputs=inp, outputs=last)
-
-"""def make_discriminator_model(len_low_size=16, scale=4):
-    len_high_size = int(len_low_size*scale)
-    w_init = tf.random_normal_initializer(stddev=0.02)
-    gamma_init = tf.random_normal_initializer(1., 0.02)
-    df_dim = 64
-
-    nin = tf.keras.layers.Input(shape=[len_high_size, len_high_size, 1])
-    n = tf.keras.layers.Conv2D(df_dim, (4, 4), (2, 2), activation=None, padding='SAME', kernel_initializer=w_init)(nin)
-    n = tf.keras.layers.LeakyReLU(0.2)(n)
-    n = tf.keras.layers.Conv2D(df_dim * 2, (4, 4), (2, 2), activation=None, padding='SAME', kernel_initializer=w_init)(n)
-    n = Symmetry_R1M()(n)
-    n = tf.keras.layers.BatchNormalization(gamma_initializer=gamma_init)(n)
-    n = tf.keras.layers.LeakyReLU(0.2)(n)
-    n = tf.keras.layers.Conv2D(df_dim * 4, (4, 4), (2, 2), activation=None, padding='SAME', kernel_initializer=w_init)(n)
-    n = Symmetry_R1M()(n)
-    n = tf.keras.layers.BatchNormalization(gamma_initializer=gamma_init)(n)
-    n = tf.keras.layers.LeakyReLU(0.2)(n)
-    n = tf.keras.layers.Conv2D(df_dim * 8, (4, 4), (2, 2), activation=None, padding='SAME', kernel_initializer=w_init)(n)
-    n = Symmetry_R1M()(n)
-    n = tf.keras.layers.BatchNormalization(gamma_initializer=gamma_init)(n)
-    n = tf.keras.layers.LeakyReLU(0.2)(n)
-    n = tf.keras.layers.Conv2D(df_dim * 16, (4, 4), (2, 2), activation=None, padding='SAME', kernel_initializer=w_init)(n)
-    n = Symmetry_R1M()(n)
-    n = tf.keras.layers.BatchNormalization(gamma_initializer=gamma_init)(n)
-    n = tf.keras.layers.LeakyReLU(0.2)(n)
-    '''n = tf.keras.layers.Conv2D(df_dim * 32, (4, 4), (2, 2), activation=None, padding='SAME', kernel_initializer=w_init)(n)
-    n = Symmetry_R1M()(n)
-    n = tf.keras.layers.BatchNormalization(gamma_initializer=gamma_init)(n)
-    n = tf.keras.layers.LeakyReLU(0.2)(n)
-    n = tf.keras.layers.Conv2D(df_dim * 16, (4, 4), (2, 2), activation=None, padding='SAME', kernel_initializer=w_init)(n)
-    n = Symmetry_R1M()(n)
-    n = tf.keras.layers.BatchNormalization(gamma_initializer=gamma_init)(n)
-    n = tf.keras.layers.LeakyReLU(0.2)(n)'''
-    n = tf.keras.layers.Conv2D(df_dim * 8, (4, 4), (2, 2), activation=None, padding='SAME', kernel_initializer=w_init)(n)
-    n = Symmetry_R1M()(n)
-    nn = tf.keras.layers.BatchNormalization(gamma_initializer=gamma_init)(n)
-    nn = tf.keras.layers.LeakyReLU(0.2)(nn)
-
-    n = tf.keras.layers.Conv2D(df_dim * 2, (1, 1), (1, 1), activation=None, padding='SAME', kernel_initializer=w_init)(nn)
-    n = Symmetry_R1M()(n)
-    n = tf.keras.layers.BatchNormalization(gamma_initializer=gamma_init)(n)
-    n = tf.keras.layers.LeakyReLU(0.2)(n)
-    n = tf.keras.layers.Conv2D(df_dim * 2, (3, 3), (1, 1), activation=None, padding='SAME', kernel_initializer=w_init)(n)
-    n = Symmetry_R1M()(n)
-    n = tf.keras.layers.BatchNormalization(gamma_initializer=gamma_init)(n)
-    n = tf.keras.layers.LeakyReLU(0.2)(n)
-    n = tf.keras.layers.Conv2D(df_dim * 8, (3, 3), (1, 1), activation=None, padding='SAME', kernel_initializer=w_init)(n)
-    n = tf.keras.layers.BatchNormalization(gamma_initializer=gamma_init)(n)
-    n = tf.keras.layers.LeakyReLU(0.2)(n)
-    n = tf.keras.layers.Add()([n, nn])
-    n = tf.keras.layers.LeakyReLU(0.2)(n)
-
-    n = tf.keras.layers.Flatten()(n)
-    no = tf.keras.layers.Dense(1, kernel_initializer=w_init, activation='sigmoid')(n)
-    D = tf.keras.Model(inputs=nin, outputs=no)
-    #D = Model(inputs=nin, outputs=no)
-    return D"""
 
 def discriminator_bce_loss(real_output, fake_output):
     loss_object = tf.keras.losses.BinaryCrossentropy(from_logits=False)
@@ -406,7 +274,6 @@ def train_step_generator(Gen, Dis, imgl, imgr, loss_filter, loss_weights, opts, 
         fake_hic = Gen(imgl, training=True)
         fake_hic_l = fake_hic[0]
         fake_hic_h = fake_hic[1]
-        #img_l_h = fake_hic[2]
 
         mfilter_low = tf.expand_dims(loss_filter[0], axis=0)
         mfilter_low = tf.expand_dims(mfilter_low, axis=-1)
@@ -417,10 +284,10 @@ def train_step_generator(Gen, Dis, imgl, imgr, loss_filter, loss_weights, opts, 
         mfilter_high = tf.expand_dims(loss_filter[1], axis=0)
         mfilter_high = tf.expand_dims(mfilter_high, axis=-1)
         mfilter_high = tf.cast(mfilter_high, tf.float32)
+
         fake_hic_h = tf.multiply(fake_hic_h, mfilter_high)
-        #img_l_h = tf.multiply(img_l_h, mfilter_high)
         imgr_filter = tf.multiply(imgr, mfilter_high)
-        #gen_low_v = Gen.trainable_variables
+
         gen_low_v = []
         gen_low_v += Gen.get_layer('dec_low').trainable_variables
         gen_low_v += Gen.get_layer('WR1Ml').trainable_variables
@@ -435,15 +302,12 @@ def train_step_generator(Gen, Dis, imgl, imgr, loss_filter, loss_weights, opts, 
         opts[0].apply_gradients(zip(gradients_of_generator_low, gen_low_v))
         train_logs[0](gen_loss_low_ssim)
         train_logs[1](gen_loss_low_mse)
-        #if(epoch_flag):
-        #disc_generated_output = Dis([img_l_h, fake_hic_h], training=False)
+
         disc_generated_output = Dis(tf.math.log1p(1000*fake_hic_h), training=False)
         gen_high_v = []
         gen_high_v += Gen.get_layer('rec_high').trainable_variables
         gen_high_v += Gen.get_layer('conv1_1').trainable_variables
         gen_high_v += Gen.get_layer('conv1_2').trainable_variables
-        #gen_high_v += Gen.get_layer('batch_normalization').trainable_variables
-        #gen_high_v += Gen.get_layer('C2DT1').trainable_variables
         gen_high_v += Gen.get_layer('subpixel_1').trainable_variables
         gen_high_v += Gen.get_layer('batch_normalization').trainable_variables
         gen_high_v += Gen.get_layer('conv2_1').trainable_variables
@@ -456,6 +320,7 @@ def train_step_generator(Gen, Dis, imgl, imgr, loss_filter, loss_weights, opts, 
         gen_loss_high_1 = generator_mse_loss(fake_hic_h, imgr_filter)
         gen_loss_high_2 = generator_ssim_loss(tf.math.log1p(1000*fake_hic_h), tf.math.log1p(1000*imgr_filter))
         #gen_loss_high_2 = generator_ssim_loss(fake_hic_h, imgr_filter)
+
         gen_loss_high = gen_loss_high_0*loss_weights[0]+ gen_loss_high_1*loss_weights[1] + gen_loss_high_2*loss_weights[2]
         gradients_of_generator_high = gen_tape_high.gradient(gen_loss_high, gen_high_v)
         opts[1].apply_gradients(zip(gradients_of_generator_high, gen_high_v))
@@ -470,15 +335,14 @@ def train_step_discriminator(Gen, Dis, imgl, imgr, loss_filter, opts, train_logs
         fake_hic = Gen(imgl, training=False)
         fake_hic_l = fake_hic[0]
         fake_hic_h = fake_hic[1]
-        #img_l_h = fake_hic[2]
+
         mfilter_high = tf.expand_dims(loss_filter[1], axis=0)
         mfilter_high = tf.expand_dims(mfilter_high, axis=-1)
         mfilter_high = tf.cast(mfilter_high, tf.float32)
+        
         fake_hic_h = tf.math.log1p(1000*tf.multiply(fake_hic_h, mfilter_high))
-        #img_l_h = tf.multiply(img_l_h, mfilter_high)
         imgr_filter = tf.math.log1p(1000*tf.multiply(imgr, mfilter_high))
-        #disc_generated_output = Dis([img_l_h, fake_hic_h], training=True)
-        #disc_real_output = Dis([img_l_h, imgr_filter], training=True)
+
         disc_generated_output = Dis(fake_hic_h, training=True)
         disc_real_output = Dis(imgr_filter, training=True)
         disc_loss = discriminator_bce_loss( disc_real_output, disc_generated_output)
@@ -547,9 +411,9 @@ def train(gen, dis, dataset, epochs, len_low_size, scale, test_dataset=None):
         start = time.time()
         for i, (low_m, high_m) in enumerate(dataset):
             if(epoch<=2000):
-                loss_weights = [0.0, 10.0, 10.0]
+                loss_weights = [0.0, 1.0, 10.0]
             else:
-                loss_weights = [10.0, 10.0, 0.0]
+                loss_weights = [1.0, 10.0, 0.0]
 
             #if(epoch<450 or (epoch>=1050 and epoch%150<40)):
             if(epoch<1000 or epoch>=2000):
