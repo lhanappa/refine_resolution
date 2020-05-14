@@ -302,17 +302,18 @@ def make_discriminator_model(len_low_size=16, scale=4):
     batchnorm = tf.keras.layers.BatchNormalization()(sym)
     leaky_relu = tf.keras.layers.LeakyReLU(0.2)(batchnorm)
 
-    '''zero_pad = tf.keras.layers.ZeroPadding2D()(leaky_relu)
-    conv = tf.keras.layers.Conv2D(256, 4, strides=2, padding='valid', use_bias=False)(zero_pad)
-    batchnorm = tf.keras.layers.BatchNormalization()(conv)
-    leaky_relu = tf.keras.layers.LeakyReLU(0.2)(batchnorm)'''
-
     zero_pad = tf.keras.layers.ZeroPadding2D()(leaky_relu)
-    conv = tf.keras.layers.Conv2D(512, 4, strides=2, padding='valid', use_bias=False)(zero_pad)
+    conv = tf.keras.layers.Conv2D(256, 4, strides=2, padding='valid', use_bias=False)(zero_pad)
     sym = Symmetry_R1M()(conv)
     batchnorm = tf.keras.layers.BatchNormalization()(sym)
     leaky_relu = tf.keras.layers.LeakyReLU(0.2)(batchnorm)
-    leaky_relu = tf.keras.layers.Dropout(0.2)(leaky_relu)
+
+    #zero_pad = tf.keras.layers.ZeroPadding2D()(leaky_relu)
+    conv = tf.keras.layers.Conv2D(128, 3, strides=1, padding='same', use_bias=False)(leaky_relu)
+    sym = Symmetry_R1M()(conv)
+    batchnorm = tf.keras.layers.BatchNormalization()(sym)
+    leaky_relu = tf.keras.layers.LeakyReLU(0.2)(batchnorm)
+    leaky_relu = tf.keras.layers.Dropout(0.1)(leaky_relu)
 
     last = tf.keras.layers.Conv2D(1, 1, strides=1, padding='valid', use_bias=False, activation='sigmoid')(leaky_relu)
     #last = tf.keras.layers.Flatten()(last)
@@ -436,7 +437,7 @@ def train_step_generator(Gen, Dis, imgl, imgr, loss_filter, loss_weights, opts, 
         train_logs[1](gen_loss_low_mse)
         #if(epoch_flag):
         #disc_generated_output = Dis([img_l_h, fake_hic_h], training=False)
-        disc_generated_output = Dis(tf.math.log1p(100*fake_hic_h), training=False)
+        disc_generated_output = Dis(tf.math.log1p(1000*fake_hic_h), training=False)
         gen_high_v = []
         gen_high_v += Gen.get_layer('rec_high').trainable_variables
         gen_high_v += Gen.get_layer('conv1_1').trainable_variables
@@ -453,7 +454,7 @@ def train_step_generator(Gen, Dis, imgl, imgr, loss_filter, loss_weights, opts, 
         gen_high_v += Gen.get_layer('out_high').trainable_variables
         gen_loss_high_0 = generator_bce_loss(disc_generated_output) 
         gen_loss_high_1 = generator_mse_loss(fake_hic_h, imgr_filter)
-        gen_loss_high_2 = generator_ssim_loss(tf.math.log1p(100*fake_hic_h), tf.math.log1p(100*imgr_filter))
+        gen_loss_high_2 = generator_ssim_loss(tf.math.log1p(1000*fake_hic_h), tf.math.log1p(1000*imgr_filter))
         #gen_loss_high_2 = generator_ssim_loss(fake_hic_h, imgr_filter)
         gen_loss_high = gen_loss_high_0*loss_weights[0]+ gen_loss_high_1*loss_weights[1] + gen_loss_high_2*loss_weights[2]
         gradients_of_generator_high = gen_tape_high.gradient(gen_loss_high, gen_high_v)
@@ -473,9 +474,9 @@ def train_step_discriminator(Gen, Dis, imgl, imgr, loss_filter, opts, train_logs
         mfilter_high = tf.expand_dims(loss_filter[1], axis=0)
         mfilter_high = tf.expand_dims(mfilter_high, axis=-1)
         mfilter_high = tf.cast(mfilter_high, tf.float32)
-        fake_hic_h = tf.math.log1p(100*tf.multiply(fake_hic_h, mfilter_high))
+        fake_hic_h = tf.math.log1p(1000*tf.multiply(fake_hic_h, mfilter_high))
         #img_l_h = tf.multiply(img_l_h, mfilter_high)
-        imgr_filter = tf.math.log1p(100*tf.multiply(imgr, mfilter_high))
+        imgr_filter = tf.math.log1p(1000*tf.multiply(imgr, mfilter_high))
         #disc_generated_output = Dis([img_l_h, fake_hic_h], training=True)
         #disc_real_output = Dis([img_l_h, imgr_filter], training=True)
         disc_generated_output = Dis(fake_hic_h, training=True)
@@ -548,7 +549,7 @@ def train(gen, dis, dataset, epochs, len_low_size, scale, test_dataset=None):
             if(epoch<=2000):
                 loss_weights = [0.0, 10.0, 10.0]
             else:
-                loss_weights = [0.10, 10.0, 10.0]
+                loss_weights = [10.0, 10.0, 0.0]
 
             #if(epoch<450 or (epoch>=1050 and epoch%150<40)):
             if(epoch<1000 or epoch>=2000):
@@ -557,7 +558,7 @@ def train(gen, dis, dataset, epochs, len_low_size, scale, test_dataset=None):
                                     [loss_filter_low, loss_filter_high], loss_weights,
                                     opts, logs)
             #if(epoch%150>=40 or (epoch>=450 and epoch<1050)):
-            if(epoch>=1000):
+            if(epoch>=0):
                 train_step_discriminator(gen, dis, 
                                 tf.dtypes.cast(low_m, tf.float32), tf.dtypes.cast(high_m, tf.float32),
                                 [loss_filter_low, loss_filter_high],
@@ -575,12 +576,12 @@ def train(gen, dis, dataset, epochs, len_low_size, scale, test_dataset=None):
             tf.summary.scalar('loss_gen_high_disssim', generator_log_ssim_high.result(), step=epoch)
             tf.summary.scalar('loss_gen_high_bce', generator_log_bce_high.result(), step=epoch)
             mpy = demo_pred_low.numpy()
-            m = np.log1p(100*np.squeeze(mpy[:,:,:,0]))
+            m = np.log1p(1000*np.squeeze(mpy[:,:,:,0]))
             fig = plot_matrix(m)
             image = plot_to_image(fig)
             tf.summary.image(name='gen_low', data=image ,step=epoch)
             mpy = demo_pred_high.numpy()
-            m = np.log1p(100*np.squeeze(mpy[:,:,:,0]))
+            m = np.log1p(1000*np.squeeze(mpy[:,:,:,0]))
             fig = plot_matrix(m)
             image = plot_to_image(fig)
             tf.summary.image(name='gen_high', data=image, step=epoch)
