@@ -219,10 +219,15 @@ def make_discriminator_model(len_low_size=16, scale=4):
     inp = tf.keras.layers.Input(shape=[len_high_size, len_high_size, 1], name='input_image')
 
     #zero_pad = tf.keras.layers.ZeroPadding2D()(inp)
-    conv = tf.keras.layers.Conv2D(64, 3, strides=1, padding='same', kernel_initializer=tf.keras.initializers.RandomNormal(mean=0.01, stddev=0.1), use_bias=False)(inp)
+    conv = tf.keras.layers.Conv2D(32, 3, strides=1, padding='same', kernel_initializer=tf.keras.initializers.RandomNormal(mean=0.01, stddev=0.1), use_bias=False)(inp)
     #pool = tf.keras.layers.AveragePooling2D()(conv)
     sym = Symmetry_R1M()(conv)
     leaky_relu = tf.keras.layers.LeakyReLU(0.2)(sym)
+
+    conv = tf.keras.layers.Conv2D(64, 3, strides=1, padding='same', kernel_initializer=tf.keras.initializers.RandomNormal(mean=0.01, stddev=0.1), use_bias=False)(leaky_relu)
+    sym = Symmetry_R1M()(conv)
+    batchnorm = tf.keras.layers.BatchNormalization()(sym)
+    leaky_relu = tf.keras.layers.LeakyReLU(0.2)(batchnorm)
 
     conv = tf.keras.layers.Conv2D(128, 3, strides=1, padding='same', kernel_initializer=tf.keras.initializers.RandomNormal(mean=0.01, stddev=0.1), use_bias=False)(leaky_relu)
     conv = tf.keras.layers.Dropout(0.1)(conv)
@@ -411,12 +416,12 @@ def train(gen, dis, dataset, epochs, len_low_size, scale, test_dataset=None):
         start = time.time()
         for i, (low_m, high_m) in enumerate(dataset):
             if(epoch<=2000):
-                loss_weights = [0.0, 1.0, 10.0]
+                loss_weights = [0.0, 10.0, 10.0]
             else:
-                loss_weights = [1.0, 10.0, 0.0]
+                loss_weights = [1.0, 10.0, 10.0]
 
             #if(epoch<450 or (epoch>=1050 and epoch%150<40)):
-            if(epoch<1000 or epoch>=2000):
+            if(epoch<500 or epoch>=2000):
                 train_step_generator(gen, dis, 
                                     tf.dtypes.cast(low_m, tf.float32), tf.dtypes.cast(high_m, tf.float32),
                                     [loss_filter_low, loss_filter_high], loss_weights,
