@@ -428,7 +428,7 @@ def train(gen, dis, dataset, epochs, len_low_size, scale, test_dataset=None):
                                 [loss_filter_low, loss_filter_high],
                                 [discriminator_optimizer], [discriminator_log])
         # log the model epochs
-        [demo_pred_low, demo_pred_high, demo_up] = gen(demo_input_low, training=False)
+        [demo_pred_low, demo_pred_high] = gen(demo_input_low, training=False)
         #demo_disc_generated = dis([demo_pred_high, demo_up], training=False)
         #demo_disc_true = dis([demo_input_high, demo_up], training=False)
         demo_disc_generated = dis(demo_pred_high, training=False)
