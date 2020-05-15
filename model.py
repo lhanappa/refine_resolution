@@ -323,8 +323,8 @@ def train_step_generator(Gen, Dis, imgl, imgr, loss_filter, loss_weights, opts, 
         gen_high_v += Gen.get_layer('out_high').trainable_variables
         gen_loss_high_0 = generator_bce_loss(disc_generated_output) 
         gen_loss_high_1 = generator_mse_loss(fake_hic_h, imgr_filter)
-        #gen_loss_high_2 = generator_ssim_loss(tf.math.log1p(1000*fake_hic_h), tf.math.log1p(1000*imgr_filter))
-        gen_loss_high_2 = generator_ssim_loss(fake_hic_h, imgr_filter)
+        gen_loss_high_2 = generator_ssim_loss(tf.math.log1p(1000*fake_hic_h), tf.math.log1p(1000*imgr_filter))
+        #gen_loss_high_2 = generator_ssim_loss(fake_hic_h, imgr_filter)
 
         gen_loss_high = gen_loss_high_0*loss_weights[0]+ gen_loss_high_1*loss_weights[1] + gen_loss_high_2*loss_weights[2]
         gradients_of_generator_high = gen_tape_high.gradient(gen_loss_high, gen_high_v)
@@ -416,9 +416,9 @@ def train(gen, dis, dataset, epochs, len_low_size, scale, test_dataset=None):
         start = time.time()
         for i, (low_m, high_m) in enumerate(dataset):
             if(epoch<=2000):
-                loss_weights = [0.0, 10.0, 10.0]
+                loss_weights = [0.0, 10.0, 0.0]
             else:
-                loss_weights = [1.0, 10.0, 10.0]
+                loss_weights = [1.0, 10.0, 0.0]
 
             #if(epoch<450 or (epoch>=1050 and epoch%150<40)):
             if(epoch<500 or epoch>=2000):
