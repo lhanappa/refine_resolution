@@ -218,26 +218,28 @@ def make_discriminator_model(len_low_size=16, scale=4):
     len_high_size = int(len_low_size*scale)
     inp = tf.keras.layers.Input(shape=[len_high_size, len_high_size, 1], name='input_image')
 
-    conv = tf.keras.layers.Conv2D(128, 3, strides=1, padding='valid', kernel_initializer=tf.keras.initializers.RandomNormal(mean=0.01, stddev=0.2), use_bias=False)(inp)
-    conv = tf.keras.layers.Dropout(0.1)(conv)
-    pool = tf.keras.layers.MaxPooling2D()(conv)
-    sym = Symmetry_R1M()(pool)
-    batchnorm = tf.keras.layers.BatchNormalization()(sym)
-    leaky_relu = tf.keras.layers.LeakyReLU(0.2)(batchnorm)
-
-    conv = tf.keras.layers.Conv2D(512, 3, strides=1, padding='valid', kernel_initializer=tf.keras.initializers.RandomNormal(mean=0.01, stddev=0.2), use_bias=False)(leaky_relu)
-    conv = tf.keras.layers.Dropout(0.1)(conv)
-    pool = tf.keras.layers.MaxPooling2D()(conv)
-    sym = Symmetry_R1M()(pool)
-    batchnorm = tf.keras.layers.BatchNormalization()(sym)
-    leaky_relu = tf.keras.layers.LeakyReLU(0.2)(batchnorm)
-
-    conv = tf.keras.layers.Conv2D(1, 3, strides=1, padding='valid', kernel_initializer=tf.keras.initializers.RandomNormal(mean=0.01, stddev=0.2), use_bias=False)(leaky_relu)
+    conv = tf.keras.layers.Conv2D(128, 4, strides=2, padding='valid', kernel_initializer=tf.keras.initializers.RandomNormal(mean=0.01, stddev=0.1), use_bias=True)(inp)
+    #conv = tf.keras.layers.Dropout(0.1)(conv)
+    #pool = tf.keras.layers.MaxPooling2D()(conv)
     sym = Symmetry_R1M()(conv)
     batchnorm = tf.keras.layers.BatchNormalization()(sym)
     leaky_relu = tf.keras.layers.LeakyReLU(0.2)(batchnorm)
 
-    last = tf.keras.layers.Conv2D(1, 1, strides=1, padding='valid', kernel_initializer=tf.keras.initializers.RandomNormal(mean=0.01, stddev=0.2), use_bias=False, activation='sigmoid')(leaky_relu)
+    conv = tf.keras.layers.Conv2D(256, 4, strides=2, padding='valid', kernel_initializer=tf.keras.initializers.RandomNormal(mean=0.01, stddev=0.1), use_bias=True)(leaky_relu)
+    #conv = tf.keras.layers.Dropout(0.1)(conv)
+    #pool = tf.keras.layers.MaxPooling2D()(conv)
+    sym = Symmetry_R1M()(conv)
+    batchnorm = tf.keras.layers.BatchNormalization()(sym)
+    leaky_relu = tf.keras.layers.LeakyReLU(0.2)(batchnorm)
+
+    conv = tf.keras.layers.Conv2D(512, 2, strides=1, padding='valid', kernel_initializer=tf.keras.initializers.RandomNormal(mean=0.01, stddev=0.1), use_bias=True)(leaky_relu)
+    #conv = tf.keras.layers.Dropout(0.1)(conv)
+    #pool = tf.keras.layers.MaxPooling2D()(conv)
+    sym = Symmetry_R1M()(conv)
+    batchnorm = tf.keras.layers.BatchNormalization()(sym)
+    leaky_relu = tf.keras.layers.LeakyReLU(0.2)(batchnorm)
+
+    last = tf.keras.layers.Conv2D(1, 1, strides=1, padding='valid', kernel_initializer=tf.keras.initializers.RandomNormal(mean=0.01, stddev=0.1), use_bias=True, activation='sigmoid')(leaky_relu)
     return tf.keras.Model(inputs=inp, outputs=last)
 
 def discriminator_bce_loss(real_output, fake_output):
@@ -408,7 +410,7 @@ def train(gen, dis, dataset, epochs, len_low_size, scale, test_dataset=None):
                 loss_weights = [0.1, 10.0, 10.0]
 
             #if(epoch<450 or (epoch>=1050 and epoch%150<40)):
-            if(epoch<500 or epoch>=2000):
+            if(epoch<200 or epoch>=1000):
                 train_step_generator(gen, dis, 
                                     tf.dtypes.cast(low_m, tf.float32), tf.dtypes.cast(high_m, tf.float32),
                                     [loss_filter_low, loss_filter_high], loss_weights,
