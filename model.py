@@ -300,7 +300,7 @@ def train_step_generator(Gen, Dis, imgl, imgr, loss_filter, loss_weights, opts, 
         train_logs[0](gen_loss_low_ssim)
         train_logs[1](gen_loss_low_mse)
 
-        disc_generated_output = Dis(tf.math.log1p(1000.0*fake_hic_h), training=False)
+        disc_generated_output = Dis(fake_hic_h, training=False)
         gen_high_v = []
         gen_high_v += Gen.get_layer('rec_high').trainable_variables
         gen_high_v += Gen.get_layer('conv1_1').trainable_variables
@@ -336,8 +336,8 @@ def train_step_discriminator(Gen, Dis, imgl, imgr, loss_filter, opts, train_logs
         mfilter_high = tf.expand_dims(mfilter_high, axis=-1)
         mfilter_high = tf.cast(mfilter_high, tf.float32)
         
-        fake_hic_h = tf.math.log1p(1000.0*tf.multiply(fake_hic_h, mfilter_high))
-        imgr_filter = tf.math.log1p(1000.0*tf.multiply(imgr, mfilter_high))
+        fake_hic_h = tf.multiply(fake_hic_h, mfilter_high)
+        imgr_filter = tf.multiply(imgr, mfilter_high)
 
         disc_generated_output = Dis(fake_hic_h, training=True)
         disc_real_output = Dis(imgr_filter, training=True)
@@ -411,14 +411,14 @@ def train(gen, dis, dataset, epochs, len_low_size, scale, test_dataset=None):
             else:
                 loss_weights = [0.1, 10.0, 10.0]
 
-            #if(epoch<450 or (epoch>=1050 and epoch%150<40)):
-            if(epoch<200 or epoch>=1000):
+            if(epoch<200 or (epoch>=1000 and epoch%100<40)):
+            #if(epoch<200 or epoch>=1000):
                 train_step_generator(gen, dis, 
                                     tf.dtypes.cast(low_m, tf.float32), tf.dtypes.cast(high_m, tf.float32),
                                     [loss_filter_low, loss_filter_high], loss_weights,
                                     opts, logs)
-            #if(epoch%150>=40 or (epoch>=450 and epoch<1050)):
-            if(epoch>=0):
+            if(epoch%150>=40 or (epoch>=200 and epoch<1000)):
+            #if(epoch>=0):
                 train_step_discriminator(gen, dis, 
                                 tf.dtypes.cast(low_m, tf.float32), tf.dtypes.cast(high_m, tf.float32),
                                 [loss_filter_low, loss_filter_high],
@@ -480,6 +480,7 @@ def plot_matrix(m):
 def plot_prob_matrix(m):
     import numpy as np
     import matplotlib.pyplot as plt
+    import matplotlib as mpl
     figure = plt.figure(figsize=(10,10))
     if len(m.shape)==3:
         for i in range(min(9, m.shape[0])):
@@ -490,12 +491,13 @@ def plot_prob_matrix(m):
             im.set_clim(0.001, 1.001)
         plt.tight_layout()
     else:
-        plt.matshow(m, cmap='RdBu_r')
-        plt.colorbar()
-        plt.clim(0.001, 1.001)
-        #txt = "mean prob is {:5.4f}".format(np.mean(m[i,:,:]))
-        #plt.title(txt)
-        plt.tight_layout()
+        fig, ax = plt.subplots()
+        im = ax.matshow(m, cmap='RdBu_r')
+        norm = mpl.colors.Normalize(vmin=0.0, vmax=1.0)
+        fig.colorbar(mpl.cm.ScalarMappable(norm=norm, cmap='RdBu_r'))
+        for (i, j), z in np.ndenumerate(m):
+            ax.text(j, i, '{:2.2f}'.format(z), ha='center', va='center',
+            bbox=dict(boxstyle='round', facecolor='white', edgecolor='0.3'))
     return figure
 
 def plot_to_image(figure):
