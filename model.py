@@ -248,7 +248,7 @@ def make_discriminator_model(len_low_size=16, scale=4):
     batchnorm = tf.keras.layers.BatchNormalization()(sym)
     leaky_relu = tf.keras.layers.LeakyReLU(0.2)(batchnorm)
 
-    last = tf.keras.layers.Conv2D(1, 1, strides=1, padding='valid', kernel_initializer=tf.keras.initializers.RandomNormal(mean=0.01, stddev=0.1), use_bias=False, activation='sigmoid')(leaky_relu)
+    last = tf.keras.layers.LocallyConnected2D(1, 1, strides=1, padding='valid', kernel_initializer=tf.keras.initializers.RandomNormal(mean=0.01, stddev=0.1), use_bias=False, activation='sigmoid')(leaky_relu)
     return tf.keras.Model(inputs=inp, outputs=last)
 
 def discriminator_bce_loss(real_output, fake_output):
@@ -308,7 +308,7 @@ def train_step_generator(Gen, Dis, imgl, imgr, loss_filter, loss_weights, opts, 
         train_logs[0](gen_loss_low_ssim)
         train_logs[1](gen_loss_low_mse)
 
-        disc_generated_output = Dis(tf.math.log1p(1000*fake_hic_h), training=False)
+        disc_generated_output = Dis(tf.math.log1p(1000*fake_hic_h)/tf.math.log1p(1000), training=False)
         gen_high_v = []
         gen_high_v += Gen.get_layer('rec_high').trainable_variables
         gen_high_v += Gen.get_layer('conv1_1').trainable_variables
@@ -323,7 +323,7 @@ def train_step_generator(Gen, Dis, imgl, imgr, loss_filter, loss_weights, opts, 
         gen_high_v += Gen.get_layer('out_high').trainable_variables
         gen_loss_high_0 = generator_bce_loss(disc_generated_output) 
         gen_loss_high_1 = generator_mse_loss(fake_hic_h, imgr_filter)
-        gen_loss_high_2 = generator_ssim_loss(tf.math.log1p(1000*fake_hic_h), tf.math.log1p(1000*imgr_filter))
+        gen_loss_high_2 = generator_ssim_loss(tf.math.log1p(1000*fake_hic_h)/tf.math.log1p(1000), tf.math.log1p(1000*imgr_filter)/tf.math.log1p(1000))
         #gen_loss_high_2 = generator_ssim_loss(fake_hic_h, imgr_filter)
 
         gen_loss_high = gen_loss_high_0*loss_weights[0]+ gen_loss_high_1*loss_weights[1] + gen_loss_high_2*loss_weights[2]
@@ -345,8 +345,8 @@ def train_step_discriminator(Gen, Dis, imgl, imgr, loss_filter, opts, train_logs
         mfilter_high = tf.expand_dims(mfilter_high, axis=-1)
         mfilter_high = tf.cast(mfilter_high, tf.float32)
         
-        fake_hic_h = tf.math.log1p(1000*tf.multiply(fake_hic_h, mfilter_high))
-        imgr_filter = tf.math.log1p(1000*tf.multiply(imgr, mfilter_high))
+        fake_hic_h = tf.math.log1p(1000*tf.multiply(fake_hic_h, mfilter_high))/tf.math.log1p(1000)
+        imgr_filter = tf.math.log1p(1000*tf.multiply(imgr, mfilter_high))/tf.math.log1p(1000)
 
         disc_generated_output = Dis(fake_hic_h, training=True)
         disc_real_output = Dis(imgr_filter, training=True)
