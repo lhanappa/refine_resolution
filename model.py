@@ -143,6 +143,13 @@ class Normal(tf.keras.layers.Layer):
 
         return tf.multiply(Div, M)
 
+class Log1p(tf.keras.layers.Layer):
+    def __init__(self, name=None):
+        super(Log1p, self).__init__(name=name)
+
+    def call(self, input):
+        return tf.math.log1p(1000.0*input)
+
 '''class symmetry_constraints(tf.keras.constraints.Constraint):
     def __call__(self, w): 
         #for conv2d the shape of kernel = [W, H, C, K] C:channels, K:output number of filters
@@ -217,7 +224,7 @@ def make_discriminator_model(len_low_size=16, scale=4):
     '''
     len_high_size = int(len_low_size*scale)
     inp = tf.keras.layers.Input(shape=[len_high_size, len_high_size, 1], name='input_image')
-
+    #inp = Log1p()(inp)
     #zero_pad = tf.keras.layers.ZeroPadding2D()(inp)
     conv = tf.keras.layers.Conv2D(32, 3, strides=1, padding='valid', kernel_initializer=tf.keras.initializers.RandomNormal(mean=0.0, stddev=0.2), use_bias=False)(inp)
     #pool = tf.keras.layers.AveragePooling2D()(conv)
@@ -299,7 +306,6 @@ def train_step_generator(Gen, Dis, imgl, imgr, loss_filter, loss_weights, opts, 
         gen_low_v += Gen.get_layer('rec_low').trainable_variables
         gen_low_v += Gen.get_layer('out_low').trainable_variables
 
-        #gen_loss_low_ssim = generator_ssim_loss(tf.math.log1p(100*fake_hic_l), tf.math.log1p(100*imgl_filter))
         gen_loss_low_ssim = generator_ssim_loss(fake_hic_l, imgl_filter)
         gen_loss_low_mse = generator_mse_loss(fake_hic_l, imgl_filter)
         gen_loss_low = gen_loss_low_ssim + gen_loss_low_mse
@@ -308,7 +314,7 @@ def train_step_generator(Gen, Dis, imgl, imgr, loss_filter, loss_weights, opts, 
         train_logs[0](gen_loss_low_ssim)
         train_logs[1](gen_loss_low_mse)
 
-        disc_generated_output = Dis(tf.math.log1p(1000.0*fake_hic_h)/tf.math.log1p(1000.0), training=False)
+        disc_generated_output = Dis(fake_hic_h, training=False)
         gen_high_v = []
         gen_high_v += Gen.get_layer('rec_high').trainable_variables
         #gen_high_v += Gen.get_layer('conv1_1').trainable_variables
@@ -323,7 +329,6 @@ def train_step_generator(Gen, Dis, imgl, imgr, loss_filter, loss_weights, opts, 
         gen_high_v += Gen.get_layer('out_high').trainable_variables
         gen_loss_high_0 = generator_bce_loss(disc_generated_output) 
         gen_loss_high_1 = generator_mse_loss(fake_hic_h, imgr_filter)
-        #gen_loss_high_2 = generator_ssim_loss(tf.math.log1p(1000.0*fake_hic_h)/tf.math.log1p(1000.0), tf.math.log1p(1000.0*imgr_filter)/tf.math.log1p(1000.0))
         gen_loss_high_2 = generator_ssim_loss(fake_hic_h, imgr_filter)
 
         gen_loss_high = gen_loss_high_0*loss_weights[0]+ gen_loss_high_1*loss_weights[1] + gen_loss_high_2*loss_weights[2]
@@ -345,8 +350,8 @@ def train_step_discriminator(Gen, Dis, imgl, imgr, loss_filter, opts, train_logs
         mfilter_high = tf.expand_dims(mfilter_high, axis=-1)
         mfilter_high = tf.cast(mfilter_high, tf.float32)
         
-        fake_hic_h = tf.math.log1p(1000.0*tf.multiply(fake_hic_h, mfilter_high))/tf.math.log1p(1000.0)
-        imgr_filter = tf.math.log1p(1000.0*tf.multiply(imgr, mfilter_high))/tf.math.log1p(1000.0)
+        fake_hic_h = tf.multiply(fake_hic_h, mfilter_high)
+        imgr_filter = tf.multiply(imgr, mfilter_high)
 
         disc_generated_output = Dis(fake_hic_h, training=True)
         disc_real_output = Dis(imgr_filter, training=True)
