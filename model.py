@@ -240,7 +240,8 @@ def make_discriminator_model(len_low_size=16, scale=4):
     leaky_relu = tf.keras.layers.LeakyReLU(0.2)(batchnorm)
 
     last = tf.keras.layers.Conv2D(1, 1, strides=1, padding='valid', kernel_initializer=tf.keras.initializers.RandomNormal(mean=0.01, stddev=0.1), use_bias=True, activation=None)(leaky_relu)
-    last = tf.keras.layers.LocallyConnected2D(1, 1, 1, padding='valid', kernel_initializer=tf.keras.initializers.RandomNormal(mean=0.01, stddev=0.1), use_bias=True, activation='sigmoid')(last)
+    last = tf.keras.layers.Flatten()(last)
+    last = tf.keras.layers.Dense(1, activation='sigmoid')(last)
     return tf.keras.Model(inputs=inp, outputs=last)
 
 def discriminator_bce_loss(real_output, fake_output):
@@ -447,14 +448,14 @@ def train(gen, dis, dataset, epochs, len_low_size, scale, test_dataset=None):
         with train_summary_D_writer.as_default():
             tf.summary.scalar('loss_dis', discriminator_log.result(), step=epoch)
             mpy = demo_disc_generated.numpy()
-            m = np.squeeze(mpy[:,:,:,0])
-            #m = np.squeeze(mpy).reshape((4,4))
+            #m = np.squeeze(mpy[:,:,:,0])
+            m = np.squeeze(mpy).reshape((4,4))
             fig = plot_prob_matrix(m)
             image = plot_to_image(fig)
             tf.summary.image(name='dis_gen', data=image, step=epoch)
             mpy = demo_disc_true.numpy()
-            m = np.squeeze(mpy[:,:,:,0])
-            #m = np.squeeze(mpy).reshape((4,4))
+            #m = np.squeeze(mpy[:,:,:,0])
+            m = np.squeeze(mpy).reshape((4,4))
             fig = plot_prob_matrix(m)
             image = plot_to_image(fig)
             tf.summary.image(name='dis_true', data=image, step=epoch)
