@@ -239,7 +239,8 @@ def make_discriminator_model(len_low_size=16, scale=4):
     batchnorm = tf.keras.layers.BatchNormalization()(sym)
     leaky_relu = tf.keras.layers.LeakyReLU(0.2)(batchnorm)
 
-    last = tf.keras.layers.Conv2D(1, 1, strides=1, padding='valid', kernel_initializer=tf.keras.initializers.RandomNormal(mean=0.01, stddev=0.1), use_bias=True, activation='sigmoid')(leaky_relu)
+    last = tf.keras.layers.Conv2D(1, 1, strides=1, padding='valid', kernel_initializer=tf.keras.initializers.RandomNormal(mean=0.01, stddev=0.1), use_bias=True, activation=None)(leaky_relu)
+    last = tf.keras.layers.LocallyConnected2D(1, 1, 1, padding='valid', kernel_initializer=tf.keras.initializers.RandomNormal(mean=0.01, stddev=0.1), use_bias=True, activation='sigmoid')(last)
     return tf.keras.Model(inputs=inp, outputs=last)
 
 def discriminator_bce_loss(real_output, fake_output):
