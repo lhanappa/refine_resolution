@@ -300,7 +300,7 @@ def train_step_generator(Gen, Dis, imgl, imgr, loss_filter, loss_weights, opts, 
         train_logs[0](gen_loss_low_ssim)
         train_logs[1](gen_loss_low_mse)
 
-        disc_generated_output = Dis(fake_hic_h, training=False)
+        disc_generated_output = Dis(tf.math.log1p(1000.0*fake_hic_h), training=False)
         gen_high_v = []
         gen_high_v += Gen.get_layer('rec_high').trainable_variables
         gen_high_v += Gen.get_layer('conv1_1').trainable_variables
@@ -336,8 +336,8 @@ def train_step_discriminator(Gen, Dis, imgl, imgr, loss_filter, opts, train_logs
         mfilter_high = tf.expand_dims(mfilter_high, axis=-1)
         mfilter_high = tf.cast(mfilter_high, tf.float32)
         
-        fake_hic_h = tf.multiply(fake_hic_h, mfilter_high)
-        imgr_filter = tf.multiply(imgr, mfilter_high)
+        fake_hic_h = tf.math.log1p(1000.0*tf.multiply(fake_hic_h, mfilter_high))
+        imgr_filter = tf.math.log1p(1000.0*tf.multiply(imgr, mfilter_high))
 
         disc_generated_output = Dis(fake_hic_h, training=True)
         disc_real_output = Dis(imgr_filter, training=True)
@@ -409,7 +409,7 @@ def train(gen, dis, dataset, epochs, len_low_size, scale, test_dataset=None):
             if(epoch<=2000):
                 loss_weights = [0.0, 10.0, 10.0]
             else:
-                loss_weights = [1.0, 10.0, 10.0]
+                loss_weights = [0.1, 10.0, 10.0]
 
             #if(epoch<450 or (epoch>=1050 and epoch%150<40)):
             if(epoch<200 or epoch>=1000):
