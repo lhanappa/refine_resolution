@@ -417,7 +417,7 @@ def train(gen, dis, dataset, epochs, len_low_size, scale, test_dataset=None):
                                     tf.dtypes.cast(low_m, tf.float32), tf.dtypes.cast(high_m, tf.float32),
                                     [loss_filter_low, loss_filter_high], loss_weights,
                                     opts, logs)
-            if(epoch%150>=40 or (epoch>=200 and epoch<1000)):
+            if(epoch%150>=40 or (epoch>=0 and epoch<1000)):
             #if(epoch>=0):
                 train_step_discriminator(gen, dis, 
                                 tf.dtypes.cast(low_m, tf.float32), tf.dtypes.cast(high_m, tf.float32),
