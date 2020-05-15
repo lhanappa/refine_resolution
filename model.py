@@ -492,7 +492,7 @@ def plot_prob_matrix(m):
         plt.tight_layout()
     else:
         ax = figure.subplots()
-        im = ax.matshow(m, cmap='RdBu_r')
+        im = ax.matshow(m, cmap='RdBu_r', clim=[0.0, 1.0])
         norm = mpl.colors.Normalize(vmin=0.0, vmax=1.0)
         figure.colorbar(mpl.cm.ScalarMappable(norm=norm, cmap='RdBu_r'))
         for (i, j), z in np.ndenumerate(m):
