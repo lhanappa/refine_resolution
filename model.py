@@ -169,33 +169,33 @@ def make_generator_model(len_low_size=16, scale=4):
 
     Rech = Reconstruct_R1M(1024, name='rec_high')(WeiR1Ml)
 
-    conv1 = tf.keras.layers.Conv2D(128, [3, 3], strides=1, padding='same', data_format="channels_last", 
+    '''conv1 = tf.keras.layers.Conv2D(128, [3, 3], strides=1, padding='same', data_format="channels_last", 
                                     activation='relu', use_bias=False,
                                     kernel_initializer=tf.keras.initializers.RandomNormal(mean=0.01, stddev=0.1), 
                                     name='conv1_1')(Rech)
     conv1 = tf.keras.layers.Conv2D(64, [3, 3], strides=1, padding='same', data_format="channels_last", 
                                     activation='relu', use_bias=False,
                                     kernel_initializer=tf.keras.initializers.RandomNormal(mean=0.01, stddev=0.1), 
-                                    name='conv1_2')(conv1)
-    trans_1 = Subpixel(filters= int(64), kernel_size=(3,3), r=2, 
+                                    name='conv1_2')(conv1)'''
+    trans_1 = Subpixel(filters= int(32), kernel_size=(3,3), r=2, 
                         activation='relu', use_bias=False, padding='same', 
                         kernel_initializer=tf.keras.initializers.RandomNormal(mean=0.01, stddev=0.1), 
-                        name='subpixel_1')(conv1)
+                        name='subpixel_1')(Rech)
     batchnorm = tf.keras.layers.BatchNormalization()(trans_1)
     sym = Symmetry_R1M(name='SYM_1')(batchnorm)
 
-    conv2 = tf.keras.layers.Conv2D(64, [3, 3], strides=1, padding='same', data_format="channels_last", 
+    '''conv2 = tf.keras.layers.Conv2D(64, [3, 3], strides=1, padding='same', data_format="channels_last", 
                                     activation='relu', use_bias=False,
                                     kernel_initializer=tf.keras.initializers.RandomNormal(mean=0.01, stddev=0.1), 
                                     name='conv2_1')(sym)
     conv2 = tf.keras.layers.Conv2D(32, [3, 3], strides=1, padding='same', data_format="channels_last", 
                                     activation='relu', use_bias=False,
                                     kernel_initializer=tf.keras.initializers.RandomNormal(mean=0.01, stddev=0.1), 
-                                    name='conv2_2')(conv2)
+                                    name='conv2_2')(conv2)'''
     trans_2 = Subpixel(filters= int(32), kernel_size=(3,3), r=2, 
                         activation='relu', use_bias=False, padding='same', 
                         kernel_initializer=tf.keras.initializers.RandomNormal(mean=0.01, stddev=0.1), 
-                        name='subpixel_2')(conv2)
+                        name='subpixel_2')(sym)
     batchnorm = tf.keras.layers.BatchNormalization()(trans_2)
     sym = Symmetry_R1M(name='SYM_2')(batchnorm)
     Sumh = tf.keras.layers.Conv2D(filters=1, kernel_size=(1,1),
@@ -219,36 +219,36 @@ def make_discriminator_model(len_low_size=16, scale=4):
     inp = tf.keras.layers.Input(shape=[len_high_size, len_high_size, 1], name='input_image')
 
     #zero_pad = tf.keras.layers.ZeroPadding2D()(inp)
-    conv = tf.keras.layers.Conv2D(32, 3, strides=1, padding='same', kernel_initializer=tf.keras.initializers.RandomNormal(mean=0.01, stddev=0.1), use_bias=False)(inp)
+    conv = tf.keras.layers.Conv2D(32, 3, strides=1, padding='valid', kernel_initializer=tf.keras.initializers.RandomNormal(mean=0.0, stddev=0.2), use_bias=False)(inp)
     #pool = tf.keras.layers.AveragePooling2D()(conv)
     sym = Symmetry_R1M()(conv)
     leaky_relu = tf.keras.layers.LeakyReLU(0.2)(sym)
 
-    conv = tf.keras.layers.Conv2D(64, 3, strides=1, padding='same', kernel_initializer=tf.keras.initializers.RandomNormal(mean=0.01, stddev=0.1), use_bias=False)(leaky_relu)
+    conv = tf.keras.layers.Conv2D(64, 3, strides=1, padding='valid', kernel_initializer=tf.keras.initializers.RandomNormal(mean=0.0, stddev=0.2), use_bias=False)(leaky_relu)
     sym = Symmetry_R1M()(conv)
     batchnorm = tf.keras.layers.BatchNormalization()(sym)
     leaky_relu = tf.keras.layers.LeakyReLU(0.2)(batchnorm)
 
-    conv = tf.keras.layers.Conv2D(128, 3, strides=1, padding='same', kernel_initializer=tf.keras.initializers.RandomNormal(mean=0.01, stddev=0.1), use_bias=False)(leaky_relu)
+    conv = tf.keras.layers.Conv2D(128, 3, strides=1, padding='valid', kernel_initializer=tf.keras.initializers.RandomNormal(mean=0.01, stddev=0.2), use_bias=False)(leaky_relu)
     conv = tf.keras.layers.Dropout(0.1)(conv)
     pool = tf.keras.layers.MaxPooling2D()(conv)
     sym = Symmetry_R1M()(pool)
     batchnorm = tf.keras.layers.BatchNormalization()(sym)
     leaky_relu = tf.keras.layers.LeakyReLU(0.2)(batchnorm)
 
-    conv = tf.keras.layers.Conv2D(512, 3, strides=1, padding='same', kernel_initializer=tf.keras.initializers.RandomNormal(mean=0.01, stddev=0.1), use_bias=False)(leaky_relu)
+    conv = tf.keras.layers.Conv2D(512, 3, strides=1, padding='valid', kernel_initializer=tf.keras.initializers.RandomNormal(mean=0.0, stddev=0.2), use_bias=False)(leaky_relu)
     conv = tf.keras.layers.Dropout(0.1)(conv)
     pool = tf.keras.layers.MaxPooling2D()(conv)
     sym = Symmetry_R1M()(pool)
     batchnorm = tf.keras.layers.BatchNormalization()(sym)
     leaky_relu = tf.keras.layers.LeakyReLU(0.2)(batchnorm)
 
-    conv = tf.keras.layers.Conv2D(1, 3, strides=1, padding='same', kernel_initializer=tf.keras.initializers.RandomNormal(mean=0.01, stddev=0.1), use_bias=False)(leaky_relu)
+    conv = tf.keras.layers.Conv2D(1, 3, strides=1, padding='valid', kernel_initializer=tf.keras.initializers.RandomNormal(mean=0.0, stddev=0.2), use_bias=False)(leaky_relu)
     sym = Symmetry_R1M()(conv)
     batchnorm = tf.keras.layers.BatchNormalization()(sym)
     leaky_relu = tf.keras.layers.LeakyReLU(0.2)(batchnorm)
 
-    last = tf.keras.layers.LocallyConnected2D(1, 1, strides=1, padding='valid', kernel_initializer=tf.keras.initializers.RandomNormal(mean=0.01, stddev=0.1), use_bias=False, activation='sigmoid')(leaky_relu)
+    last = tf.keras.layers.Conv2D(1, 1, strides=1, padding='valid', kernel_initializer=tf.keras.initializers.RandomNormal(mean=0.0, stddev=0.2), use_bias=False, activation='sigmoid')(leaky_relu)
     return tf.keras.Model(inputs=inp, outputs=last)
 
 def discriminator_bce_loss(real_output, fake_output):
@@ -311,20 +311,20 @@ def train_step_generator(Gen, Dis, imgl, imgr, loss_filter, loss_weights, opts, 
         disc_generated_output = Dis(tf.math.log1p(1000.0*fake_hic_h)/tf.math.log1p(1000.0), training=False)
         gen_high_v = []
         gen_high_v += Gen.get_layer('rec_high').trainable_variables
-        gen_high_v += Gen.get_layer('conv1_1').trainable_variables
-        gen_high_v += Gen.get_layer('conv1_2').trainable_variables
+        #gen_high_v += Gen.get_layer('conv1_1').trainable_variables
+        #gen_high_v += Gen.get_layer('conv1_2').trainable_variables
         gen_high_v += Gen.get_layer('subpixel_1').trainable_variables
         gen_high_v += Gen.get_layer('batch_normalization').trainable_variables
-        gen_high_v += Gen.get_layer('conv2_1').trainable_variables
-        gen_high_v += Gen.get_layer('conv2_2').trainable_variables
+        #gen_high_v += Gen.get_layer('conv2_1').trainable_variables
+        #gen_high_v += Gen.get_layer('conv2_2').trainable_variables
         gen_high_v += Gen.get_layer('subpixel_2').trainable_variables
         gen_high_v += Gen.get_layer('batch_normalization_1').trainable_variables
         gen_high_v += Gen.get_layer('sum_high').trainable_variables
         gen_high_v += Gen.get_layer('out_high').trainable_variables
         gen_loss_high_0 = generator_bce_loss(disc_generated_output) 
         gen_loss_high_1 = generator_mse_loss(fake_hic_h, imgr_filter)
-        gen_loss_high_2 = generator_ssim_loss(tf.math.log1p(1000.0*fake_hic_h)/tf.math.log1p(1000.0), tf.math.log1p(1000.0*imgr_filter)/tf.math.log1p(1000.0))
-        #gen_loss_high_2 = generator_ssim_loss(fake_hic_h, imgr_filter)
+        #gen_loss_high_2 = generator_ssim_loss(tf.math.log1p(1000.0*fake_hic_h)/tf.math.log1p(1000.0), tf.math.log1p(1000.0*imgr_filter)/tf.math.log1p(1000.0))
+        gen_loss_high_2 = generator_ssim_loss(fake_hic_h, imgr_filter)
 
         gen_loss_high = gen_loss_high_0*loss_weights[0]+ gen_loss_high_1*loss_weights[1] + gen_loss_high_2*loss_weights[2]
         gradients_of_generator_high = gen_tape_high.gradient(gen_loss_high, gen_high_v)
@@ -416,9 +416,9 @@ def train(gen, dis, dataset, epochs, len_low_size, scale, test_dataset=None):
         start = time.time()
         for i, (low_m, high_m) in enumerate(dataset):
             if(epoch<=2000):
-                loss_weights = [0.0, 10.0, 0.0]
+                loss_weights = [0.0, 10.0, 10.0]
             else:
-                loss_weights = [1.0, 10.0, 0.0]
+                loss_weights = [0.1, 10.0, 10.0]
 
             #if(epoch<450 or (epoch>=1050 and epoch%150<40)):
             if(epoch<500 or epoch>=2000):
