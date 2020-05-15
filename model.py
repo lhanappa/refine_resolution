@@ -409,7 +409,7 @@ def train(gen, dis, dataset, epochs, len_low_size, scale, test_dataset=None):
             if(epoch<=2000):
                 loss_weights = [0.0, 10.0, 10.0]
             else:
-                loss_weights = [0.1, 10.0, 10.0]
+                loss_weights = [1.0, 10.0, 10.0]
 
             #if(epoch<450 or (epoch>=1050 and epoch%150<40)):
             if(epoch<200 or epoch>=1000):
