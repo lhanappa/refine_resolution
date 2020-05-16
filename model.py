@@ -214,14 +214,14 @@ def make_generator_model(len_low_size=16, scale=4):
     up_o = tf.keras.layers.Multiply(name='scale_value_in')([up_o, m_F])'''
 
     inputs_trans = tf.transpose(WeiR1Ml, perm=[0,1,3,2])
-    trans_1 = Subpixel_R1M(filters= int(256), kernel_size=(3,1), r=2, 
+    trans_1 = Subpixel_R1M(filters= int(32), kernel_size=(3,1), r=2, 
                         activation='relu', use_bias=False, padding='same', 
                         kernel_initializer=tf.keras.initializers.RandomNormal(mean=0.01, stddev=0.1), 
                         name='subpixel_1')(inputs_trans)
     batchnorm = tf.keras.layers.BatchNormalization()(trans_1)
 
     inputs_trans = tf.transpose(batchnorm, perm=[0,1,3,2])
-    trans_2 = Subpixel_R1M(filters= int(256), kernel_size=(3,1), r=2, 
+    trans_2 = Subpixel_R1M(filters= int(32), kernel_size=(3,1), r=2, 
                         activation='relu', use_bias=False, padding='same', 
                         kernel_initializer=tf.keras.initializers.RandomNormal(mean=0.01, stddev=0.1), 
                         name='subpixel_2')(inputs_trans)
