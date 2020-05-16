@@ -209,7 +209,7 @@ def make_generator_model(len_low_size=16, scale=4):
     low_out = Normal(len_low_size, name='out_low')(Suml)
 
 
-    inputs_trans = tf.keras.layers.Conv2D(128, kernel_size=(1,1),
+    inputs_trans = tf.keras.layers.Conv2D(512, kernel_size=(1,1),
                                     strides=(1,1), padding='same',
                                     data_format="channels_last",
                                     kernel_constraint=tf.keras.constraints.NonNeg(),
@@ -222,8 +222,13 @@ def make_generator_model(len_low_size=16, scale=4):
                         name='subpixel_1')(inputs_trans)
     batchnorm = tf.keras.layers.BatchNormalization()(trans_1)
 
-    inputs_trans = tf.transpose(batchnorm, perm=[0,1,3,2])
-    trans_2 = Subpixel_R1M(filters= int(128), kernel_size=(3,1), r=2, 
+    inputs_trans = tf.keras.layers.Conv2D(128, kernel_size=(1,1),
+                                    strides=(1,1), padding='same',
+                                    data_format="channels_last",
+                                    kernel_constraint=tf.keras.constraints.NonNeg(),
+                                    activation='relu', use_bias=False)(batchnorm)
+    inputs_trans = tf.transpose(inputs_trans, perm=[0,1,3,2])
+    trans_2 = Subpixel_R1M(filters= int(128), kernel_size=(5,1), r=2, 
                         activation='relu', use_bias=False, padding='same', 
                         kernel_initializer=tf.keras.initializers.RandomNormal(mean=0.01, stddev=0.1), 
                         name='subpixel_2')(inputs_trans)
@@ -337,6 +342,7 @@ def train_step_generator(Gen, Dis, imgl, imgr, loss_filter, loss_weights, opts, 
         gen_high_v += Gen.get_layer('conv2d').trainable_variables
         gen_high_v += Gen.get_layer('subpixel_1').trainable_variables
         gen_high_v += Gen.get_layer('batch_normalization').trainable_variables
+        gen_high_v += Gen.get_layer('conv2d_1').trainable_variables
         gen_high_v += Gen.get_layer('subpixel_2').trainable_variables
         gen_high_v += Gen.get_layer('batch_normalization_1').trainable_variables
         gen_high_v += Gen.get_layer('rec_high').trainable_variables
