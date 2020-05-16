@@ -86,7 +86,7 @@ class Subpixel_R1M(tf.keras.layers.Conv2D):
     def __init__(self,
                 filters,
                 kernel_size,
-                r=(1,1),
+                r=1,
                 padding='valid',
                 data_format=None,
                 strides=(1,1),
@@ -101,7 +101,7 @@ class Subpixel_R1M(tf.keras.layers.Conv2D):
                 bias_constraint=None,
                 **kwargs):
         super(Subpixel_R1M, self).__init__(
-            filters=r[0]*r[1]*filters,
+            filters=r*filters,
             kernel_size=kernel_size,
             strides=strides,
             padding=padding,
@@ -119,18 +119,15 @@ class Subpixel_R1M(tf.keras.layers.Conv2D):
         self.r = r
 
     def _phase_shift(self, I):
-        r0 = self.r[0]
-        r1 = self.r[1]
+        r = self.r
         bsize, a, b, c = I.get_shape().as_list()
         bsize = tf.shape(I)[0] # Handling Dimension(None) type for undefined batch dim
-        X = tf.reshape(I, [bsize, a, b, tf.cast(c/(r0*r1), tf.int32), r0, r1]) # bsize, a, b, c/(r0*r1), r0, r1
-        #X = tf.keras.permute_dimensions(X, (0, 1, 2, 5, 4, 3))  # bsize, a, b, r0, r1, c/(r0*r1)
-        X = tf.transpose(X, perm=[0,1,2,4,5,3])
+        X = tf.reshape(I, [bsize, a, b, tf.cast(c/(r), tf.int32), r]) # bsize, a, b, c/(r0), r0
+        X = tf.transpose(X, perm=[0,1,2,4,3])
         #Keras backend does not support tf.split, so in future versions this could be nicer
-        X = [X[:,i,:,:,:,:] for i in range(a)] # a, [bsize, b, r0, r1, c/(r0*r1)]
-        X = tf.keras.backend.concatenate(X, axis=2)  # bsize, b, a*r0, r1, c/(r0*r1)
-        X = [X[:,i,:,:,:] for i in range(b)] # b, [bsize, a*r0, r1, c/(r0*r1)]
-        X = tf.keras.backend.concatenate(X, axis=2)  # bsize, a*r0, b*r1, c/(r0*r0)
+        X = [X[:,i,:,:,:] for i in range(a)] # a, [bsize, b, r0, c/(r0)]
+        X = tf.keras.backend.concatenate(X, axis=2)  # bsize, b, a*r0, c/(r0)
+        X = tf.transpose(X, perm=[0,2,1,3])
         return X
 
     def call(self, inputs): #after transpose input size: [bsize, H, W, C], C=1, 
@@ -140,10 +137,10 @@ class Subpixel_R1M(tf.keras.layers.Conv2D):
         output = tf.transpose(output, perm=[0,1,3,2]) #[bsize, H, W, C_out], W=1
         return output
 
-    '''def compute_output_shape(self, input_shape):
+    def compute_output_shape(self, input_shape):
         unshifted = super(Subpixel_R1M, self).compute_output_shape(input_shape)
-        return (unshifted[0], self.r[0]*unshifted[1], self.r[1]*unshifted[2], unshifted[3]/(self.r[0]*self.r[1]))
-    '''
+        return (unshifted[0], self.r[0]*unshifted[1], unshifted[2], unshifted[3]/(self.r[0]))
+ 
     def get_config(self):
         config = super(tf.keras.layers.Conv2D, self).get_config()
         config.pop('rank')
@@ -217,14 +214,14 @@ def make_generator_model(len_low_size=16, scale=4):
     up_o = tf.keras.layers.Multiply(name='scale_value_in')([up_o, m_F])'''
 
     inputs_trans = tf.transpose(WeiR1Ml, perm=[0,1,3,2])
-    trans_1 = Subpixel_R1M(filters= int(1024), kernel_size=(3,1), r=(2,1), 
+    trans_1 = Subpixel_R1M(filters= int(256), kernel_size=(3,1), r=2, 
                         activation='relu', use_bias=False, padding='same', 
                         kernel_initializer=tf.keras.initializers.RandomNormal(mean=0.01, stddev=0.1), 
                         name='subpixel_1')(inputs_trans)
     batchnorm = tf.keras.layers.BatchNormalization()(trans_1)
 
     inputs_trans = tf.transpose(batchnorm, perm=[0,1,3,2])
-    trans_2 = Subpixel_R1M(filters= int(1024), kernel_size=(3,1), r=(2,1), 
+    trans_2 = Subpixel_R1M(filters= int(256), kernel_size=(3,1), r=2, 
                         activation='relu', use_bias=False, padding='same', 
                         kernel_initializer=tf.keras.initializers.RandomNormal(mean=0.01, stddev=0.1), 
                         name='subpixel_2')(inputs_trans)
