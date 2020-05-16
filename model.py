@@ -406,18 +406,20 @@ def train(gen, dis, dataset, epochs, len_low_size, scale, test_dataset=None):
     for epoch in range(epochs):
         start = time.time()
         for i, (low_m, high_m) in enumerate(dataset):
-            if(epoch<=2000):
+            if(generator_log_ssim_high.result().numpy()>=0.016 or generator_log_mse_high.result().numpy()>= 0.016):
                 loss_weights = [0.0, 10.0, 10.0]
             else:
                 loss_weights = [0.1, 10.0, 10.0]
 
-            if(epoch<200 or (epoch>=1000 and epoch%100<40)):
+            stage1_gen = (generator_log_ssim_high.result().numpy()>=0.02 or generator_log_mse_high.result().numpy()>= 0.02)
+            stage1_dis = (generator_log_ssim_high.result().numpy()<=0.022 or generator_log_mse_high.result().numpy()<= 0.022)
+            if(stage1_gen or (epoch>=1200 and epoch%100<40)):
             #if(epoch<200 or epoch>=1000):
                 train_step_generator(gen, dis, 
                                     tf.dtypes.cast(low_m, tf.float32), tf.dtypes.cast(high_m, tf.float32),
                                     [loss_filter_low, loss_filter_high], loss_weights,
                                     opts, logs)
-            if(epoch%100>=40 or (epoch>=0 and epoch<1000)):
+            if( stage1_dis or (epoch>=1200 and epoch%100>=40)):
             #if(epoch>=0):
                 train_step_discriminator(gen, dis, 
                                 tf.dtypes.cast(low_m, tf.float32), tf.dtypes.cast(high_m, tf.float32),
