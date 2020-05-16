@@ -32,7 +32,7 @@ class Weight_R1M(tf.keras.layers.Layer):
         return tf.multiply(input, self.w)
 
 
-class Subpixel(tf.keras.layers.Conv2D):
+'''class Subpixel(tf.keras.layers.Conv2D):
     def __init__(self,
                  filters,
                  kernel_size,
@@ -80,6 +80,57 @@ class Subpixel(tf.keras.layers.Conv2D):
         X = tf.keras.backend.concatenate(X, axis=2)  # bsize, b, a*r, r, c/(r*r)
         X = [X[:,i,:,:,:] for i in range(b)] # b, [bsize, r, r, c/(r*r)
         X = tf.keras.backend.concatenate(X, axis=2)  # bsize, a*r, b*r, c/(r*r)
+        return X'''
+
+class Subpixel(tf.keras.layers.Conv2D):
+    def __init__(self,
+                filters,
+                kernel_size,
+                r=(1,1),
+                padding='valid',
+                data_format=None,
+                strides=(1,1),
+                activation=None,
+                use_bias=True,
+                kernel_initializer='glorot_uniform',
+                bias_initializer='zeros',
+                kernel_regularizer=None,
+                bias_regularizer=None,
+                activity_regularizer=None,
+                kernel_constraint=None,
+                bias_constraint=None,
+                **kwargs):
+        super(Subpixel, self).__init__(
+            filters=r[0]*r[1]*filters,
+            kernel_size=kernel_size,
+            strides=strides,
+            padding=padding,
+            data_format=data_format,
+            activation=activation,
+            use_bias=use_bias,
+            kernel_initializer=kernel_initializer,
+            bias_initializer=bias_initializer,
+            kernel_regularizer=kernel_regularizer,
+            bias_regularizer=bias_regularizer,
+            activity_regularizer=activity_regularizer,
+            kernel_constraint=kernel_constraint,
+            bias_constraint=bias_constraint,
+            **kwargs)
+        self.r = r
+
+    def _phase_shift(self, I):
+        r0 = self.r[0]
+        r1 = self.r[1]
+        bsize, a, b, c = I.get_shape().as_list()
+        bsize = tf.shape(I)[0] # Handling Dimension(None) type for undefined batch dim
+        X = tf.reshape(I, [bsize, a, b, tf.cast(c/(r0*r1), tf.int32), r0, r1]) # bsize, a, b, c/(r0*r1), r0, r1
+        #X = tf.keras.permute_dimensions(X, (0, 1, 2, 5, 4, 3))  # bsize, a, b, r0, r1, c/(r0*r1)
+        X = tf.transpose(X, perm=[0,1,2,4,5,3])
+        #Keras backend does not support tf.split, so in future versions this could be nicer
+        X = [X[:,i,:,:,:,:] for i in range(a)] # a, [bsize, b, r0, r1, c/(r0*r1)]
+        X = tf.keras.backend.concatenate(X, axis=2)  # bsize, b, a*r0, r1, c/(r0*r1)
+        X = [X[:,i,:,:,:] for i in range(b)] # b, [bsize, a*r0, r1, c/(r0*r1)]
+        X = tf.keras.backend.concatenate(X, axis=2)  # bsize, a*r0, b*r1, c/(r0*r0)
         return X
 
     def call(self, inputs):
@@ -87,13 +138,13 @@ class Subpixel(tf.keras.layers.Conv2D):
 
     def compute_output_shape(self, input_shape):
         unshifted = super(Subpixel, self).compute_output_shape(input_shape)
-        return (unshifted[0], self.r*unshifted[1], self.r*unshifted[2], unshifted[3]/(self.r*self.r))
+        return (unshifted[0], self.r[0]*unshifted[1], self.r[1]*unshifted[2], unshifted[3]/(self.r[0]*self.r[1]))
 
     def get_config(self):
         config = super(tf.keras.layers.Conv2D, self).get_config()
         config.pop('rank')
         config.pop('dilation_rate')
-        config['filters']/=self.r*self.r
+        config['filters']/=self.r[0]*self.r[1]
         config['r'] = self.r
         return config
 
@@ -167,34 +218,24 @@ def make_generator_model(len_low_size=16, scale=4):
     m_F = tf.constant(1/16.0, shape=(1, 1, 1, 1))
     up_o = tf.keras.layers.Multiply(name='scale_value_in')([up_o, m_F])'''
 
-    Rech = Reconstruct_R1M(1024, name='rec_high')(WeiR1Ml)
-
-    conv1 = tf.keras.layers.Conv2D(128, [3, 3], strides=1, padding='same', data_format="channels_last", 
-                                    activation='relu', use_bias=False,
-                                    name='conv1_1')(Rech)
-    sym = Symmetry_R1M()(conv1)
-    conv1 = tf.keras.layers.Conv2D(64, [3, 3], strides=1, padding='same', data_format="channels_last", 
-                                    activation='relu', use_bias=False,
-                                    name='conv1_2')(sym)
-    sym = Symmetry_R1M()(conv1)
-    trans_1 = Subpixel(filters= int(32), kernel_size=(3,3), r=2, 
+    trans_1 = Subpixel(filters= int(128), kernel_size=(3,1), r=(2,1), 
                         activation='relu', use_bias=False, padding='same', 
                         kernel_initializer=tf.keras.initializers.RandomNormal(mean=0.01, stddev=0.1), 
-                        name='subpixel_1')(sym)
+                        name='subpixel_1')(WeiR1Ml)
     batchnorm = tf.keras.layers.BatchNormalization()(trans_1)
-    sym = Symmetry_R1M(name='SYM_1')(batchnorm)
 
-    trans_2 = Subpixel(filters= int(32), kernel_size=(3,3), r=2, 
+    trans_2 = Subpixel(filters= int(256), kernel_size=(3,1), r=(2,1), 
                         activation='relu', use_bias=False, padding='same', 
                         kernel_initializer=tf.keras.initializers.RandomNormal(mean=0.01, stddev=0.1), 
-                        name='subpixel_2')(sym)
+                        name='subpixel_2')(batchnorm)
     batchnorm = tf.keras.layers.BatchNormalization()(trans_2)
-    sym = Symmetry_R1M(name='SYM_2')(batchnorm)
+
+    Rech = Reconstruct_R1M(256, name='rec_high')(batchnorm)
     Sumh = tf.keras.layers.Conv2D(filters=1, kernel_size=(1,1),
                                     strides=(1,1), padding='same',
                                     data_format="channels_last",
                                     kernel_constraint=tf.keras.constraints.NonNeg(),
-                                    activation='relu', use_bias=False, name='sum_high')(sym)
+                                    activation='relu', use_bias=False, name='sum_high')(Rech)
     high_out = Normal(int(len_low_size*scale), name='out_high')(Sumh)
 
     model = tf.keras.models.Model(inputs=[In], outputs=[low_out, high_out])
