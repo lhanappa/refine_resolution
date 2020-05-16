@@ -464,7 +464,7 @@ def train(gen, dis, dataset, epochs, len_low_size, scale, test_dataset=None):
         print('Time for epoch {} is {} sec.'.format(
             epoch + 1, time.time()-start))
         stage1_gen = (generator_log_ssim_high.result().numpy()>=0.02 or generator_log_mse_high.result().numpy()>= 0.02)
-        stage1_dis = (generator_log_ssim_high.result().numpy()<=0.022 or generator_log_mse_high.result().numpy()<= 0.022)
+        stage1_dis = (generator_log_ssim_high.result().numpy()<=0.022 and generator_log_mse_high.result().numpy()<= 0.022)
 
 def plot_matrix(m):
     import numpy as np
