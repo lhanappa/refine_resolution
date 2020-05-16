@@ -82,7 +82,7 @@ class Weight_R1M(tf.keras.layers.Layer):
         X = tf.keras.backend.concatenate(X, axis=2)  # bsize, a*r, b*r, c/(r*r)
         return X'''
 
-class Subpixel(tf.keras.layers.Conv2D):
+class Subpixel_R1M(tf.keras.layers.Conv2D):
     def __init__(self,
                 filters,
                 kernel_size,
@@ -100,7 +100,7 @@ class Subpixel(tf.keras.layers.Conv2D):
                 kernel_constraint=None,
                 bias_constraint=None,
                 **kwargs):
-        super(Subpixel, self).__init__(
+        super(Subpixel_R1M, self).__init__(
             filters=r[0]*r[1]*filters,
             kernel_size=kernel_size,
             strides=strides,
@@ -133,13 +133,17 @@ class Subpixel(tf.keras.layers.Conv2D):
         X = tf.keras.backend.concatenate(X, axis=2)  # bsize, a*r0, b*r1, c/(r0*r0)
         return X
 
-    def call(self, inputs):
-        return self._phase_shift(super(Subpixel, self).call(inputs))
+    def call(self, inputs): #after transpose input size: [bsize, H, W, C], C=1, 
+        output_conv = super(Subpixel_R1M, self).call(inputs)  #[bsize, H, C, 1] --> [bsize, H, C_in, C_out]
+        output = self._phase_shift(output_conv)
+        output = tf.reduce_sum(output, axis = -1, keepdims=True)
+        output = tf.transpose(output, perm=[0,1,3,2]) #[bsize, H, W, C_out], W=1
+        return output
 
-    def compute_output_shape(self, input_shape):
-        unshifted = super(Subpixel, self).compute_output_shape(input_shape)
+    '''def compute_output_shape(self, input_shape):
+        unshifted = super(Subpixel_R1M, self).compute_output_shape(input_shape)
         return (unshifted[0], self.r[0]*unshifted[1], self.r[1]*unshifted[2], unshifted[3]/(self.r[0]*self.r[1]))
-
+    '''
     def get_config(self):
         config = super(tf.keras.layers.Conv2D, self).get_config()
         config.pop('rank')
@@ -194,12 +198,6 @@ class Normal(tf.keras.layers.Layer):
 
         return tf.multiply(Div, M)
 
-'''class symmetry_constraints(tf.keras.constraints.Constraint):
-    def __call__(self, w): 
-        #for conv2d the shape of kernel = [W, H, C, K] C:channels, K:output number of filters
-        Tw = tf.transpose(w, perm=[1,0,2,3])
-        return (w + Tw)/2.0'''
-
 def make_generator_model(len_low_size=16, scale=4):
     In = tf.keras.layers.Input(
         shape=(len_low_size, len_low_size, 1), name='in', dtype=tf.float32)
@@ -218,19 +216,21 @@ def make_generator_model(len_low_size=16, scale=4):
     m_F = tf.constant(1/16.0, shape=(1, 1, 1, 1))
     up_o = tf.keras.layers.Multiply(name='scale_value_in')([up_o, m_F])'''
 
-    trans_1 = Subpixel(filters= int(128), kernel_size=(3,1), r=(2,1), 
+    inputs_trans = tf.transpose(WeiR1Ml, perm=[0,1,3,2])
+    trans_1 = Subpixel_R1M(filters= int(1024), kernel_size=(3,1), r=(2,1), 
                         activation='relu', use_bias=False, padding='same', 
                         kernel_initializer=tf.keras.initializers.RandomNormal(mean=0.01, stddev=0.1), 
-                        name='subpixel_1')(WeiR1Ml)
+                        name='subpixel_1')(inputs_trans)
     batchnorm = tf.keras.layers.BatchNormalization()(trans_1)
 
-    trans_2 = Subpixel(filters= int(1024), kernel_size=(3,1), r=(2,1), 
+    inputs_trans = tf.transpose(batchnorm, perm=[0,1,3,2])
+    trans_2 = Subpixel_R1M(filters= int(1024), kernel_size=(3,1), r=(2,1), 
                         activation='relu', use_bias=False, padding='same', 
                         kernel_initializer=tf.keras.initializers.RandomNormal(mean=0.01, stddev=0.1), 
-                        name='subpixel_2')(batchnorm)
+                        name='subpixel_2')(inputs_trans)
     batchnorm = tf.keras.layers.BatchNormalization()(trans_2)
 
-    Rech = Reconstruct_R1M(1024, name='rec_high')(batchnorm)
+    Rech = Reconstruct_R1M(1024, name='rec_high')(trans_2)
     Sumh = tf.keras.layers.Conv2D(filters=1, kernel_size=(1,1),
                                     strides=(1,1), padding='same',
                                     data_format="channels_last",
