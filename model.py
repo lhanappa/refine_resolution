@@ -230,7 +230,7 @@ def make_generator_model(len_low_size=16, scale=4):
                         name='subpixel_2')(inputs_trans)
     batchnorm = tf.keras.layers.BatchNormalization()(trans_2)
 
-    Rech = Reconstruct_R1M(1024, name='rec_high')(trans_2)
+    Rech = Reconstruct_R1M(1024, name='rec_high')(batchnorm)
     Sumh = tf.keras.layers.Conv2D(filters=1, kernel_size=(1,1),
                                     strides=(1,1), padding='same',
                                     data_format="channels_last",
