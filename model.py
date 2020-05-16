@@ -335,15 +335,11 @@ def train_step_generator(Gen, Dis, imgl, imgr, loss_filter, loss_weights, opts, 
 
         disc_generated_output = Dis(fake_hic_h, training=False)
         gen_high_v = []
-        gen_high_v += Gen.get_layer('rec_high').trainable_variables
-        gen_high_v += Gen.get_layer('conv1_1').trainable_variables
-        gen_high_v += Gen.get_layer('conv1_2').trainable_variables
         gen_high_v += Gen.get_layer('subpixel_1').trainable_variables
         gen_high_v += Gen.get_layer('batch_normalization').trainable_variables
-        #gen_high_v += Gen.get_layer('conv2_1').trainable_variables
-        #gen_high_v += Gen.get_layer('conv2_2').trainable_variables
         gen_high_v += Gen.get_layer('subpixel_2').trainable_variables
         gen_high_v += Gen.get_layer('batch_normalization_1').trainable_variables
+        gen_high_v += Gen.get_layer('rec_high').trainable_variables
         gen_high_v += Gen.get_layer('sum_high').trainable_variables
         gen_high_v += Gen.get_layer('out_high').trainable_variables
         gen_loss_high_0 = generator_bce_loss(disc_generated_output) 
