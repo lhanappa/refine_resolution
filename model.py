@@ -224,13 +224,13 @@ def make_generator_model(len_low_size=16, scale=4):
                         name='subpixel_1')(WeiR1Ml)
     batchnorm = tf.keras.layers.BatchNormalization()(trans_1)
 
-    trans_2 = Subpixel(filters= int(256), kernel_size=(3,1), r=(2,1), 
+    trans_2 = Subpixel(filters= int(1024), kernel_size=(3,1), r=(2,1), 
                         activation='relu', use_bias=False, padding='same', 
                         kernel_initializer=tf.keras.initializers.RandomNormal(mean=0.01, stddev=0.1), 
                         name='subpixel_2')(batchnorm)
     batchnorm = tf.keras.layers.BatchNormalization()(trans_2)
 
-    Rech = Reconstruct_R1M(256, name='rec_high')(batchnorm)
+    Rech = Reconstruct_R1M(1024, name='rec_high')(batchnorm)
     Sumh = tf.keras.layers.Conv2D(filters=1, kernel_size=(1,1),
                                     strides=(1,1), padding='same',
                                     data_format="channels_last",
