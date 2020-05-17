@@ -166,7 +166,7 @@ def make_generator_model(len_low_size=16, scale=4):
 
     Rech = Reconstruct_R1M(1024, name='rec_high')(WeiR1Ml)
 
-    conv1 = tf.keras.layers.Conv2D(32, [1, 1], strides=1, padding='same', data_format="channels_last", 
+    conv1 = tf.keras.layers.Conv2D(64, [1, 1], strides=1, padding='same', data_format="channels_last", 
                                     activation='relu', use_bias=False,
                                     name='conv1_1')(Rech)
     sym = Symmetry_R1M()(conv1)
@@ -512,8 +512,8 @@ def plot_to_image(figure):
     return image
 
 if __name__ == '__main__':
-    Gen = make_generator_model(len_low_size=32, scale=4)
-    Dis = make_discriminator_model(len_low_size=32, scale=4)
+    Gen = make_generator_model(len_low_size=16, scale=4)
+    Dis = make_discriminator_model(len_low_size=16, scale=4)
     print(Gen.summary())
     tf.keras.utils.plot_model(Gen, to_file='G.png', show_shapes=True)
     print(Dis.summary())
