@@ -166,7 +166,7 @@ def make_generator_model(len_low_size=16, scale=4):
 
     Rech = Reconstruct_R1M(1024, name='rec_high')(WeiR1Ml)
 
-    conv1 = tf.keras.layers.Conv2D(128, [1, 1], strides=1, padding='same', data_format="channels_last", 
+    conv1 = tf.keras.layers.Conv2D(16, [1, 1], strides=1, padding='same', data_format="channels_last", 
                                     activation='relu', use_bias=False,
                                     name='conv1_1')(Rech)
     sym = Symmetry_R1M()(conv1)
