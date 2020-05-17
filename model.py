@@ -163,7 +163,8 @@ def make_generator_model(len_low_size=16, scale=4):
                                     activation='relu', use_bias=False,
                                     name='conv')(Rec)
     
-    Suml = Sum_R1M(name='sum_low')(conv)
+    sym = Symmetry_R1M()(conv)
+    Suml = Sum_R1M(name='sum_low')(sym)
     low_out = Normal(len_low_size, name='out_low')(Suml)
 
     '''up_o = tf.keras.layers.UpSampling2D(size=(4, 4), data_format='channels_last', name='up_in')(In)
