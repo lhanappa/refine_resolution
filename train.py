@@ -15,7 +15,7 @@ tf.keras.backend.set_floatx('float32')
 
 
 # data from ftp://cooler.csail.mit.edu/coolers/hg19/
-name = 'Dixon2012-H1hESC-HindIII-allreps-filtered.100kb.cool'
+name = 'Dixon2012-H1hESC-HindIII-allreps-filtered.10kb.cool'
 #name = 'Rao2014-K562-MboI-allreps-filtered.500kb.cool'
 c = cooler.Cooler(name)
 resolution = c.binsize
