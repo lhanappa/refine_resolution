@@ -295,7 +295,7 @@ def train_step_generator(Gen, Dis, imgl, imgr, loss_filter, loss_weights, opts, 
         gen_high_v = []
         gen_high_v += Gen.get_layer('rec_high').trainable_variables
         gen_high_v += Gen.get_layer('conv1_1').trainable_variables
-        gen_high_v += Gen.get_layer('conv1_2').trainable_variables
+        #gen_high_v += Gen.get_layer('conv1_2').trainable_variables
         gen_high_v += Gen.get_layer('subpixel_1').trainable_variables
         gen_high_v += Gen.get_layer('batch_normalization').trainable_variables
         gen_high_v += Gen.get_layer('subpixel_2').trainable_variables
