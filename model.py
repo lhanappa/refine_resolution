@@ -209,30 +209,34 @@ def make_generator_model(len_low_size=16, scale=4):
     low_out = Normal(len_low_size, name='out_low')(Suml)
 
 
-    inputs_trans = tf.keras.layers.Conv2D(512, kernel_size=(1,1),
+    inputs_conv = tf.keras.layers.Conv2D(512, kernel_size=(1,1),
                                     strides=(1,1), padding='same',
                                     data_format="channels_last",
                                     kernel_constraint=tf.keras.constraints.NonNeg(),
                                     activation='relu', use_bias=False)(WeiR1Ml)
 
-    inputs_trans = tf.transpose(inputs_trans, perm=[0,1,3,2])
-    trans_1 = Subpixel_R1M(filters= int(128), kernel_size=(3,1), r=2, 
+    inputs_conv = tf.keras.layers.Conv2D(512, kernel_size=(1,1),
+                                    strides=(1,1), padding='same',
+                                    data_format="channels_last",
+                                    kernel_constraint=tf.keras.constraints.NonNeg(),
+                                    activation='relu', use_bias=False)(inputs_conv)
+    inputs_conv = tf.keras.layers.Conv2D(256, kernel_size=(1,1),
+                                    strides=(1,1), padding='same',
+                                    data_format="channels_last",
+                                    kernel_constraint=tf.keras.constraints.NonNeg(),
+                                    activation='relu', use_bias=False)(inputs_conv)
+    inputs_conv = tf.keras.layers.Conv2D(128, kernel_size=(1,1),
+                                    strides=(1,1), padding='same',
+                                    data_format="channels_last",
+                                    kernel_constraint=tf.keras.constraints.NonNeg(),
+                                    activation='relu', use_bias=False)(inputs_conv)
+    inputs_trans = tf.transpose(inputs_conv, perm=[0,1,3,2])
+
+    trans_1 = Subpixel_R1M(filters= int(1024), kernel_size=(3,1), r=4, 
                         activation='relu', use_bias=False, padding='same', 
                         kernel_initializer=tf.keras.initializers.RandomNormal(mean=0.01, stddev=0.1), 
                         name='subpixel_1')(inputs_trans)
     batchnorm = tf.keras.layers.BatchNormalization()(trans_1)
-
-    inputs_trans = tf.keras.layers.Conv2D(128, kernel_size=(1,1),
-                                    strides=(1,1), padding='same',
-                                    data_format="channels_last",
-                                    kernel_constraint=tf.keras.constraints.NonNeg(),
-                                    activation='relu', use_bias=False)(batchnorm)
-    inputs_trans = tf.transpose(inputs_trans, perm=[0,1,3,2])
-    trans_2 = Subpixel_R1M(filters= int(128), kernel_size=(5,1), r=2, 
-                        activation='relu', use_bias=False, padding='same', 
-                        kernel_initializer=tf.keras.initializers.RandomNormal(mean=0.01, stddev=0.1), 
-                        name='subpixel_2')(inputs_trans)
-    batchnorm = tf.keras.layers.BatchNormalization()(trans_2)
 
     Rech = Reconstruct_R1M(128, name='rec_high')(batchnorm)
     Sumh = tf.keras.layers.Conv2D(filters=1, kernel_size=(1,1),
