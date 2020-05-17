@@ -91,6 +91,7 @@ plt.show()'''
 EPOCHS = 3000
 BUFFER_SIZE = 1
 BATCH_SIZE = 9
+
 len_low_size = int(len_size/scale)
 scale = 4
 hic_lr = np.array(hic_lr)
