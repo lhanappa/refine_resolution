@@ -515,8 +515,8 @@ def plot_to_image(figure):
     return image
 
 if __name__ == '__main__':
-    Gen = make_generator_model(len_low_size=32, scale=4)
-    Dis = make_discriminator_model(len_low_size=32, scale=4)
+    Gen = make_generator_model(len_low_size=16, scale=4)
+    Dis = make_discriminator_model(len_low_size=16, scale=4)
     print(Gen.summary())
     tf.keras.utils.plot_model(Gen, to_file='G.png', show_shapes=True)
     print(Dis.summary())
