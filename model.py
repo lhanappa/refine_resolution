@@ -157,15 +157,11 @@ def make_generator_model(len_low_size=16, scale=4):
                                     kernel_constraint=tf.keras.constraints.NonNeg(), 
                                     kernel_initializer=tf.keras.initializers.RandomNormal(mean=0.01, stddev=0.1), 
                                     name='dec_low_1')(In)
-    Decl = tf.keras.layers.Conv2D(128, [1, 3], strides=(1,1), padding='same', data_format="channels_last", 
+    Decl = tf.keras.layers.Conv2D(128, [3, 1], strides=(1,1), padding='same', data_format="channels_last", 
                                     activation='relu', use_bias=False,
-                                    kernel_constraint=tf.keras.constraints.NonNeg(), 
-                                    kernel_initializer=tf.keras.initializers.RandomNormal(mean=0.01, stddev=0.1), 
                                     name='dec_low_2')(Decl)
-    Decl = tf.keras.layers.Conv2D(128, [1, 3], strides=(1,1), padding='same', data_format="channels_last", 
+    Decl = tf.keras.layers.Conv2D(128, [3, 1], strides=(1,1), padding='same', data_format="channels_last", 
                                     activation='relu', use_bias=False,
-                                    kernel_constraint=tf.keras.constraints.NonNeg(), 
-                                    kernel_initializer=tf.keras.initializers.RandomNormal(mean=0.01, stddev=0.1), 
                                     name='dec_low_3')(Decl)
 
     WeiR1Ml = Weight_R1M(name='WR1Ml')(Decl)
@@ -418,7 +414,7 @@ def train(gen, dis, dataset, epochs, len_low_size, scale, test_dataset=None):
                 loss_weights = [0.1, 10.0, 10.0]
 
             #if(stage1_gen or (epoch==0 or epoch>=1200 and epoch%100<40)):
-            if(epoch<300 or epoch>=800):
+            if(epoch<600 or epoch>=1200):
                 train_step_generator(gen, dis, 
                                     tf.dtypes.cast(low_m, tf.float32), tf.dtypes.cast(high_m, tf.float32),
                                     [loss_filter_low, loss_filter_high], loss_weights,
