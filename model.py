@@ -152,14 +152,29 @@ class Normal(tf.keras.layers.Layer):
 def make_generator_model(len_low_size=16, scale=4):
     In = tf.keras.layers.Input(
         shape=(len_low_size, len_low_size, 1), name='in', dtype=tf.float32)
-    Decl = tf.keras.layers.Conv2D(1024, [1, len_low_size], strides=1, padding='valid', data_format="channels_last", 
+    Decl = tf.keras.layers.Conv2D(16, [1, 3], strides=(1,2), padding='valid', data_format="channels_last", 
                                     activation='relu', use_bias=False,
                                     kernel_constraint=tf.keras.constraints.NonNeg(), 
                                     kernel_initializer=tf.keras.initializers.RandomNormal(mean=0.01, stddev=0.1), 
-                                    name='dec_low')(In)
+                                    name='dec_low_1')(In)
+    Decl = tf.keras.layers.Conv2D(128, [1, 3], strides=(1,2), padding='valid', data_format="channels_last", 
+                                    activation='relu', use_bias=False,
+                                    kernel_constraint=tf.keras.constraints.NonNeg(), 
+                                    kernel_initializer=tf.keras.initializers.RandomNormal(mean=0.01, stddev=0.1), 
+                                    name='dec_low_2')(Decl)
+    Decl = tf.keras.layers.Conv2D(128, [1, 3], strides=(1,2), padding='valid', data_format="channels_last", 
+                                    activation='relu', use_bias=False,
+                                    kernel_constraint=tf.keras.constraints.NonNeg(), 
+                                    kernel_initializer=tf.keras.initializers.RandomNormal(mean=0.01, stddev=0.1), 
+                                    name='dec_low_3')(Decl)
+    Decl = tf.keras.layers.Conv2D(512, [1, 3], strides=(1,2), padding='valid', data_format="channels_last", 
+                                    activation='relu', use_bias=False,
+                                    kernel_constraint=tf.keras.constraints.NonNeg(), 
+                                    kernel_initializer=tf.keras.initializers.RandomNormal(mean=0.01, stddev=0.1), 
+                                    name='dec_low_4')(Decl)
 
     WeiR1Ml = Weight_R1M(name='WR1Ml')(Decl)
-    Recl = Reconstruct_R1M(1024, name='rec_low')(WeiR1Ml)
+    Recl = Reconstruct_R1M(512, name='rec_low')(WeiR1Ml)
     Suml = Sum_R1M(name='sum_low')(Recl)
     low_out = Normal(len_low_size, name='out_low')(Suml)
 
@@ -167,7 +182,7 @@ def make_generator_model(len_low_size=16, scale=4):
     m_F = tf.constant(1/16.0, shape=(1, 1, 1, 1))
     up_o = tf.keras.layers.Multiply(name='scale_value_in')([up_o, m_F])'''
 
-    Rech = Reconstruct_R1M(1024, name='rec_high')(WeiR1Ml)
+    Rech = Reconstruct_R1M(512, name='rec_high')(WeiR1Ml)
 
     conv1 = tf.keras.layers.Conv2D(128, [3, 3], strides=1, padding='same', data_format="channels_last", 
                                     activation='relu', use_bias=False,
@@ -515,8 +530,8 @@ def plot_to_image(figure):
     return image
 
 if __name__ == '__main__':
-    Gen = make_generator_model(len_low_size=16, scale=4)
-    Dis = make_discriminator_model(len_low_size=16, scale=4)
+    Gen = make_generator_model(len_low_size=32, scale=4)
+    Dis = make_discriminator_model(len_low_size=32, scale=4)
     print(Gen.summary())
     tf.keras.utils.plot_model(Gen, to_file='G.png', show_shapes=True)
     print(Dis.summary())
