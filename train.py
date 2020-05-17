@@ -23,6 +23,7 @@ mat = c.matrix(balance=True).fetch('chr2')
 idxy = ~np.all(np.isnan(mat), axis=0)
 M = mat[idxy, :]
 Mh = M[:, idxy]
+Mh = Mh[0:1024, 0:1024]
 print('MH: ', Mh.shape)
 scale = 4
 len_size = 64 
