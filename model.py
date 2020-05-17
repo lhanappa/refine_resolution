@@ -88,7 +88,7 @@ class Subpixel(tf.keras.layers.Conv3D):
 
     def compute_output_shape(self, input_shape):
         unshifted = super(Subpixel, self).compute_output_shape(input_shape)
-        return (unshifted[0], self.r*unshifted[1], self.r*unshifted[2], unshifted[3]/(self.r*self.r))
+        return (unshifted[0], self.r[0]*unshifted[1], self.r[1]*unshifted[2], unshifted[3]/(self.r[0]*self.r[1]))
 
     def get_config(self):
         config = super(tf.keras.layers.Conv2D, self).get_config()
