@@ -172,7 +172,7 @@ def make_generator_model(len_low_size=16, scale=4):
     sym = Symmetry_R1M()(conv1)
 
     sym = tf.expand_dims(sym, axis=-1)
-    trans_1 = Subpixel(filters= int(16), kernel_size=(3,3,1), r=(2,2,1), 
+    trans_1 = Subpixel(filters= int(16), kernel_size=(3,3,1), r=(4,4,1), 
                         activation='relu', use_bias=False, padding='same', 
                         kernel_initializer=tf.keras.initializers.RandomNormal(mean=0.01, stddev=0.1), 
                         name='subpixel_1')(sym)
@@ -180,14 +180,14 @@ def make_generator_model(len_low_size=16, scale=4):
     batchnorm = tf.keras.layers.BatchNormalization()(trans_1)
     sym = Symmetry_R1M(name='SYM_1')(batchnorm)
 
-    sym = tf.expand_dims(sym, axis=-1)
+    '''sym = tf.expand_dims(sym, axis=-1)
     trans_2 = Subpixel(filters= int(16), kernel_size=(3,3,1), r=(2,2,1), 
                         activation='relu', use_bias=False, padding='same', 
                         kernel_initializer=tf.keras.initializers.RandomNormal(mean=0.01, stddev=0.1), 
                         name='subpixel_2')(sym)
     trans_2 = tf.reduce_sum(trans_2, axis=-1, keepdims=False)
     batchnorm = tf.keras.layers.BatchNormalization()(trans_2)
-    sym = Symmetry_R1M(name='SYM_2')(batchnorm)
+    sym = Symmetry_R1M(name='SYM_2')(batchnorm)'''
 
     Sumh = tf.keras.layers.Conv2D(filters=1, kernel_size=(1,1),
                                     strides=(1,1), padding='same',
@@ -298,8 +298,8 @@ def train_step_generator(Gen, Dis, imgl, imgr, loss_filter, loss_weights, opts, 
         #gen_high_v += Gen.get_layer('conv1_2').trainable_variables
         gen_high_v += Gen.get_layer('subpixel_1').trainable_variables
         gen_high_v += Gen.get_layer('batch_normalization').trainable_variables
-        gen_high_v += Gen.get_layer('subpixel_2').trainable_variables
-        gen_high_v += Gen.get_layer('batch_normalization_1').trainable_variables
+        #gen_high_v += Gen.get_layer('subpixel_2').trainable_variables
+        #gen_high_v += Gen.get_layer('batch_normalization_1').trainable_variables
         gen_high_v += Gen.get_layer('sum_high').trainable_variables
         gen_high_v += Gen.get_layer('out_high').trainable_variables
         gen_loss_high_0 = generator_bce_loss(disc_generated_output) 
@@ -440,13 +440,13 @@ def train(gen, dis, dataset, epochs, len_low_size, scale, test_dataset=None):
             tf.summary.scalar('loss_dis', discriminator_log.result(), step=epoch)
             mpy = demo_disc_generated.numpy()
             #m = np.squeeze(mpy[:,:,:,0])
-            m = np.squeeze(mpy).reshape((4,4))
+            m = np.squeeze(mpy).reshape((3,3))
             fig = plot_prob_matrix(m)
             image = plot_to_image(fig)
             tf.summary.image(name='dis_gen', data=image, step=epoch)
             mpy = demo_disc_true.numpy()
             #m = np.squeeze(mpy[:,:,:,0])
-            m = np.squeeze(mpy).reshape((4,4))
+            m = np.squeeze(mpy).reshape((3,3))
             fig = plot_prob_matrix(m)
             image = plot_to_image(fig)
             tf.summary.image(name='dis_true', data=image, step=epoch)
