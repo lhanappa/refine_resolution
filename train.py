@@ -26,7 +26,7 @@ Mh = M[:, idxy]
 Mh = Mh[0:1024, 0:1024]
 print('MH: ', Mh.shape)
 scale = 4
-len_size = 64 
+len_size = 128 
 IMG_HEIGHT, IMG_WIDTH = int(Mh.shape[0]/scale), int(Mh.shape[1]/scale)
 img_l = np.zeros(shape=(IMG_HEIGHT, IMG_WIDTH))
 for i in list(range(0, len(Mh))):
