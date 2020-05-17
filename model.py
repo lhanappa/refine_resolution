@@ -232,7 +232,7 @@ def make_generator_model(len_low_size=16, scale=4):
                                     activation='relu', use_bias=False)(inputs_conv)
     inputs_trans = tf.transpose(inputs_conv, perm=[0,1,3,2])
 
-    trans_1 = Subpixel_R1M(filters= int(512), kernel_size=(3,1), r=4, 
+    trans_1 = Subpixel_R1M(filters= int(256), kernel_size=(3,1), r=4, 
                         activation='relu', use_bias=False, padding='same', 
                         kernel_initializer=tf.keras.initializers.RandomNormal(mean=0.01, stddev=0.1), 
                         name='subpixel_1')(inputs_trans)
