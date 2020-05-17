@@ -73,7 +73,7 @@ class Subpixel(tf.keras.layers.Conv3D):
         bsize, x, y, z, c = I.get_shape().as_list()
         bsize = tf.shape(I)[0] # Handling Dimension(None) type for undefined batch dim
         X = tf.reshape(I, [bsize, x, y, z, tf.cast(c/(r0*r1*r2), tf.int32), r0, r1, r2]) # bsize, x, y, z, c/(r0*r1*r2), r0, r1, r2
-        X = tf.transpose(X, perm=[0,1,2,3,5,6,7,4]) # bsize, x, y, z, r0, r1, r2, c/(r0*r1*r2)
+        X = tf.transpose(X, perm=[0,1,2,3,5,6,7,4]) # bsize, x,y,z, r0,r1,r2, c/(r0*r1*r2)
         #Keras backend does not support tf.split, so in future versions this could be nicer
         X = [X[:,i,:,:,:,:,:,:] for i in range(x)] # x, [bsize, y,z, r0,r1,r2, c/(r0*r1*r2)
         X = tf.keras.backend.concatenate(X, axis=3)  # [bsize, y,z, x*r0,r1,r2, c/(r0*r1*r2)
@@ -166,13 +166,13 @@ def make_generator_model(len_low_size=16, scale=4):
 
     Rech = Reconstruct_R1M(1024, name='rec_high')(WeiR1Ml)
 
-    conv1 = tf.keras.layers.Conv2D(64, [1, 1], strides=1, padding='same', data_format="channels_last", 
+    conv1 = tf.keras.layers.Conv2D(32, [1, 1], strides=1, padding='same', data_format="channels_last", 
                                     activation='relu', use_bias=False,
                                     name='conv1_1')(Rech)
     sym = Symmetry_R1M()(conv1)
 
     sym = tf.expand_dims(sym, axis=-1)
-    trans_1 = Subpixel(filters= int(128), kernel_size=(3,3,1), r=(2,2,1), 
+    trans_1 = Subpixel(filters= int(32), kernel_size=(3,3,1), r=(2,2,1), 
                         activation='relu', use_bias=False, padding='same', 
                         kernel_initializer=tf.keras.initializers.RandomNormal(mean=0.01, stddev=0.1), 
                         name='subpixel_1')(sym)
@@ -181,7 +181,7 @@ def make_generator_model(len_low_size=16, scale=4):
     sym = Symmetry_R1M(name='SYM_1')(batchnorm)
 
     sym = tf.expand_dims(sym, axis=-1)
-    trans_2 = Subpixel(filters= int(128), kernel_size=(3,3,1), r=(2,2,1), 
+    trans_2 = Subpixel(filters= int(32), kernel_size=(3,3,1), r=(2,2,1), 
                         activation='relu', use_bias=False, padding='same', 
                         kernel_initializer=tf.keras.initializers.RandomNormal(mean=0.01, stddev=0.1), 
                         name='subpixel_2')(sym)
