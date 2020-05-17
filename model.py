@@ -166,13 +166,13 @@ def make_generator_model(len_low_size=16, scale=4):
 
     Rech = Reconstruct_R1M(1024, name='rec_high')(WeiR1Ml)
 
-    conv1 = tf.keras.layers.Conv2D(128, [1, 1], strides=1, padding='same', data_format="channels_last", 
+    conv1 = tf.keras.layers.Conv2D(32, [1, 1], strides=1, padding='same', data_format="channels_last", 
                                     activation='relu', use_bias=False,
                                     name='conv1_1')(Rech)
     sym = Symmetry_R1M()(conv1)
 
     sym = tf.expand_dims(sym, axis=-1)
-    trans_1 = Subpixel(filters= int(128), kernel_size=(3,3,1), r=(4,4,1), 
+    trans_1 = Subpixel(filters= int(64), kernel_size=(3,3,1), r=(4,4,1), 
                         activation='relu', use_bias=False, padding='same', 
                         kernel_initializer=tf.keras.initializers.RandomNormal(mean=0.01, stddev=0.1), 
                         name='subpixel_1')(sym)
