@@ -25,7 +25,7 @@ M = mat[idxy, :]
 Mh = M[:, idxy]
 print('MH: ', Mh.shape)
 scale = 4
-len_size = 128
+len_size = 64 
 IMG_HEIGHT, IMG_WIDTH = int(Mh.shape[0]/scale), int(Mh.shape[1]/scale)
 img_l = np.zeros(shape=(IMG_HEIGHT, IMG_WIDTH))
 for i in list(range(0, len(Mh))):
@@ -91,7 +91,7 @@ plt.show()'''
 EPOCHS = 3000
 BUFFER_SIZE = 1
 BATCH_SIZE = 9
-len_low_size = 16
+len_low_size = len_size/scale
 scale = 4
 hic_lr = np.array(hic_lr)
 hic_hr = np.array(hic_hr)
