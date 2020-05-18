@@ -157,13 +157,8 @@ def make_generator_model(len_low_size=16, scale=4):
                                     kernel_constraint=tf.keras.constraints.NonNeg(), 
                                     kernel_initializer=tf.keras.initializers.RandomNormal(mean=0.01, stddev=0.1), 
                                     name='dec_low_1')(In)
-    Decl = tf.keras.layers.Conv2D(256, [1, 1], strides=(1,1), padding='same', data_format="channels_last", 
-                                    activation='relu', use_bias=False,
-                                    name='dec_low_2')(Decl)
-
-
     WeiR1Ml = Weight_R1M(name='WR1Ml')(Decl)
-    Recl = Reconstruct_R1M(256, name='rec_low')(WeiR1Ml)
+    Recl = Reconstruct_R1M(1024, name='rec_low')(WeiR1Ml)
     Suml = Sum_R1M(name='sum_low')(Recl)
     low_out = Normal(len_low_size, name='out_low')(Suml)
 
@@ -171,13 +166,13 @@ def make_generator_model(len_low_size=16, scale=4):
     m_F = tf.constant(1/16.0, shape=(1, 1, 1, 1))
     up_o = tf.keras.layers.Multiply(name='scale_value_in')([up_o, m_F])'''
 
-    Rech = Reconstruct_R1M(256, name='rec_high')(WeiR1Ml)
+    Rech = Reconstruct_R1M(1024, name='rec_high')(WeiR1Ml)
 
-    conv1 = tf.keras.layers.Conv2D(128, [3, 3], strides=1, padding='same', data_format="channels_last", 
+    conv1 = tf.keras.layers.Conv2D(128, [1, 1], strides=1, padding='same', data_format="channels_last", 
                                     activation='relu', use_bias=False,
                                     name='conv1_1')(Rech)
     sym = Symmetry_R1M()(conv1)
-    conv1 = tf.keras.layers.Conv2D(64, [3, 3], strides=1, padding='same', data_format="channels_last", 
+    conv1 = tf.keras.layers.Conv2D(64, [1, 1], strides=1, padding='same', data_format="channels_last", 
                                     activation='relu', use_bias=False,
                                     name='conv1_2')(sym)
     sym = Symmetry_R1M()(conv1)
