@@ -285,7 +285,6 @@ def train_step_generator(Gen, Dis, imgl, imgr, loss_filter, loss_weights, opts, 
         gen_low_v = []
         gen_low_v += Gen.get_layer('dec_low_1').trainable_variables
         gen_low_v += Gen.get_layer('dec_low_2').trainable_variables
-        gen_low_v += Gen.get_layer('dec_low_3').trainable_variables
         gen_low_v += Gen.get_layer('WR1Ml').trainable_variables
         gen_low_v += Gen.get_layer('rec_low').trainable_variables
         gen_low_v += Gen.get_layer('out_low').trainable_variables
