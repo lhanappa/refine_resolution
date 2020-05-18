@@ -411,7 +411,7 @@ def train(gen, dis, dataset, epochs, len_low_size, scale, test_dataset=None):
                 loss_weights = [0.1, 10.0, 10.0]
 
             #if(stage1_gen or (epoch==0 or epoch>=1200 and epoch%100<40)):
-            if(epoch<600 or epoch>=1200):
+            if(epoch<500):
                 train_step_generator(gen, dis, 
                                     tf.dtypes.cast(low_m, tf.float32), tf.dtypes.cast(high_m, tf.float32),
                                     [loss_filter_low, loss_filter_high], loss_weights,
