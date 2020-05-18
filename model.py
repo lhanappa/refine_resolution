@@ -159,7 +159,11 @@ def make_generator_model(len_low_size=16, scale=4):
                                     name='dec_low_1')(In)
     WeiR1Ml = Weight_R1M(name='WR1Ml')(Decl)
     Recl = Reconstruct_R1M(1024, name='rec_low')(WeiR1Ml)
-    Suml = Sum_R1M(name='sum_low')(Recl)
+    Suml = tf.keras.layers.Conv2D(filters=1, kernel_size=(1,1),
+                                    strides=(1,1), padding='same',
+                                    data_format="channels_last",
+                                    kernel_constraint=tf.keras.constraints.NonNeg(),
+                                    activation='relu', use_bias=False, name='sum_low')(Recl)
     low_out = Normal(len_low_size, name='out_low')(Suml)
 
     '''up_o = tf.keras.layers.UpSampling2D(size=(4, 4), data_format='channels_last', name='up_in')(In)
@@ -230,9 +234,10 @@ def make_discriminator_model(len_low_size=16, scale=4):
     batchnorm = tf.keras.layers.BatchNormalization()(sym)
     relu = tf.keras.layers.LeakyReLU()(batchnorm)
 
-    last = tf.keras.layers.Conv2D(1, 1, strides=1, padding='valid', kernel_initializer=tf.keras.initializers.RandomNormal(mean=0.01, stddev=0.02), use_bias=True, activation=None)(relu)
+    last = tf.keras.layers.Conv2D(1, 1, strides=1, padding='valid', kernel_initializer=tf.keras.initializers.RandomNormal(mean=0.01, stddev=0.02), use_bias=True, activation='sigmoid')(relu)
+
     last = tf.keras.layers.Flatten()(last)
-    last = tf.keras.layers.Dense(1, activation='sigmoid')(last)
+    last = tf.reduce_mean(last, axis=-1, keepdims=True)
     return tf.keras.Model(inputs=inp, outputs=last)
 
 def discriminator_bce_loss(real_output, fake_output):
@@ -281,6 +286,7 @@ def train_step_generator(Gen, Dis, imgl, imgr, loss_filter, loss_weights, opts, 
         gen_low_v += Gen.get_layer('dec_low_1').trainable_variables
         gen_low_v += Gen.get_layer('WR1Ml').trainable_variables
         gen_low_v += Gen.get_layer('rec_low').trainable_variables
+        gen_low_v += Gen.get_layer('sum_low').trainable_variables
         gen_low_v += Gen.get_layer('out_low').trainable_variables
 
         gen_loss_low_ssim = generator_ssim_loss(fake_hic_l, imgl_filter)
