@@ -658,12 +658,12 @@ def train(gen, dis, dataset, epochs, len_high_size, scale, test_dataset=None):
                                          loss_filter_low_x8, loss_filter_high], loss_weights,
                                      opts, logs)
             # if(stage1_dis or (epoch>=1200 and epoch%100>=40)):
-            if(epoch >= 200):
-                train_step_discriminator(gen, dis,
-                                         tf.dtypes.cast(low_m, tf.float32), tf.dtypes.cast(
-                                             high_m, tf.float32),
-                                         [loss_filter_high],
-                                         [discriminator_optimizer], [discriminator_log])
+            if(epoch >= 0):
+                #Gen, Dis, imgl, imgr, loss_filter, opts, train_logs
+                train_step_discriminator(Gen=gen, Dis=dis, imgl =tf.dtypes.cast(low_m, tf.float32), 
+                                    imgr = tf.dtypes.cast(high_m, tf.float32),
+                                    loss_filter=[loss_filter_high],
+                                    opts=[discriminator_optimizer], train_logs=[discriminator_log])
         # log the model epochs
         [dpl_x2, dpl_x4, dpl_x8, dph, _, _, _] = gen(
             demo_input_low, training=False)
