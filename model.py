@@ -347,7 +347,7 @@ def generator_mse_loss(y_pred, y_true):  # , m_filter):
 @tf.function
 def train_step_generator(Gen, Dis, imgl, imgr, loss_filter, loss_weights, opts, train_logs):
     #[out_low_x2, out_low_x4, out_low_x8, high_out, low_x2, low_x4, low_x8]
-    with tf.GradientTape() as gen_tape_low, tf.GradientTape() as gen_tape_high, tf.GradientTape() as disc_tape:
+    with tf.GradientTape() as x2, tf.GradientTape() as x4, tf.GradientTape() as x8, tf.GradientTape() as gen_tape_high:
         fake_hic = Gen(imgl, training=True)
 
         fake_hic_l_x2 = fake_hic[0]
@@ -375,23 +375,36 @@ def train_step_generator(Gen, Dis, imgl, imgr, loss_filter, loss_weights, opts, 
         imgl_x8_filter = tf.multiply(imgl_x8, mfilter_low)
 
         gen_low_v = []
-        gen_low_v += Gen.get_layer('dsd_x8').trainable_variables
-        gen_low_v += Gen.get_layer('r1e_x8').trainable_variables
-        gen_low_v += Gen.get_layer('dsd_x4').trainable_variables
-        gen_low_v += Gen.get_layer('r1e_x4').trainable_variables
-        gen_low_v += Gen.get_layer('dsd_x2').trainable_variables
-        gen_low_v += Gen.get_layer('r1e_x2').trainable_variables
+        gen_low_v_x2 = []
+        gen_low_v_x2 += Gen.get_layer('dsd_x2').trainable_variables
+        gen_low_v_x2 += Gen.get_layer('r1e_x2').trainable_variables
 
-        gen_loss_low_ssim = generator_ssim_loss(fake_hic_l_x2, imgl_x2_filter) + \
-            generator_ssim_loss(fake_hic_l_x4, imgl_x4_filter) + \
-            generator_ssim_loss(fake_hic_l_x8, imgl_x8_filter)
-        gen_loss_low_mse = generator_mse_loss(fake_hic_l_x2, imgl_x2_filter) + \
-            generator_mse_loss(fake_hic_l_x4, imgl_x4_filter) + \
-            generator_mse_loss(fake_hic_l_x8, imgl_x8_filter)
-        gen_loss_low = gen_loss_low_ssim + gen_loss_low_mse
-        gradients_of_generator_low = gen_tape_low.gradient(
-            gen_loss_low, gen_low_v)
-        opts[0].apply_gradients(zip(gradients_of_generator_low, gen_low_v))
+        gen_loss_low_ssim_x2 = generator_ssim_loss(fake_hic_l_x2, imgl_x2_filter)
+        gen_loss_low_mse_x2 = generator_mse_loss(fake_hic_l_x2, imgl_x2_filter)
+        gen_loss_low = gen_loss_low_ssim_x2 + gen_loss_low_mse_x2
+        gradients_of_generator_low_x2 = x2.gradient(gen_loss_low, gen_low_v_x2)
+        opts[0].apply_gradients(zip(gradients_of_generator_low_x2, gen_low_v_x2))
+
+        gen_low_v_x4 = []
+        gen_low_v_x4 += Gen.get_layer('dsd_x4').trainable_variables
+        gen_low_v_x4 += Gen.get_layer('r1e_x4').trainable_variables
+        gen_loss_low_ssim_x4 = generator_ssim_loss(fake_hic_l_x4, imgl_x4_filter)
+        gen_loss_low_mse_x4 = generator_mse_loss(fake_hic_l_x4, imgl_x4_filter)
+        gen_loss_low = gen_loss_low_ssim_x4 + gen_loss_low_mse_x4
+        gradients_of_generator_low_x4 = x4.gradient(gen_loss_low, gen_low_v)
+        opts[1].apply_gradients(zip(gradients_of_generator_low_x4, gen_low_v))
+
+        gen_low_v_x8 = []
+        gen_low_v_x8 += Gen.get_layer('dsd_x8').trainable_variables
+        gen_low_v_x8 += Gen.get_layer('r1e_x8').trainable_variables
+        gen_loss_low_ssim_x8 = generator_ssim_loss(fake_hic_l_x8, imgl_x8_filter)
+        gen_loss_low_mse_x8 = generator_mse_loss(fake_hic_l_x8, imgl_x8_filter)
+        gen_loss_low = gen_loss_low_ssim_x8 + gen_loss_low_mse_x8
+        gradients_of_generator_low_x8 = x8.gradient(gen_loss_low, gen_low_v)
+        opts[2].apply_gradients(zip(gradients_of_generator_low_x8, gen_low_v))
+
+        gen_loss_low_ssim = gen_loss_low_ssim_x8 + gen_loss_low_ssim_x4 + gen_loss_low_ssim_x2
+        gen_loss_low_mse = gen_loss_low_mse_x8 + gen_loss_low_mse_x4 + gen_loss_low_mse_x2
         train_logs[0](gen_loss_low_ssim)
         train_logs[1](gen_loss_low_mse)
 
@@ -421,7 +434,7 @@ def train_step_generator(Gen, Dis, imgl, imgr, loss_filter, loss_weights, opts, 
             gen_loss_high_2*loss_weights[2]
         gradients_of_generator_high = gen_tape_high.gradient(
             gen_loss_high, gen_high_v)
-        opts[1].apply_gradients(zip(gradients_of_generator_high, gen_high_v))
+        opts[3].apply_gradients(zip(gradients_of_generator_high, gen_high_v))
         train_logs[2](gen_loss_high_0)
         train_logs[3](gen_loss_high_1)
         train_logs[4](gen_loss_high_2)
@@ -458,11 +471,13 @@ def tracegraph(x, model):
 
 def train(gen, dis, dataset, epochs, len_high_size, scale, test_dataset=None):
 
-    generator_optimizer_low = tf.keras.optimizers.Adam()
+    generator_optimizer_x2 = tf.keras.optimizers.Adam()
+    generator_optimizer_x4 = tf.keras.optimizers.Adam()
+    generator_optimizer_x8 = tf.keras.optimizers.Adam()
     generator_optimizer_high = tf.keras.optimizers.Adam()
     discriminator_optimizer = tf.keras.optimizers.Adagrad()
     # for generator#, discriminator_optimizer]
-    opts = [generator_optimizer_low, generator_optimizer_high]
+    opts = [generator_optimizer_x2, generator_optimizer_x4, generator_optimizer_x8, generator_optimizer_high]
     generator_log_ssim_low = tf.keras.metrics.Mean(
         'train_gen_low_ssim_loss', dtype=tf.float32)
     generator_log_mse_low = tf.keras.metrics.Mean(
