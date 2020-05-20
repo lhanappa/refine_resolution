@@ -229,7 +229,6 @@ def make_generator_model(len_high_size=128, scale=4):
     low_x8 = tf.keras.layers.AveragePooling2D(
         pool_size=(2, 2), strides=2, padding='valid', name='p_x8')(low_x4)
 
-
     dsd_x8 = downsample_decomposition(len_low_size_x8, 8, 128, name='dsd_x8')
     rech_x8 = dsd_x8(inp)
     r1c = rank1channels_convolution(filters=32, name='r1c_x8')
@@ -384,11 +383,11 @@ def train_step_generator(Gen, Dis, imgl, imgr, loss_filter, loss_weights, opts, 
         gen_low_v += Gen.get_layer('r1e_x2').trainable_variables
 
         gen_loss_low_ssim = generator_ssim_loss(fake_hic_l_x2, imgl_x2_filter) + \
-                            generator_ssim_loss(fake_hic_l_x4, imgl_x4_filter) + \
-                            generator_ssim_loss(fake_hic_l_x8, imgl_x8_filter)
+            generator_ssim_loss(fake_hic_l_x4, imgl_x4_filter) + \
+            generator_ssim_loss(fake_hic_l_x8, imgl_x8_filter)
         gen_loss_low_mse = generator_mse_loss(fake_hic_l_x2, imgl_x2_filter) + \
-                            generator_mse_loss(fake_hic_l_x4, imgl_x4_filter) + \
-                            generator_mse_loss(fake_hic_l_x8, imgl_x8_filter)
+            generator_mse_loss(fake_hic_l_x4, imgl_x4_filter) + \
+            generator_mse_loss(fake_hic_l_x8, imgl_x8_filter)
         gen_loss_low = gen_loss_low_ssim + gen_loss_low_mse
         gradients_of_generator_low = gen_tape_low.gradient(
             gen_loss_low, gen_low_v)
@@ -418,8 +417,8 @@ def train_step_generator(Gen, Dis, imgl, imgr, loss_filter, loss_weights, opts, 
         gen_loss_high_2 = generator_ssim_loss(fake_hic_h, imgr_filter)
 
         gen_loss_high = gen_loss_high_0 * loss_weights[0] + \
-                        gen_loss_high_1 * loss_weights[1] + \
-                        gen_loss_high_2*loss_weights[2]
+            gen_loss_high_1 * loss_weights[1] + \
+            gen_loss_high_2*loss_weights[2]
         gradients_of_generator_high = gen_tape_high.gradient(
             gen_loss_high, gen_high_v)
         opts[1].apply_gradients(zip(gradients_of_generator_high, gen_high_v))
@@ -432,10 +431,9 @@ def train_step_generator(Gen, Dis, imgl, imgr, loss_filter, loss_weights, opts, 
 def train_step_discriminator(Gen, Dis, imgl, imgr, loss_filter, opts, train_logs):
     with tf.GradientTape() as disc_tape:
         fake_hic = Gen(imgl, training=False)
-        fake_hic_l = fake_hic[0]
-        fake_hic_h = fake_hic[1]
+        fake_hic_h = fake_hic[4]
 
-        mfilter_high = tf.expand_dims(loss_filter[1], axis=0)
+        mfilter_high = tf.expand_dims(loss_filter[0], axis=0)
         mfilter_high = tf.expand_dims(mfilter_high, axis=-1)
         mfilter_high = tf.cast(mfilter_high, tf.float32)
 
@@ -458,8 +456,8 @@ def tracegraph(x, model):
     return model(x)
 
 
-def train(gen, dis, dataset, epochs, len_low_size, scale, test_dataset=None):
-    len_high_size = int(len_low_size*scale)
+def train(gen, dis, dataset, epochs, len_high_size, scale, test_dataset=None):
+
     generator_optimizer_low = tf.keras.optimizers.Adam()
     generator_optimizer_high = tf.keras.optimizers.Adam()
     discriminator_optimizer = tf.keras.optimizers.Adagrad()
@@ -480,18 +478,18 @@ def train(gen, dis, dataset, epochs, len_low_size, scale, test_dataset=None):
     logs = [generator_log_ssim_low, generator_log_mse_low, generator_log_bce_high,
             generator_log_mse_high, generator_log_ssim_high]  # for generator, discriminator_log]
     current_time = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
-    train_log_dir = 'logs/gradient_tape/' + current_time + '/generator'
+    train_log_dir = 'logs/model_4/' + current_time + '/generator'
     train_summary_G_writer = tf.summary.create_file_writer(train_log_dir)
-    train_log_dir = 'logs/gradient_tape/' + current_time + '/discriminator'
+    train_log_dir = 'logs/model_4/' + current_time + '/discriminator'
     train_summary_D_writer = tf.summary.create_file_writer(train_log_dir)
-    test_log_dir = 'logs/gradient_tape/' + current_time + '/test'
+    test_log_dir = 'logs/model_4/' + current_time + '/test'
     test_writer = tf.summary.create_file_writer(test_log_dir)
 
-    train_log_dir = 'logs/gradient_tape/' + current_time + '/model'
+    train_log_dir = 'logs/model_4/' + current_time + '/model'
     writer = tf.summary.create_file_writer(train_log_dir)
     tf.summary.trace_on(graph=True, profiler=False)
     # Forward pass
-    tracegraph(tf.zeros((1, len_low_size, len_low_size, 1)), gen)
+    tracegraph(tf.zeros((1, len_high_size, len_high_size, 1)), gen)
     with writer.as_default():
         tf.summary.trace_export(name="model_gen_trace",
                                 step=0, profiler_outdir=train_log_dir)
@@ -509,21 +507,34 @@ def train(gen, dis, dataset, epochs, len_low_size, scale, test_dataset=None):
         m = np.log1p(1000*np.squeeze(mpy[:, :, :, 0]))
         fig = plot_matrix(m)
         images = plot_to_image(fig)
-        #images = np.reshape(test_input_low[0:16], (-1, 32, 32, 1))
-        tf.summary.image("16 training data low examples",
+        tf.summary.image("test data low examples",
                          images, max_outputs=16, step=0)
         mpy = test_input_high.numpy()
         m = np.log1p(1000*np.squeeze(mpy[:, :, :, 0]))
         fig = plot_matrix(m)
         images = plot_to_image(fig)
-        #images = np.reshape(test_input_high[0:16], (-1, 128, 128, 1))
-        tf.summary.image("16 training data high examples",
+        tf.summary.image("test data high examples",
                          images, max_outputs=16, step=0)
 
-    loss_filter_low = np.ones(shape=(len_low_size, len_low_size)) - np.diag(np.ones(shape=(len_low_size,)),
-                                                                            k=0) - np.diag(np.ones(shape=(len_low_size-1,)), k=-1) - np.diag(np.ones(shape=(len_low_size-1,)), k=1)
-    loss_filter_high = np.ones(shape=(len_high_size, len_high_size)) - np.diag(np.ones(shape=(len_high_size,)),
-                                                                               k=0) - np.diag(np.ones(shape=(len_high_size-1,)), k=-1) - np.diag(np.ones(shape=(len_high_size-1,)), k=1)
+    len_x2 = int(len_high_size/2)
+    len_x4 = int(len_high_size/4)
+    len_x8 = int(len_high_size/8)
+    loss_filter_low_x2 = np.ones(shape=(len_x2, len_x2)) - \
+        np.diag(np.ones(shape=(len_x2,)), k=0) - \
+        np.diag(np.ones(shape=(len_x2-1,)), k=-1) - \
+        np.diag(np.ones(shape=(len_x2-1,)), k=1)
+    loss_filter_low_x4 = np.ones(shape=(len_x4, len_x4)) - \
+        np.diag(np.ones(shape=(len_x4,)), k=0) - \
+        np.diag(np.ones(shape=(len_x4-1,)), k=-1) - \
+        np.diag(np.ones(shape=(len_x4-1,)), k=1)
+    loss_filter_low_x8 = np.ones(shape=(len_x8, len_x8)) - \
+        np.diag(np.ones(shape=(len_x8,)), k=0) - \
+        np.diag(np.ones(shape=(len_x8-1,)), k=-1) - \
+        np.diag(np.ones(shape=(len_x8-1,)), k=1)
+    loss_filter_high = np.ones(shape=(len_high_size, len_high_size)) - \
+        np.diag(np.ones(shape=(len_high_size,)), k=0) - \
+        np.diag(np.ones(shape=(len_high_size-1,)), k=-1) - \
+        np.diag(np.ones(shape=(len_high_size-1,)), k=1)
 
     [_, (demo_input_low, demo_input_high)] = next(
         enumerate(test_dataset.take(1)))
@@ -543,20 +554,20 @@ def train(gen, dis, dataset, epochs, len_low_size, scale, test_dataset=None):
                 train_step_generator(gen, dis,
                                      tf.dtypes.cast(low_m, tf.float32), tf.dtypes.cast(
                                          high_m, tf.float32),
-                                     [loss_filter_low, loss_filter_high], loss_weights,
+                                     [loss_filter_low_x2,loss_filter_low_x4,loss_filter_low_x4, loss_filter_high], loss_weights,
                                      opts, logs)
             # if(stage1_dis or (epoch>=1200 and epoch%100>=40)):
             if(epoch >= 200):
                 train_step_discriminator(gen, dis,
                                          tf.dtypes.cast(low_m, tf.float32), tf.dtypes.cast(
                                              high_m, tf.float32),
-                                         [loss_filter_low, loss_filter_high],
+                                         [loss_filter_high],
                                          [discriminator_optimizer], [discriminator_log])
         # log the model epochs
-        [demo_pred_low, demo_pred_high] = gen(demo_input_low, training=False)
+        [dpl_x2, dpl_x4, dpl_x8, dph, _, _, _] = gen(demo_input_low, training=False)
         #demo_disc_generated = dis([demo_pred_high, demo_up], training=False)
         #demo_disc_true = dis([demo_input_high, demo_up], training=False)
-        demo_disc_generated = dis(demo_pred_high, training=False)
+        demo_disc_generated = dis(dph, training=False)
         demo_disc_true = dis(demo_input_high, training=False)
         with train_summary_G_writer.as_default():
             tf.summary.scalar('loss_gen_low_disssim',
@@ -569,12 +580,12 @@ def train(gen, dis, dataset, epochs, len_low_size, scale, test_dataset=None):
                               generator_log_ssim_high.result(), step=epoch)
             tf.summary.scalar('loss_gen_high_bce',
                               generator_log_bce_high.result(), step=epoch)
-            mpy = demo_pred_low.numpy()
+            mpy = dpl_x4.numpy()
             m = np.log1p(1000*np.squeeze(mpy[:, :, :, 0]))
             fig = plot_matrix(m)
             image = plot_to_image(fig)
             tf.summary.image(name='gen_low', data=image, step=epoch)
-            mpy = demo_pred_high.numpy()
+            mpy = dph.numpy()
             m = np.log1p(1000*np.squeeze(mpy[:, :, :, 0]))
             fig = plot_matrix(m)
             image = plot_to_image(fig)
