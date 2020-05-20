@@ -10,6 +10,7 @@ import cooler
 import numpy as np
 import copy
 
+from utils.operations import sampling_hic
 import tensorflow as tf
 tf.keras.backend.set_floatx('float32')
 
@@ -26,14 +27,9 @@ Mh = M[:, idxy]
 Mh = Mh[0:2048, 0:2048]
 print('MH: ', Mh.shape)
 scale = 4
-len_size = 128 
+
 IMG_HEIGHT, IMG_WIDTH = int(Mh.shape[0]/scale), int(Mh.shape[1]/scale)
-img_l = np.zeros(shape=(IMG_HEIGHT, IMG_WIDTH))
-for i in list(range(0, len(Mh))):
-    x = int(np.floor(i/(len(Mh)/IMG_HEIGHT)))
-    for j in list(range(0, len(Mh))):
-        y = int(np.floor(j/(len(Mh)/IMG_WIDTH)))
-        img_l[x, y] = img_l[x, y] + Mh[i, j]
+img_l = sampling_hic(Mh, scale**2)
 
 Ml = img_l
 print('ML: ', Ml.shape)
@@ -43,6 +39,7 @@ Ml = normalization.SCN_normalization(Ml)
 Mh = normalization.SCN_normalization(Mh)
 
 hic_lr = []
+len_size = 128 
 IMG_HEIGHT, IMG_WIDTH = int(len_size/scale), int(len_size/scale)
 print('Height: ', IMG_HEIGHT, 'Weight: ', IMG_WIDTH)
 Ml_h, Ml_w = Ml.shape
@@ -94,7 +91,7 @@ BUFFER_SIZE = 1
 BATCH_SIZE = 9
 
 len_low_size = int(len_size/scale)
-scale = 4
+
 hic_lr = np.array(hic_lr)
 hic_hr = np.array(hic_hr)
 train_data = tf.data.Dataset.from_tensor_slices((hic_lr[0::2,..., np.newaxis], hic_hr[0::2,..., np.newaxis])).batch(BATCH_SIZE)
