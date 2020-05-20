@@ -28,7 +28,7 @@ Mh = Mh[0:2048, 0:2048]
 print('MH: ', Mh.shape)
 
 scale = 4
-img_l = sampling_hic(Mh, scale**2)
+img_l = sampling_hic(Mh, scale**2, fix_seed=True)
 Ml = img_l
 print('ML: ', Ml.shape)
 

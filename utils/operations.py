@@ -1,6 +1,6 @@
 import numpy as np
 
-def sampling_hic(hic_matrix, sampling_ratio):
+def sampling_hic(hic_matrix, sampling_ratio, fix_seed=False):
     """sampling dense hic matrix"""
     m = np.matrix(hic_matrix)
     all_sum = m.sum(dtype='float')
@@ -9,6 +9,8 @@ def sampling_hic(hic_matrix, sampling_ratio):
     idx_prob = np.squeeze(idx_prob)
     sample_number_counts = int(all_sum/(2*sampling_ratio))
     id_range = np.arange(m.shape[0]*m.shape[1])
+    if fix_seed:
+        np.random.seed(0)
     id_x = np.random.choice(id_range, size=sample_number_counts, replace=True, p=idx_prob)
     sample_m = np.zeros_like(m)
     for i in np.arange(sample_number_counts):
