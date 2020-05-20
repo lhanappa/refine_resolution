@@ -229,17 +229,17 @@ def make_generator_model(len_high_size=128, scale=4):
     low_x8 = tf.keras.layers.AveragePooling2D(
         pool_size=(2, 2), strides=2, padding='valid', name='p_x8')(low_x4)
 
-    dsd_x8 = downsample_decomposition(len_low_size_x8, 8, 128, name='dsd_x8')
+    dsd_x8 = downsample_decomposition(len_low_size_x8, 8, 64, name='dsd_x8')
     rech_x8 = dsd_x8(inp)
     r1c = rank1channels_convolution(filters=32, name='r1c_x8')
     sym_x8 = r1c(rech_x8)
     r1e = rank1_estimation(dims=len_low_size_x8, name='r1e_x8')
     out_low_x8 = r1e(rech_x8)
 
-    usc_x8 = upsample_convolution(64, 2, name='usc_x8')
+    usc_x8 = upsample_convolution(32, 2, name='usc_x8')
     sym_x8 = usc_x8(sym_x8)
 
-    dsd_x4 = downsample_decomposition(len_low_size_x4, 4, 256, name='dsd_x4')
+    dsd_x4 = downsample_decomposition(len_low_size_x4, 4, 512, name='dsd_x4')
     rech_x4 = dsd_x4(inp)
     r1c = rank1channels_convolution(filters=64, name='r1c_x4')
     sym_x4 = r1c(rech_x4)
@@ -248,10 +248,10 @@ def make_generator_model(len_high_size=128, scale=4):
 
     concat = tf.keras.layers.concatenate([sym_x8, sym_x4], axis=-1)
 
-    usc_x4 = upsample_convolution(128, 2, name='usc_x4')
+    usc_x4 = upsample_convolution(64, 2, name='usc_x4')
     sym_x4 = usc_x4(concat)
 
-    dsd_x2 = downsample_decomposition(len_low_size_x2, 2, 512, name='dsd_x2')
+    dsd_x2 = downsample_decomposition(len_low_size_x2, 2, 1024, name='dsd_x2')
     rech_x2 = dsd_x2(inp)
     r1c_x2 = rank1channels_convolution(filters=128, name='r1c_x2')
     sym_x2 = r1c_x2(rech_x2)
@@ -260,7 +260,7 @@ def make_generator_model(len_high_size=128, scale=4):
 
     concat = tf.keras.layers.concatenate([sym_x4, sym_x2], axis=-1)
 
-    usc_x2 = upsample_convolution(64, 2, name='usc_x2')
+    usc_x2 = upsample_convolution(128, 2, name='usc_x2')
     sym = usc_x2(concat)
 
     Sumh = tf.keras.layers.Conv2D(filters=1, kernel_size=(1, 1),
