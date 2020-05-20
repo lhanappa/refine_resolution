@@ -403,8 +403,8 @@ def train_step_generator(Gen, Dis, imgl, imgr, loss_filter, loss_weights, opts, 
         gradients_of_generator_low_x8 = x8.gradient(gen_loss_low, gen_low_v)
         opts[2].apply_gradients(zip(gradients_of_generator_low_x8, gen_low_v))
 
-        gen_loss_low_ssim = gen_loss_low_ssim_x8 + gen_loss_low_ssim_x4 + gen_loss_low_ssim_x2
-        gen_loss_low_mse = gen_loss_low_mse_x8 + gen_loss_low_mse_x4 + gen_loss_low_mse_x2
+        gen_loss_low_ssim = (gen_loss_low_ssim_x8 + gen_loss_low_ssim_x4 + gen_loss_low_ssim_x2)/3
+        gen_loss_low_mse = (gen_loss_low_mse_x8 + gen_loss_low_mse_x4 + gen_loss_low_mse_x2)/3
         train_logs[0](gen_loss_low_ssim)
         train_logs[1](gen_loss_low_mse)
 
@@ -444,7 +444,7 @@ def train_step_generator(Gen, Dis, imgl, imgr, loss_filter, loss_weights, opts, 
 def train_step_discriminator(Gen, Dis, imgl, imgr, loss_filter, opts, train_logs):
     with tf.GradientTape() as disc_tape:
         fake_hic = Gen(imgl, training=False)
-        fake_hic_h = fake_hic[4]
+        fake_hic_h = fake_hic[3]
 
         mfilter_high = tf.expand_dims(loss_filter[0], axis=0)
         mfilter_high = tf.expand_dims(mfilter_high, axis=-1)
@@ -595,11 +595,21 @@ def train(gen, dis, dataset, epochs, len_high_size, scale, test_dataset=None):
                               generator_log_ssim_high.result(), step=epoch)
             tf.summary.scalar('loss_gen_high_bce',
                               generator_log_bce_high.result(), step=epoch)
+            mpy = dpl_x2.numpy()
+            m = np.log1p(1000*np.squeeze(mpy[:, :, :, 0]))
+            fig = plot_matrix(m)
+            image = plot_to_image(fig)
+            tf.summary.image(name='gen_low_x2', data=image, step=epoch)
             mpy = dpl_x4.numpy()
             m = np.log1p(1000*np.squeeze(mpy[:, :, :, 0]))
             fig = plot_matrix(m)
             image = plot_to_image(fig)
-            tf.summary.image(name='gen_low', data=image, step=epoch)
+            tf.summary.image(name='gen_low_x4', data=image, step=epoch)
+            mpy = dpl_x8.numpy()
+            m = np.log1p(1000*np.squeeze(mpy[:, :, :, 0]))
+            fig = plot_matrix(m)
+            image = plot_to_image(fig)
+            tf.summary.image(name='gen_low_x8', data=image, step=epoch)
             mpy = dph.numpy()
             m = np.log1p(1000*np.squeeze(mpy[:, :, :, 0]))
             fig = plot_matrix(m)
