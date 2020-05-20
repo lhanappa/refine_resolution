@@ -26,11 +26,9 @@ M = mat[idxy, :]
 Mh = M[:, idxy]
 Mh = Mh[0:2048, 0:2048]
 print('MH: ', Mh.shape)
+
 scale = 4
-
-IMG_HEIGHT, IMG_WIDTH = int(Mh.shape[0]/scale), int(Mh.shape[1]/scale)
 img_l = sampling_hic(Mh, scale**2)
-
 Ml = img_l
 print('ML: ', Ml.shape)
 
@@ -38,9 +36,10 @@ print('ML: ', Ml.shape)
 Ml = normalization.SCN_normalization(Ml)
 Mh = normalization.SCN_normalization(Mh)
 
-hic_lr = []
 len_size = 128 
-IMG_HEIGHT, IMG_WIDTH = int(len_size/scale), int(len_size/scale)
+
+hic_lr = []
+IMG_HEIGHT, IMG_WIDTH = int(len_size), int(len_size)
 print('Height: ', IMG_HEIGHT, 'Weight: ', IMG_WIDTH)
 Ml_h, Ml_w = Ml.shape
 block_height = int(IMG_HEIGHT/2);
