@@ -644,7 +644,8 @@ def train(gen, dis, dataset, epochs, len_high_size, scale, test_dataset=None):
     for epoch in range(epochs):
         start = time.time()
         for i, (low_m, high_m) in enumerate(dataset):
-            if(generator_log_ssim_high.result().numpy() >= 0.016 or generator_log_mse_high.result().numpy() >= 0.016):
+            #if(generator_log_ssim_high.result().numpy() >= 0.016 or generator_log_mse_high.result().numpy() >= 0.016):
+            if(epoch <=1000):
                 loss_weights = [0.0, 10.0, 10.0]
             else:
                 loss_weights = [0.1, 10.0, 10.0]
