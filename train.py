@@ -33,8 +33,8 @@ Ml = img_l
 print('ML: ', Ml.shape)
 
 # Normalization
-Ml = normalization.SCN_normalization(Ml)
-Mh = normalization.SCN_normalization(Mh)
+Ml = normalization.SCN_normalization(Ml,max_iter=1000)
+Mh = normalization.SCN_normalization(Mh,max_iter=1000)
 
 len_size = 128 
 
