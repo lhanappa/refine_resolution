@@ -347,33 +347,48 @@ def generator_mse_loss(y_pred, y_true):  # , m_filter):
 
 @tf.function
 def train_step_generator(Gen, Dis, imgl, imgr, loss_filter, loss_weights, opts, train_logs):
+    #[out_low_x2, out_low_x4, out_low_x8, high_out, low_x2, low_x4, low_x8]
     with tf.GradientTape() as gen_tape_low, tf.GradientTape() as gen_tape_high, tf.GradientTape() as disc_tape:
         fake_hic = Gen(imgl, training=True)
-        fake_hic_l = fake_hic[0]
-        fake_hic_h = fake_hic[1]
 
+        fake_hic_l_x2 = fake_hic[0]
+        imgl_x2 = fake_hic[4]
         mfilter_low = tf.expand_dims(loss_filter[0], axis=0)
         mfilter_low = tf.expand_dims(mfilter_low, axis=-1)
         mfilter_low = tf.cast(mfilter_low, tf.float32)
-        fake_hic_l = tf.multiply(fake_hic_l, mfilter_low)
-        imgl_filter = tf.multiply(imgl, mfilter_low)
+        fake_hic_l_x2 = tf.multiply(fake_hic_l_x2, mfilter_low)
+        imgl_x2_filter = tf.multiply(imgl_x2, mfilter_low)
 
-        mfilter_high = tf.expand_dims(loss_filter[1], axis=0)
-        mfilter_high = tf.expand_dims(mfilter_high, axis=-1)
-        mfilter_high = tf.cast(mfilter_high, tf.float32)
+        fake_hic_l_x4 = fake_hic[1]
+        imgl_x4 = fake_hic[5]
+        mfilter_low = tf.expand_dims(loss_filter[1], axis=0)
+        mfilter_low = tf.expand_dims(mfilter_low, axis=-1)
+        mfilter_low = tf.cast(mfilter_low, tf.float32)
+        fake_hic_l_x4 = tf.multiply(fake_hic_l_x4, mfilter_low)
+        imgl_x4_filter = tf.multiply(imgl_x4, mfilter_low)
 
-        fake_hic_h = tf.multiply(fake_hic_h, mfilter_high)
-        imgr_filter = tf.multiply(imgr, mfilter_high)
+        fake_hic_l_x8 = fake_hic[2]
+        imgl_x8 = fake_hic[6]
+        mfilter_low = tf.expand_dims(loss_filter[2], axis=0)
+        mfilter_low = tf.expand_dims(mfilter_low, axis=-1)
+        mfilter_low = tf.cast(mfilter_low, tf.float32)
+        fake_hic_l_x8 = tf.multiply(fake_hic_l_x8, mfilter_low)
+        imgl_x8_filter = tf.multiply(imgl_x8, mfilter_low)
 
         gen_low_v = []
-        gen_low_v += Gen.get_layer('dec_low_1').trainable_variables
-        gen_low_v += Gen.get_layer('WR1Ml').trainable_variables
-        gen_low_v += Gen.get_layer('rec_low').trainable_variables
-        #gen_low_v += Gen.get_layer('sum_low').trainable_variables
-        gen_low_v += Gen.get_layer('out_low').trainable_variables
+        gen_low_v += Gen.get_layer('dsd_x8').trainable_variables
+        gen_low_v += Gen.get_layer('r1e_x8').trainable_variables
+        gen_low_v += Gen.get_layer('dsd_x4').trainable_variables
+        gen_low_v += Gen.get_layer('r1e_x4').trainable_variables
+        gen_low_v += Gen.get_layer('dsd_x2').trainable_variables
+        gen_low_v += Gen.get_layer('r1e_x2').trainable_variables
 
-        gen_loss_low_ssim = generator_ssim_loss(fake_hic_l, imgl_filter)
-        gen_loss_low_mse = generator_mse_loss(fake_hic_l, imgl_filter)
+        gen_loss_low_ssim = generator_ssim_loss(fake_hic_l_x2, imgl_x2_filter) + \
+                            generator_ssim_loss(fake_hic_l_x4, imgl_x4_filter) + \
+                            generator_ssim_loss(fake_hic_l_x8, imgl_x8_filter)
+        gen_loss_low_mse = generator_mse_loss(fake_hic_l_x2, imgl_x2_filter) + \
+                            generator_mse_loss(fake_hic_l_x4, imgl_x4_filter) + \
+                            generator_mse_loss(fake_hic_l_x8, imgl_x8_filter)
         gen_loss_low = gen_loss_low_ssim + gen_loss_low_mse
         gradients_of_generator_low = gen_tape_low.gradient(
             gen_loss_low, gen_low_v)
@@ -381,26 +396,30 @@ def train_step_generator(Gen, Dis, imgl, imgr, loss_filter, loss_weights, opts, 
         train_logs[0](gen_loss_low_ssim)
         train_logs[1](gen_loss_low_mse)
 
+        fake_hic_h = fake_hic[3]
+        mfilter_high = tf.expand_dims(loss_filter[3], axis=0)
+        mfilter_high = tf.expand_dims(mfilter_high, axis=-1)
+        mfilter_high = tf.cast(mfilter_high, tf.float32)
+
+        fake_hic_h = tf.multiply(fake_hic_h, mfilter_high)
+        imgr_filter = tf.multiply(imgr, mfilter_high)
         disc_generated_output = Dis(fake_hic_h, training=False)
         gen_high_v = []
-        gen_high_v += Gen.get_layer('rec_high').trainable_variables
-        gen_high_v += Gen.get_layer('conv1_1').trainable_variables
-        gen_high_v += Gen.get_layer('conv1_2').trainable_variables
-        gen_high_v += Gen.get_layer('subpixel_1').trainable_variables
-        gen_high_v += Gen.get_layer('batch_normalization').trainable_variables
-        #gen_high_v += Gen.get_layer('conv2_1').trainable_variables
-        #gen_high_v += Gen.get_layer('conv2_2').trainable_variables
-        gen_high_v += Gen.get_layer('subpixel_2').trainable_variables
-        gen_high_v += Gen.get_layer('batch_normalization_1').trainable_variables
+        gen_high_v += Gen.get_layer('r1c_x2').trainable_variables
+        gen_high_v += Gen.get_layer('usc_x2').trainable_variables
+        gen_high_v += Gen.get_layer('r1c_x4').trainable_variables
+        gen_high_v += Gen.get_layer('usc_x4').trainable_variables
+        gen_high_v += Gen.get_layer('r1c_x8').trainable_variables
+        gen_high_v += Gen.get_layer('usc_x8').trainable_variables
         gen_high_v += Gen.get_layer('sum_high').trainable_variables
         gen_high_v += Gen.get_layer('out_high').trainable_variables
         gen_loss_high_0 = generator_bce_loss(disc_generated_output)
         gen_loss_high_1 = generator_mse_loss(fake_hic_h, imgr_filter)
         gen_loss_high_2 = generator_ssim_loss(fake_hic_h, imgr_filter)
 
-        gen_loss_high = gen_loss_high_0 * \
-            loss_weights[0] + gen_loss_high_1 * \
-            loss_weights[1] + gen_loss_high_2*loss_weights[2]
+        gen_loss_high = gen_loss_high_0 * loss_weights[0] + \
+                        gen_loss_high_1 * loss_weights[1] + \
+                        gen_loss_high_2*loss_weights[2]
         gradients_of_generator_high = gen_tape_high.gradient(
             gen_loss_high, gen_high_v)
         opts[1].apply_gradients(zip(gradients_of_generator_high, gen_high_v))
