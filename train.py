@@ -89,15 +89,13 @@ EPOCHS = 3000
 BUFFER_SIZE = 1
 BATCH_SIZE = 9
 
-len_low_size = int(len_size/scale)
-
 hic_lr = np.array(hic_lr)
 hic_hr = np.array(hic_hr)
 train_data = tf.data.Dataset.from_tensor_slices((hic_lr[0::2,..., np.newaxis], hic_hr[0::2,..., np.newaxis])).batch(BATCH_SIZE)
 test_data = tf.data.Dataset.from_tensor_slices((hic_lr[1::2,..., np.newaxis], hic_hr[1::2,..., np.newaxis])).batch(BATCH_SIZE)
 
-Gen = model.make_generator_model(len_low_size=len_low_size, scale=scale)
-Dis = model.make_discriminator_model(len_low_size=len_low_size, scale=scale)
+Gen = model.make_generator_model(len_high_size=len_size, scale=scale)
+Dis = model.make_discriminator_model(len_high_size=len_size, scale=scale)
 print(Gen.summary())
 tf.keras.utils.plot_model(Gen, to_file='G.png', show_shapes=True)
 print(Dis.summary())
@@ -105,7 +103,7 @@ tf.keras.utils.plot_model(Dis, to_file='D.png', show_shapes=True)
 current_time = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
 #Gen.save('./saved_model/'+current_time+'/gen_model') 
 #Dis.save('./saved_model/'+current_time+'dis_model')
-model.train(Gen, Dis, train_data, EPOCHS, len_low_size, scale, test_data)
+model.train(Gen, Dis, train_data, EPOCHS, len_size, scale, test_data)
 
 Gen.save('./saved_model/'+current_time+'/gen_model') 
 Dis.save('./saved_model/'+current_time+'dis_model')
