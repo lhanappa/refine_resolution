@@ -20,7 +20,7 @@ class Reconstruct_R1M(tf.keras.layers.Layer):
         return rank1m
 
 
-'''class Weight_R1M(tf.keras.layers.Layer):
+class Weight_R1M(tf.keras.layers.Layer):
     def __init__(self, name='WR1M'):
         super(Weight_R1M, self).__init__(name=name)
 
@@ -31,7 +31,7 @@ class Reconstruct_R1M(tf.keras.layers.Layer):
 
     def call(self, input):
         self.w.assign(tf.nn.relu(self.w))
-        return tf.multiply(input, self.w)'''
+        return tf.multiply(input, self.w)
 
 
 class Downpixel(tf.keras.layers.Layer):
@@ -183,7 +183,7 @@ def block_downsample_decomposition(len_low_size, downsample_ratio, filters_decom
                                       activation='relu', use_bias=False,
                                       kernel_constraint=tf.keras.constraints.NonNeg(),
                                       kernel_initializer=tf.keras.initializers.RandomNormal(mean=0.01, stddev=0.1)))
-    # result.add(Weight_R1M())
+    result.add(Weight_R1M())
     result.add(Reconstruct_R1M(filters_decompose))
     return result
 
@@ -192,7 +192,8 @@ def block_rank1channels_convolution(filters, name=None):
     result = tf.keras.Sequential(name=name)
     result.add(tf.keras.layers.Conv2D(filters, [1, 1], strides=1, padding='same', data_format="channels_last",
                                       activation='relu', use_bias=False,
-                                      name='conv_x2'))
+                                      name=name))
+    result.add(Weight_R1M())
     result.add(Symmetry_R1M())
     return result
 
