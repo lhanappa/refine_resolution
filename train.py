@@ -101,12 +101,11 @@ tf.keras.utils.plot_model(Gen, to_file='G.png', show_shapes=True)
 print(Dis.summary())
 tf.keras.utils.plot_model(Dis, to_file='D.png', show_shapes=True)
 current_time = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
-#Gen.save('./saved_model/'+current_time+'/gen_model') 
-#Dis.save('./saved_model/'+current_time+'dis_model')
+
 model.train(Gen, Dis, train_data, EPOCHS, len_size, scale, test_data)
 
 Gen.save('./saved_model/'+current_time+'/gen_model') 
-Dis.save('./saved_model/'+current_time+'dis_model')
+Dis.save('./saved_model/'+current_time+'/dis_model')
 
 '''anim_file = 'gan.gif'
 with imageio.get_writer(anim_file, mode='I') as writer:
