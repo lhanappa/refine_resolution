@@ -651,7 +651,7 @@ def train(gen, dis, dataset, epochs, len_high_size, scale, test_dataset=None):
                 loss_weights = [0.1, 10.0, 10.0]
 
             # if(stage1_gen or (epoch==0 or epoch>=1200 and epoch%100<40)):
-            if(epoch < 200): # or epoch >= 1200):
+            if(epoch < 200 or epoch%20 <= 10):
                 train_step_generator(gen, dis,
                                      tf.dtypes.cast(low_m, tf.float32), tf.dtypes.cast(
                                          high_m, tf.float32),
@@ -659,7 +659,7 @@ def train(gen, dis, dataset, epochs, len_high_size, scale, test_dataset=None):
                                          loss_filter_low_x8, loss_filter_high], loss_weights,
                                      opts, logs)
             # if(stage1_dis or (epoch>=1200 and epoch%100>=40)):
-            if(epoch >= 0):
+            if(epoch < 200 or epoch%20>=10):
                 #Gen, Dis, imgl, imgr, loss_filter, opts, train_logs
                 train_step_discriminator(Gen=gen, Dis=dis, imgl =tf.dtypes.cast(low_m, tf.float32), 
                                     imgr = tf.dtypes.cast(high_m, tf.float32),
