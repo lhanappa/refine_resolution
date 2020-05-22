@@ -41,14 +41,7 @@ class Downpixel(tf.keras.layers.Layer):
 
     def _phase_shift(self, I):
         r = self.r
-        bsize, w, h, c = I.get_shape().as_list()  # bsize, W, H, C=1
-        # Handling Dimension(None) type for undefined batch dim
-        bsize = tf.shape(I)[0]
-        X = I  # bsize, w, h, 1
-        # Keras backend does not support tf.split, so in future versions this could be nicer
-        X = [X[:, i::r, j::r, :]
-             for i in range(r) for j in range(r)]  # r*r, [bsize, W/r, H/r, c]
-        X = tf.keras.backend.concatenate(X, axis=3)  # bsize, W/r, H/r, C*r*r
+        X = tf.nn.space_to_depth(input=I, block_size=r, data_format='NHWC', name=None)
         return X
 
     def call(self, inputs):
@@ -96,23 +89,7 @@ class Subpixel(tf.keras.layers.Conv2D):
 
     def _phase_shift(self, I):
         r = self.r
-        bsize, a, b, c = I.get_shape().as_list()
-        # Handling Dimension(None) type for undefined batch dim
-        bsize = tf.shape(I)[0]
-        # bsize, a, b, c/(r*r), r, r
-        if bsize == None:
-            X = tf.reshape(I, (-1, a, b, tf.cast(c/(r*r), tf.int32), r, r))
-        else:
-            X = tf.reshape(I, [bsize, a, b, tf.cast(c/(r*r), tf.int32), r, r])
-        # X = tf.keras.permute_dimensions(X, (0, 1, 2, 5, 4, 3))  # bsize, a, b, r, r, c/(r*r)
-        X = tf.transpose(X, perm=[0, 1, 2, 5, 4, 3])
-        # Keras backend does not support tf.split, so in future versions this could be nicer
-        X = [X[:, i, :, :, :, :]
-             for i in range(a)]  # a, [bsize, b, r, r, c/(r*r)
-        X = tf.keras.backend.concatenate(
-            X, axis=2)  # bsize, b, a*r, r, c/(r*r)
-        X = [X[:, i, :, :, :] for i in range(b)]  # b, [bsize, r, r, c/(r*r)
-        X = tf.keras.backend.concatenate(X, axis=2)  # bsize, a*r, b*r, c/(r*r)
+        X = tf.nn.depth_to_space(input=I, block_size=r, data_format='NHWC', name=None)
         return X
 
     def call(self, inputs):
@@ -124,8 +101,6 @@ class Subpixel(tf.keras.layers.Conv2D):
 
     def get_config(self):
         config = super(tf.keras.layers.Conv2D, self).get_config()
-        config.pop('rank')
-        config.pop('dilation_rate')
         config['filters'] /= self.r*self.r
         config['r'] = self.r
         return config
@@ -825,4 +800,5 @@ if __name__ == '__main__':
     print(Dis.summary())
     tf.keras.utils.plot_model(Dis, to_file='D.png', show_shapes=True)
 
-    #train(Gen, Dis, None, 0, 3)
+    Gen.save('./saved_model/gen_model') 
+    Dis.save('./saved_model/dis_model')
