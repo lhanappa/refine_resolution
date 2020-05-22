@@ -100,7 +100,10 @@ class Subpixel(tf.keras.layers.Conv2D):
         # Handling Dimension(None) type for undefined batch dim
         bsize = tf.shape(I)[0]
         # bsize, a, b, c/(r*r), r, r
-        X = tf.reshape(I, [bsize, a, b, tf.cast(c/(r*r), tf.int32), r, r])
+        if bsize == None:
+            X = tf.reshape(I, (-1, a, b, tf.cast(c/(r*r), tf.int32), r, r))
+        else:
+            X = tf.reshape(I, [bsize, a, b, tf.cast(c/(r*r), tf.int32), r, r])
         # X = tf.keras.permute_dimensions(X, (0, 1, 2, 5, 4, 3))  # bsize, a, b, r, r, c/(r*r)
         X = tf.transpose(X, perm=[0, 1, 2, 5, 4, 3])
         # Keras backend does not support tf.split, so in future versions this could be nicer
@@ -677,12 +680,12 @@ def train(gen, dis, dataset, epochs, len_high_size, scale, test_dataset=None):
         for i, (low_m, high_m) in enumerate(dataset):
             #if(generator_log_ssim_high.result().numpy() >= 0.016 or generator_log_mse_high.result().numpy() >= 0.016):
             if(epoch <=1000):
-                loss_weights = [0.0, 10.0, 10.0]
+                loss_weights = [0.0, 10.0, 0.0]
             else:
-                loss_weights = [0.1, 10.0, 10.0]
+                loss_weights = [0.1, 10.0, 0.0]
 
             # if(stage1_gen or (epoch==0 or epoch>=1200 and epoch%100<40)):
-            if(epoch < 400 or epoch%40 <= 15):
+            if(epoch < 300 or epoch%40 <= 20):
                 train_step_generator(gen, dis,
                                      tf.dtypes.cast(low_m, tf.float32), tf.dtypes.cast(
                                          high_m, tf.float32),
@@ -690,7 +693,7 @@ def train(gen, dis, dataset, epochs, len_high_size, scale, test_dataset=None):
                                          loss_filter_low_x8, loss_filter_high], loss_weights,
                                      opts, logs)
             # if(stage1_dis or (epoch>=1200 and epoch%100>=40)):
-            if(epoch >= 400 and epoch%40>=15):
+            if(epoch >= 300 and epoch%40 >= 20):
                 #Gen, Dis, imgl, imgr, loss_filter, opts, train_logs
                 train_step_discriminator(Gen=gen, Dis=dis, imgl =tf.dtypes.cast(low_m, tf.float32), 
                                     imgr = tf.dtypes.cast(high_m, tf.float32),
