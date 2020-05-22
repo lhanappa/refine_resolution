@@ -422,7 +422,7 @@ def generator_mse_loss(y_pred, y_true):  # , m_filter):
     diff = tf.math.squared_difference(y_pred, y_true)
     s = tf.reduce_sum(diff, axis=-1)
     s = tf.reduce_sum(s, axis=-1)
-    s = tf.reduce_mean(s, axis=-1)
+    s = tf.reduce_sum(s, axis=-1)
     return s
 
 
