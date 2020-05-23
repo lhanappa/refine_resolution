@@ -672,6 +672,8 @@ def plot_prob_matrix(m):
     import matplotlib.pyplot as plt
     import matplotlib as mpl
     figure = plt.figure(figsize=(10, 10))
+
+    m = 1 / (1 + np.math.exp(-m))
     if len(m.shape) == 3:
         for i in range(min(9, m.shape[0])):
             ax = figure.add_subplot(3, 3, i+1)
