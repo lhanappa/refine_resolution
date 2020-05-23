@@ -24,17 +24,17 @@ mat = c.matrix(balance=True).fetch('chr2')
 idxy = ~np.all(np.isnan(mat), axis=0)
 M = mat[idxy, :]
 Mh = M[:, idxy]
-Mh = Mh[0:2048, 0:2048]
+Mh = np.asarray(Mh[0:2048, 0:2048])
 print('MH: ', Mh.shape)
 
 scale = 4
 img_l = sampling_hic(Mh, scale**2, fix_seed=True)
-Ml = img_l
+Ml = np.asarray(img_l)
 print('ML: ', Ml.shape)
 
 # Normalization
-Ml = normalization.SCN_normalization(Ml,max_iter=1000)
-Mh = normalization.SCN_normalization(Mh,max_iter=1000)
+Ml = normalization.ICE_normalization(Ml,max_iter=3000)
+Mh = normalization.ICE_normalization(Mh,max_iter=3000)
 
 len_size = 128 
 
@@ -85,7 +85,7 @@ plt.subplot(2,3,6)
 plt.imshow(np.log2(hic_hr[2]))
 plt.show()'''
 
-EPOCHS = 2000
+EPOCHS = 3000
 BUFFER_SIZE = 1
 BATCH_SIZE = 9
 

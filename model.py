@@ -566,8 +566,7 @@ def train(gen, dis, dataset, epochs, len_high_size, scale, test_dataset=None):
     [_, (demo_input_low, demo_input_high)] = next(
         enumerate(test_dataset.take(1)))
 
-    #stage1_gen = True
-    #stage1_dis = True
+
     for epoch in range(epochs):
         start = time.time()
         for i, (low_m, high_m) in enumerate(dataset):
@@ -575,7 +574,7 @@ def train(gen, dis, dataset, epochs, len_high_size, scale, test_dataset=None):
             if(epoch <=1000):
                 loss_weights = [0.0, 10.0, 0.0]
             else:
-                loss_weights = [0.1, 10.0, 0.0]
+                loss_weights = [1.0, 10.0, 0.0]
 
             # if(stage1_gen or (epoch==0 or epoch>=1200 and epoch%100<40)):
             if(epoch < 300 or epoch%40 <= 20):
@@ -585,7 +584,7 @@ def train(gen, dis, dataset, epochs, len_high_size, scale, test_dataset=None):
                                      [loss_filter_low_x2, loss_filter_low_x4,
                                          loss_filter_low_x8, loss_filter_high], loss_weights,
                                      opts, logs)
-            # if(stage1_dis or (epoch>=1200 and epoch%100>=40)):
+
             if(epoch >= 300 and epoch%40 >= 20):
                 #Gen, Dis, imgl, imgr, loss_filter, opts, train_logs
                 train_step_discriminator(Gen=gen, Dis=dis, imgl =tf.dtypes.cast(low_m, tf.float32), 
