@@ -257,49 +257,6 @@ def make_generator_model(len_high_size=128, scale=4):
     return model
 
 
-"""def make_discriminator_model(len_high_size=128, scale=4):
-    '''PatchGAN 1 pixel of output represents X pixels of input: https://github.com/junyanz/pytorch-CycleGAN-and-pix2pix/issues/39
-     The "70" is implicit, it's not written anywhere in the code but instead emerges as a mathematical consequence of the network architecture.
-    The math is here: https://github.com/phillipi/pix2pix/blob/master/scripts/receptive_field_sizes.m
-    compute input size from a given output size:
-    f = @(output_size, ksize, stride) (output_size - 1) * stride + ksize; fix output_size as 1 
-    '''
-    len_low_size = int(len_high_size/scale)
-    inp = tf.keras.layers.Input(
-        shape=[len_high_size, len_high_size, 1], name='input_image')
-
-    conv = tf.keras.layers.Conv2D(128, 4, strides=2, padding='valid', kernel_initializer=tf.keras.initializers.RandomNormal(
-        mean=0.01, stddev=0.02), use_bias=True)(inp)
-    #conv = tf.keras.layers.Dropout(0.1)(conv)
-    #pool = tf.keras.layers.MaxPooling2D()(conv)
-    sym = Symmetry_R1M()(conv)
-    batchnorm = tf.keras.layers.BatchNormalization()(sym)
-    relu = tf.keras.layers.ReLU()(batchnorm)
-
-    conv = tf.keras.layers.Conv2D(256, 2, strides=2, padding='valid', kernel_initializer=tf.keras.initializers.RandomNormal(
-        mean=0.01, stddev=0.02), use_bias=True)(relu)
-    #conv = tf.keras.layers.Dropout(0.1)(conv)
-    #pool = tf.keras.layers.MaxPooling2D()(conv)
-    sym = Symmetry_R1M()(conv)
-    batchnorm = tf.keras.layers.BatchNormalization()(sym)
-    relu = tf.keras.layers.ReLU()(batchnorm)
-
-    conv = tf.keras.layers.Conv2D(512, 2, strides=1, padding='valid', kernel_initializer=tf.keras.initializers.RandomNormal(
-        mean=0.01, stddev=0.02), use_bias=True)(relu)
-    #conv = tf.keras.layers.Dropout(0.1)(conv)
-    #pool = tf.keras.layers.MaxPooling2D()(conv)
-    sym = Symmetry_R1M()(conv)
-    batchnorm = tf.keras.layers.BatchNormalization()(sym)
-    relu = tf.keras.layers.LeakyReLU()(batchnorm)
-
-    last = tf.keras.layers.Conv2D(1, 1, strides=1, padding='valid', kernel_initializer=tf.keras.initializers.RandomNormal(
-        mean=0.01, stddev=0.02), use_bias=True, activation='sigmoid')(relu)
-
-    last = tf.keras.layers.Flatten()(last)
-    last = tf.reduce_mean(last, axis=-1, keepdims=True)
-    return tf.keras.Model(inputs=inp, outputs=last)"""
-
-
 def block_rank1_decompose_reconstruct(len_size, filters_decompose, name=None):
     result = tf.keras.Sequential(name=name)
     result.add(tf.keras.layers.Conv2D(filters_decompose, [1, len_size], strides=(1, 1), padding='valid', data_format="channels_last",
@@ -373,13 +330,13 @@ def make_discriminator_model(len_high_size=128, scale=4):
 
     conv = tf.keras.layers.Conv2D(filters=8, kernel_size=(1,1), strides=1, padding='same')(dc_x8)
     conv = tf.keras.layers.Flatten()(conv)
-    last = tf.keras.layers.Dense(1, activation='sigmoid')(conv)
+    last = tf.keras.layers.Dense(1, activation=None)(conv)
     return tf.keras.Model(inputs=inp, outputs=last)
 
 
 
 def discriminator_bce_loss(real_output, fake_output):
-    loss_object = tf.keras.losses.BinaryCrossentropy(from_logits=False)
+    loss_object = tf.keras.losses.BinaryCrossentropy(from_logits=True)
     real_loss = loss_object(tf.ones_like(real_output), real_output)
     generated_loss = loss_object(tf.zeros_like(fake_output), fake_output)
     total_disc_loss = real_loss + generated_loss
@@ -387,7 +344,7 @@ def discriminator_bce_loss(real_output, fake_output):
 
 
 def generator_bce_loss(d_pred):
-    loss_object = tf.keras.losses.BinaryCrossentropy(from_logits=False)
+    loss_object = tf.keras.losses.BinaryCrossentropy(from_logits=True)
     gan_loss = loss_object(tf.ones_like(d_pred), d_pred)
     return gan_loss
 
@@ -434,45 +391,6 @@ def train_step_generator(Gen, Dis, imgl, imgr, loss_filter, loss_weights, opts, 
         fake_hic_l_x8 = tf.multiply(fake_hic_l_x8, mfilter_low)
         imgl_x8_filter = tf.multiply(imgl_x8, mfilter_low)
 
-        '''gen_low_v = []
-        gen_low_v_x2 = []
-        gen_low_v_x2 += Gen.get_layer('dsd_x2').trainable_variables
-        gen_low_v_x2 += Gen.get_layer('r1e_x2').trainable_variables
-
-        gen_loss_low_ssim_x2 = generator_ssim_loss(
-            fake_hic_l_x2, imgl_x2_filter)
-        gen_loss_low_mse_x2 = generator_mse_loss(fake_hic_l_x2, imgl_x2_filter)
-        gen_loss_low = gen_loss_low_ssim_x2 + gen_loss_low_mse_x2
-        gradients_of_generator_low_x2 = x2.gradient(gen_loss_low, gen_low_v_x2)
-        opts[0].apply_gradients(
-            zip(gradients_of_generator_low_x2, gen_low_v_x2))
-
-        gen_low_v_x4 = []
-        gen_low_v_x4 += Gen.get_layer('dsd_x4').trainable_variables
-        gen_low_v_x4 += Gen.get_layer('r1e_x4').trainable_variables
-        gen_loss_low_ssim_x4 = generator_ssim_loss(
-            fake_hic_l_x4, imgl_x4_filter)
-        gen_loss_low_mse_x4 = generator_mse_loss(fake_hic_l_x4, imgl_x4_filter)
-        gen_loss_low = gen_loss_low_ssim_x4 + gen_loss_low_mse_x4
-        gradients_of_generator_low_x4 = x4.gradient(gen_loss_low, gen_low_v_x4)
-        opts[1].apply_gradients(
-            zip(gradients_of_generator_low_x4, gen_low_v_x4))
-
-        gen_low_v_x8 = []
-        gen_low_v_x8 += Gen.get_layer('dsd_x8').trainable_variables
-        gen_low_v_x8 += Gen.get_layer('r1e_x8').trainable_variables
-        gen_loss_low_ssim_x8 = generator_ssim_loss(
-            fake_hic_l_x8, imgl_x8_filter)
-        gen_loss_low_mse_x8 = generator_mse_loss(fake_hic_l_x8, imgl_x8_filter)
-        gen_loss_low = gen_loss_low_ssim_x8 + gen_loss_low_mse_x8
-        gradients_of_generator_low_x8 = x8.gradient(gen_loss_low, gen_low_v_x8)
-        opts[2].apply_gradients(
-            zip(gradients_of_generator_low_x8, gen_low_v_x8))
-
-        gen_loss_low_ssim = (gen_loss_low_ssim_x8 +
-                             gen_loss_low_ssim_x4 + gen_loss_low_ssim_x2)/3
-        gen_loss_low_mse = (gen_loss_low_mse_x8 +
-                            gen_loss_low_mse_x4 + gen_loss_low_mse_x2)/3'''
 
         gen_low_v = []
         gen_low_v += Gen.get_layer('dsd_x2').trainable_variables
@@ -569,7 +487,7 @@ def train(gen, dis, dataset, epochs, len_high_size, scale, test_dataset=None):
     generator_optimizer_x8 = tf.keras.optimizers.Adam()'''
     generator_optimizer_low = tf.keras.optimizers.Adam()
     generator_optimizer_high = tf.keras.optimizers.Adam()
-    discriminator_optimizer = tf.keras.optimizers.Adagrad()
+    discriminator_optimizer = tf.keras.optimizers.Adam()
     # for generator#, discriminator_optimizer]
     opts = [generator_optimizer_low, generator_optimizer_high]
     generator_log_ssim_low = tf.keras.metrics.Mean(
@@ -587,14 +505,14 @@ def train(gen, dis, dataset, epochs, len_high_size, scale, test_dataset=None):
     logs = [generator_log_ssim_low, generator_log_mse_low, generator_log_bce_high,
             generator_log_mse_high, generator_log_ssim_high]  # for generator, discriminator_log]
     current_time = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
-    train_log_dir = 'logs/model_4/' + current_time + '/generator'
+    train_log_dir = 'logs/model/' + current_time + '/generator'
     train_summary_G_writer = tf.summary.create_file_writer(train_log_dir)
-    train_log_dir = 'logs/model_4/' + current_time + '/discriminator'
+    train_log_dir = 'logs/model/' + current_time + '/discriminator'
     train_summary_D_writer = tf.summary.create_file_writer(train_log_dir)
-    test_log_dir = 'logs/model_4/' + current_time + '/test'
+    test_log_dir = 'logs/model/' + current_time + '/test'
     test_writer = tf.summary.create_file_writer(test_log_dir)
 
-    train_log_dir = 'logs/model_4/' + current_time + '/model'
+    train_log_dir = 'logs/model/' + current_time + '/model'
     writer = tf.summary.create_file_writer(train_log_dir)
     tf.summary.trace_on(graph=True, profiler=False)
     # Forward pass

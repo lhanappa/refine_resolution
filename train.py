@@ -85,7 +85,7 @@ plt.subplot(2,3,6)
 plt.imshow(np.log2(hic_hr[2]))
 plt.show()'''
 
-EPOCHS = 3000
+EPOCHS = 2000
 BUFFER_SIZE = 1
 BATCH_SIZE = 9
 
@@ -101,10 +101,6 @@ tf.keras.utils.plot_model(Gen, to_file='G.png', show_shapes=True)
 print(Dis.summary())
 tf.keras.utils.plot_model(Dis, to_file='D.png', show_shapes=True)
 current_time = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
-
-
-Gen.save('./saved_model/'+current_time+'/gen_model') 
-Dis.save('./saved_model/'+current_time+'/dis_model')
 
 model.train(Gen, Dis, train_data, EPOCHS, len_size, scale, test_data)
 
