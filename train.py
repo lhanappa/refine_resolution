@@ -24,7 +24,7 @@ mat = c.matrix(balance=True).fetch('chr2')
 idxy = ~np.all(np.isnan(mat), axis=0)
 M = mat[idxy, :]
 Mh = M[:, idxy]
-Mh = np.asarray(Mh[0:2048, 0:2048])
+Mh = np.asarray(Mh[0:4096, 0:4096])
 print('MH: ', Mh.shape)
 
 scale = 4
@@ -33,8 +33,8 @@ Ml = np.asarray(img_l)
 print('ML: ', Ml.shape)
 
 # Normalization
-Ml = normalization.ICE_normalization(Ml,max_iter=3000)
-Mh = normalization.ICE_normalization(Mh,max_iter=3000)
+Ml = normalization.SCN_normalization(Ml,max_iter=3000)
+Mh = normalization.SCN_normalization(Mh,max_iter=3000)
 
 len_size = 128 
 
