@@ -70,27 +70,13 @@ for dis in np.arange(1, hic_half_h.shape[0]):
         hic_hr.append(np.block([[hic_half_h[i,i], hic_half_h[i,i+dis]],[hic_half_h[i+dis,i], hic_half_h[i+dis,i+dis]]]))
 print('len hic_hr: ', len(hic_hr))
 
-'''plt.figure(figsize=(5,8))
-plt.subplot(2,3,1)
-plt.imshow(np.log2(hic_lr[0]))
-plt.subplot(2,3,2)
-plt.imshow(np.log2(hic_lr[1]))
-plt.subplot(2,3,3)
-plt.imshow(np.log2(hic_lr[2]))
-plt.subplot(2,3,4)
-plt.imshow(np.log2(hic_hr[0]))
-plt.subplot(2,3,5)
-plt.imshow(np.log2(hic_hr[1]))
-plt.subplot(2,3,6)
-plt.imshow(np.log2(hic_hr[2]))
-plt.show()'''
 
 EPOCHS = 3000
 BUFFER_SIZE = 1
 BATCH_SIZE = 9
 
-hic_lr = np.array(hic_lr)
-hic_hr = np.array(hic_hr)
+hic_lr = np.asarray(hic_lr)
+hic_hr = np.asarray(hic_hr)
 train_data = tf.data.Dataset.from_tensor_slices((hic_lr[0::2,..., np.newaxis], hic_hr[0::2,..., np.newaxis])).batch(BATCH_SIZE)
 test_data = tf.data.Dataset.from_tensor_slices((hic_lr[1::2,..., np.newaxis], hic_hr[1::2,..., np.newaxis])).batch(BATCH_SIZE)
 
