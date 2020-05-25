@@ -33,6 +33,7 @@ Ml = np.asarray(img_l)
 print('ML: ', Ml.shape)
 
 # Normalization
+#the input should not be type of np.matrix!
 Ml = normalization.SCN_normalization(Ml,max_iter=3000)
 Mh = normalization.SCN_normalization(Mh,max_iter=3000)
 

@@ -21,7 +21,7 @@ def sampling_hic(hic_matrix, sampling_ratio, fix_seed=False):
         y = int(id_x[i] % m.shape[0])
         sample_m[x, y] += 1.0
     sample_m = np.transpose(sample_m) + sample_m
-    return sample_m
+    return np.asarray(sample_m)
 
 
 def divide_pieces_hic(hic_matrix, block_size=128, save_file=False, pathfile=None):
