@@ -36,7 +36,8 @@ def divide_pieces_hic(hic_matrix, block_size=128, save_file=False, pathfile=None
     M_d1 = list(map(lambda x: np.split(x, np.arange(
         block_width, M_w, block_width), axis=1), M_d0))
     hic_half_h = np.array(M_d1)
-    hic_half_h = hic_half_h[0:-1, 0:-1]
+    if M_h%block_height!=0 or M_w%block_width!=0:
+        hic_half_h = hic_half_h[0:-1, 0:-1]
     print('shape of hic matrix: ', hic_half_h.shape)
 
     hic_m = list()
@@ -59,13 +60,14 @@ def divide_pieces_hic(hic_matrix, block_size=128, save_file=False, pathfile=None
         savez_compressed(pathfile+'.npz', hic=hic_m,
                          index_1D_2D=hic_index, index_2D_1D=hic_index_rev)
 
-    return hic_m
+    return hic_m, hic_index, hic_index_rev
 
 
 def merge_hic(hic_lists, index_1D_2D):
     hic_m = np.asarray(hic_lists)
     lensize, Height, Width = hic_m.shape
     lenindex = len(index_1D_2D)
+    print('lenindex: ', lenindex)
     if lenindex != lensize:
         raise 'ERROR dimension must equal. length of hic list: ' + lensize + \
             'is not equal to length of index_1D_2D: ' + len(index_1D_2D)
@@ -78,19 +80,15 @@ def merge_hic(hic_lists, index_1D_2D):
     Width_hf = int(Width/2)
     matrix = np.zeros(shape=(n*Height_hf, n*Width_hf))
     for i in np.arange(lenindex):
-        h, w = index_1D_2D
+        h, w = index_1D_2D[i]
         x = h*Height_hf
         y = w*Width_hf
-        matrix[x:x+Height_hf, y:y+Width_hf] += hic_m[i,
-                                                     0:Height_hf, 0+Width_hf:Width]
-        matrix[x:x+Height_hf, x:x+Height_hf] += hic_m[i, 0:Height_hf, 0:Width_hf]
-        matrix[y:y+Width_hf, y:y+Width_hf] += hic_m[i,
-                                                    0+Height_hf:Height, 0+Width_hf:Width]
+        matrix[x:x+Height_hf, y:y+Width_hf] += hic_m[i, 0:Height_hf, 0+Width_hf:Width]
+
+        matrix[x:x+Height_hf, x:x+Height_hf] += hic_m[i, 0:Height_hf, 0:Width_hf]/(2.0*(n-1))
+        matrix[y:y+Width_hf, y:y+Width_hf] += hic_m[i, 0+Height_hf:Height, 0+Width_hf:Width]/(2.0*(n-1))
 
     matrix = matrix + np.transpose(matrix)
-    diag = np.ones(shape=(n*Height_hf))*(2*(n-1)-1)
-    D = np.diag(diag) + np.ones(shape=(n*Height_hf, n*Width_hf))
-    matrix /= D.astype(float)
     return matrix
 
 
@@ -116,3 +114,53 @@ def tag2dense(tag_mat, mat_length):
         matrix[int(x), int(y)] = float(c)
 
     return tag_mat
+
+
+def format_contact(matrix, coordinate=(0, 1), resolution=10000, chrm='1', save_file=True, filename=None):
+    """chr1 bin1 chr2 bin2 value"""
+    n = len(matrix)
+    nhf = int(len(matrix)/2)
+    contact = list()
+    for i in np.arange(n):
+        for j in np.arange(i+1, n):
+            value = float(matrix[i, j])
+            if value <= 1.0e-10:
+                continue
+            chr1 = chrm
+            chr2 = chrm
+            bin1 = (i - int(i/nhf)*nhf + coordinate[int(i/nhf)]*nhf)*resolution
+            bin2 = (j - int(j/nhf)*nhf + coordinate[int(j/nhf)]*nhf)*resolution
+            entry = [chr1, bin1, chr2, bin2, value]
+            contact.append(entry)
+    if save_file:
+        if filename is None:
+            filename = './demo_contact.gz'
+        np.savetxt(filename, contact)
+    return contact
+
+
+def format_bin(matrix, coordinate=(0, 1), resolution=10000, chrm='1', save_file=True, filename=None):
+    """chr start end name"""
+    n = len(matrix)
+    nhf = int(len(matrix)/2)
+    bins = list()
+    for i in np.arange(n):
+        chr1 = chrm
+        start = (i - int(i/nhf)*nhf + coordinate[int(i/nhf)]*nhf)*resolution
+        end = start + resolution
+        entry = [chr1, start, end, start]
+        bins.append(entry)
+    if save_file:
+        if filename is None:
+            filename = './demo.bed'
+        np.savetxt(filename, bins)
+    return bins
+
+
+def remove_zeros(matrix):
+    idxy = ~np.all(np.isnan(matrix), axis=0)
+    M = matrix[idxy, :]
+    M = M[:, idxy]
+    M = np.asarray(M)
+    idxy = np.asarray(idxy)
+    return M, idxy

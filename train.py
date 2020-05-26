@@ -56,14 +56,14 @@ for dis in np.arange(1, hic_half_l.shape[0]):
         hic_lr.append(np.block([[hic_half_l[i,i], hic_half_l[i,i+dis]],[hic_half_l[i+dis,i], hic_half_l[i+dis,i+dis]]]))
 print('len hic_lr: ', len(hic_lr))"""
 
-hic_lr = divide_pieces_hic(Ml, block_size=len_size, save_file=True)
+hic_lr = divide_pieces_hic(Ml, block_size=len_size, save_file=False)
 with np.load('./datasets_hic.npz', allow_pickle=True) as data:
     a = data['hic']
     b = data['index_1D_2D']
     c = data['index_2D_1D']
     h = merge_hic(a, b)
 
-hic_hr = []
+"""hic_hr = []
 IMG_HEIGHT, IMG_WIDTH = int(len_size), int(len_size)
 print('Height: ', IMG_HEIGHT, 'Weight: ', IMG_WIDTH)
 Mh_h, Mh_w = Mh.shape
@@ -77,7 +77,8 @@ print('hic_hr: ', hic_half_h.shape)
 for dis in np.arange(1, hic_half_h.shape[0]):
     for i in np.arange(0, hic_half_h.shape[1]-dis):
         hic_hr.append(np.block([[hic_half_h[i,i], hic_half_h[i,i+dis]],[hic_half_h[i+dis,i], hic_half_h[i+dis,i+dis]]]))
-print('len hic_hr: ', len(hic_hr))
+print('len hic_hr: ', len(hic_hr))"""
+hic_hr = divide_pieces_hic(Mh, block_size=len_size, save_file=False)
 
 
 EPOCHS = 0
