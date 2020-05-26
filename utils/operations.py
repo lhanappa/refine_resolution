@@ -164,3 +164,4 @@ def remove_zeros(matrix):
     M = np.asarray(M)
     idxy = np.asarray(idxy)
     return M, idxy
+
