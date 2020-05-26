@@ -53,7 +53,7 @@ def divide_pieces_hic(hic_matrix, block_size=128, save_file=False, pathfile=None
     print('# of hic pieces: ', len(hic_m))
 
     if save_file:
-        from numpy import savez_compressed
+        from numpy import savez_compressed, savez
         if pathfile is None:
             pathfile = './datasets_hic'
         savez_compressed(pathfile+'.npz', hic=hic_m,

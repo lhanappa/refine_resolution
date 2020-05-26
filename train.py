@@ -11,12 +11,13 @@ import numpy as np
 import copy
 
 from utils.operations import sampling_hic
+from utils.operations import divide_pieces_hic, merge_hic
 import tensorflow as tf
 tf.keras.backend.set_floatx('float32')
 
 
 # data from ftp://cooler.csail.mit.edu/coolers/hg19/
-name = 'Dixon2012-H1hESC-HindIII-allreps-filtered.10kb.cool'
+name = 'Dixon2012-H1hESC-HindIII-allreps-filtered.100kb.cool'
 #name = 'Rao2014-K562-MboI-allreps-filtered.500kb.cool'
 c = cooler.Cooler(name)
 resolution = c.binsize
@@ -24,7 +25,7 @@ mat = c.matrix(balance=True).fetch('chr2')
 idxy = ~np.all(np.isnan(mat), axis=0)
 M = mat[idxy, :]
 Mh = M[:, idxy]
-Mh = np.asarray(Mh[0:4096, 0:4096])
+Mh = np.asarray(Mh[0:256, 0:256])
 print('MH: ', Mh.shape)
 
 scale = 4
@@ -39,7 +40,7 @@ Mh = normalization.SCN_normalization(Mh,max_iter=3000)
 
 len_size = 128 
 
-hic_lr = []
+"""hic_lr = []
 IMG_HEIGHT, IMG_WIDTH = int(len_size), int(len_size)
 print('Height: ', IMG_HEIGHT, 'Weight: ', IMG_WIDTH)
 Ml_h, Ml_w = Ml.shape
@@ -53,7 +54,14 @@ print('hic_lr: ', hic_half_l.shape)
 for dis in np.arange(1, hic_half_l.shape[0]):
     for i in np.arange(0, hic_half_l.shape[1]-dis):
         hic_lr.append(np.block([[hic_half_l[i,i], hic_half_l[i,i+dis]],[hic_half_l[i+dis,i], hic_half_l[i+dis,i+dis]]]))
-print('len hic_lr: ', len(hic_lr))
+print('len hic_lr: ', len(hic_lr))"""
+
+hic_lr = divide_pieces_hic(Ml, block_size=len_size, save_file=True)
+with np.load('./datasets_hic.npz', allow_pickle=True) as data:
+    a = data['hic']
+    b = data['index_1D_2D']
+    c = data['index_2D_1D']
+    h = merge_hic(a, b)
 
 hic_hr = []
 IMG_HEIGHT, IMG_WIDTH = int(len_size), int(len_size)
@@ -72,7 +80,7 @@ for dis in np.arange(1, hic_half_h.shape[0]):
 print('len hic_hr: ', len(hic_hr))
 
 
-EPOCHS = 3000
+EPOCHS = 0
 BUFFER_SIZE = 1
 BATCH_SIZE = 9
 

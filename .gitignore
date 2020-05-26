@@ -16,3 +16,4 @@ saved_model/*
 D1.png
 draft.drawio
 utils/__pycache__/operations.cpython-37.pyc
+datasets_hic.npz
