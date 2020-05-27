@@ -13,7 +13,7 @@ tf.keras.backend.set_floatx('float32')
 # get generator model
 time = '20200525-121741'
 filepath = './saved_model/'+time + '/gen_model'
-Generator = tf.keras.models.load_model(filepath)
+#Generator = tf.keras.models.load_model(filepath)
 
 # data from ftp://cooler.csail.mit.edu/coolers/hg19/
 name = 'Dixon2012-H1hESC-HindIII-allreps-filtered.10kb.cool'
@@ -23,7 +23,7 @@ resolution = c.binsize
 mat = c.matrix(balance=True).fetch('chr22')
 
 [Mh, _] = operations.remove_zeros(mat)
-Mh = Mh[0:500, 0:500]
+Mh = Mh[0:128, 0:128]
 print('MH: ', Mh.shape)
 
 scale = 4
@@ -51,7 +51,7 @@ print('shape hic_lr: ', hic_lr.shape)
     h = merge_hic(a, b)'''
 
 true_hic_hr = hic_hr
-[_, _, _, predict_hic_hr, _, _, _] = Generator(
+"""[_, _, _, predict_hic_hr, _, _, _] = Generator(
     hic_lr[..., np.newaxis], training=False)
 print(true_hic_hr.shape)
 print(predict_hic_hr.shape)
@@ -66,14 +66,15 @@ for img in predict_data_lr.take(2):
     print(predict_hic_hr.shape)
 '''
 
-predict_hic_hr = list(np.squeeze(predict_hic_hr, axis=-1))
+predict_hic_hr = list(np.squeeze(predict_hic_hr, axis=-1))"""
 predict_hic_hr_merge = operations.merge_hic(
     true_hic_hr, index_1D_2D=index_1d_2d)
 print('merge predict hic hr', predict_hic_hr_merge.shape)
 
 # crop Mh
 residual = Mh.shape[0] % int(len_size/2)
-Mh = Mh[0:-residual, 0:-residual]
+if residual > 0:
+    Mh = Mh[0:-residual, 0:-residual]
 print('sum Mh:', np.sum(np.abs(Mh)))
 print('sum merge:', np.sum(np.abs(predict_hic_hr_merge)))
 print('sum diff: {:.3}, rate {:.3}'.format(np.sum(np.abs(
