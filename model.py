@@ -211,40 +211,40 @@ def make_generator_model(len_high_size=128, scale=4):
         pool_size=(2, 2), strides=2, padding='valid', name='p_x8')(low_x4)
 
     dsd_x8 = block_downsample_decomposition(
-        len_low_size_x8, 8, 64, name='dsd_x8')
+        len_low_size_x8, 8, 512, name='dsd_x8')
     rech_x8 = dsd_x8(inp)
-    r1c = block_rank1channels_convolution(filters=32, name='r1c_x8')
+    r1c = block_rank1channels_convolution(filters=20, name='r1c_x8')
     sym_x8 = r1c(rech_x8)
     r1e = block_rank1_estimation(dims=len_low_size_x8, name='r1e_x8')
     out_low_x8 = r1e(rech_x8)
 
-    usc_x8 = block_upsample_convolution(32, 2, name='usc_x8')
+    usc_x8 = block_upsample_convolution(20, 2, name='usc_x8')
     sym_x8 = usc_x8(sym_x8)
 
     dsd_x4 = block_downsample_decomposition(
-        len_low_size_x4, 4, 512, name='dsd_x4')
+        len_low_size_x4, 4, 1024, name='dsd_x4')
     rech_x4 = dsd_x4(inp)
-    r1c = block_rank1channels_convolution(filters=64, name='r1c_x4')
+    r1c = block_rank1channels_convolution(filters=40, name='r1c_x4')
     sym_x4 = r1c(rech_x4)
     r1e = block_rank1_estimation(dims=len_low_size_x4, name='r1e_x4')
     out_low_x4 = r1e(rech_x4)
 
     concat = tf.keras.layers.concatenate([sym_x8, sym_x4], axis=-1)
 
-    usc_x4 = block_upsample_convolution(64, 2, name='usc_x4')
+    usc_x4 = block_upsample_convolution(40, 2, name='usc_x4')
     sym_x4 = usc_x4(concat)
 
     dsd_x2 = block_downsample_decomposition(
-        len_low_size_x2, 2, 1024, name='dsd_x2')
+        len_low_size_x2, 2, 2048, name='dsd_x2')
     rech_x2 = dsd_x2(inp)
-    r1c_x2 = block_rank1channels_convolution(filters=128, name='r1c_x2')
+    r1c_x2 = block_rank1channels_convolution(filters=80, name='r1c_x2')
     sym_x2 = r1c_x2(rech_x2)
     r1e_x2 = block_rank1_estimation(dims=len_low_size_x2, name='r1e_x2')
     out_low_x2 = r1e_x2(rech_x2)
 
     concat = tf.keras.layers.concatenate([sym_x4, sym_x2], axis=-1)
 
-    usc_x2 = block_upsample_convolution(128, 2, name='usc_x2')
+    usc_x2 = block_upsample_convolution(160, 2, name='usc_x2')
     sym = usc_x2(concat)
 
     Sumh = tf.keras.layers.Conv2D(filters=1, kernel_size=(1, 1),
@@ -294,48 +294,48 @@ def make_discriminator_model(len_high_size=128, scale=4):
         shape=(len_high_size, len_high_size, 1), name='in', dtype=tf.float32)
 
     b_r1dr = block_rank1_decompose_reconstruct(
-        len_size=len_x1, filters_decompose=512, name='r1dr_x1')
+        len_size=len_x1, filters_decompose=1024, name='r1dr_x1')
     r1dr_x1 = b_r1dr(inp)
-    b_dc = block_down_convolution(filters=128, name='dc_x1')
+    b_dc = block_down_convolution(filters=80, name='dc_x1')
     dc_x1 = b_dc(r1dr_x1)
 
     ratio = 2
     dp_x2 = Downpixel(r=ratio, name='dp_x2')(inp)
     b_r1dr = block_rank1_decompose_reconstruct(
-        len_size=len_x2, filters_decompose=256, name='r1dr_x2')
+        len_size=len_x2, filters_decompose=512, name='r1dr_x2')
     r1dr_x2 = b_r1dr(dp_x2)
-    b_r1c = block_rank1channels_convolution(filters=64, name='r1c_x2')
+    b_r1c = block_rank1channels_convolution(filters=40, name='r1c_x2')
     r1c_x2 = b_r1c(r1dr_x2)
 
     concat_x1_x2 = tf.keras.layers.Concatenate()([r1c_x2, dc_x1])
-    b_dc = block_down_convolution(filters=64, name='dc_x2')
+    b_dc = block_down_convolution(filters=120, name='dc_x2')
     dc_x2 = b_dc(concat_x1_x2)
 
     ratio = 4
     dp_x4 = Downpixel(r=ratio, name='dp_x4')(inp)
     b_r1dr = block_rank1_decompose_reconstruct(
-        len_size=len_x4, filters_decompose=128, name='r1dr_x4')
+        len_size=len_x4, filters_decompose=256, name='r1dr_x4')
     r1dr_x4 = b_r1dr(dp_x4)
-    b_r1c = block_rank1channels_convolution(filters=32, name='r1c_x4')
+    b_r1c = block_rank1channels_convolution(filters=20, name='r1c_x4')
     r1c_x4 = b_r1c(r1dr_x4)
 
     concat_x2_x4 = tf.keras.layers.Concatenate()([r1c_x4, dc_x2])
-    b_dc = block_down_convolution(filters=32, name='dc_x4')
+    b_dc = block_down_convolution(filters=60, name='dc_x4')
     dc_x4 = b_dc(concat_x2_x4)
 
     ratio = 8
     dp_x8 = Downpixel(r=ratio, name='dp_x8')(inp)
     b_r1dr = block_rank1_decompose_reconstruct(
-        len_size=len_x8, filters_decompose=64, name='r1dr_x8')
+        len_size=len_x8, filters_decompose=128, name='r1dr_x8')
     r1dr_x8 = b_r1dr(dp_x8)
-    b_r1c = block_rank1channels_convolution(filters=16, name='r1c_x8')
+    b_r1c = block_rank1channels_convolution(filters=10, name='r1c_x8')
     r1c_x8 = b_r1c(r1dr_x8)
 
     concat_x4_x8 = tf.keras.layers.Concatenate()([r1c_x8, dc_x4])
-    b_dc = block_down_convolution(filters=16, name='dc_x8')
+    b_dc = block_down_convolution(filters=80, name='dc_x8')
     dc_x8 = b_dc(concat_x4_x8)
 
-    conv = tf.keras.layers.Conv2D(filters=8, kernel_size=(
+    conv = tf.keras.layers.Conv2D(filters=80, kernel_size=(
         1, 1), strides=1, padding='same')(dc_x8)
     conv = tf.keras.layers.Flatten()(conv)
     last = tf.keras.layers.Dense(1, activation=None)(conv)
@@ -724,12 +724,12 @@ def plot_to_image(figure):
 
 
 if __name__ == '__main__':
-    Gen = make_generator_model(len_high_size=128, scale=4)
-    Dis = make_discriminator_model(len_high_size=128, scale=4)
+    Gen = make_generator_model(len_high_size=40, scale=4)
+    Dis = make_discriminator_model(len_high_size=40, scale=4)
     print(Gen.summary())
     tf.keras.utils.plot_model(Gen, to_file='G.png', show_shapes=True)
     print(Dis.summary())
     tf.keras.utils.plot_model(Dis, to_file='D.png', show_shapes=True)
 
-    Gen.save('./saved_model/gen_model')
-    Dis.save('./saved_model/dis_model')
+    #Gen.save('./saved_model/gen_model')
+    #Dis.save('./saved_model/dis_model')
