@@ -85,7 +85,8 @@ if __name__ == '__main__':
     input_file = raw_hic.split('-')[0] + '_' + raw_hic.split('.')[1]
     output_path = 'output'
     output_file = input_file
-    chromosome_list = ['22']
+    #'1' '2' '3' '4' '5' '6' '7' '8' '9' '10' '11' '12' '13' '14' '15' '16' '17' '18' '19' '20' '21' '22' 'X'
+    chromosome_list = ['1' '22' 'X']
     hr_file_list = []
 
     for chri in chromosome_list:

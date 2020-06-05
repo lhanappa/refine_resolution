@@ -601,7 +601,7 @@ def train(gen, dis, dataset, epochs, len_high_size, scale, test_dataset=None):
                                          loss_filter=[loss_filter_high],
                                          opts=[discriminator_optimizer], train_logs=[discriminator_log])
         # log the model epochs
-        if epoch % 500 == 0:
+        if epoch % 500 == 0 or epoch==(epochs-1):
             gen.save('./saved_model/'+current_time+'/gen_model')
             dis.save('./saved_model/'+current_time+'/dis_model')
 
