@@ -18,3 +18,4 @@ draft.drawio
 utils/__pycache__/operations.cpython-37.pyc
 datasets_hic.npz
 test_*.ipynb
+data/input/Dixon2012_10kb/*
