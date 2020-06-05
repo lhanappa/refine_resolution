@@ -5,15 +5,22 @@ from iced import normalization
 import cooler
 import numpy as np
 import copy
+import os
 
+import model
 from utils import operations
 import tensorflow as tf
 tf.keras.backend.set_floatx('float32')
 
 # get generator model
-time = '20200525-121741'
-filepath = './saved_model/'+time + '/gen_model'
-#Generator = tf.keras.models.load_model(filepath)
+filepath = './saved_model/gen_model'
+entries = os.listdir(filepath)
+
+if 'saved_model.pb' in entries:
+    Generator = tf.keras.models.load_model(filepath)
+else:
+    Generator = model.make_generator_model()
+
 
 # data from ftp://cooler.csail.mit.edu/coolers/hg19/
 name = 'Dixon2012-H1hESC-HindIII-allreps-filtered.10kb.cool'
@@ -23,7 +30,7 @@ resolution = c.binsize
 mat = c.matrix(balance=True).fetch('chr22')
 
 [Mh, _] = operations.remove_zeros(mat)
-Mh = Mh[0:128, 0:128]
+Mh = Mh[0:512, 0:512]
 print('MH: ', Mh.shape)
 
 scale = 4
@@ -32,8 +39,8 @@ print('ML: ', Ml.shape)
 
 # Normalization
 # the input should not be type of np.matrix!
-Ml = normalization.SCN_normalization(Ml, max_iter=3000)
-Mh = normalization.SCN_normalization(Mh, max_iter=3000)
+Ml = normalization.SCN_normalization(np.asarray(Ml), max_iter=3000)
+Mh = normalization.SCN_normalization(np.asarray(Mh), max_iter=3000)
 
 len_size = 128
 hic_hr, index_1d_2d, _ = operations.divide_pieces_hic(
@@ -51,8 +58,7 @@ print('shape hic_lr: ', hic_lr.shape)
     h = merge_hic(a, b)'''
 
 true_hic_hr = hic_hr
-"""[_, _, _, predict_hic_hr, _, _, _] = Generator(
-    hic_lr[..., np.newaxis], training=False)
+[_, _, _, predict_hic_hr, _, _, _] = Generator(hic_lr[..., np.newaxis], training=False)
 print(true_hic_hr.shape)
 print(predict_hic_hr.shape)
 
@@ -66,9 +72,9 @@ for img in predict_data_lr.take(2):
     print(predict_hic_hr.shape)
 '''
 
-predict_hic_hr = list(np.squeeze(predict_hic_hr, axis=-1))"""
-predict_hic_hr_merge = operations.merge_hic(
-    true_hic_hr, index_1D_2D=index_1d_2d)
+predict_hic_hr = np.squeeze(predict_hic_hr.numpy(), axis=3)
+print(predict_hic_hr.shape)
+predict_hic_hr_merge = operations.merge_hic( predict_hic_hr, index_1D_2D=index_1d_2d)
 print('merge predict hic hr', predict_hic_hr_merge.shape)
 
 # crop Mh
@@ -82,9 +88,9 @@ print('sum diff: {:.3}, rate {:.3}'.format(np.sum(np.abs(
 
 
 fig, axs = plt.subplots(1, 2, figsize=(8, 15))
-axs[0].imshow(np.log1p(predict_hic_hr_merge), cmap='RdBu_r')
+axs[0].imshow(np.log1p(100*predict_hic_hr_merge), cmap='RdBu_r')
 axs[0].set_title('predict')
-axs[1].imshow(np.log1p(Mh), cmap='RdBu_r')
+axs[1].imshow(np.log1p(100*Mh), cmap='RdBu_r')
 axs[1].set_title('true')
 plt.tight_layout()
 plt.show()

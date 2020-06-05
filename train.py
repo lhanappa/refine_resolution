@@ -21,11 +21,11 @@ name = 'Dixon2012-H1hESC-HindIII-allreps-filtered.10kb.cool'
 #name = 'Rao2014-K562-MboI-allreps-filtered.500kb.cool'
 c = cooler.Cooler(name)
 resolution = c.binsize
-mat = c.matrix(balance=True).fetch('chr2')
+mat = c.matrix(balance=True).fetch('chr20')
 idxy = ~np.all(np.isnan(mat), axis=0)
 M = mat[idxy, :]
 Mh = M[:, idxy]
-Mh = np.asarray(Mh[0:4096, 0:4096])
+#Mh = np.asarray(Mh[0:256, 0:256])
 print('MH: ', Mh.shape)
 
 scale = 4
@@ -40,7 +40,7 @@ Mh = normalization.SCN_normalization(Mh, max_iter=3000)
 
 len_size = 128
 
-hic_lr = divide_pieces_hic(Ml, block_size=len_size, save_file=False)
+hic_lr,_,_ = divide_pieces_hic(Ml, block_size=len_size, save_file=False)
 """with np.load('./datasets_hic.npz', allow_pickle=True) as data:
     a = data['hic']
     b = data['index_1D_2D']
@@ -48,7 +48,7 @@ hic_lr = divide_pieces_hic(Ml, block_size=len_size, save_file=False)
     h = merge_hic(a, b)"""
 
 
-hic_hr = divide_pieces_hic(Mh, block_size=len_size, save_file=False)
+hic_hr,_,_ = divide_pieces_hic(Mh, block_size=len_size, save_file=False)
 hic_lr = np.asarray(hic_lr)
 hic_hr = np.asarray(hic_hr)
 
@@ -56,12 +56,10 @@ EPOCHS = 2000
 BUFFER_SIZE = 1
 BATCH_SIZE = 9
 
-hic_lr = np.asarray(hic_lr)
-hic_hr = np.asarray(hic_hr)
-train_data = tf.data.Dataset.from_tensor_slices(
-    (hic_lr[0::2, ..., np.newaxis], hic_hr[0::2, ..., np.newaxis])).batch(BATCH_SIZE)
-test_data = tf.data.Dataset.from_tensor_slices(
-    (hic_lr[1::2, ..., np.newaxis], hic_hr[1::2, ..., np.newaxis])).batch(BATCH_SIZE)
+hic_lr = np.asarray(hic_lr).astype(np.float32)
+hic_hr = np.asarray(hic_hr).astype(np.float32)
+train_data = tf.data.Dataset.from_tensor_slices((hic_lr[..., np.newaxis], hic_hr[..., np.newaxis])).batch(BATCH_SIZE)
+test_data = tf.data.Dataset.from_tensor_slices((hic_lr[-9:, ..., np.newaxis], hic_hr[-9:, ..., np.newaxis])).batch(BATCH_SIZE)
 
 Gen = model.make_generator_model(len_high_size=len_size, scale=scale)
 Dis = model.make_discriminator_model(len_high_size=len_size, scale=scale)
