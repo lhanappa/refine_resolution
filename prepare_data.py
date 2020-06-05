@@ -19,7 +19,7 @@ def configure():
     resolution = None  # assigned by cooler binsizes
     scale = 4
     len_size = 40
-    block_size = 256  # number of entries in one file
+    block_size = 2048  # number of entries in one file
 
     # load raw hic matrix
     file = os.path.join(data_path, raw_path, raw_hic)
@@ -41,7 +41,7 @@ def save_samples(configure=None, chromosome=None):
     chromosome = 'chr' + chromosome
     mat = cool_hic.matrix(balance=True).fetch(chromosome)
     Mh, _ = operations.remove_zeros(mat)
-    Mh = Mh[0:512, 0:512]
+    #Mh = Mh[0:512, 0:512]
     print('MH: ', Mh.shape)
     Ml = operations.sampling_hic(Mh, scale**2, fix_seed=True)
     print('ML: ', Ml.shape)
