@@ -38,7 +38,7 @@ def divide_pieces_hic(hic_matrix, block_size=128, save_file=False, pathfile=None
     hic_half_h = np.array(M_d1)
     if M_h%block_height!=0 or M_w%block_width!=0:
         hic_half_h = hic_half_h[0:-1, 0:-1]
-    print('shape of hic matrix: ', hic_half_h.shape)
+    print('shape of blocks: ', hic_half_h.shape)
 
     hic_m = list()
     hic_index = dict()

@@ -21,7 +21,7 @@ name = 'Dixon2012-H1hESC-HindIII-allreps-filtered.10kb.cool'
 #name = 'Rao2014-K562-MboI-allreps-filtered.500kb.cool'
 c = cooler.Cooler(name)
 resolution = c.binsize
-mat = c.matrix(balance=True).fetch('chr20')
+mat = c.matrix(balance=True).fetch('chr10')
 idxy = ~np.all(np.isnan(mat), axis=0)
 M = mat[idxy, :]
 Mh = M[:, idxy]

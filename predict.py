@@ -27,10 +27,10 @@ name = 'Dixon2012-H1hESC-HindIII-allreps-filtered.10kb.cool'
 #name = 'Rao2014-K562-MboI-allreps-filtered.500kb.cool'
 c = cooler.Cooler(name)
 resolution = c.binsize
-mat = c.matrix(balance=True).fetch('chr22')
+mat = c.matrix(balance=True).fetch('chr2')
 
 [Mh, _] = operations.remove_zeros(mat)
-Mh = Mh[0:512, 0:512]
+Mh = Mh[10000:10000+256, 10000:10000+256]
 print('MH: ', Mh.shape)
 
 scale = 4
@@ -58,40 +58,36 @@ print('shape hic_lr: ', hic_lr.shape)
     h = merge_hic(a, b)'''
 
 true_hic_hr = hic_hr
-[_, _, _, predict_hic_hr, _, _, _] = Generator(hic_lr[..., np.newaxis], training=False)
 print(true_hic_hr.shape)
-print(predict_hic_hr.shape)
-
-'''
-BUFFER_SIZE = 1
-BATCH_SIZE = 9
-predict_data_lr = tf.data.Dataset.from_tensor_slices(hic_lr[..., np.newaxis]).batch(BATCH_SIZE)
-true_hic_hr = tf.data.Dataset.from_tensor_slices(hic_hr[..., np.newaxis]).batch(BATCH_SIZE)
-for img in predict_data_lr.take(2):
-    [_,_,_,predict_hic_hr,_,_,_] = Generator(img, training=False)
-    print(predict_hic_hr.shape)
-'''
-
+[_, _, _, predict_hic_hr, _, _, _] = Generator(hic_lr[..., np.newaxis], training=False)
 predict_hic_hr = np.squeeze(predict_hic_hr.numpy(), axis=3)
 print(predict_hic_hr.shape)
+
 predict_hic_hr_merge = operations.merge_hic( predict_hic_hr, index_1D_2D=index_1d_2d)
+predict_hic_hr_merge = normalization.SCN_normalization(predict_hic_hr_merge, max_iter=3000)
 print('merge predict hic hr', predict_hic_hr_merge.shape)
 
 # crop Mh
 residual = Mh.shape[0] % int(len_size/2)
 if residual > 0:
     Mh = Mh[0:-residual, 0:-residual]
+
+diag = np.ones(Mh.shape) - np.diag(np.ones(Mh.shape[0])) - np.diag(np.ones(Mh.shape[0]-1), k=1) - np.diag(np.ones(Mh.shape[0]-1), k=-1)
+Mh = Mh*diag
+predict_hic_hr_merge = predict_hic_hr_merge*diag
 print('sum Mh:', np.sum(np.abs(Mh)))
 print('sum merge:', np.sum(np.abs(predict_hic_hr_merge)))
-print('sum diff: {:.3}, rate {:.3}'.format(np.sum(np.abs(
-    Mh-predict_hic_hr_merge)), np.sum(np.abs(Mh-predict_hic_hr_merge))/np.sum(np.abs(Mh))))
+diff = np.abs(Mh-predict_hic_hr_merge)
+print('sum diff: {:.5}'.format(np.sum(diff**2)))
 
 
 fig, axs = plt.subplots(1, 2, figsize=(8, 15))
-axs[0].imshow(np.log1p(100*predict_hic_hr_merge), cmap='RdBu_r')
+ax = axs[0].imshow(np.log1p(1000*predict_hic_hr_merge), cmap='RdBu_r')
 axs[0].set_title('predict')
-axs[1].imshow(np.log1p(100*Mh), cmap='RdBu_r')
+
+ax = axs[1].imshow(np.log1p(1000*Mh), cmap='RdBu_r')
 axs[1].set_title('true')
+
 plt.tight_layout()
 plt.show()
 
