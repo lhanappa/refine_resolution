@@ -93,6 +93,6 @@ def save_samples(configure=None, chromosome=None):
 
 if __name__ == '__main__':
     config = configure()
-    chromosome_list = str(sys.argv[1])
+    chromosome_list = [str(sys.argv[1])]
     for chri in chromosome_list:
         save_samples(config, chromosome=chri)
