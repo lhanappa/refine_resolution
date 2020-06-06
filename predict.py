@@ -29,7 +29,7 @@ resolution = c.binsize
 mat = c.matrix(balance=True).fetch('chr20')
 
 [Mh, _] = operations.remove_zeros(mat)
-Mh = Mh[1000:1000+256, 1000:1000+256]
+Mh = Mh[0:400, 0:400]
 print('MH: ', Mh.shape)
 
 scale = 4

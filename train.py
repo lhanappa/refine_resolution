@@ -86,7 +86,7 @@ if __name__ == '__main__':
     output_path = 'output'
     output_file = input_file
     #'1' '2' '3' '4' '5' '6' '7' '8' '9' '10' '11' '12' '13' '14' '15' '16' '17' '18' '19' '20' '21' '22' 'X'
-    chromosome_list = ['1', '22', 'X']
+    chromosome_list = ['22']
     hr_file_list = []
 
     for chri in chromosome_list:
@@ -95,18 +95,19 @@ if __name__ == '__main__':
             if file.endswith(".npz"):
                 pathfile = os.path.join(path, file)
                 hr_file_list.append(pathfile)
-                print(pathfile)
 
     for hr_file in hr_file_list:
+        print(hr_file)
         with np.load(hr_file, allow_pickle=True) as data:
             hic_hr = data['hic']
         lr_file = hr_file.replace('HR', 'LR')
+        print(lr_file)
         with np.load(lr_file, allow_pickle=True) as data:
             hic_lr = data['hic']
         
         hic_lr = np.asarray(hic_lr).astype(np.float32)
         hic_hr = np.asarray(hic_hr).astype(np.float32)
         train_data = tf.data.Dataset.from_tensor_slices((hic_lr[..., np.newaxis], hic_hr[..., np.newaxis])).batch(BATCH_SIZE)
-        test_data = tf.data.Dataset.from_tensor_slices((hic_lr[1:90:10, ..., np.newaxis], hic_hr[1:90:10, ..., np.newaxis])).batch(BATCH_SIZE)
+        test_data = tf.data.Dataset.from_tensor_slices((hic_lr[0:9, ..., np.newaxis], hic_hr[0:9, ..., np.newaxis])).batch(BATCH_SIZE)
         print(train_data)
         run(train_data=train_data, test_data=test_data, len_size=len_size, scale=scale, EPOCHS=EPOCHS)
