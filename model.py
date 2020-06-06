@@ -357,7 +357,7 @@ def generator_bce_loss(d_pred):
 
 
 def generator_ssim_loss(y_pred, y_true):  # , m_filter):
-    return (1 - tf.image.ssim(y_pred, y_true, max_val=1.0))/2.0
+    return (1 - tf.image.ssim(y_pred, y_true, max_val=1.0, filter_size=4))/2.0
 
 
 def generator_mse_loss(y_pred, y_true):  # , m_filter):

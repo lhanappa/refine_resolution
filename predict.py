@@ -15,7 +15,6 @@ tf.keras.backend.set_floatx('float32')
 # get generator model
 filepath = './saved_model/gen_model'
 entries = os.listdir(filepath)
-
 if 'saved_model.pb' in entries:
     Generator = tf.keras.models.load_model(filepath)
 else:
@@ -23,14 +22,14 @@ else:
 
 
 # data from ftp://cooler.csail.mit.edu/coolers/hg19/
-name = 'Dixon2012-H1hESC-HindIII-allreps-filtered.10kb.cool'
+name = './data/raw/Dixon2012-H1hESC-HindIII-allreps-filtered.10kb.cool'
 #name = 'Rao2014-K562-MboI-allreps-filtered.500kb.cool'
 c = cooler.Cooler(name)
 resolution = c.binsize
-mat = c.matrix(balance=True).fetch('chr2')
+mat = c.matrix(balance=True).fetch('chr20')
 
 [Mh, _] = operations.remove_zeros(mat)
-Mh = Mh[10000:10000+256, 10000:10000+256]
+Mh = Mh[1000:1000+256, 1000:1000+256]
 print('MH: ', Mh.shape)
 
 scale = 4
@@ -67,7 +66,7 @@ predict_hic_hr_merge = operations.merge_hic( predict_hic_hr, index_1D_2D=index_1
 predict_hic_hr_merge = normalization.SCN_normalization(predict_hic_hr_merge, max_iter=3000)
 print('merge predict hic hr', predict_hic_hr_merge.shape)
 
-# crop Mh
+# chrop Mh
 residual = Mh.shape[0] % int(len_size/2)
 if residual > 0:
     Mh = Mh[0:-residual, 0:-residual]
