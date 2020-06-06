@@ -531,8 +531,8 @@ def train(gen, dis, dataset, epochs, len_high_size, scale, test_dataset=None):
         tf.summary.trace_export(name="model_gen_trace",
                                 step=0, profiler_outdir=train_log_dir)
     tf.summary.trace_on(graph=True, profiler=False)
-    tracegraph([tf.zeros((1, len_high_size, len_high_size, 1)),
-                tf.zeros((1, len_high_size, len_high_size, 1))], dis)
+
+    tracegraph(tf.zeros((1, len_high_size, len_high_size, 1)), dis)
     with writer.as_default():
         tf.summary.trace_export(name="model_dis_trace",
                                 step=0, profiler_outdir=train_log_dir)
