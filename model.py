@@ -522,7 +522,7 @@ def train(gen, dis, dataset, epochs, len_high_size, scale, test_dataset=None):
     test_log_dir = 'logs/model/' + current_time + '/test'
     test_writer = tf.summary.create_file_writer(test_log_dir)
 
-    train_log_dir = 'logs/model/' + current_time + '/model'
+    '''train_log_dir = 'logs/model/' + current_time + '/model'
     writer = tf.summary.create_file_writer(train_log_dir)
     tf.summary.trace_on(graph=True, profiler=False)
     # Forward pass
@@ -535,7 +535,7 @@ def train(gen, dis, dataset, epochs, len_high_size, scale, test_dataset=None):
     tracegraph(tf.zeros((1, len_high_size, len_high_size, 1)), dis)
     with writer.as_default():
         tf.summary.trace_export(name="model_dis_trace",
-                                step=0, profiler_outdir=train_log_dir)
+                                step=0, profiler_outdir=train_log_dir)'''
 
     with test_writer.as_default():
         [_, (test_input_low, test_input_high)] = next(
