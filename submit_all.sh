@@ -1,6 +1,6 @@
 #!/bin/bash
 
-rm slurm-*.out
+rm training-*.out
 rm tfboard-*.out
 
 echo training
