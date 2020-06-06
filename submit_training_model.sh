@@ -8,7 +8,7 @@
 ####SBATCH -p wmalab
 #SBATCH -p gpu # This is the default partition, you can use any of the following; intel, batch, highmem, gpu
 #SBATCH --gres=gpu:k80:1
-#SBATCH --output=training-%J.out
+#SBATCH --output=slurm-train-%J.out
 
 # Print current date
 date

@@ -1,7 +1,7 @@
 #!/bin/bash
 
-rm training-*.out
-rm tfboard-*.out
+rm slurm-train-*.out
+rm slurm-tfboard-*.out
 
 echo training
 sbatch ./submit_training_model.sh

@@ -211,40 +211,40 @@ def make_generator_model(len_high_size=128, scale=4):
         pool_size=(2, 2), strides=2, padding='valid', name='p_x8')(low_x4)
 
     dsd_x8 = block_downsample_decomposition(
-        len_low_size_x8, 8, 512, name='dsd_x8')
+        len_low_size_x8, 8, 256, name='dsd_x8')
     rech_x8 = dsd_x8(inp)
-    r1c = block_rank1channels_convolution(filters=20, name='r1c_x8')
+    r1c = block_rank1channels_convolution(filters=32, name='r1c_x8')
     sym_x8 = r1c(rech_x8)
     r1e = block_rank1_estimation(dims=len_low_size_x8, name='r1e_x8')
     out_low_x8 = r1e(rech_x8)
 
-    usc_x8 = block_upsample_convolution(20, 2, name='usc_x8')
+    usc_x8 = block_upsample_convolution(16, 2, name='usc_x8')
     sym_x8 = usc_x8(sym_x8)
 
     dsd_x4 = block_downsample_decomposition(
-        len_low_size_x4, 4, 1024, name='dsd_x4')
+        len_low_size_x4, 4, 512, name='dsd_x4')
     rech_x4 = dsd_x4(inp)
-    r1c = block_rank1channels_convolution(filters=40, name='r1c_x4')
+    r1c = block_rank1channels_convolution(filters=128, name='r1c_x4')
     sym_x4 = r1c(rech_x4)
     r1e = block_rank1_estimation(dims=len_low_size_x4, name='r1e_x4')
     out_low_x4 = r1e(rech_x4)
 
     concat = tf.keras.layers.concatenate([sym_x8, sym_x4], axis=-1)
 
-    usc_x4 = block_upsample_convolution(40, 2, name='usc_x4')
+    usc_x4 = block_upsample_convolution(64, 2, name='usc_x4')
     sym_x4 = usc_x4(concat)
 
     dsd_x2 = block_downsample_decomposition(
-        len_low_size_x2, 2, 2048, name='dsd_x2')
+        len_low_size_x2, 2, 1024, name='dsd_x2')
     rech_x2 = dsd_x2(inp)
-    r1c_x2 = block_rank1channels_convolution(filters=80, name='r1c_x2')
+    r1c_x2 = block_rank1channels_convolution(filters=256, name='r1c_x2')
     sym_x2 = r1c_x2(rech_x2)
     r1e_x2 = block_rank1_estimation(dims=len_low_size_x2, name='r1e_x2')
     out_low_x2 = r1e_x2(rech_x2)
 
     concat = tf.keras.layers.concatenate([sym_x4, sym_x2], axis=-1)
 
-    usc_x2 = block_upsample_convolution(160, 2, name='usc_x2')
+    usc_x2 = block_upsample_convolution(40, 2, name='usc_x2')
     sym = usc_x2(concat)
 
     Sumh = tf.keras.layers.Conv2D(filters=1, kernel_size=(1, 1),
@@ -294,7 +294,7 @@ def make_discriminator_model(len_high_size=128, scale=4):
         shape=(len_high_size, len_high_size, 1), name='in', dtype=tf.float32)
 
     b_r1dr = block_rank1_decompose_reconstruct(
-        len_size=len_x1, filters_decompose=1024, name='r1dr_x1')
+        len_size=len_x1, filters_decompose=512, name='r1dr_x1')
     r1dr_x1 = b_r1dr(inp)
     b_dc = block_down_convolution(filters=80, name='dc_x1')
     dc_x1 = b_dc(r1dr_x1)
@@ -419,9 +419,9 @@ def train_step_generator(Gen, Dis, imgl, imgr, loss_filter, loss_weights, opts, 
         gen_loss_low_mse_x8 = generator_mse_loss(fake_hic_l_x8, imgl_x8_filter)
 
         gen_loss_low_ssim = (gen_loss_low_ssim_x8*1.0 +
-                             gen_loss_low_ssim_x4*2.0 + gen_loss_low_ssim_x2*4.0)/7.0
+                             gen_loss_low_ssim_x4*4.0 + gen_loss_low_ssim_x2*16.0)/21.0
         gen_loss_low_mse = (gen_loss_low_mse_x8*1.0 +
-                            gen_loss_low_mse_x4*2.0 + gen_loss_low_mse_x2*4.0)/7.0
+                            gen_loss_low_mse_x4*4.0 + gen_loss_low_mse_x2*16.0)/21.0
 
         gen_loss_low = gen_loss_low_ssim + gen_loss_low_mse
         gradients_of_generator_low = x.gradient(gen_loss_low, gen_low_v)
