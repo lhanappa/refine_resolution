@@ -605,7 +605,7 @@ def train(gen, dis, dataset, epochs, len_high_size, scale, test_dataset=None):
             gen.save('./saved_model/'+current_time+'/gen_model')
             dis.save('./saved_model/'+current_time+'/dis_model')
 
-        if (epoch+1) % 10 == 0:
+        if (epoch) % 10 == 0:
             [dpl_x2, dpl_x4, dpl_x8, dph, _, _, _] = gen(
                 demo_input_low, training=False)
             #demo_disc_generated = dis([demo_pred_high, demo_up], training=False)
