@@ -371,7 +371,7 @@ def generator_mse_loss(y_pred, y_true):  # , m_filter):
 @tf.function
 def train_step_generator(Gen, Dis, imgl, imgr, loss_filter, loss_weights, opts, train_logs):
     #[out_low_x2, out_low_x4, out_low_x8, high_out, low_x2, low_x4, low_x8]
-    with tf.GradientTape() as x, tf.GradientTape() as gen_tape_high:
+    with tf.GradientTape() as x:
         fake_hic = Gen(imgl, training=True)
 
         fake_hic_l_x2 = fake_hic[0]
@@ -423,12 +423,12 @@ def train_step_generator(Gen, Dis, imgl, imgr, loss_filter, loss_weights, opts, 
         gen_loss_low_mse = (gen_loss_low_mse_x8*1.0 +
                             gen_loss_low_mse_x4*4.0 + gen_loss_low_mse_x2*16.0)/21.0
 
-        gen_loss_low = gen_loss_low_ssim + gen_loss_low_mse
-        gradients_of_generator_low = x.gradient(gen_loss_low, gen_low_v)
-        opts[0].apply_gradients(zip(gradients_of_generator_low, gen_low_v))
-
-        train_logs[0](gen_loss_low_ssim)
-        train_logs[1](gen_loss_low_mse)
+    gen_loss_low = gen_loss_low_ssim + gen_loss_low_mse
+    gradients_of_generator_low = x.gradient(gen_loss_low, gen_low_v)
+    opts[0].apply_gradients(zip(gradients_of_generator_low, gen_low_v))
+    train_logs[0](gen_loss_low_ssim)
+    train_logs[1](gen_loss_low_mse)
+    with tf.GradientTape() as gen_tape_high:
 
         fake_hic_h = fake_hic[3]
         mfilter_high = tf.expand_dims(loss_filter[3], axis=0)
@@ -454,12 +454,12 @@ def train_step_generator(Gen, Dis, imgl, imgr, loss_filter, loss_weights, opts, 
         gen_loss_high = gen_loss_high_0 * loss_weights[0] + \
             gen_loss_high_1 * loss_weights[1] + \
             gen_loss_high_2*loss_weights[2]
-        gradients_of_generator_high = gen_tape_high.gradient(
+    gradients_of_generator_high = gen_tape_high.gradient(
             gen_loss_high, gen_high_v)
-        opts[1].apply_gradients(zip(gradients_of_generator_high, gen_high_v))
-        train_logs[2](gen_loss_high_0)
-        train_logs[3](gen_loss_high_1)
-        train_logs[4](gen_loss_high_2)
+    opts[1].apply_gradients(zip(gradients_of_generator_high, gen_high_v))
+    train_logs[2](gen_loss_high_0)
+    train_logs[3](gen_loss_high_1)
+    train_logs[4](gen_loss_high_2)
 
 
 @tf.function
@@ -479,11 +479,11 @@ def train_step_discriminator(Gen, Dis, imgl, imgr, loss_filter, opts, train_logs
         disc_real_output = Dis(imgr_filter, training=True)
         disc_loss = discriminator_bce_loss(
             disc_real_output, disc_generated_output)
-        discriminator_gradients = disc_tape.gradient(
+    discriminator_gradients = disc_tape.gradient(
             disc_loss, Dis.trainable_variables)
-        opts[0].apply_gradients(
+    opts[0].apply_gradients(
             zip(discriminator_gradients, Dis.trainable_variables))
-        train_logs[0](disc_loss)
+    train_logs[0](disc_loss)
 
 
 @tf.function
@@ -601,7 +601,7 @@ def train(gen, dis, dataset, epochs, len_high_size, scale, test_dataset=None):
                                          loss_filter=[loss_filter_high],
                                          opts=[discriminator_optimizer], train_logs=[discriminator_log])
         # log the model epochs
-        if epoch % 500 == 0 or epoch==(epochs-1):
+        if epoch % 500 == 0:
             gen.save('./saved_model/'+current_time+'/gen_model')
             dis.save('./saved_model/'+current_time+'/dis_model')
 
