@@ -37,8 +37,7 @@ if 'saved_model.pb' in entries:
 else:
     Generator = model.make_generator_model()
 #Generator.optimizer=[tf.keras.optimizers.Adam, tf.keras.optimizers.Adam]
-Generator.compile(optimizer = ['adam', 'adam'], loss='mse')
-print(Generator.optimizer)
+print(Generator)
 
 """# data from ftp://cooler.csail.mit.edu/coolers/hg19/
 name = './data/raw/Dixon2012-H1hESC-HindIII-allreps-filtered.10kb.cool'

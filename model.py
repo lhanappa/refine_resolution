@@ -19,6 +19,10 @@ class Reconstruct_R1M(tf.keras.layers.Layer):
         rank1m = tf.multiply(tf.multiply(v, vt), self.w)
         return rank1m
 
+    def get_config(self):
+        config = super(Reconstruct_R1M, self).get_config()
+        return config
+
 
 class Weight_R1M(tf.keras.layers.Layer):
     def __init__(self, name='WR1M'):
@@ -32,6 +36,10 @@ class Weight_R1M(tf.keras.layers.Layer):
     def call(self, input):
         self.w.assign(tf.nn.relu(self.w))
         return tf.multiply(input, self.w)
+        
+    def get_config(self):
+        config = super(Weight_R1M, self).get_config()
+        return config
 
 
 class Downpixel(tf.keras.layers.Layer):
@@ -50,7 +58,10 @@ class Downpixel(tf.keras.layers.Layer):
         kernel = tf.ones(shape=(r, r, 1, 1), dtype=tf.float32)/(r*r)
         conv = tf.nn.conv2d(inputs, kernel, padding='SAME', strides=(1, 1))
         return self._phase_shift(conv)
-
+    
+    def get_config(self):
+        config = super(Downpixel, self).get_config()
+        return config
 
 class Subpixel(tf.keras.layers.Conv2D):
     def __init__(self,
@@ -114,7 +125,10 @@ class Sum_R1M(tf.keras.layers.Layer):
 
     def call(self, input):
         return tf.reduce_sum(input, axis=-1, keepdims=True)
-
+    
+    def get_config(self):
+        config = super(Sum_R1M, self).get_config()
+        return config
 
 class Symmetry_R1M(tf.keras.layers.Layer):
     def __init__(self, name=None):
@@ -134,6 +148,9 @@ class Symmetry_R1M(tf.keras.layers.Layer):
         low = tf.transpose(up, perm=[0, 2, 1, 3])
         return up + low
 
+    def get_config(self):
+        config = super(Symmetry_R1M, self).get_config()
+        return config
 
 class Normal(tf.keras.layers.Layer):
     def __init__(self, input_dim, name=None):
@@ -152,9 +169,11 @@ class Normal(tf.keras.layers.Layer):
         self.w.assign(tf.nn.relu(self.w))
         WT = tf.transpose(self.w, perm=[0, 2, 1, 3])
         M = tf.multiply(self.w, WT)
-
         return tf.multiply(Div, M)
 
+    def get_config(self):
+        config = super(Normal, self).get_config()
+        return config
 
 def block_downsample_decomposition(len_low_size, input_len_size, input_channels, downsample_ratio, filters_decompose, name=None):
     result = tf.keras.Sequential(name=name)
@@ -370,7 +389,7 @@ def generator_mse_loss(y_pred, y_true):  # , m_filter):
 
 @tf.function
 def train_step_generator(Gen, Dis, imgl, imgr, loss_filter, loss_weights, opts, train_logs):
-    #[out_low_x2, out_low_x4, out_low_x8, high_out, low_x2, low_x4, low_x8]
+
     with tf.GradientTape() as x, tf.GradientTape() as gen_tape_high:
         fake_hic = Gen(imgl, training=True)
 
@@ -492,15 +511,11 @@ def tracegraph(x, model):
 
 
 def train(gen, dis, dataset, epochs, len_high_size, scale, test_dataset=None):
-    if gen.optimizer is None:
-        generator_optimizer_low = tf.keras.optimizers.Adam()
-        generator_optimizer_high = tf.keras.optimizers.Adam()
-        gen.compile(optimizer = [generator_optimizer_low, generator_optimizer_high], loss='mse')
-
-    if dis.optimizer is None:
-        discriminator_optimizer = tf.keras.optimizers.Adam()
-        dis.compile(optimizer = discriminator_optimizer, loss='mse')
-
+    
+    generator_optimizer_low = tf.keras.optimizers.Adam()
+    generator_optimizer_high = tf.keras.optimizers.Adam()
+    discriminator_optimizer = tf.keras.optimizers.Adam()
+    opts = [generator_optimizer_low, generator_optimizer_high]
 
     # for generator#, discriminator_optimizer]
     generator_log_ssim_low = tf.keras.metrics.Mean(
@@ -594,7 +609,7 @@ def train(gen, dis, dataset, epochs, len_high_size, scale, test_dataset=None):
                                          high_m, tf.float32),
                                      [loss_filter_low_x2, loss_filter_low_x4,
                                          loss_filter_low_x8, loss_filter_high], loss_weights,
-                                     gen.optimizer, logs)
+                                     opts, logs)
 
             if(epoch % 40 >= 30):
                 #Gen, Dis, imgl, imgr, loss_filter, opts, train_logs
@@ -605,8 +620,8 @@ def train(gen, dis, dataset, epochs, len_high_size, scale, test_dataset=None):
                                          opts=[dis.optimizer], train_logs=[discriminator_log])
         # log the model epochs
         if epoch % 500 == 0:
-            gen.save('./saved_model/'+current_time+'/gen_model')
-            dis.save('./saved_model/'+current_time+'/dis_model')
+            tf.saved_model.save(gen, './saved_model/'+current_time+'/gen_model')
+            tf.saved_model.save(dis, './saved_model/'+current_time+'/dis_model')
 
         if (epoch) % 10 == 0:
             [dpl_x2, dpl_x4, dpl_x8, dph, _, _, _] = gen(

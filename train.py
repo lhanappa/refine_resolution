@@ -50,6 +50,7 @@ def run(train_data, test_data, len_size, scale, EPOCHS, summary=False):
     # get generator model
     filepath = './saved_model/gen_model'
     if os.path.exists(filepath):
+        print('#load gen')
         Gen = tf.keras.models.load_model(filepath)
         Gen.get_layer('dsd_x8').build(input_shape=(None,40,40,1))
         Gen.get_layer('dsd_x4').build(input_shape=(None,40,40,1))
@@ -69,6 +70,7 @@ def run(train_data, test_data, len_size, scale, EPOCHS, summary=False):
     # get discriminator model
     filepath = './saved_model/dis_model'
     if os.path.exists(filepath):
+        print("#")
         Dis = tf.keras.models.load_model(filepath)
         Dis.get_layer('r1dr_x1').build(input_shape=(None,40,40,1))
         Dis.get_layer('r1dr_x2').build(input_shape=(None,20,20,4))
@@ -90,18 +92,19 @@ def run(train_data, test_data, len_size, scale, EPOCHS, summary=False):
         print(Dis.summary())
         tf.keras.utils.plot_model(Dis, to_file='D.png', show_shapes=True)
 
+    print('#training')
     model.train(Gen, Dis, train_data, EPOCHS, len_size, scale, test_data)
 
     file_path = './saved_model/gen_model'
-    Gen.save(file_path, overwrite=True, include_optimizer=True)
+    Gen.save(file_path, overwrite=True, include_optimizer=False)
     file_path = './saved_model/dis_model'
-    Dis.save(file_path, overwrite=True, include_optimizer=True)
+    Dis.save(file_path, overwrite=True, include_optimizer=False)
 
 
 if __name__ == '__main__':
     len_size = 40
     scale = 4
-    EPOCHS = 20
+    EPOCHS = 1
     BATCH_SIZE = 9
     data_path = './data'
     raw_path = 'raw'
@@ -132,6 +135,6 @@ if __name__ == '__main__':
         
         hic_lr = np.asarray(hic_lr).astype(np.float32)
         hic_hr = np.asarray(hic_hr).astype(np.float32)
-        train_data = tf.data.Dataset.from_tensor_slices((hic_lr[..., np.newaxis], hic_hr[..., np.newaxis])).batch(BATCH_SIZE)
+        train_data = tf.data.Dataset.from_tensor_slices((hic_lr[0:9, ..., np.newaxis], hic_hr[0:9, ..., np.newaxis])).batch(BATCH_SIZE)
         test_data = tf.data.Dataset.from_tensor_slices((hic_lr[0:9, ..., np.newaxis], hic_hr[0:9, ..., np.newaxis])).batch(BATCH_SIZE)
         run(train_data=train_data, test_data=test_data, len_size=len_size, scale=scale, EPOCHS=EPOCHS, summary=True)
