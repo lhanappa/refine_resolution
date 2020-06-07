@@ -492,12 +492,13 @@ def tracegraph(x, model):
 
 
 def train(gen, dis, dataset, epochs, len_high_size, scale, test_dataset=None):
-    '''generator_optimizer_x2 = tf.keras.optimizers.Adam()
-    generator_optimizer_x4 = tf.keras.optimizers.Adam()
-    generator_optimizer_x8 = tf.keras.optimizers.Adam()'''
-    generator_optimizer_low = tf.keras.optimizers.Adam()
-    generator_optimizer_high = tf.keras.optimizers.Adam()
-    discriminator_optimizer = tf.keras.optimizers.Adam()
+    if gen.optimizer is None:
+        generator_optimizer_low = tf.keras.optimizers.Adam()
+        generator_optimizer_high = tf.keras.optimizers.Adam()
+        gen.optimizer = [generator_optimizer_low, generator_optimizer_high]
+    if dis.optimizer is None:
+        discriminator_optimizer = tf.keras.optimizers.Adam()
+        dis.optimizer = discriminator_optimizer
     # for generator#, discriminator_optimizer]
     opts = [generator_optimizer_low, generator_optimizer_high]
     generator_log_ssim_low = tf.keras.metrics.Mean(

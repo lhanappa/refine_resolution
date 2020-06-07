@@ -36,7 +36,7 @@ if 'saved_model.pb' in entries:
     Generator.get_layer('usc_x2').build(input_shape=(1,20,20,320))
 else:
     Generator = model.make_generator_model()
-Generator.compile(loss='mse', optimizer=['adam', 'adam'])
+Generator.optimizer=[tf.keras.optimizers.Adam, tf.keras.optimizers.Adam]
 print(Generator.optimizer)
 
 """# data from ftp://cooler.csail.mit.edu/coolers/hg19/
