@@ -26,10 +26,10 @@ name = './data/raw/Dixon2012-H1hESC-HindIII-allreps-filtered.10kb.cool'
 #name = 'Rao2014-K562-MboI-allreps-filtered.500kb.cool'
 c = cooler.Cooler(name)
 resolution = c.binsize
-mat = c.matrix(balance=True).fetch('chr20')
+mat = c.matrix(balance=True).fetch('chr22')
 
 [Mh, _] = operations.remove_zeros(mat)
-Mh = Mh[0:400, 0:400]
+Mh = Mh[0:40, 0:40]
 print('MH: ', Mh.shape)
 
 scale = 4
@@ -79,14 +79,17 @@ print('sum merge:', np.sum(np.abs(predict_hic_hr_merge)))
 diff = np.abs(Mh-predict_hic_hr_merge)
 print('sum diff: {:.5}'.format(np.sum(diff**2)))
 
+hr_file = './data/input/Dixon2012_10kb/HR/chr22/Dixon2012_10kb_HR_chr22_0-2047.npz'
+hr_hic = np.load(hr_file, allow_pickle=True)
+hr_hic = hr_hic['hic']
 
-fig, axs = plt.subplots(1, 2, figsize=(8, 15))
+fig, axs = plt.subplots(1, 3, figsize=(8, 15))
 ax = axs[0].imshow(np.log1p(1000*predict_hic_hr_merge), cmap='RdBu_r')
 axs[0].set_title('predict')
-
 ax = axs[1].imshow(np.log1p(1000*Mh), cmap='RdBu_r')
 axs[1].set_title('true')
-
+ax = axs[2].imshow(np.log1p(1000*np.squeeze(hr_hic[0,:,:])), cmap='RdBu_r')
+axs[2].set_title('true')
 plt.tight_layout()
 plt.show()
 

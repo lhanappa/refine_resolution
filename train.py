@@ -76,7 +76,7 @@ def run(train_data, test_data, len_size, scale, EPOCHS, summary=False):
 if __name__ == '__main__':
     len_size = 40
     scale = 4
-    EPOCHS = 800
+    EPOCHS = 20
     BATCH_SIZE = 9
     data_path = './data'
     raw_path = 'raw'
