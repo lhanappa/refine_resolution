@@ -371,7 +371,7 @@ def generator_mse_loss(y_pred, y_true):  # , m_filter):
 @tf.function
 def train_step_generator(Gen, Dis, imgl, imgr, loss_filter, loss_weights, opts, train_logs):
     #[out_low_x2, out_low_x4, out_low_x8, high_out, low_x2, low_x4, low_x8]
-    with tf.GradientTape() as x:
+    with tf.GradientTape() as x, tf.GradientTape() as gen_tape_high:
         fake_hic = Gen(imgl, training=True)
 
         fake_hic_l_x2 = fake_hic[0]
@@ -415,18 +415,6 @@ def train_step_generator(Gen, Dis, imgl, imgr, loss_filter, loss_weights, opts, 
         gen_loss_low_mse = (gen_loss_low_mse_x8*1.0 +
                             gen_loss_low_mse_x4*4.0 + gen_loss_low_mse_x2*16.0)/21.0
         gen_loss_low = gen_loss_low_ssim + gen_loss_low_mse
-    gen_low_v = []
-    gen_low_v += Gen.get_layer('dsd_x2').trainable_variables
-    gen_low_v += Gen.get_layer('r1e_x2').trainable_variables
-    gen_low_v += Gen.get_layer('dsd_x4').trainable_variables
-    gen_low_v += Gen.get_layer('r1e_x4').trainable_variables
-    gen_low_v += Gen.get_layer('dsd_x8').trainable_variables
-    gen_low_v += Gen.get_layer('r1e_x8').trainable_variables
-    gradients_of_generator_low = x.gradient(gen_loss_low, gen_low_v)
-    opts[0].apply_gradients(zip(gradients_of_generator_low, gen_low_v))
-    train_logs[0](gen_loss_low_ssim)
-    train_logs[1](gen_loss_low_mse)
-    with tf.GradientTape() as gen_tape_high:
 
         fake_hic_h = fake_hic[3]
         mfilter_high = tf.expand_dims(loss_filter[3], axis=0)
@@ -444,6 +432,19 @@ def train_step_generator(Gen, Dis, imgl, imgr, loss_filter, loss_weights, opts, 
         gen_loss_high = gen_loss_high_0 * loss_weights[0] + \
             gen_loss_high_1 * loss_weights[1] + \
             gen_loss_high_2*loss_weights[2]
+
+    gen_low_v = []
+    gen_low_v += Gen.get_layer('dsd_x2').trainable_variables
+    gen_low_v += Gen.get_layer('r1e_x2').trainable_variables
+    gen_low_v += Gen.get_layer('dsd_x4').trainable_variables
+    gen_low_v += Gen.get_layer('r1e_x4').trainable_variables
+    gen_low_v += Gen.get_layer('dsd_x8').trainable_variables
+    gen_low_v += Gen.get_layer('r1e_x8').trainable_variables
+    gradients_of_generator_low = x.gradient(gen_loss_low, gen_low_v)
+    opts[0].apply_gradients(zip(gradients_of_generator_low, gen_low_v))
+    train_logs[0](gen_loss_low_ssim)
+    train_logs[1](gen_loss_low_mse)
+
     gen_high_v = []
     gen_high_v += Gen.get_layer('r1c_x2').trainable_variables
     gen_high_v += Gen.get_layer('usc_x2').trainable_variables
