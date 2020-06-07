@@ -14,13 +14,12 @@ tf.keras.backend.set_floatx('float32')
 
 # get generator model
 filepath = './saved_model/gen_model'
-entries = os.listdir(filepath)
 #Generator = model.make_generator_model(len_high_size=40, scale=4)
 #file_path = './saved_model/gen_model'
 #Generator.save(file_path, overwrite=True, include_optimizer=False)
 
 #Generator = tf.keras.models.load_model(filepath)
-if 'saved_model.pb' in entries:
+if os.path.exists(filepath):
     Generator = tf.keras.models.load_model(filepath)
     Generator.get_layer('dsd_x8').build(input_shape=(1,40,40,1))
     Generator.get_layer('dsd_x4').build(input_shape=(1,40,40,1))
@@ -34,11 +33,12 @@ if 'saved_model.pb' in entries:
     Generator.get_layer('usc_x8').build(input_shape=(1,5,5,32))
     Generator.get_layer('usc_x4').build(input_shape=(1,10,10,144))
     Generator.get_layer('usc_x2').build(input_shape=(1,20,20,320))
+    print('load model')
 else:
-    Generator = model.make_generator_model()
+    Generator = model.make_generator_model(len_high_size=40, scale=4)
 #Generator.optimizer=[tf.keras.optimizers.Adam, tf.keras.optimizers.Adam]
 print(Generator)
-
+Generator.save(filepath)
 """# data from ftp://cooler.csail.mit.edu/coolers/hg19/
 name = './data/raw/Dixon2012-H1hESC-HindIII-allreps-filtered.10kb.cool'
 #name = 'Rao2014-K562-MboI-allreps-filtered.500kb.cool'

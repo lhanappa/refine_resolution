@@ -19,9 +19,9 @@ class Reconstruct_R1M(tf.keras.layers.Layer):
         rank1m = tf.multiply(tf.multiply(v, vt), self.w)
         return rank1m
 
-    def get_config(self):
+    '''def get_config(self):
         config = super(Reconstruct_R1M, self).get_config()
-        return config
+        return config'''
 
 
 class Weight_R1M(tf.keras.layers.Layer):
@@ -37,9 +37,9 @@ class Weight_R1M(tf.keras.layers.Layer):
         self.w.assign(tf.nn.relu(self.w))
         return tf.multiply(input, self.w)
         
-    def get_config(self):
+    '''def get_config(self):
         config = super(Weight_R1M, self).get_config()
-        return config
+        return config'''
 
 
 class Downpixel(tf.keras.layers.Layer):
@@ -59,9 +59,9 @@ class Downpixel(tf.keras.layers.Layer):
         conv = tf.nn.conv2d(inputs, kernel, padding='SAME', strides=(1, 1))
         return self._phase_shift(conv)
     
-    def get_config(self):
+    '''def get_config(self):
         config = super(Downpixel, self).get_config()
-        return config
+        return config'''
 
 class Subpixel(tf.keras.layers.Conv2D):
     def __init__(self,
@@ -112,11 +112,11 @@ class Subpixel(tf.keras.layers.Conv2D):
         unshifted = super(Subpixel, self).compute_output_shape(input_shape)
         return (unshifted[0], self.r*unshifted[1], self.r*unshifted[2], unshifted[3]/(self.r*self.r))
 
-    def get_config(self):
+    '''def get_config(self):
         config = super(tf.keras.layers.Conv2D, self).get_config()
         config['filters'] /= self.r*self.r
         config['r'] = self.r
-        return config
+        return config'''
 
 
 class Sum_R1M(tf.keras.layers.Layer):
@@ -126,9 +126,9 @@ class Sum_R1M(tf.keras.layers.Layer):
     def call(self, input):
         return tf.reduce_sum(input, axis=-1, keepdims=True)
     
-    def get_config(self):
+    '''def get_config(self):
         config = super(Sum_R1M, self).get_config()
-        return config
+        return config'''
 
 class Symmetry_R1M(tf.keras.layers.Layer):
     def __init__(self, name=None):
@@ -148,9 +148,9 @@ class Symmetry_R1M(tf.keras.layers.Layer):
         low = tf.transpose(up, perm=[0, 2, 1, 3])
         return up + low
 
-    def get_config(self):
+    '''def get_config(self):
         config = super(Symmetry_R1M, self).get_config()
-        return config
+        return config'''
 
 class Normal(tf.keras.layers.Layer):
     def __init__(self, input_dim, name=None):
@@ -171,9 +171,9 @@ class Normal(tf.keras.layers.Layer):
         M = tf.multiply(self.w, WT)
         return tf.multiply(Div, M)
 
-    def get_config(self):
+    '''def get_config(self):
         config = super(Normal, self).get_config()
-        return config
+        return config'''
 
 def block_downsample_decomposition(len_low_size, input_len_size, input_channels, downsample_ratio, filters_decompose, name=None):
     result = tf.keras.Sequential(name=name)
@@ -619,7 +619,7 @@ def train(gen, dis, dataset, epochs, len_high_size, scale, test_dataset=None):
                                          loss_filter=[loss_filter_high],
                                          opts=[dis.optimizer], train_logs=[discriminator_log])
         # log the model epochs
-        if epoch % 500 == 0:
+        if False:
             tf.saved_model.save(gen, './saved_model/'+current_time+'/gen_model')
             tf.saved_model.save(dis, './saved_model/'+current_time+'/dis_model')
 

@@ -52,40 +52,40 @@ def run(train_data, test_data, len_size, scale, EPOCHS, summary=False):
     if os.path.exists(filepath):
         print('#load gen')
         Gen = tf.keras.models.load_model(filepath)
-        Gen.get_layer('dsd_x8').build(input_shape=(None,40,40,1))
-        Gen.get_layer('dsd_x4').build(input_shape=(None,40,40,1))
-        Gen.get_layer('dsd_x2').build(input_shape=(None,40,40,1))
-        Gen.get_layer('r1c_x8').build(input_shape=(None,5,5,256))
-        Gen.get_layer('r1c_x4').build(input_shape=(None,10,10,512))
-        Gen.get_layer('r1c_x2').build(input_shape=(None,20,20,1024))
-        Gen.get_layer('r1e_x8').build(input_shape=(None,5,5,256))
-        Gen.get_layer('r1e_x4').build(input_shape=(None,10,10,512))
-        Gen.get_layer('r1e_x2').build(input_shape=(None,20,20,1024))
-        Gen.get_layer('usc_x8').build(input_shape=(None,5,5,32))
-        Gen.get_layer('usc_x4').build(input_shape=(None,10,10,144))
-        Gen.get_layer('usc_x2').build(input_shape=(None,20,20,320))
     else:
         Gen = model.make_generator_model(len_high_size=len_size, scale=scale)
-
+    Gen.get_layer('dsd_x8').build(input_shape=(None,40,40,1))
+    Gen.get_layer('dsd_x4').build(input_shape=(None,40,40,1))
+    Gen.get_layer('dsd_x2').build(input_shape=(None,40,40,1))
+    Gen.get_layer('r1c_x8').build(input_shape=(None,5,5,256))
+    Gen.get_layer('r1c_x4').build(input_shape=(None,10,10,512))
+    Gen.get_layer('r1c_x2').build(input_shape=(None,20,20,1024))
+    Gen.get_layer('r1e_x8').build(input_shape=(None,5,5,256))
+    Gen.get_layer('r1e_x4').build(input_shape=(None,10,10,512))
+    Gen.get_layer('r1e_x2').build(input_shape=(None,20,20,1024))
+    Gen.get_layer('usc_x8').build(input_shape=(None,5,5,32))
+    Gen.get_layer('usc_x4').build(input_shape=(None,10,10,144))
+    Gen.get_layer('usc_x2').build(input_shape=(None,20,20,320))
+    Gen.build(input_shape=(None,40,40,1))
     # get discriminator model
     filepath = './saved_model/dis_model'
     if os.path.exists(filepath):
         print("#")
         Dis = tf.keras.models.load_model(filepath)
-        Dis.get_layer('r1dr_x1').build(input_shape=(None,40,40,1))
-        Dis.get_layer('r1dr_x2').build(input_shape=(None,20,20,4))
-        Dis.get_layer('r1dr_x4').build(input_shape=(None,10,10,16))
-        Dis.get_layer('r1dr_x8').build(input_shape=(None,5,5,64))
-        Dis.get_layer('dc_x1').build(input_shape=(None,40,40,512))
-        Dis.get_layer('dc_x2').build(input_shape=(None,20,20,120))
-        Dis.get_layer('dc_x4').build(input_shape=(None,10,10,140))
-        Dis.get_layer('dc_x8').build(input_shape=(None,5,5,70))
-        Dis.get_layer('r1c_x2').build(input_shape=(None,20,20,512))
-        Dis.get_layer('r1c_x4').build(input_shape=(None,10,10,256))
-        Dis.get_layer('r1c_x8').build(input_shape=(None,5,5,128))
     else:
         Dis = model.make_discriminator_model(len_high_size=len_size, scale=scale)
-
+    Dis.get_layer('r1dr_x1').build(input_shape=(None,40,40,1))
+    Dis.get_layer('r1dr_x2').build(input_shape=(None,20,20,4))
+    Dis.get_layer('r1dr_x4').build(input_shape=(None,10,10,16))
+    Dis.get_layer('r1dr_x8').build(input_shape=(None,5,5,64))
+    Dis.get_layer('dc_x1').build(input_shape=(None,40,40,512))
+    Dis.get_layer('dc_x2').build(input_shape=(None,20,20,120))
+    Dis.get_layer('dc_x4').build(input_shape=(None,10,10,140))
+    Dis.get_layer('dc_x8').build(input_shape=(None,5,5,70))
+    Dis.get_layer('r1c_x2').build(input_shape=(None,20,20,512))
+    Dis.get_layer('r1c_x4').build(input_shape=(None,10,10,256))
+    Dis.get_layer('r1c_x8').build(input_shape=(None,5,5,128))
+    Dis.build(input_shape=(None,40,40,1))
     if summary:
         print(Gen.summary())
         tf.keras.utils.plot_model(Gen, to_file='G.png', show_shapes=True)
@@ -104,7 +104,7 @@ def run(train_data, test_data, len_size, scale, EPOCHS, summary=False):
 if __name__ == '__main__':
     len_size = 40
     scale = 4
-    EPOCHS = 1
+    EPOCHS = 2
     BATCH_SIZE = 9
     data_path = './data'
     raw_path = 'raw'
@@ -137,4 +137,5 @@ if __name__ == '__main__':
         hic_hr = np.asarray(hic_hr).astype(np.float32)
         train_data = tf.data.Dataset.from_tensor_slices((hic_lr[0:9, ..., np.newaxis], hic_hr[0:9, ..., np.newaxis])).batch(BATCH_SIZE)
         test_data = tf.data.Dataset.from_tensor_slices((hic_lr[0:9, ..., np.newaxis], hic_hr[0:9, ..., np.newaxis])).batch(BATCH_SIZE)
-        run(train_data=train_data, test_data=test_data, len_size=len_size, scale=scale, EPOCHS=EPOCHS, summary=True)
+        run(train_data=train_data, test_data=test_data, len_size=len_size, scale=scale, EPOCHS=EPOCHS, summary=False)
+        tf.keras.backend.clear_session()
