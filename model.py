@@ -434,26 +434,26 @@ def train_step_generator(Gen, Dis, imgl, imgr, loss_filter, loss_weights, opts, 
             gen_loss_high_2*loss_weights[2]
 
     gen_low_v = []
-    gen_low_v += Gen.get_layer('dsd_x2').trainable_Weights
-    gen_low_v += Gen.get_layer('r1e_x2').trainable_Weights
-    gen_low_v += Gen.get_layer('dsd_x4').trainable_Weights
-    gen_low_v += Gen.get_layer('r1e_x4').trainable_Weights
-    gen_low_v += Gen.get_layer('dsd_x8').trainable_Weights
-    gen_low_v += Gen.get_layer('r1e_x8').trainable_Weights
+    gen_low_v += Gen.get_layer('dsd_x2').trainable_weights
+    gen_low_v += Gen.get_layer('r1e_x2').trainable_weights
+    gen_low_v += Gen.get_layer('dsd_x4').trainable_weights
+    gen_low_v += Gen.get_layer('r1e_x4').trainable_weights
+    gen_low_v += Gen.get_layer('dsd_x8').trainable_weights
+    gen_low_v += Gen.get_layer('r1e_x8').trainable_weights
     gradients_of_generator_low = x.gradient(gen_loss_low, gen_low_v)
     opts[0].apply_gradients(zip(gradients_of_generator_low, gen_low_v))
     train_logs[0](gen_loss_low_ssim)
     train_logs[1](gen_loss_low_mse)
 
     gen_high_v = []
-    gen_high_v += Gen.get_layer('r1c_x2').trainable_Weights
-    gen_high_v += Gen.get_layer('usc_x2').trainable_Weights
-    gen_high_v += Gen.get_layer('r1c_x4').trainable_Weights
-    gen_high_v += Gen.get_layer('usc_x4').trainable_Weights
-    gen_high_v += Gen.get_layer('r1c_x8').trainable_Weights
-    gen_high_v += Gen.get_layer('usc_x8').trainable_Weights
-    gen_high_v += Gen.get_layer('sum_high').trainable_Weights
-    gen_high_v += Gen.get_layer('out_high').trainable_Weights
+    gen_high_v += Gen.get_layer('r1c_x2').trainable_weights
+    gen_high_v += Gen.get_layer('usc_x2').trainable_weights
+    gen_high_v += Gen.get_layer('r1c_x4').trainable_weights
+    gen_high_v += Gen.get_layer('usc_x4').trainable_weights
+    gen_high_v += Gen.get_layer('r1c_x8').trainable_weights
+    gen_high_v += Gen.get_layer('usc_x8').trainable_weights
+    gen_high_v += Gen.get_layer('sum_high').trainable_weights
+    gen_high_v += Gen.get_layer('out_high').trainable_weights
     gradients_of_generator_high = gen_tape_high.gradient(
             gen_loss_high, gen_high_v)
     opts[1].apply_gradients(zip(gradients_of_generator_high, gen_high_v))
