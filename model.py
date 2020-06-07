@@ -502,7 +502,10 @@ def train(gen, dis, dataset, epochs, len_high_size, scale, test_dataset=None):
         dis.optimizer = discriminator_optimizer
 
     gen.loss = None
+    gen.metrics = None
     dis.loss = None
+    dis.metrics = None
+    
     # for generator#, discriminator_optimizer]
     generator_log_ssim_low = tf.keras.metrics.Mean(
         'train_gen_low_ssim_loss', dtype=tf.float32)
