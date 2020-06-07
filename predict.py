@@ -15,11 +15,26 @@ tf.keras.backend.set_floatx('float32')
 # get generator model
 filepath = './saved_model/gen_model'
 entries = os.listdir(filepath)
+
 if 'saved_model.pb' in entries:
     Generator = tf.keras.models.load_model(filepath)
+    Generator.get_layer('dsd_x8').build(input_shape=(None,40,40,1))
+    Generator.get_layer('dsd_x4').build(input_shape=(1,40,40,1))
+    Generator.get_layer('dsd_x2').build(input_shape=(1,40,40,1))
+    Generator.get_layer('r1c_x8').build(input_shape=(1,5,5,256))
+    Generator.get_layer('r1c_x4').build(input_shape=(1,10,10,512))
+    Generator.get_layer('r1c_x2').build(input_shape=(1,20,20,1024))
+    Generator.get_layer('r1e_x8').build(input_shape=(1,5,5,256))
+    Generator.get_layer('r1e_x4').build(input_shape=(1,10,10,512))
+    Generator.get_layer('r1e_x2').build(input_shape=(1,20,20,1024))
+    Generator.get_layer('usc_x8').build(input_shape=(1,5,5,32))
+    Generator.get_layer('usc_x4').build(input_shape=(1,10,10,144))
+    Generator.get_layer('usc_x2').build(input_shape=(1,20,20,320))
 else:
     Generator = model.make_generator_model()
-
+#G1.set_weights(Generator.get_weights())
+#Generator.set_weights(Generator.get_weights())
+print(Generator.summary())
 
 # data from ftp://cooler.csail.mit.edu/coolers/hg19/
 name = './data/raw/Dixon2012-H1hESC-HindIII-allreps-filtered.10kb.cool'
