@@ -96,13 +96,13 @@ def run(train_data, test_data, len_size, scale, EPOCHS, summary=False):
         os.remove(file_path)
     except OSError as e:
         print("Error: %s : %s" % (file_path, e.strerror))
-    Gen.save(file_path)
+    Gen.save(file_path, include_optimizer=False)
     file_path = './saved_model/dis_model'
     try:
         os.remove(file_path)
     except OSError as e:
         print("Error: %s : %s" % (file_path, e.strerror))
-    Dis.save(file_path)
+    Dis.save(file_path, include_optimizer=False)
 
 
 if __name__ == '__main__':
