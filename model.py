@@ -495,17 +495,13 @@ def train(gen, dis, dataset, epochs, len_high_size, scale, test_dataset=None):
     if gen.optimizer is None:
         generator_optimizer_low = tf.keras.optimizers.Adam()
         generator_optimizer_high = tf.keras.optimizers.Adam()
-        gen.optimizer = [generator_optimizer_low, generator_optimizer_high]
+        gen.compile(optimizer = [generator_optimizer_low, generator_optimizer_high], loss=None)
 
     if dis.optimizer is None:
         discriminator_optimizer = tf.keras.optimizers.Adam()
-        dis.optimizer = discriminator_optimizer
+        dis.compile(optimizer = discriminator_optimizer, loss=None)
 
-    gen.loss = None
-    gen.metrics = None
-    dis.loss = None
-    dis.metrics = None
-    
+
     # for generator#, discriminator_optimizer]
     generator_log_ssim_low = tf.keras.metrics.Mean(
         'train_gen_low_ssim_loss', dtype=tf.float32)
