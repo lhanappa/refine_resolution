@@ -93,9 +93,9 @@ def run(train_data, test_data, len_size, scale, EPOCHS, summary=False):
     model.train(Gen, Dis, train_data, EPOCHS, len_size, scale, test_data)
 
     file_path = './saved_model/gen_model'
-    Gen.save(file_path, overwrite=True, include_optimizer=False)
+    Gen.save(file_path, overwrite=True, include_optimizer=True)
     file_path = './saved_model/dis_model'
-    Dis.save(file_path, overwrite=True, include_optimizer=False)
+    Dis.save(file_path, overwrite=True, include_optimizer=True)
 
 
 if __name__ == '__main__':

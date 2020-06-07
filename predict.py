@@ -36,8 +36,8 @@ if 'saved_model.pb' in entries:
     Generator.get_layer('usc_x2').build(input_shape=(1,20,20,320))
 else:
     Generator = model.make_generator_model()
-#Generator.compile(loss='mse', optimizer=['adam', 'adam'])
-print(Generator.summary())
+Generator.compile(loss='mse', optimizer=['adam', 'adam'])
+print(Generator.optimizer)
 
 """# data from ftp://cooler.csail.mit.edu/coolers/hg19/
 name = './data/raw/Dixon2012-H1hESC-HindIII-allreps-filtered.10kb.cool'
