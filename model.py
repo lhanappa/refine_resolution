@@ -496,11 +496,14 @@ def train(gen, dis, dataset, epochs, len_high_size, scale, test_dataset=None):
         generator_optimizer_low = tf.keras.optimizers.Adam()
         generator_optimizer_high = tf.keras.optimizers.Adam()
         gen.optimizer = [generator_optimizer_low, generator_optimizer_high]
+
     if dis.optimizer is None:
         discriminator_optimizer = tf.keras.optimizers.Adam()
         dis.optimizer = discriminator_optimizer
+
+    gen.loss = None
+    dis.loss = None
     # for generator#, discriminator_optimizer]
-    opts = [generator_optimizer_low, generator_optimizer_high]
     generator_log_ssim_low = tf.keras.metrics.Mean(
         'train_gen_low_ssim_loss', dtype=tf.float32)
     generator_log_mse_low = tf.keras.metrics.Mean(
@@ -592,7 +595,7 @@ def train(gen, dis, dataset, epochs, len_high_size, scale, test_dataset=None):
                                          high_m, tf.float32),
                                      [loss_filter_low_x2, loss_filter_low_x4,
                                          loss_filter_low_x8, loss_filter_high], loss_weights,
-                                     opts, logs)
+                                     gen.optimizer, logs)
 
             if(epoch % 40 >= 30):
                 #Gen, Dis, imgl, imgr, loss_filter, opts, train_logs
@@ -600,7 +603,7 @@ def train(gen, dis, dataset, epochs, len_high_size, scale, test_dataset=None):
                                          imgr=tf.dtypes.cast(
                                              high_m, tf.float32),
                                          loss_filter=[loss_filter_high],
-                                         opts=[discriminator_optimizer], train_logs=[discriminator_log])
+                                         opts=[dis.optimizer], train_logs=[discriminator_log])
         # log the model epochs
         if epoch % 500 == 0:
             gen.save('./saved_model/'+current_time+'/gen_model')
