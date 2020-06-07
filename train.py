@@ -91,18 +91,11 @@ def run(train_data, test_data, len_size, scale, EPOCHS, summary=False):
         tf.keras.utils.plot_model(Dis, to_file='D.png', show_shapes=True)
 
     model.train(Gen, Dis, train_data, EPOCHS, len_size, scale, test_data)
+
     file_path = './saved_model/gen_model'
-    try:
-        os.remove(file_path)
-    except OSError as e:
-        print("Error: %s : %s" % (file_path, e.strerror))
-    Gen.save(file_path, include_optimizer=False)
+    Gen.save(file_path, overwrite=True, include_optimizer=False)
     file_path = './saved_model/dis_model'
-    try:
-        os.remove(file_path)
-    except OSError as e:
-        print("Error: %s : %s" % (file_path, e.strerror))
-    Dis.save(file_path, include_optimizer=False)
+    Dis.save(file_path, overwrite=True, include_optimizer=False)
 
 
 if __name__ == '__main__':

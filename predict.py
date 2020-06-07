@@ -15,10 +15,14 @@ tf.keras.backend.set_floatx('float32')
 # get generator model
 filepath = './saved_model/gen_model'
 entries = os.listdir(filepath)
+#Generator = model.make_generator_model(len_high_size=40, scale=4)
+#file_path = './saved_model/gen_model'
+#Generator.save(file_path, overwrite=True, include_optimizer=False)
 
+#Generator = tf.keras.models.load_model(filepath)
 if 'saved_model.pb' in entries:
     Generator = tf.keras.models.load_model(filepath)
-    Generator.get_layer('dsd_x8').build(input_shape=(None,40,40,1))
+    Generator.get_layer('dsd_x8').build(input_shape=(1,40,40,1))
     Generator.get_layer('dsd_x4').build(input_shape=(1,40,40,1))
     Generator.get_layer('dsd_x2').build(input_shape=(1,40,40,1))
     Generator.get_layer('r1c_x8').build(input_shape=(1,5,5,256))
@@ -32,11 +36,10 @@ if 'saved_model.pb' in entries:
     Generator.get_layer('usc_x2').build(input_shape=(1,20,20,320))
 else:
     Generator = model.make_generator_model()
-#G1.set_weights(Generator.get_weights())
-#Generator.set_weights(Generator.get_weights())
+#Generator.compile(loss='mse', optimizer=['adam', 'adam'])
 print(Generator.summary())
 
-# data from ftp://cooler.csail.mit.edu/coolers/hg19/
+"""# data from ftp://cooler.csail.mit.edu/coolers/hg19/
 name = './data/raw/Dixon2012-H1hESC-HindIII-allreps-filtered.10kb.cool'
 #name = 'Rao2014-K562-MboI-allreps-filtered.500kb.cool'
 c = cooler.Cooler(name)
@@ -111,4 +114,4 @@ plt.show()
 predict_hic_coo = operations.dense2tag(predict_hic_hr_merge)
 true_hic_coo = operations.dense2tag(Mh)
 print('shape coo predict hic: {}'.format(predict_hic_coo.shape))
-print('shape coo predict hic: {}'.format(true_hic_coo.shape))
+print('shape coo predict hic: {}'.format(true_hic_coo.shape))"""
