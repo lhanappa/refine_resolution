@@ -495,11 +495,11 @@ def train(gen, dis, dataset, epochs, len_high_size, scale, test_dataset=None):
     if gen.optimizer is None:
         generator_optimizer_low = tf.keras.optimizers.Adam()
         generator_optimizer_high = tf.keras.optimizers.Adam()
-        gen.compile(optimizer = [generator_optimizer_low, generator_optimizer_high], loss=None)
+        gen.compile(optimizer = [generator_optimizer_low, generator_optimizer_high])
 
     if dis.optimizer is None:
         discriminator_optimizer = tf.keras.optimizers.Adam()
-        dis.compile(optimizer = discriminator_optimizer, loss=None)
+        dis.compile(optimizer = discriminator_optimizer)
 
 
     # for generator#, discriminator_optimizer]
