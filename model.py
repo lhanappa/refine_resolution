@@ -9,9 +9,11 @@ class Reconstruct_R1M(tf.keras.layers.Layer):
     def __init__(self, filters, name='RR'):
         super(Reconstruct_R1M, self).__init__(name=name)
         self.num_outputs = filters
+
+    def build(self, input_shape):
         w_init = tf.ones_initializer()
         self.w = tf.Variable(initial_value=w_init(
-            shape=(1, 1, 1, filters), dtype='float32'))
+            shape=(1, 1, 1, self.num_outputs), dtype='float32'))
 
     def call(self, input):
         v = tf.math.add(input, tf.constant(1e-6, dtype=tf.float32))
@@ -36,7 +38,7 @@ class Weight_R1M(tf.keras.layers.Layer):
     def call(self, input):
         self.w.assign(tf.nn.relu(self.w))
         return tf.multiply(input, self.w)
-        
+
     '''def get_config(self):
         config = super(Weight_R1M, self).get_config()
         return config'''
@@ -58,10 +60,11 @@ class Downpixel(tf.keras.layers.Layer):
         kernel = tf.ones(shape=(r, r, 1, 1), dtype=tf.float32)/(r*r)
         conv = tf.nn.conv2d(inputs, kernel, padding='SAME', strides=(1, 1))
         return self._phase_shift(conv)
-    
+
     '''def get_config(self):
         config = super(Downpixel, self).get_config()
         return config'''
+
 
 class Subpixel(tf.keras.layers.Conv2D):
     def __init__(self,
@@ -125,10 +128,11 @@ class Sum_R1M(tf.keras.layers.Layer):
 
     def call(self, input):
         return tf.reduce_sum(input, axis=-1, keepdims=True)
-    
+
     '''def get_config(self):
         config = super(Sum_R1M, self).get_config()
         return config'''
+
 
 class Symmetry_R1M(tf.keras.layers.Layer):
     def __init__(self, name=None):
@@ -152,12 +156,16 @@ class Symmetry_R1M(tf.keras.layers.Layer):
         config = super(Symmetry_R1M, self).get_config()
         return config'''
 
+
 class Normal(tf.keras.layers.Layer):
     def __init__(self, input_dim, name=None):
         super(Normal, self).__init__(name=name)
+        self.dim = input_dim
+
+    def build(self, input_shape):
         w_init = tf.ones_initializer()
         self.w = tf.Variable(initial_value=w_init(
-            shape=(1, input_dim, 1, 1), dtype='float32'), trainable=True)
+            shape=(1, self.dim, 1, 1), dtype='float32'), trainable=True)
 
     def call(self, inputs):
         rowsr = tf.math.sqrt(tf.math.reduce_sum(
@@ -175,9 +183,11 @@ class Normal(tf.keras.layers.Layer):
         config = super(Normal, self).get_config()
         return config'''
 
+
 def block_downsample_decomposition(len_low_size, input_len_size, input_channels, downsample_ratio, filters_decompose, name=None):
     result = tf.keras.Sequential(name=name)
-    result.add(tf.keras.layers.Input(shape=(input_len_size,input_len_size,input_channels)))
+    result.add(tf.keras.layers.Input(
+        shape=(input_len_size, input_len_size, input_channels)))
     result.add(Downpixel(downsample_ratio))
     result.add(tf.keras.layers.Conv2D(filters_decompose, [1, len_low_size], strides=(1, 1), padding='valid', data_format="channels_last",
                                       activation='relu', use_bias=False,
@@ -190,7 +200,8 @@ def block_downsample_decomposition(len_low_size, input_len_size, input_channels,
 
 def block_rank1channels_convolution(filters, input_len_size, input_channels, name=None):
     result = tf.keras.Sequential(name=name)
-    result.add(tf.keras.layers.Input(shape=(input_len_size,input_len_size,input_channels)))
+    result.add(tf.keras.layers.Input(
+        shape=(input_len_size, input_len_size, input_channels)))
     result.add(tf.keras.layers.Conv2D(filters, [1, 1], strides=1, padding='same', data_format="channels_last",
                                       activation='relu', use_bias=False,
                                       name=name))
@@ -201,7 +212,8 @@ def block_rank1channels_convolution(filters, input_len_size, input_channels, nam
 
 def block_upsample_convolution(filters, input_len_size, input_channels, upsample_ratio, name=None):
     result = tf.keras.Sequential(name=name)
-    result.add(tf.keras.layers.Input(shape=(input_len_size,input_len_size,input_channels)))
+    result.add(tf.keras.layers.Input(
+        shape=(input_len_size, input_len_size, input_channels)))
     result.add(Subpixel(filters=int(filters), kernel_size=(3, 3), r=upsample_ratio,
                         activation='relu', use_bias=False, padding='same',
                         kernel_initializer=tf.keras.initializers.RandomNormal(mean=0.01, stddev=0.1)))
@@ -212,7 +224,8 @@ def block_upsample_convolution(filters, input_len_size, input_channels, upsample
 
 def block_rank1_estimation(dims, input_len_size, input_channels, name=None):
     result = tf.keras.Sequential(name=name)
-    result.add(tf.keras.layers.Input(shape=(input_len_size,input_len_size,input_channels)))
+    result.add(tf.keras.layers.Input(
+        shape=(input_len_size, input_len_size, input_channels)))
     result.add(Sum_R1M())
     result.add(Normal(dims))
     return result
@@ -233,38 +246,50 @@ def make_generator_model(len_high_size=128, scale=4):
     low_x8 = tf.keras.layers.AveragePooling2D(
         pool_size=(2, 2), strides=2, padding='valid', name='p_x8')(low_x4)
 
-    dsd_x8 = block_downsample_decomposition(len_low_size=len_low_size_x8, input_len_size=len_high_size, input_channels=1, downsample_ratio=8, filters_decompose=256, name='dsd_x8')
+    dsd_x8 = block_downsample_decomposition(len_low_size=len_low_size_x8, input_len_size=len_high_size,
+                                            input_channels=1, downsample_ratio=8, filters_decompose=256, name='dsd_x8')
     rech_x8 = dsd_x8(inp)
-    r1c = block_rank1channels_convolution(filters=32, input_len_size=len_low_size_x8, input_channels=256, name='r1c_x8')
+    r1c = block_rank1channels_convolution(
+        filters=32, input_len_size=len_low_size_x8, input_channels=256, name='r1c_x8')
     sym_x8 = r1c(rech_x8)
-    r1e = block_rank1_estimation(dims=len_low_size_x8, input_len_size=len_low_size_x8, input_channels=256, name='r1e_x8')
+    r1e = block_rank1_estimation(
+        dims=len_low_size_x8, input_len_size=len_low_size_x8, input_channels=256, name='r1e_x8')
     out_low_x8 = r1e(rech_x8)
 
-    usc_x8 = block_upsample_convolution(filters=16, input_len_size=len_low_size_x8, input_channels=32, upsample_ratio=2, name='usc_x8')
+    usc_x8 = block_upsample_convolution(
+        filters=16, input_len_size=len_low_size_x8, input_channels=32, upsample_ratio=2, name='usc_x8')
     sym_x8 = usc_x8(sym_x8)
 
-    dsd_x4 = block_downsample_decomposition(len_low_size=len_low_size_x4, input_len_size=len_high_size, input_channels=1, downsample_ratio=4, filters_decompose=512, name='dsd_x4')
+    dsd_x4 = block_downsample_decomposition(len_low_size=len_low_size_x4, input_len_size=len_high_size,
+                                            input_channels=1, downsample_ratio=4, filters_decompose=512, name='dsd_x4')
     rech_x4 = dsd_x4(inp)
-    r1c = block_rank1channels_convolution(filters=128, input_len_size=len_low_size_x4, input_channels=512, name='r1c_x4')
+    r1c = block_rank1channels_convolution(
+        filters=128, input_len_size=len_low_size_x4, input_channels=512, name='r1c_x4')
     sym_x4 = r1c(rech_x4)
-    r1e = block_rank1_estimation(dims=len_low_size_x4, input_len_size=len_low_size_x4, input_channels=512, name='r1e_x4')
+    r1e = block_rank1_estimation(
+        dims=len_low_size_x4, input_len_size=len_low_size_x4, input_channels=512, name='r1e_x4')
     out_low_x4 = r1e(rech_x4)
 
     concat = tf.keras.layers.concatenate([sym_x8, sym_x4], axis=-1)
 
-    usc_x4 = block_upsample_convolution(filters=64, input_len_size=len_low_size_x4, input_channels=128+16, upsample_ratio=2, name='usc_x4')
+    usc_x4 = block_upsample_convolution(
+        filters=64, input_len_size=len_low_size_x4, input_channels=128+16, upsample_ratio=2, name='usc_x4')
     sym_x4 = usc_x4(concat)
 
-    dsd_x2 = block_downsample_decomposition(len_low_size=len_low_size_x2, input_len_size=len_high_size, input_channels=1, downsample_ratio=2, filters_decompose=1024, name='dsd_x2')
+    dsd_x2 = block_downsample_decomposition(len_low_size=len_low_size_x2, input_len_size=len_high_size,
+                                            input_channels=1, downsample_ratio=2, filters_decompose=1024, name='dsd_x2')
     rech_x2 = dsd_x2(inp)
-    r1c_x2 = block_rank1channels_convolution(filters=256, input_len_size=len_low_size_x2, input_channels=1024, name='r1c_x2')
+    r1c_x2 = block_rank1channels_convolution(
+        filters=256, input_len_size=len_low_size_x2, input_channels=1024, name='r1c_x2')
     sym_x2 = r1c_x2(rech_x2)
-    r1e_x2 = block_rank1_estimation(dims=len_low_size_x2, input_len_size=len_low_size_x2, input_channels=1024, name='r1e_x2')
+    r1e_x2 = block_rank1_estimation(
+        dims=len_low_size_x2, input_len_size=len_low_size_x2, input_channels=1024, name='r1e_x2')
     out_low_x2 = r1e_x2(rech_x2)
 
     concat = tf.keras.layers.concatenate([sym_x4, sym_x2], axis=-1)
 
-    usc_x2 = block_upsample_convolution(filters=40, input_len_size=len_low_size_x2, input_channels=256+64, upsample_ratio=2, name='usc_x2')
+    usc_x2 = block_upsample_convolution(
+        filters=40, input_len_size=len_low_size_x2, input_channels=256+64, upsample_ratio=2, name='usc_x2')
     sym = usc_x2(concat)
 
     Sumh = tf.keras.layers.Conv2D(filters=1, kernel_size=(1, 1),
@@ -281,7 +306,8 @@ def make_generator_model(len_high_size=128, scale=4):
 
 def block_rank1_decompose_reconstruct(len_size, filters_decompose, input_len_size, input_channels, name=None):
     result = tf.keras.Sequential(name=name)
-    result.add(tf.keras.layers.Input(shape=(input_len_size, input_len_size, input_channels)))
+    result.add(tf.keras.layers.Input(
+        shape=(input_len_size, input_len_size, input_channels)))
     result.add(tf.keras.layers.Conv2D(filters_decompose, [1, len_size], strides=(1, 1), padding='valid', data_format="channels_last",
                                       activation='relu', use_bias=False,
                                       kernel_constraint=tf.keras.constraints.NonNeg(),
@@ -292,7 +318,8 @@ def block_rank1_decompose_reconstruct(len_size, filters_decompose, input_len_siz
 
 def block_down_convolution(filters, input_len_size, input_channels, name=None):
     result = tf.keras.Sequential(name=name)
-    result.add(tf.keras.layers.Input(shape=(input_len_size, input_len_size, input_channels)))
+    result.add(tf.keras.layers.Input(
+        shape=(input_len_size, input_len_size, input_channels)))
     result.add(tf.keras.layers.Conv2D(filters, kernel_size=(3, 3), strides=(1, 1), padding='same', data_format="channels_last",
                                       activation=None, use_bias=False,
                                       kernel_initializer=tf.keras.initializers.RandomNormal(mean=0.01, stddev=0.1)))
@@ -316,42 +343,52 @@ def make_discriminator_model(len_high_size=128, scale=4):
         shape=(len_high_size, len_high_size, 1), name='in', dtype=tf.float32)
 
     b_r1dr = block_rank1_decompose_reconstruct(
-        len_size=len_x1, filters_decompose=512, input_len_size=len_x1, input_channels=1,name='r1dr_x1')
+        len_size=len_x1, filters_decompose=512, input_len_size=len_x1, input_channels=1, name='r1dr_x1')
     r1dr_x1 = b_r1dr(inp)
-    b_dc = block_down_convolution(filters=80, input_len_size=len_x1, input_channels=512, name='dc_x1')
+    b_dc = block_down_convolution(
+        filters=80, input_len_size=len_x1, input_channels=512, name='dc_x1')
     dc_x1 = b_dc(r1dr_x1)
 
     ratio = 2
     dp_x2 = Downpixel(r=ratio, name='dp_x2')(inp)
-    b_r1dr = block_rank1_decompose_reconstruct(len_size=len_x2, filters_decompose=512, input_len_size=len_x2, input_channels=ratio**2, name='r1dr_x2')
+    b_r1dr = block_rank1_decompose_reconstruct(
+        len_size=len_x2, filters_decompose=512, input_len_size=len_x2, input_channels=ratio**2, name='r1dr_x2')
     r1dr_x2 = b_r1dr(dp_x2)
-    b_r1c = block_rank1channels_convolution(filters=40, input_len_size=len_x2, input_channels=512, name='r1c_x2')
+    b_r1c = block_rank1channels_convolution(
+        filters=40, input_len_size=len_x2, input_channels=512, name='r1c_x2')
     r1c_x2 = b_r1c(r1dr_x2)
 
     concat_x1_x2 = tf.keras.layers.Concatenate()([r1c_x2, dc_x1])
-    b_dc = block_down_convolution(filters=120, input_len_size=len_x2, input_channels=120, name='dc_x2')
+    b_dc = block_down_convolution(
+        filters=120, input_len_size=len_x2, input_channels=120, name='dc_x2')
     dc_x2 = b_dc(concat_x1_x2)
 
     ratio = 4
     dp_x4 = Downpixel(r=ratio, name='dp_x4')(inp)
-    b_r1dr = block_rank1_decompose_reconstruct(len_size=len_x4, filters_decompose=256, input_len_size=len_x4, input_channels=ratio**2, name='r1dr_x4')
+    b_r1dr = block_rank1_decompose_reconstruct(
+        len_size=len_x4, filters_decompose=256, input_len_size=len_x4, input_channels=ratio**2, name='r1dr_x4')
     r1dr_x4 = b_r1dr(dp_x4)
-    b_r1c = block_rank1channels_convolution(filters=20, input_len_size=len_x4, input_channels=256, name='r1c_x4')
+    b_r1c = block_rank1channels_convolution(
+        filters=20, input_len_size=len_x4, input_channels=256, name='r1c_x4')
     r1c_x4 = b_r1c(r1dr_x4)
 
     concat_x2_x4 = tf.keras.layers.Concatenate()([r1c_x4, dc_x2])
-    b_dc = block_down_convolution(filters=60, input_len_size=len_x4, input_channels=140, name='dc_x4')
+    b_dc = block_down_convolution(
+        filters=60, input_len_size=len_x4, input_channels=140, name='dc_x4')
     dc_x4 = b_dc(concat_x2_x4)
 
     ratio = 8
     dp_x8 = Downpixel(r=ratio, name='dp_x8')(inp)
-    b_r1dr = block_rank1_decompose_reconstruct(len_size=len_x8, filters_decompose=128, input_len_size=len_x8, input_channels=ratio**2, name='r1dr_x8')
+    b_r1dr = block_rank1_decompose_reconstruct(
+        len_size=len_x8, filters_decompose=128, input_len_size=len_x8, input_channels=ratio**2, name='r1dr_x8')
     r1dr_x8 = b_r1dr(dp_x8)
-    b_r1c = block_rank1channels_convolution(filters=10, input_len_size=len_x8, input_channels=128, name='r1c_x8')
+    b_r1c = block_rank1channels_convolution(
+        filters=10, input_len_size=len_x8, input_channels=128, name='r1c_x8')
     r1c_x8 = b_r1c(r1dr_x8)
 
     concat_x4_x8 = tf.keras.layers.Concatenate()([r1c_x8, dc_x4])
-    b_dc = block_down_convolution(filters=80, input_len_size=len_x8, input_channels=70, name='dc_x8')
+    b_dc = block_down_convolution(
+        filters=80, input_len_size=len_x8, input_channels=70, name='dc_x8')
     dc_x8 = b_dc(concat_x4_x8)
 
     conv = tf.keras.layers.Conv2D(filters=80, kernel_size=(
@@ -387,12 +424,10 @@ def generator_mse_loss(y_pred, y_true):  # , m_filter):
     return s
 
 
-@tf.function
-def train_step_generator(Gen, Dis, imgl, imgr, loss_filter, loss_weights, opts, train_logs):
-
-    with tf.GradientTape() as x, tf.GradientTape() as gen_tape_high:
+# @tf.function
+def _train_step_generator(Gen, Dis, imgl, imgr, loss_filter, loss_weights, opts, train_logs):
+    with tf.GradientTape() as x:
         fake_hic = Gen(imgl, training=True)
-
         fake_hic_l_x2 = fake_hic[0]
         imgl_x2 = fake_hic[4]
         mfilter_low = tf.expand_dims(loss_filter[0], axis=0)
@@ -434,7 +469,19 @@ def train_step_generator(Gen, Dis, imgl, imgr, loss_filter, loss_weights, opts, 
         gen_loss_low_mse = (gen_loss_low_mse_x8*1.0 +
                             gen_loss_low_mse_x4*4.0 + gen_loss_low_mse_x2*16.0)/21.0
         gen_loss_low = gen_loss_low_ssim + gen_loss_low_mse
-
+    gen_low_v = []
+    gen_low_v += Gen.get_layer('dsd_x2').trainable_variables
+    gen_low_v += Gen.get_layer('r1e_x2').trainable_variables
+    gen_low_v += Gen.get_layer('dsd_x4').trainable_variables
+    gen_low_v += Gen.get_layer('r1e_x4').trainable_variables
+    gen_low_v += Gen.get_layer('dsd_x8').trainable_variables
+    gen_low_v += Gen.get_layer('r1e_x8').trainable_variables
+    gradients_of_generator_low = x.gradient(gen_loss_low, gen_low_v)
+    opts[0].apply_gradients(zip(gradients_of_generator_low, gen_low_v))
+    train_logs[0](gen_loss_low_ssim)
+    train_logs[1](gen_loss_low_mse)
+    with tf.GradientTape() as gen_tape_high:
+        fake_hic = Gen(imgl, training=True)
         fake_hic_h = fake_hic[3]
         mfilter_high = tf.expand_dims(loss_filter[3], axis=0)
         mfilter_high = tf.expand_dims(mfilter_high, axis=-1)
@@ -452,37 +499,25 @@ def train_step_generator(Gen, Dis, imgl, imgr, loss_filter, loss_weights, opts, 
             gen_loss_high_1 * loss_weights[1] + \
             gen_loss_high_2*loss_weights[2]
 
-    gen_low_v = []
-    gen_low_v += Gen.get_layer('dsd_x2').trainable_weights
-    gen_low_v += Gen.get_layer('r1e_x2').trainable_weights
-    gen_low_v += Gen.get_layer('dsd_x4').trainable_weights
-    gen_low_v += Gen.get_layer('r1e_x4').trainable_weights
-    gen_low_v += Gen.get_layer('dsd_x8').trainable_weights
-    gen_low_v += Gen.get_layer('r1e_x8').trainable_weights
-    gradients_of_generator_low = x.gradient(gen_loss_low, gen_low_v)
-    opts[0].apply_gradients(zip(gradients_of_generator_low, gen_low_v))
-    train_logs[0](gen_loss_low_ssim)
-    train_logs[1](gen_loss_low_mse)
-
     gen_high_v = []
-    gen_high_v += Gen.get_layer('r1c_x2').trainable_weights
-    gen_high_v += Gen.get_layer('usc_x2').trainable_weights
-    gen_high_v += Gen.get_layer('r1c_x4').trainable_weights
-    gen_high_v += Gen.get_layer('usc_x4').trainable_weights
-    gen_high_v += Gen.get_layer('r1c_x8').trainable_weights
-    gen_high_v += Gen.get_layer('usc_x8').trainable_weights
-    gen_high_v += Gen.get_layer('sum_high').trainable_weights
-    gen_high_v += Gen.get_layer('out_high').trainable_weights
+    gen_high_v += Gen.get_layer('r1c_x2').trainable_variables
+    gen_high_v += Gen.get_layer('usc_x2').trainable_variables
+    gen_high_v += Gen.get_layer('r1c_x4').trainable_variables
+    gen_high_v += Gen.get_layer('usc_x4').trainable_variables
+    gen_high_v += Gen.get_layer('r1c_x8').trainable_variables
+    gen_high_v += Gen.get_layer('usc_x8').trainable_variables
+    gen_high_v += Gen.get_layer('sum_high').trainable_variables
+    gen_high_v += Gen.get_layer('out_high').trainable_variables
     gradients_of_generator_high = gen_tape_high.gradient(
-            gen_loss_high, gen_high_v)
+        gen_loss_high, gen_high_v)
     opts[1].apply_gradients(zip(gradients_of_generator_high, gen_high_v))
     train_logs[2](gen_loss_high_0)
     train_logs[3](gen_loss_high_1)
     train_logs[4](gen_loss_high_2)
 
 
-@tf.function
-def train_step_discriminator(Gen, Dis, imgl, imgr, loss_filter, opts, train_logs):
+# @tf.function
+def _train_step_discriminator(Gen, Dis, imgl, imgr, loss_filter, opts, train_logs):
     with tf.GradientTape() as disc_tape:
         fake_hic = Gen(imgl, training=False)
         fake_hic_h = fake_hic[3]
@@ -499,9 +534,9 @@ def train_step_discriminator(Gen, Dis, imgl, imgr, loss_filter, opts, train_logs
         disc_loss = discriminator_bce_loss(
             disc_real_output, disc_generated_output)
     discriminator_gradients = disc_tape.gradient(
-            disc_loss, Dis.trainable_variables)
+        disc_loss, Dis.trainable_variables)
     opts[0].apply_gradients(
-            zip(discriminator_gradients, Dis.trainable_variables))
+        zip(discriminator_gradients, Dis.trainable_variables))
     train_logs[0](disc_loss)
 
 
@@ -511,7 +546,6 @@ def tracegraph(x, model):
 
 
 def train(gen, dis, dataset, epochs, len_high_size, scale, test_dataset=None):
-    
     generator_optimizer_low = tf.keras.optimizers.Adam()
     generator_optimizer_high = tf.keras.optimizers.Adam()
     discriminator_optimizer = tf.keras.optimizers.Adam()
@@ -604,6 +638,7 @@ def train(gen, dis, dataset, epochs, len_high_size, scale, test_dataset=None):
                 loss_weights = [1.0, 10.0, 0.0]
 
             if(epoch % 40 <= 30):
+                train_step_generator = tf.function(_train_step_generator)
                 train_step_generator(gen, dis,
                                      tf.dtypes.cast(low_m, tf.float32), tf.dtypes.cast(
                                          high_m, tf.float32),
@@ -613,15 +648,17 @@ def train(gen, dis, dataset, epochs, len_high_size, scale, test_dataset=None):
 
             if(epoch % 40 >= 30):
                 #Gen, Dis, imgl, imgr, loss_filter, opts, train_logs
+                train_step_discriminator = tf.function(
+                    _train_step_discriminator)
                 train_step_discriminator(Gen=gen, Dis=dis, imgl=tf.dtypes.cast(low_m, tf.float32),
                                          imgr=tf.dtypes.cast(
                                              high_m, tf.float32),
                                          loss_filter=[loss_filter_high],
                                          opts=[dis.optimizer], train_logs=[discriminator_log])
         # log the model epochs
-        if False:
-            tf.saved_model.save(gen, './saved_model/'+current_time+'/gen_model')
-            tf.saved_model.save(dis, './saved_model/'+current_time+'/dis_model')
+        if epoch % 400 == 0:
+            gen.save_weights('./saved_model/'+current_time+'/gen_weights')
+            dis.save_weights('./saved_model/'+current_time+'/dis_weights')
 
         if (epoch) % 10 == 0:
             [dpl_x2, dpl_x4, dpl_x8, dph, _, _, _] = gen(
@@ -678,6 +715,7 @@ def train(gen, dis, dataset, epochs, len_high_size, scale, test_dataset=None):
                 tf.summary.image(name='dis_true', data=image, step=epoch)
         print('Time for epoch {} is {} sec.'.format(
             epoch + 1, time.time()-start))
+    # tf.keras.backend.clear_session()
 
 
 def plot_matrix(m):
@@ -749,5 +787,5 @@ if __name__ == '__main__':
     print(Dis.summary())
     tf.keras.utils.plot_model(Dis, to_file='D.png', show_shapes=True)
 
-    #Gen.save('./saved_model/gen_model')
-    #Dis.save('./saved_model/dis_model')
+    # Gen.save('./saved_model/gen_model')
+    # Dis.save('./saved_model/dis_model')

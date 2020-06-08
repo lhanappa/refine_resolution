@@ -10,6 +10,7 @@ import cooler
 import numpy as np
 import copy
 import os
+import shutil
 from utils.operations import sampling_hic
 from utils.operations import divide_pieces_hic, merge_hic
 import tensorflow as tf
@@ -48,63 +49,39 @@ hic_hr = np.asarray(hic_hr)"""
 
 def run(train_data, test_data, len_size, scale, EPOCHS, summary=False):
     # get generator model
-    filepath = './saved_model/gen_model'
+    Gen = model.make_generator_model(len_high_size=len_size, scale=scale)
+
+    filepath = './saved_model/gen_model/gen_weights'
     if os.path.exists(filepath):
-        print('#load gen')
-        Gen = tf.keras.models.load_model(filepath)
-    else:
-        Gen = model.make_generator_model(len_high_size=len_size, scale=scale)
-    Gen.get_layer('dsd_x8').build(input_shape=(None,40,40,1))
-    Gen.get_layer('dsd_x4').build(input_shape=(None,40,40,1))
-    Gen.get_layer('dsd_x2').build(input_shape=(None,40,40,1))
-    Gen.get_layer('r1c_x8').build(input_shape=(None,5,5,256))
-    Gen.get_layer('r1c_x4').build(input_shape=(None,10,10,512))
-    Gen.get_layer('r1c_x2').build(input_shape=(None,20,20,1024))
-    Gen.get_layer('r1e_x8').build(input_shape=(None,5,5,256))
-    Gen.get_layer('r1e_x4').build(input_shape=(None,10,10,512))
-    Gen.get_layer('r1e_x2').build(input_shape=(None,20,20,1024))
-    Gen.get_layer('usc_x8').build(input_shape=(None,5,5,32))
-    Gen.get_layer('usc_x4').build(input_shape=(None,10,10,144))
-    Gen.get_layer('usc_x2').build(input_shape=(None,20,20,320))
-    Gen.build(input_shape=(None,40,40,1))
+        Gen.load_weights(filepath)
+
     # get discriminator model
-    filepath = './saved_model/dis_model'
+    Dis = model.make_discriminator_model(len_high_size=len_size, scale=scale)
+    filepath = './saved_model/dis_model/dis_weights'
     if os.path.exists(filepath):
-        print("#")
-        Dis = tf.keras.models.load_model(filepath)
-    else:
-        Dis = model.make_discriminator_model(len_high_size=len_size, scale=scale)
-    Dis.get_layer('r1dr_x1').build(input_shape=(None,40,40,1))
-    Dis.get_layer('r1dr_x2').build(input_shape=(None,20,20,4))
-    Dis.get_layer('r1dr_x4').build(input_shape=(None,10,10,16))
-    Dis.get_layer('r1dr_x8').build(input_shape=(None,5,5,64))
-    Dis.get_layer('dc_x1').build(input_shape=(None,40,40,512))
-    Dis.get_layer('dc_x2').build(input_shape=(None,20,20,120))
-    Dis.get_layer('dc_x4').build(input_shape=(None,10,10,140))
-    Dis.get_layer('dc_x8').build(input_shape=(None,5,5,70))
-    Dis.get_layer('r1c_x2').build(input_shape=(None,20,20,512))
-    Dis.get_layer('r1c_x4').build(input_shape=(None,10,10,256))
-    Dis.get_layer('r1c_x8').build(input_shape=(None,5,5,128))
-    Dis.build(input_shape=(None,40,40,1))
+        Dis.load_weights(filepath)
+
     if summary:
         print(Gen.summary())
         tf.keras.utils.plot_model(Gen, to_file='G.png', show_shapes=True)
         print(Dis.summary())
         tf.keras.utils.plot_model(Dis, to_file='D.png', show_shapes=True)
 
-    print('#training')
     model.train(Gen, Dis, train_data, EPOCHS, len_size, scale, test_data)
 
-    file_path = './saved_model/gen_model'
-    Gen.save(file_path, overwrite=True, include_optimizer=False)
-    file_path = './saved_model/dis_model'
-    Dis.save(file_path, overwrite=True, include_optimizer=False)
+    file_path = './saved_model/gen_model/gen_weights'
+    Gen.save_weights(file_path)
+    #tf.keras.models.save_model(Gen, file_path, overwrite=False, include_optimizer=False)
+    #Gen.save(file_path, overwrite=False, include_optimizer=False)
+    file_path = './saved_model/dis_model/dis_weights'
+    Dis.save_weights(file_path)
+    #tf.keras.models.save_model(Dis, file_path, overwrite=False, include_optimizer=False)
 
 
 if __name__ == '__main__':
     len_size = 40
     scale = 4
-    EPOCHS = 2
+    EPOCHS = 600
     BATCH_SIZE = 9
     data_path = './data'
     raw_path = 'raw'
@@ -118,7 +95,8 @@ if __name__ == '__main__':
     hr_file_list = []
 
     for chri in chromosome_list:
-        path = os.path.join(data_path, input_path, input_file, 'HR','chr'+chri)
+        path = os.path.join(data_path, input_path,
+                            input_file, 'HR', 'chr'+chri)
         for file in os.listdir(path):
             if file.endswith(".npz"):
                 pathfile = os.path.join(path, file)
@@ -132,10 +110,12 @@ if __name__ == '__main__':
         print(lr_file)
         with np.load(lr_file, allow_pickle=True) as data:
             hic_lr = data['hic']
-        
+
         hic_lr = np.asarray(hic_lr).astype(np.float32)
         hic_hr = np.asarray(hic_hr).astype(np.float32)
-        train_data = tf.data.Dataset.from_tensor_slices((hic_lr[0:9, ..., np.newaxis], hic_hr[0:9, ..., np.newaxis])).batch(BATCH_SIZE)
-        test_data = tf.data.Dataset.from_tensor_slices((hic_lr[0:9, ..., np.newaxis], hic_hr[0:9, ..., np.newaxis])).batch(BATCH_SIZE)
-        run(train_data=train_data, test_data=test_data, len_size=len_size, scale=scale, EPOCHS=EPOCHS, summary=False)
-        tf.keras.backend.clear_session()
+        train_data = tf.data.Dataset.from_tensor_slices(
+            (hic_lr[..., np.newaxis], hic_hr[..., np.newaxis])).batch(BATCH_SIZE)
+        test_data = tf.data.Dataset.from_tensor_slices(
+            (hic_lr[0:9, ..., np.newaxis], hic_hr[0:9, ..., np.newaxis])).batch(BATCH_SIZE)
+        run(train_data=train_data, test_data=test_data,
+            len_size=len_size, scale=scale, EPOCHS=EPOCHS, summary=False)
