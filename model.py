@@ -656,7 +656,7 @@ def train(gen, dis, dataset, epochs, len_high_size, scale, test_dataset=None):
                                          imgr=tf.dtypes.cast(
                                              high_m, tf.float32),
                                          loss_filter=[loss_filter_high],
-                                         opts=[dis.optimizer], train_logs=[discriminator_log])
+                                         opts=[discriminator_optimizer], train_logs=[discriminator_log])
         # log the model epochs
         if epoch+1 % 400 == 0:
             gen.save_weights('./saved_model/'+current_time+'/gen_weights')
