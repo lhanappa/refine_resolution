@@ -656,11 +656,11 @@ def train(gen, dis, dataset, epochs, len_high_size, scale, test_dataset=None):
                                          loss_filter=[loss_filter_high],
                                          opts=[dis.optimizer], train_logs=[discriminator_log])
         # log the model epochs
-        if epoch % 400 == 0:
+        if epoch+1 % 400 == 0:
             gen.save_weights('./saved_model/'+current_time+'/gen_weights')
             dis.save_weights('./saved_model/'+current_time+'/dis_weights')
 
-        if (epoch) % 10 == 0:
+        if (epoch) % 10 == 0 or True:
             [dpl_x2, dpl_x4, dpl_x8, dph, _, _, _] = gen(
                 demo_input_low, training=False)
             #demo_disc_generated = dis([demo_pred_high, demo_up], training=False)
