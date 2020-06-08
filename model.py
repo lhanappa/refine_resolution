@@ -487,7 +487,7 @@ def _train_step_generator(Gen, Dis, imgl, imgr, loss_filter, loss_weights, opts,
         gen_loss_high = gen_loss_high_0 * loss_weights[0] + \
             gen_loss_high_1 * loss_weights[1] + \
             gen_loss_high_2*loss_weights[2]
-            
+
     gen_low_v = []
     gen_low_v += Gen.get_layer('dsd_x2').trainable_variables
     gen_low_v += Gen.get_layer('r1e_x2').trainable_variables
@@ -628,7 +628,9 @@ def train(gen, dis, dataset, epochs, len_high_size, scale, test_dataset=None):
 
     [_, (demo_input_low, demo_input_high)] = next(
         enumerate(test_dataset.take(1)))
-
+    
+    train_step_generator = tf.function(_train_step_generator)
+    train_step_discriminator = tf.function(_train_step_discriminator)
     for epoch in range(epochs):
         start = time.time()
         for i, (low_m, high_m) in enumerate(dataset):
@@ -639,7 +641,7 @@ def train(gen, dis, dataset, epochs, len_high_size, scale, test_dataset=None):
                 loss_weights = [1.0, 10.0, 0.0]
 
             if(epoch % 40 <= 30):
-                train_step_generator = tf.function(_train_step_generator)
+
                 train_step_generator(gen, dis,
                                      tf.dtypes.cast(low_m, tf.float32), tf.dtypes.cast(
                                          high_m, tf.float32),
@@ -649,8 +651,7 @@ def train(gen, dis, dataset, epochs, len_high_size, scale, test_dataset=None):
 
             if(epoch % 40 >= 30):
                 #Gen, Dis, imgl, imgr, loss_filter, opts, train_logs
-                train_step_discriminator = tf.function(
-                    _train_step_discriminator)
+
                 train_step_discriminator(Gen=gen, Dis=dis, imgl=tf.dtypes.cast(low_m, tf.float32),
                                          imgr=tf.dtypes.cast(
                                              high_m, tf.float32),
