@@ -114,7 +114,7 @@ if __name__ == '__main__':
         hic_lr = np.asarray(hic_lr).astype(np.float32)
         hic_hr = np.asarray(hic_hr).astype(np.float32)
         train_data = tf.data.Dataset.from_tensor_slices(
-            (hic_lr[..., np.newaxis], hic_hr[..., np.newaxis])).batch(BATCH_SIZE)
+            (hic_lr[0::3,..., np.newaxis], hic_hr[0::3,..., np.newaxis])).batch(BATCH_SIZE)
         test_data = tf.data.Dataset.from_tensor_slices(
             (hic_lr[0:9, ..., np.newaxis], hic_hr[0:9, ..., np.newaxis])).batch(BATCH_SIZE)
         run(train_data=train_data, test_data=test_data,

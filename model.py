@@ -247,13 +247,13 @@ def make_generator_model(len_high_size=128, scale=4):
         pool_size=(2, 2), strides=2, padding='valid', name='p_x8')(low_x4)
 
     dsd_x8 = block_downsample_decomposition(len_low_size=len_low_size_x8, input_len_size=len_high_size,
-                                            input_channels=1, downsample_ratio=8, filters_decompose=256, name='dsd_x8')
+                                            input_channels=1, downsample_ratio=8, filters_decompose=128, name='dsd_x8')
     rech_x8 = dsd_x8(inp)
     r1c = block_rank1channels_convolution(
-        filters=32, input_len_size=len_low_size_x8, input_channels=256, name='r1c_x8')
+        filters=32, input_len_size=len_low_size_x8, input_channels=128, name='r1c_x8')
     sym_x8 = r1c(rech_x8)
     r1e = block_rank1_estimation(
-        dims=len_low_size_x8, input_len_size=len_low_size_x8, input_channels=256, name='r1e_x8')
+        dims=len_low_size_x8, input_len_size=len_low_size_x8, input_channels=128, name='r1e_x8')
     out_low_x8 = r1e(rech_x8)
 
     usc_x8 = block_upsample_convolution(
@@ -261,13 +261,13 @@ def make_generator_model(len_high_size=128, scale=4):
     sym_x8 = usc_x8(sym_x8)
 
     dsd_x4 = block_downsample_decomposition(len_low_size=len_low_size_x4, input_len_size=len_high_size,
-                                            input_channels=1, downsample_ratio=4, filters_decompose=512, name='dsd_x4')
+                                            input_channels=1, downsample_ratio=4, filters_decompose=256, name='dsd_x4')
     rech_x4 = dsd_x4(inp)
     r1c = block_rank1channels_convolution(
-        filters=128, input_len_size=len_low_size_x4, input_channels=512, name='r1c_x4')
+        filters=128, input_len_size=len_low_size_x4, input_channels=256, name='r1c_x4')
     sym_x4 = r1c(rech_x4)
     r1e = block_rank1_estimation(
-        dims=len_low_size_x4, input_len_size=len_low_size_x4, input_channels=512, name='r1e_x4')
+        dims=len_low_size_x4, input_len_size=len_low_size_x4, input_channels=256, name='r1e_x4')
     out_low_x4 = r1e(rech_x4)
 
     concat = tf.keras.layers.concatenate([sym_x8, sym_x4], axis=-1)
@@ -277,13 +277,13 @@ def make_generator_model(len_high_size=128, scale=4):
     sym_x4 = usc_x4(concat)
 
     dsd_x2 = block_downsample_decomposition(len_low_size=len_low_size_x2, input_len_size=len_high_size,
-                                            input_channels=1, downsample_ratio=2, filters_decompose=1024, name='dsd_x2')
+                                            input_channels=1, downsample_ratio=2, filters_decompose=512, name='dsd_x2')
     rech_x2 = dsd_x2(inp)
     r1c_x2 = block_rank1channels_convolution(
-        filters=256, input_len_size=len_low_size_x2, input_channels=1024, name='r1c_x2')
+        filters=256, input_len_size=len_low_size_x2, input_channels=512, name='r1c_x2')
     sym_x2 = r1c_x2(rech_x2)
     r1e_x2 = block_rank1_estimation(
-        dims=len_low_size_x2, input_len_size=len_low_size_x2, input_channels=1024, name='r1e_x2')
+        dims=len_low_size_x2, input_len_size=len_low_size_x2, input_channels=512, name='r1e_x2')
     out_low_x2 = r1e_x2(rech_x2)
 
     concat = tf.keras.layers.concatenate([sym_x4, sym_x2], axis=-1)
