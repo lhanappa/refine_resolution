@@ -1,9 +1,6 @@
 */*.png
 .vscode/settings.json
-Dixon2012-H1hESC-HindIII-allreps-filtered.10kb.cool
-Dixon2012-H1hESC-HindIII-allreps-filtered.100kb.cool
-saved_model/gen_model/variables/*
-saved_model/gen_model/variables/variables*
+*.cool
 training_checkpoints/*
 logs/*
 __pycache__/*
@@ -18,4 +15,5 @@ draft.drawio
 utils/__pycache__/operations.cpython-37.pyc
 datasets_hic.npz
 test_*.ipynb
-data/input/Dixon2012_10kb/*
+data/*
+utils/__pycache__/*.pyc

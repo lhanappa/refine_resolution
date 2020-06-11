@@ -628,7 +628,7 @@ def train(gen, dis, dataset, epochs, len_high_size, scale, test_dataset=None):
 
     [_, (demo_input_low, demo_input_high)] = next(
         enumerate(test_dataset.take(1)))
-    
+
     train_step_generator = tf.function(_train_step_generator)
     train_step_discriminator = tf.function(_train_step_discriminator)
     for epoch in range(epochs):

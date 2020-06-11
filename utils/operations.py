@@ -24,7 +24,7 @@ def sampling_hic(hic_matrix, sampling_ratio, fix_seed=False):
     return np.asarray(sample_m)
 
 
-def divide_pieces_hic(hic_matrix, block_size=128, save_file=False, pathfile=None):
+def divide_pieces_hic(hic_matrix, block_size=128, max_distance=None, save_file=False, pathfile=None):
     M = hic_matrix
 
     IMG_HEIGHT, IMG_WIDTH = int(block_size), int(block_size)
@@ -46,6 +46,8 @@ def divide_pieces_hic(hic_matrix, block_size=128, save_file=False, pathfile=None
     count = 0
     for dis in np.arange(1, hic_half_h.shape[0]):
         for i in np.arange(0, hic_half_h.shape[1]-dis):
+            if max_distance is not None and (dis>max_distance):
+                continue
             hic_m.append(np.block([[hic_half_h[i, i], hic_half_h[i, i+dis]],
                                    [hic_half_h[i+dis, i], hic_half_h[i+dis, i+dis]]]))
             hic_index[count] = (i, i+dis)
@@ -130,12 +132,20 @@ def format_contact(matrix, coordinate=(0, 1), resolution=10000, chrm='1', save_f
             chr2 = chrm
             bin1 = (i - int(i/nhf)*nhf + coordinate[int(i/nhf)]*nhf)*resolution
             bin2 = (j - int(j/nhf)*nhf + coordinate[int(j/nhf)]*nhf)*resolution
-            entry = [chr1, bin1, chr2, bin2, value]
-            contact.append(entry)
+            entry = [chr1, str(bin1), chr2, str(bin2), str(value)]
+            contact.append('\t'.join(entry))
+    contact_txt = "\n".join(contact)
+    #contact_txt = format(contact_txt, 'b')
     if save_file:
         if filename is None:
             filename = './demo_contact.gz'
-        np.savetxt(filename, contact)
+        import gzip
+        import os
+        output = gzip.open(filename, 'w+')
+        try:
+            output.write(contact_txt.encode())
+        finally:
+            output.close()
     return contact
 
 
@@ -144,16 +154,21 @@ def format_bin(matrix, coordinate=(0, 1), resolution=10000, chrm='1', save_file=
     n = len(matrix)
     nhf = int(len(matrix)/2)
     bins = list()
+
     for i in np.arange(n):
         chr1 = chrm
-        start = (i - int(i/nhf)*nhf + coordinate[int(i/nhf)]*nhf)*resolution
-        end = start + resolution
-        entry = [chr1, start, end, start]
-        bins.append(entry)
+        start = int((i - int(i/nhf)*nhf + coordinate[int(i/nhf)]*nhf)*resolution)
+        end = int(start + resolution)
+        entry = [chr1, str(start), str(end), str(start)]
+        bins.append('\t'.join(entry))
     if save_file:
         if filename is None:
             filename = './demo.bed'
-        np.savetxt(filename, bins)
+        file = open(filename,"w+")
+        for l in bins:
+            file.write(l)
+            file.write('\n')
+        file.close()
     return bins
 
 

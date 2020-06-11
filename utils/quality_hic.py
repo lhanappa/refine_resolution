@@ -30,8 +30,6 @@ def qualify_hic(predict, true):
         true_filepath = true
         true_m = np.load(true_filepath, allow_pickle=True)
 
-    
-
 
 def configure_file(path, filename, pair_1, pair_2, sample_1_file, sample_2_file):
     """
