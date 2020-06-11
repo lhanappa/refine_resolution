@@ -8,7 +8,7 @@ from iced import normalization
 from utils import operations
 
 
-def configure():
+def configure(len_size=None, genomic_distance=None):
     # set path
     data_path = './data'
     raw_path = 'raw'
@@ -20,9 +20,11 @@ def configure():
 
     resolution = None  # assigned by cooler binsizes
     scale = 4
-    len_size = 40
+    if len_size is None:
+        len_size = 40
     block_size = 2048  # number of entries in one file
-    genomic_distance = 2000000
+    if genomic_distance is None:
+        genomic_distance=200000
 
     input_path = '_'.join(
         [input_path, 'ours', str(genomic_distance), str(len_size)])
@@ -113,7 +115,7 @@ def save_samples(configure=None, chromosome=None):
 
 
 if __name__ == '__main__':
-    config = configure()
-    chromosome_list = ['22']  # [str(sys.argv[1])]
+    config = configure(len_size=str(sys.argv[2]), genomic_distance=str(sys.argv[3]))
+    chromosome_list = [str(sys.argv[1])]
     for chri in chromosome_list:
         save_samples(config, chromosome=chri)
