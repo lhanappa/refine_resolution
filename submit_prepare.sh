@@ -6,5 +6,6 @@ len_size='40'
 boundary='2000000'
 rm slurm-data-*.out
 for c in "${chr[@]}"; do
+    echo sbatch bash_prepare_data.sh $c $len_size $boundary
     sbatch bash_prepare_data.sh $c $len_size $boundary
 done

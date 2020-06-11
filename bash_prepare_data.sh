@@ -15,7 +15,7 @@ date
 #source activate tf_base
 source activate tf_gpu_base
 # run
-python prepare_data.py ${1}
+python prepare_data.py ${1} ${2} ${3}
 
 # Print name of node
 hostname
