@@ -28,6 +28,8 @@ def configure(len_size=None, genomic_distance=None):
 
     input_path = '_'.join(
         [input_path, 'ours', str(genomic_distance), str(len_size)])
+
+    output_path= '_'.join([output_path, 'ours', str(genomic_distance), str(len_size)])
     output_file = input_file
 
     # load raw hic matrix
