@@ -81,7 +81,7 @@ def run(train_data, test_data, len_size, scale, EPOCHS, summary=False):
 if __name__ == '__main__':
     len_size = 40
     scale = 4
-    genomic_distance=200000
+    genomic_distance=2000000
     EPOCHS = 600
     BATCH_SIZE = 9
     data_path = './data'
