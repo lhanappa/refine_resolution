@@ -51,13 +51,13 @@ def run(train_data, test_data, len_size, scale, EPOCHS, summary=False):
     # get generator model
     Gen = model.make_generator_model(len_high_size=len_size, scale=scale)
 
-    filepath = './saved_model/gen_model/gen_weights'
+    filepath = './saved_model/gen_model/gen_weights_'+str(len_size)
     if os.path.exists(filepath):
         Gen.load_weights(filepath)
 
     # get discriminator model
     Dis = model.make_discriminator_model(len_high_size=len_size, scale=scale)
-    filepath = './saved_model/dis_model/dis_weights'
+    filepath = './saved_model/dis_model/dis_weights'+str(len_size)
     if os.path.exists(filepath):
         Dis.load_weights(filepath)
 
@@ -69,17 +69,17 @@ def run(train_data, test_data, len_size, scale, EPOCHS, summary=False):
 
     model.train(Gen, Dis, train_data, EPOCHS, len_size, scale, test_data)
 
-    file_path = './saved_model/gen_model/gen_weights'
+    file_path = './saved_model/gen_model/gen_weights_'+str(len_size)
     Gen.save_weights(file_path)
     #tf.keras.models.save_model(Gen, file_path, overwrite=False, include_optimizer=False)
     #Gen.save(file_path, overwrite=False, include_optimizer=False)
-    file_path = './saved_model/dis_model/dis_weights'
+    file_path = './saved_model/dis_model/dis_weights_'+str(len_size)
     Dis.save_weights(file_path)
     #tf.keras.models.save_model(Dis, file_path, overwrite=False, include_optimizer=False)
 
 
 if __name__ == '__main__':
-    len_size = 40
+    len_size = 200 #40
     scale = 4
     genomic_distance=2000000
     EPOCHS = 600
@@ -92,7 +92,7 @@ if __name__ == '__main__':
     output_path = 'output'
     output_file = input_file
     #'1' '2' '3' '4' '5' '6' '7' '8' '9' '10' '11' '12' '13' '14' '15' '16' '17' '18' '19' '20' '21' '22' 'X'
-    chromosome_list = ['13', '14', '15']
+    chromosome_list = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15']
     hr_file_list = []
 
     for chri in chromosome_list:

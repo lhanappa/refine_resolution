@@ -641,7 +641,6 @@ def train(gen, dis, dataset, epochs, len_high_size, scale, test_dataset=None):
                 loss_weights = [1.0, 10.0, 0.0]
 
             if(epoch % 40 <= 20):
-
                 train_step_generator(gen, dis,
                                      tf.dtypes.cast(low_m, tf.float32), tf.dtypes.cast(
                                          high_m, tf.float32),
@@ -651,7 +650,6 @@ def train(gen, dis, dataset, epochs, len_high_size, scale, test_dataset=None):
 
             if(epoch % 40 >= 20):
                 #Gen, Dis, imgl, imgr, loss_filter, opts, train_logs
-
                 train_step_discriminator(Gen=gen, Dis=dis, imgl=tf.dtypes.cast(low_m, tf.float32),
                                          imgr=tf.dtypes.cast(
                                              high_m, tf.float32),
@@ -659,8 +657,8 @@ def train(gen, dis, dataset, epochs, len_high_size, scale, test_dataset=None):
                                          opts=[discriminator_optimizer], train_logs=[discriminator_log])
         # log the model epochs
         if epoch+1 % 400 == 0:
-            gen.save_weights('./saved_model/'+current_time+'/gen_weights')
-            dis.save_weights('./saved_model/'+current_time+'/dis_weights')
+            gen.save_weights('./saved_model/'+current_time+'/gen_weights_'+str(len_high_size))
+            dis.save_weights('./saved_model/'+current_time+'/dis_weights_'+str(len_high_size))
 
         if (epoch) % 10 == 0 or True:
             [dpl_x2, dpl_x4, dpl_x8, dph, _, _, _] = gen(
@@ -782,8 +780,8 @@ def plot_to_image(figure):
 
 
 if __name__ == '__main__':
-    Gen = make_generator_model(len_high_size=40, scale=4)
-    Dis = make_discriminator_model(len_high_size=40, scale=4)
+    Gen = make_generator_model(len_high_size=200, scale=4)
+    Dis = make_discriminator_model(len_high_size=200, scale=4)
     print(Gen.summary())
     tf.keras.utils.plot_model(Gen, to_file='G.png', show_shapes=True)
     print(Dis.summary())
