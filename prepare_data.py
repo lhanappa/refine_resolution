@@ -13,7 +13,7 @@ def configure(len_size=None, genomic_distance=None):
     data_path = './data'
     raw_path = 'raw'
     # data from ftp://cooler.csail.mit.edu/coolers/hg19/
-    raw_hic = 'Rao2014-GM12878-MboI-allreps-filtered.10kb.cool'
+    raw_hic = 'Rao2014-GM12878-DpnII-allreps-filtered.10kb.cool'
     input_path = 'input'
     input_file = raw_hic.split('-')[0] + '_' + raw_hic.split('.')[1]
     output_path = 'output'
@@ -35,9 +35,10 @@ def configure(len_size=None, genomic_distance=None):
     # load raw hic matrix
     file = os.path.join(data_path, raw_path, raw_hic)
     print(file)
-    if ~os.path.exists(file):
+    '''if ~os.path.exists(file):
         url = 'ftp://cooler.csail.mit.edu/coolers/hg19/'+raw_hic
-        file = wget.download(url, file)
+        print(url)
+        file = wget.download(url, file)'''
     cool_hic = cooler.Cooler(file)
     resolution = cool_hic.binsize
     return cool_hic, resolution, scale, len_size, genomic_distance,\
