@@ -81,17 +81,18 @@ def run(train_data, test_data, len_size, scale, EPOCHS, summary=False):
 if __name__ == '__main__':
     len_size = 40
     scale = 4
+    genomic_distance=200000
     EPOCHS = 600
     BATCH_SIZE = 9
     data_path = './data'
     raw_path = 'raw'
-    raw_hic = 'Dixon2012-H1hESC-HindIII-allreps-filtered.10kb.cool'
-    input_path = 'input'
+    raw_hic = 'Rao2014-GM12878-DpnII-allreps-filtered.10kb.cool'
+    input_path =  '_'.join(['input', 'ours', str(genomic_distance), str(len_size)]) 
     input_file = raw_hic.split('-')[0] + '_' + raw_hic.split('.')[1]
     output_path = 'output'
     output_file = input_file
     #'1' '2' '3' '4' '5' '6' '7' '8' '9' '10' '11' '12' '13' '14' '15' '16' '17' '18' '19' '20' '21' '22' 'X'
-    chromosome_list = ['22']
+    chromosome_list = ['13' '14' '15']
     hr_file_list = []
 
     for chri in chromosome_list:
