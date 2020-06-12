@@ -656,7 +656,7 @@ def train(gen, dis, dataset, epochs, len_high_size, scale, test_dataset=None):
                                          loss_filter=[loss_filter_high],
                                          opts=[discriminator_optimizer], train_logs=[discriminator_log])
         # log the model epochs
-        if epoch+1 % 400 == 0:
+        if (epoch+1) % 200 == 0:
             gen.save_weights('./saved_model/'+current_time+'/gen_weights_'+str(len_high_size))
             dis.save_weights('./saved_model/'+current_time+'/dis_weights_'+str(len_high_size))
 
@@ -780,12 +780,11 @@ def plot_to_image(figure):
 
 
 if __name__ == '__main__':
-    Gen = make_generator_model(len_high_size=200, scale=4)
-    Dis = make_discriminator_model(len_high_size=200, scale=4)
+    len_size=200
+    scale=4
+    Gen = make_generator_model(len_high_size=len_size, scale=scale)
+    Dis = make_discriminator_model(len_high_size=len_size, scale=scale)
     print(Gen.summary())
     tf.keras.utils.plot_model(Gen, to_file='G.png', show_shapes=True)
     print(Dis.summary())
     tf.keras.utils.plot_model(Dis, to_file='D.png', show_shapes=True)
-
-    # Gen.save('./saved_model/gen_model')
-    # Dis.save('./saved_model/dis_model')

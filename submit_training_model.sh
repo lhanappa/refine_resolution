@@ -17,7 +17,10 @@ date
 #source activate tf_base
 source activate tf_gpu_base
 # run
-python train.py
+#the size of input
+len_size=${1}
+max_distance=${2}
+python train.py $len_size $max_distance
 
 # Print name of node
 hostname
