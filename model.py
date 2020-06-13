@@ -433,7 +433,8 @@ def _train_step_generator(Gen, Dis, imgl, imgr, loss_filter, loss_weights, opts,
     with tf.GradientTape() as x, tf.GradientTape() as gen_tape_high:
         fake_hic = Gen(imgl, training=True)
         fake_hic_l_x2 = fake_hic[0]
-        imgl_x2 = fake_hic[4]
+        #imgl_x2 = fake_hic[4]
+        imgl_x2 = fake_hic[3]
         mfilter_low = tf.expand_dims(loss_filter[0], axis=0)
         mfilter_low = tf.expand_dims(mfilter_low, axis=-1)
         mfilter_low = tf.cast(mfilter_low, tf.float32)
@@ -441,7 +442,8 @@ def _train_step_generator(Gen, Dis, imgl, imgr, loss_filter, loss_weights, opts,
         imgl_x2_filter = tf.multiply(imgl_x2, mfilter_low)
 
         fake_hic_l_x4 = fake_hic[1]
-        imgl_x4 = fake_hic[5]
+        #imgl_x4 = fake_hic[5]
+        imgl_x4 = fake_hic[4]
         mfilter_low = tf.expand_dims(loss_filter[1], axis=0)
         mfilter_low = tf.expand_dims(mfilter_low, axis=-1)
         mfilter_low = tf.cast(mfilter_low, tf.float32)
@@ -527,7 +529,8 @@ def _train_step_generator(Gen, Dis, imgl, imgr, loss_filter, loss_weights, opts,
 def _train_step_discriminator(Gen, Dis, imgl, imgr, loss_filter, opts, train_logs):
     with tf.GradientTape() as disc_tape:
         fake_hic = Gen(imgl, training=False)
-        fake_hic_h = fake_hic[3]
+        #fake_hic_h = fake_hic[3]
+        fake_hic_h = fake_hic[2]
 
         mfilter_high = tf.expand_dims(loss_filter[0], axis=0)
         mfilter_high = tf.expand_dims(mfilter_high, axis=-1)
@@ -667,8 +670,9 @@ def train(gen, dis, dataset, epochs, len_high_size, scale, test_dataset=None):
             dis.save_weights('./saved_model/'+current_time+'/dis_weights_'+str(len_high_size))
 
         if (epoch) % 10 == 0 or True:
-            [dpl_x2, dpl_x4, dpl_x8, dph, _, _, _] = gen(
+            [dpl_x2, dpl_x4, dph, _, _] = gen(
                 demo_input_low, training=False)
+            #[dpl_x2, dpl_x4, dpl_x8, dph, _, _, _] = gen(demo_input_low, training=False)
             #demo_disc_generated = dis([demo_pred_high, demo_up], training=False)
             #demo_disc_true = dis([demo_input_high, demo_up], training=False)
             demo_disc_generated = dis(dph, training=False)
@@ -694,11 +698,11 @@ def train(gen, dis, dataset, epochs, len_high_size, scale, test_dataset=None):
                 fig = plot_matrix(m)
                 image = plot_to_image(fig)
                 tf.summary.image(name='gen_low_x4', data=image, step=epoch)
-                mpy = dpl_x8.numpy()
+                '''mpy = dpl_x8.numpy()
                 m = np.log1p(1000*np.squeeze(mpy[:, :, :, 0]))
                 fig = plot_matrix(m)
                 image = plot_to_image(fig)
-                tf.summary.image(name='gen_low_x8', data=image, step=epoch)
+                tf.summary.image(name='gen_low_x8', data=image, step=epoch)'''
                 mpy = dph.numpy()
                 m = np.log1p(1000*np.squeeze(mpy[:, :, :, 0]))
                 fig = plot_matrix(m)
