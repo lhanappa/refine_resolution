@@ -54,7 +54,7 @@ if __name__ == '__main__':
     scale = 4
     # genomic_disstance is used for input path, nothing to do with model
     genomic_distance = int(sys.argv[2])  # 2000000, 2560000
-    EPOCHS = 600
+    EPOCHS = 2000
     BATCH_SIZE = 9
     data_path = './data'
     raw_path = 'raw'
@@ -80,25 +80,26 @@ if __name__ == '__main__':
     hic_hr = None
     hic_lr = None
     for hr_file in hr_file_list:
-        print(hr_file)
+        lr_file = hr_file.replace('HR', 'LR')
+        print(hr_file, lr_file)
+        if (not os.path.exists(hr_file)) or (not os.path.exists(lr_file)):
+            continue
         with np.load(hr_file, allow_pickle=True) as data:
             if hic_hr is None:
                 hic_hr = data['hic']
             else:
                 hic_hr = np.concatenate((hic_hr, data['hic']), axis=0)
-        lr_file = hr_file.replace('HR', 'LR')
-        print(lr_file)
         with np.load(lr_file, allow_pickle=True) as data:
             if hic_lr is None:
                 hic_lr = data['hic']
             else:
                 hic_lr = np.concatenate((hic_lr, data['hic']), axis=0)
 
-        hic_lr = np.asarray(hic_lr).astype(np.float32)
-        hic_hr = np.asarray(hic_hr).astype(np.float32)
-        train_data = tf.data.Dataset.from_tensor_slices(
-            (hic_lr[..., np.newaxis], hic_hr[..., np.newaxis])).batch(BATCH_SIZE)
-        test_data = tf.data.Dataset.from_tensor_slices(
-            (hic_lr[0:9, ..., np.newaxis], hic_hr[0:9, ..., np.newaxis])).batch(BATCH_SIZE)
-        run(train_data=train_data, test_data=test_data,
-            len_size=len_size, scale=scale, EPOCHS=EPOCHS, summary=False)
+    hic_lr = np.asarray(hic_lr).astype(np.float32)
+    hic_hr = np.asarray(hic_hr).astype(np.float32)
+    train_data = tf.data.Dataset.from_tensor_slices(
+        (hic_lr[..., np.newaxis], hic_hr[..., np.newaxis])).batch(BATCH_SIZE)
+    test_data = tf.data.Dataset.from_tensor_slices(
+        (hic_lr[0:9, ..., np.newaxis], hic_hr[0:9, ..., np.newaxis])).batch(BATCH_SIZE)
+    run(train_data=train_data, test_data=test_data,
+        len_size=len_size, scale=scale, EPOCHS=EPOCHS, summary=False)
