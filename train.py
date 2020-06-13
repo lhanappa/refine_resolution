@@ -71,6 +71,8 @@ if __name__ == '__main__':
     for chri in chromosome_list:
         path = os.path.join(data_path, input_path,
                             input_file, 'HR', 'chr'+chri)
+        if not os.path.exists(path):
+            continue
         for file in os.listdir(path):
             if file.endswith(".npz"):
                 pathfile = os.path.join(path, file)
