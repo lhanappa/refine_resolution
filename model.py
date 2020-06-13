@@ -656,7 +656,7 @@ def train(gen, dis, dataset, epochs, len_high_size, scale, test_dataset=None):
                                          loss_filter=[loss_filter_high],
                                          opts=[discriminator_optimizer], train_logs=[discriminator_log])
         # log the model epochs
-        if (epoch+1) % 200 == 0:
+        if (epoch+10) % 50 == 0:
             gen.save_weights('./saved_model/'+current_time+'/gen_weights_'+str(len_high_size))
             dis.save_weights('./saved_model/'+current_time+'/dis_weights_'+str(len_high_size))
 
