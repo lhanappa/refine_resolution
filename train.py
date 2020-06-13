@@ -65,8 +65,7 @@ if __name__ == '__main__':
     output_path = 'output'
     output_file = input_file
     #'1' '2' '3' '4' '5' '6' '7' '8' '9' '10' '11' '12' '13' '14' '15' '16' '17' '18' '19' '20' '21' '22' 'X'
-    chromosome_list = ['1', '2', '3', '4', '5', '6', '7',
-                       '8', '9', '10', '11', '12', '13', '14', '15']
+    chromosome_list = ['1', '2', '3', '4', '5', '6']
     hr_file_list = []
 
     for chri in chromosome_list:
@@ -78,14 +77,22 @@ if __name__ == '__main__':
                 hr_file_list.append(pathfile)
     hr_file_list.sort()
 
+    hic_hr = None
+    hic_lr = None
     for hr_file in hr_file_list:
         print(hr_file)
         with np.load(hr_file, allow_pickle=True) as data:
-            hic_hr = data['hic']
+            if hic_hr is None:
+                hic_hr = data['hic']
+            else:
+                hic_hr = np.concatenate((hic_hr, data['hic']), axis=0)
         lr_file = hr_file.replace('HR', 'LR')
         print(lr_file)
         with np.load(lr_file, allow_pickle=True) as data:
-            hic_lr = data['hic']
+            if hic_lr is None:
+                hic_lr = data['hic']
+            else:
+                hic_lr = np.concatenate((hic_lr, data['hic']), axis=0)
 
         hic_lr = np.asarray(hic_lr).astype(np.float32)
         hic_hr = np.asarray(hic_hr).astype(np.float32)
