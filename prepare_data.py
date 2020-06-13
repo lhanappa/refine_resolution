@@ -71,7 +71,7 @@ def save_samples(configure=None, chromosome=None):
     if genomic_distance is not None:
         max_boundary = np.ceil(genomic_distance/(resolution*len_size/2.0))
 
-    hic_hr, index_1d_2d, index_2d_1d = operations.divide_pieces_hic(
+    hic_hr, _, _ = operations.divide_pieces_hic(
         Mh, block_size=len_size, max_distance=max_boundary, save_file=False)
     hic_hr = np.asarray(hic_hr)
     print('shape hic_hr: ', hic_hr.shape)
@@ -79,6 +79,8 @@ def save_samples(configure=None, chromosome=None):
         Ml, block_size=len_size, max_distance=max_boundary, save_file=False)
     hic_lr = np.asarray(hic_lr)
     print('shape hic_lr: ', hic_lr.shape)
+
+
     directory_hr = os.path.join(
         data_path, input_path, input_file, 'HR', chromosome)
     directory_lr = os.path.join(

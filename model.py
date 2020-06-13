@@ -243,10 +243,10 @@ def make_generator_model(len_high_size=128, scale=4):
         pool_size=(2, 2), strides=2, padding='valid', name='p_x2')(inp)
     low_x4 = tf.keras.layers.AveragePooling2D(
         pool_size=(2, 2), strides=2, padding='valid', name='p_x4')(low_x2)
-    low_x8 = tf.keras.layers.AveragePooling2D(
-        pool_size=(2, 2), strides=2, padding='valid', name='p_x8')(low_x4)
+    '''low_x8 = tf.keras.layers.AveragePooling2D(
+        pool_size=(2, 2), strides=2, padding='valid', name='p_x8')(low_x4)'''
 
-    dsd_x8 = block_downsample_decomposition(len_low_size=len_low_size_x8, input_len_size=len_high_size,
+    '''dsd_x8 = block_downsample_decomposition(len_low_size=len_low_size_x8, input_len_size=len_high_size,
                                             input_channels=1, downsample_ratio=8, filters_decompose=128, name='dsd_x8')
     rech_x8 = dsd_x8(inp)
     r1c = block_rank1channels_convolution(
@@ -258,7 +258,7 @@ def make_generator_model(len_high_size=128, scale=4):
 
     usc_x8 = block_upsample_convolution(
         filters=16, input_len_size=len_low_size_x8, input_channels=32, upsample_ratio=2, name='usc_x8')
-    sym_x8 = usc_x8(sym_x8)
+    sym_x8 = usc_x8(sym_x8)'''
 
     dsd_x4 = block_downsample_decomposition(len_low_size=len_low_size_x4, input_len_size=len_high_size,
                                             input_channels=1, downsample_ratio=4, filters_decompose=256, name='dsd_x4')
@@ -270,17 +270,18 @@ def make_generator_model(len_high_size=128, scale=4):
         dims=len_low_size_x4, input_len_size=len_low_size_x4, input_channels=256, name='r1e_x4')
     out_low_x4 = r1e(rech_x4)
 
-    concat = tf.keras.layers.concatenate([sym_x8, sym_x4], axis=-1)
+    '''concat = tf.keras.layers.concatenate([sym_x8, sym_x4], axis=-1)'''
 
     usc_x4 = block_upsample_convolution(
-        filters=64, input_len_size=len_low_size_x4, input_channels=128+16, upsample_ratio=2, name='usc_x4')
-    sym_x4 = usc_x4(concat)
+        filters=64, input_len_size=len_low_size_x4, input_channels=128, upsample_ratio=2, name='usc_x4')
+    #sym_x4 = usc_x4(concat)
+    sym_x4 = usc_x4(sym_x4)
 
     dsd_x2 = block_downsample_decomposition(len_low_size=len_low_size_x2, input_len_size=len_high_size,
                                             input_channels=1, downsample_ratio=2, filters_decompose=512, name='dsd_x2')
     rech_x2 = dsd_x2(inp)
     r1c_x2 = block_rank1channels_convolution(
-        filters=256, input_len_size=len_low_size_x2, input_channels=512, name='r1c_x2')
+        filters=128, input_len_size=len_low_size_x2, input_channels=512, name='r1c_x2')
     sym_x2 = r1c_x2(rech_x2)
     r1e_x2 = block_rank1_estimation(
         dims=len_low_size_x2, input_len_size=len_low_size_x2, input_channels=512, name='r1e_x2')
@@ -289,7 +290,7 @@ def make_generator_model(len_high_size=128, scale=4):
     concat = tf.keras.layers.concatenate([sym_x4, sym_x2], axis=-1)
 
     usc_x2 = block_upsample_convolution(
-        filters=40, input_len_size=len_low_size_x2, input_channels=256+64, upsample_ratio=2, name='usc_x2')
+        filters=128, input_len_size=len_low_size_x2, input_channels=128+64, upsample_ratio=2, name='usc_x2')
     sym = usc_x2(concat)
 
     Sumh = tf.keras.layers.Conv2D(filters=1, kernel_size=(1, 1),
@@ -299,8 +300,10 @@ def make_generator_model(len_high_size=128, scale=4):
                                   activation='relu', use_bias=False, name='sum_high')(sym)
     high_out = Normal(int(len_high_size), name='out_high')(Sumh)
 
+    '''model = tf.keras.models.Model(
+        inputs=[inp], outputs=[out_low_x2, out_low_x4, out_low_x8, high_out, low_x2, low_x4, low_x8])'''
     model = tf.keras.models.Model(
-        inputs=[inp], outputs=[out_low_x2, out_low_x4, out_low_x8, high_out, low_x2, low_x4, low_x8])
+        inputs=[inp], outputs=[out_low_x2, out_low_x4, high_out, low_x2, low_x4])
     return model
 
 
@@ -413,7 +416,7 @@ def generator_bce_loss(d_pred):
 
 
 def generator_ssim_loss(y_pred, y_true):  # , m_filter):
-    return (1 - tf.image.ssim(y_pred, y_true, max_val=1.0, filter_size=4))/2.0
+    return (1 - tf.image.ssim(y_pred, y_true, max_val=1.0, filter_size=11))/2.0
 
 
 def generator_mse_loss(y_pred, y_true):  # , m_filter):
@@ -445,13 +448,13 @@ def _train_step_generator(Gen, Dis, imgl, imgr, loss_filter, loss_weights, opts,
         fake_hic_l_x4 = tf.multiply(fake_hic_l_x4, mfilter_low)
         imgl_x4_filter = tf.multiply(imgl_x4, mfilter_low)
 
-        fake_hic_l_x8 = fake_hic[2]
+        '''fake_hic_l_x8 = fake_hic[2]
         imgl_x8 = fake_hic[6]
         mfilter_low = tf.expand_dims(loss_filter[2], axis=0)
         mfilter_low = tf.expand_dims(mfilter_low, axis=-1)
         mfilter_low = tf.cast(mfilter_low, tf.float32)
         fake_hic_l_x8 = tf.multiply(fake_hic_l_x8, mfilter_low)
-        imgl_x8_filter = tf.multiply(imgl_x8, mfilter_low)
+        imgl_x8_filter = tf.multiply(imgl_x8, mfilter_low)'''
 
         gen_loss_low_ssim_x2 = generator_ssim_loss(
             fake_hic_l_x2, imgl_x2_filter)
@@ -461,17 +464,20 @@ def _train_step_generator(Gen, Dis, imgl, imgr, loss_filter, loss_weights, opts,
             fake_hic_l_x4, imgl_x4_filter)
         gen_loss_low_mse_x4 = generator_mse_loss(fake_hic_l_x4, imgl_x4_filter)
 
-        gen_loss_low_ssim_x8 = generator_ssim_loss(
+        '''gen_loss_low_ssim_x8 = generator_ssim_loss(
             fake_hic_l_x8, imgl_x8_filter)
-        gen_loss_low_mse_x8 = generator_mse_loss(fake_hic_l_x8, imgl_x8_filter)
+        gen_loss_low_mse_x8 = generator_mse_loss(fake_hic_l_x8, imgl_x8_filter)'''
 
-        gen_loss_low_ssim = (gen_loss_low_ssim_x8*1.0 +
+        '''gen_loss_low_ssim = (gen_loss_low_ssim_x8*1.0 +
                              gen_loss_low_ssim_x4*4.0 + gen_loss_low_ssim_x2*16.0)/21.0
         gen_loss_low_mse = (gen_loss_low_mse_x8*1.0 +
-                            gen_loss_low_mse_x4*4.0 + gen_loss_low_mse_x2*16.0)/21.0
+                            gen_loss_low_mse_x4*4.0 + gen_loss_low_mse_x2*16.0)/21.0'''
+        gen_loss_low_ssim = (gen_loss_low_ssim_x4*4.0 + gen_loss_low_ssim_x2*16.0)/20.0
+        gen_loss_low_mse = (gen_loss_low_mse_x4*4.0 + gen_loss_low_mse_x2*16.0)/20.0
         gen_loss_low = gen_loss_low_ssim + gen_loss_low_mse
 
-        fake_hic_h = fake_hic[3]
+        '''fake_hic_h = fake_hic[3]'''
+        fake_hic_h = fake_hic[2]
         mfilter_high = tf.expand_dims(loss_filter[3], axis=0)
         mfilter_high = tf.expand_dims(mfilter_high, axis=-1)
         mfilter_high = tf.cast(mfilter_high, tf.float32)
@@ -493,8 +499,8 @@ def _train_step_generator(Gen, Dis, imgl, imgr, loss_filter, loss_weights, opts,
     gen_low_v += Gen.get_layer('r1e_x2').trainable_variables
     gen_low_v += Gen.get_layer('dsd_x4').trainable_variables
     gen_low_v += Gen.get_layer('r1e_x4').trainable_variables
-    gen_low_v += Gen.get_layer('dsd_x8').trainable_variables
-    gen_low_v += Gen.get_layer('r1e_x8').trainable_variables
+    '''gen_low_v += Gen.get_layer('dsd_x8').trainable_variables
+    gen_low_v += Gen.get_layer('r1e_x8').trainable_variables'''
     gradients_of_generator_low = x.gradient(gen_loss_low, gen_low_v)
     opts[0].apply_gradients(zip(gradients_of_generator_low, gen_low_v))
     train_logs[0](gen_loss_low_ssim)
@@ -505,8 +511,8 @@ def _train_step_generator(Gen, Dis, imgl, imgr, loss_filter, loss_weights, opts,
     gen_high_v += Gen.get_layer('usc_x2').trainable_variables
     gen_high_v += Gen.get_layer('r1c_x4').trainable_variables
     gen_high_v += Gen.get_layer('usc_x4').trainable_variables
-    gen_high_v += Gen.get_layer('r1c_x8').trainable_variables
-    gen_high_v += Gen.get_layer('usc_x8').trainable_variables
+    '''gen_high_v += Gen.get_layer('r1c_x8').trainable_variables
+    gen_high_v += Gen.get_layer('usc_x8').trainable_variables'''
     gen_high_v += Gen.get_layer('sum_high').trainable_variables
     gen_high_v += Gen.get_layer('out_high').trainable_variables
     gradients_of_generator_high = gen_tape_high.gradient(
@@ -635,10 +641,10 @@ def train(gen, dis, dataset, epochs, len_high_size, scale, test_dataset=None):
         start = time.time()
         for i, (low_m, high_m) in enumerate(dataset):
             # if(generator_log_ssim_high.result().numpy() >= 0.016 or generator_log_mse_high.result().numpy() >= 0.016):
-            if(epoch <= int(epochs/3.0)):
+            if(epoch <= int(epochs/5.0)):
                 loss_weights = [0.0, 10.0, 0.0]
             else:
-                loss_weights = [1.0, 10.0, 0.0]
+                loss_weights = [0.3, 10.0, 0.0]
 
             if(epoch % 40 <= 20):
                 train_step_generator(gen, dis,
@@ -780,7 +786,7 @@ def plot_to_image(figure):
 
 
 if __name__ == '__main__':
-    len_size=200
+    len_size=80
     scale=4
     Gen = make_generator_model(len_high_size=len_size, scale=scale)
     Dis = make_discriminator_model(len_high_size=len_size, scale=scale)
