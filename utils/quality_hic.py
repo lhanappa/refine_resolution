@@ -16,7 +16,7 @@ from .operations import *
 import numpy as np
 import sys
 import io
-
+import os
 
 def qualify_hic(predict, true):
     if type(predict) is np.ndarray:
@@ -33,6 +33,11 @@ def qualify_hic(predict, true):
 
 def configure_file(path, filename, pair_1, pair_2, sample_1_file, sample_2_file):
     """
+    path: output path
+    filename: output file name
+    pair_1, pair_2: 
+    sample_1_file, sample_2_file: input file
+
     metadata_samples=${d}/metadata.samples
     echo ${metadata_samples}
     printf "HIC001\t${d}/HIC001.res50000.gz\n" > "${metadata_samples}"
@@ -40,17 +45,22 @@ def configure_file(path, filename, pair_1, pair_2, sample_1_file, sample_2_file)
     metadata_pairs=${d}/metadata.pairs
     printf "HIC001\tHIC002\n" > "${metadata_pairs}"""
     # .pairs
-    file_pairs = filename+'.pairs'
-    txt = str(pair_1) + "\t" + str(pair_2)
-    np.savetxt(path+file_pairs, txt)
+    file_pairs = os.path.join(path, filename+'.pairs')
+    with open(file_pairs, 'w+') as fin:
+        txt = str(pair_1) + "\t" + str(pair_2)
+        fin.write(txt)
+    fin.close()
     # .samples
-    file_samples = filename+'.samples'
-    txt = str(pair_1) + "\t" + str(sample_1_file) + "\n"
-    txt += str(pair_2) + "\t" + str(sample_2_file) + "\n"
-    np.savetxt(path+file_samples, txt)
+    file_samples = os.path.join(path, filename+'.samples')
+    with open(file_samples, 'w+') as fin:
+        txt = str(pair_1) + "\t" + str(sample_1_file) + "\n"
+        txt += str(pair_2) + "\t" + str(sample_2_file) + "\n"
+        fin.write(txt)
+    fin.close()
 
-
-"""
+    file_parameters = os.path.join(path, filename+'_parameters.txt')
+    with open(file_parameters, 'w+') as fin:
+        txt = """
 GenomeDISCO|subsampling	lowest
 GenomeDISCO|tmin	3
 GenomeDISCO|tmax	3
@@ -64,4 +74,6 @@ HiC-Spector|n	20
 QuASAR|rebinning	resolution
 SGE|text	"-l h_vmem=10G"
 slurm|text	"--mem 3G
-"""
+                """
+        fin.write(txt)
+    fin.close()

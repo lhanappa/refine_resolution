@@ -11,8 +11,9 @@ from utils import operations, quality_hic
 
 path = './data'
 raw_path = 'raw'
-raw_file = 'Dixon2012-H1hESC-HindIII-allreps-filtered.10kb.cool'
-chromosome = '22'
+raw_file = 'Rao2014-GM12878-DpnII-allreps-filtered.10kb.cool'
+#'Dixon2012-H1hESC-HindIII-allreps-filtered.10kb.cool'
+chromosome = '6'
 
 sr_path = 'output'
 sr_file = raw_file.split('-')[0] + '_' + raw_file.split('.')[1]
@@ -23,6 +24,7 @@ input_file = sr_file+'_chr'+chromosome+'.npz'
 if not os.path.exists(os.path.join(input_path, input_file)):
     print('not input file')
 
+print('input path: ', input_path, input_file)
 with np.load(os.path.join(input_path, input_file), allow_pickle=True) as data:
     predict_hic = data['predict_hic']
     true_hic = data['true_hic']
@@ -58,10 +60,10 @@ plt.tight_layout()
 plt.show()'''
 
 operations.format_bin(true_hic_hr_merge, coordinate=(
-    0, 1), resolution=10000, chrm='22', save_file=True, filename=input_path+'/demo.bed')
+    0, 1), resolution=10000, chrm=chromosome, save_file=True, filename=input_path+'/demo.bed')
 operations.format_contact(true_hic_hr_merge, coordinate=(
-    0, 1), resolution=10000, chrm='22', save_file=True, filename=input_path+'/demo_contact_true.gz')
+    0, 1), resolution=10000, chrm=chromosome, save_file=True, filename=input_path+'/demo_contact_true.gz')
 operations.format_contact(predict_hic_hr_merge, coordinate=(
-    0, 1), resolution=10000, chrm='22', save_file=True, filename=input_path+'/demo_contact_predict.gz')
+    0, 1), resolution=10000, chrm=chromosome, save_file=True, filename=input_path+'/demo_contact_predict.gz')
 
-quality_hic.configure_file(directory_sr+'/', 'demo', 'p1', 'p2', 'd1', 'd2')
+quality_hic.configure_file(input_path+'/', 'demo', 'p1', 'p2', input_path+'/demo_contact_true.gz', input_path+'/demo_contact_predict.gz')

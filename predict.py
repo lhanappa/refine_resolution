@@ -14,9 +14,11 @@ tf.keras.backend.set_floatx('float32')
 
 path = './data'
 raw_path = 'raw'
-raw_file = 'Dixon2012-H1hESC-HindIII-allreps-filtered.10kb.cool'
-chromosome = '22'
-
+raw_file = 'Rao2014-GM12878-DpnII-allreps-filtered.10kb.cool'
+#'Dixon2012-H1hESC-HindIII-allreps-filtered.10kb.cool'
+chromosome = '6'
+scale = 4
+len_size = 200
 sr_path = 'output'
 sr_file = raw_file.split('-')[0] + '_' + raw_file.split('.')[1]
 directory_sr = os.path.join(path, sr_path, sr_file, 'SR', 'chr'+chromosome)
@@ -24,8 +26,8 @@ if not os.path.exists(directory_sr):
     os.makedirs(directory_sr)
 
 # get generator model
-file_path = './saved_model/gen_model/gen_weights'
-Generator = model.make_generator_model(len_high_size=40, scale=4)
+file_path = './saved_model/gen_model_'+ str(len_size)+'/gen_weights'
+Generator = model.make_generator_model(len_high_size=len_size, scale=4)
 Generator.load_weights(file_path)
 print(Generator)
 
@@ -37,11 +39,10 @@ mat = c.matrix(balance=True).fetch('chr'+chromosome)
 
 [Mh, _] = operations.remove_zeros(mat)
 start = 0
-end = 60
+end = 200
 Mh = Mh[start:end, start:end]
 print('MH: ', Mh.shape)
 
-scale = 4
 Ml = operations.sampling_hic(Mh, scale**2, fix_seed=True)
 print('ML: ', Ml.shape)
 
@@ -50,7 +51,6 @@ print('ML: ', Ml.shape)
 Ml = normalization.SCN_normalization(np.asarray(Ml), max_iter=3000)
 Mh = normalization.SCN_normalization(np.asarray(Mh), max_iter=3000)
 
-len_size = 40
 hic_hr, index_1d_2d, index_2d_1d = operations.divide_pieces_hic(
     Mh, block_size=len_size, save_file=False)
 hic_hr = np.asarray(hic_hr, dtype=np.float32)
@@ -67,7 +67,7 @@ print('shape hic_lr: ', hic_lr.shape)
 
 true_hic_hr = hic_hr
 print('shape true hic_hr: ', true_hic_hr.shape)
-[_, _, _, predict_hic_hr, _, _, _] = Generator(
+[_, _, predict_hic_hr, _, _] = Generator(
     hic_lr[..., np.newaxis], training=False)
 predict_hic_hr = np.squeeze(predict_hic_hr.numpy(), axis=3)
 print(predict_hic_hr.shape)
