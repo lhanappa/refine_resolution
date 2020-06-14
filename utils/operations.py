@@ -165,8 +165,8 @@ def format_bin(matrix, coordinate=(0, 1), resolution=10000, chrm='1', save_file=
             filename = './demo.bed.gz'
         file = gzip.open(filename,"w+")
         for l in bins:
-            file.write(l)
-            file.write('\n')
+            line = l + '\n'
+            file.write(line.encode())
         file.close()
     return bins
 
