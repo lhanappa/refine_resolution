@@ -60,7 +60,7 @@ plt.tight_layout()
 plt.show()'''
 
 operations.format_bin(true_hic_hr_merge, coordinate=(
-    0, 1), resolution=10000, chrm=chromosome, save_file=True, filename=input_path+'/demo.bed')
+    0, 1), resolution=10000, chrm=chromosome, save_file=True, filename=input_path+'/demo.bed.gz')
 operations.format_contact(true_hic_hr_merge, coordinate=(
     0, 1), resolution=10000, chrm=chromosome, save_file=True, filename=input_path+'/demo_contact_true.gz')
 operations.format_contact(predict_hic_hr_merge, coordinate=(

@@ -1,5 +1,6 @@
 import numpy as np
-
+import gzip
+import os
 
 def sampling_hic(hic_matrix, sampling_ratio, fix_seed=False):
     """sampling dense hic matrix"""
@@ -139,8 +140,6 @@ def format_contact(matrix, coordinate=(0, 1), resolution=10000, chrm='1', save_f
     if save_file:
         if filename is None:
             filename = './demo_contact.gz'
-        import gzip
-        import os
         output = gzip.open(filename, 'w+')
         try:
             output.write(contact_txt.encode())
@@ -164,7 +163,7 @@ def format_bin(matrix, coordinate=(0, 1), resolution=10000, chrm='1', save_file=
     if save_file:
         if filename is None:
             filename = './demo.bed'
-        file = open(filename,"w+")
+        file = gzip.open(filename,"w+")
         for l in bins:
             file.write(l)
             file.write('\n')
