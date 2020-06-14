@@ -19,4 +19,6 @@ source activate tf_gpu_base
 
 python predict.py
 python qualify.py
+
+source activate 3dchromatin_replicate_qc
 3DChromatin_ReplicateQC run_all --metadata_samples data/output/Rao2014_10kb/SR/chr6/demo.samples  --metadata_pairs data/output/Rao2014_10kb/SR/chr6/demo.pairs --bins data/output/Rao2014_10kb/SR/chr6/demo.bed --outdir data/output/Rao2014_10kb/SR/chr6/ 
