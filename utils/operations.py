@@ -162,7 +162,7 @@ def format_bin(matrix, coordinate=(0, 1), resolution=10000, chrm='1', save_file=
         bins.append('\t'.join(entry))
     if save_file:
         if filename is None:
-            filename = './demo.bed'
+            filename = './demo.bed.gz'
         file = gzip.open(filename,"w+")
         for l in bins:
             file.write(l)
