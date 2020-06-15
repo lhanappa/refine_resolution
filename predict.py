@@ -18,7 +18,7 @@ raw_file = 'Rao2014-GM12878-DpnII-allreps-filtered.10kb.cool'
 #'Dixon2012-H1hESC-HindIII-allreps-filtered.10kb.cool'
 chromosome = '6'
 scale = 4
-len_size = 200
+len_size = 80
 sr_path = 'output'
 sr_file = raw_file.split('-')[0] + '_' + raw_file.split('.')[1]
 directory_sr = os.path.join(path, sr_path, sr_file, 'SR', 'chr'+chromosome)
@@ -39,7 +39,7 @@ mat = c.matrix(balance=True).fetch('chr'+chromosome)
 
 [Mh, _] = operations.remove_zeros(mat)
 start = 0
-end = 200
+end = 80
 Mh = Mh[start:end, start:end]
 print('MH: ', Mh.shape)
 
