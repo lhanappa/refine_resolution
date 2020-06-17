@@ -281,16 +281,23 @@ def make_generator_model(len_high_size=128, scale=4):
                                             input_channels=1, downsample_ratio=2, filters_decompose=512, name='dsd_x2')
     rech_x2 = dsd_x2(inp)
     r1c_x2 = block_rank1channels_convolution(
-        filters=128, input_len_size=len_low_size_x2, input_channels=512, name='r1c_x2')
+        filters=256, input_len_size=len_low_size_x2, input_channels=512, name='r1c_x2')
     sym_x2 = r1c_x2(rech_x2)
     r1e_x2 = block_rank1_estimation(
         dims=len_low_size_x2, input_len_size=len_low_size_x2, input_channels=512, name='r1e_x2')
     out_low_x2 = r1e_x2(rech_x2)
 
     concat = tf.keras.layers.concatenate([sym_x4, sym_x2], axis=-1)
-
+    concat = tf.keras.layers.Conv2D(128, [3, 3], strides=1, padding='same', data_format="channels_last",
+                                    activation='relu', use_bias=False,
+                                    name='conv2d_x2_1')(concat)
+    concat = tf.keras.layers.BatchNormalization()(concat)
+    concat = tf.keras.layers.Conv2D(64, [3, 3], strides=1, padding='same', data_format="channels_last",
+                                    activation='relu', use_bias=False,
+                                    name='conv2d_x2_2')(concat)
+    concat = tf.keras.layers.BatchNormalization()(concat)
     usc_x2 = block_upsample_convolution(
-        filters=128, input_len_size=len_low_size_x2, input_channels=128+64, upsample_ratio=2, name='usc_x2')
+        filters=64, input_len_size=len_low_size_x2, input_channels=64, upsample_ratio=2, name='usc_x2')
     sym = usc_x2(concat)
 
     Sumh = tf.keras.layers.Conv2D(filters=1, kernel_size=(1, 1),
@@ -474,8 +481,10 @@ def _train_step_generator(Gen, Dis, imgl, imgr, loss_filter, loss_weights, opts,
                              gen_loss_low_ssim_x4*4.0 + gen_loss_low_ssim_x2*16.0)/21.0
         gen_loss_low_mse = (gen_loss_low_mse_x8*1.0 +
                             gen_loss_low_mse_x4*4.0 + gen_loss_low_mse_x2*16.0)/21.0'''
-        gen_loss_low_ssim = (gen_loss_low_ssim_x4*4.0 + gen_loss_low_ssim_x2*16.0)/20.0
-        gen_loss_low_mse = (gen_loss_low_mse_x4*4.0 + gen_loss_low_mse_x2*16.0)/20.0
+        gen_loss_low_ssim = (gen_loss_low_ssim_x4*4.0 +
+                             gen_loss_low_ssim_x2*16.0)/20.0
+        gen_loss_low_mse = (gen_loss_low_mse_x4*4.0 +
+                            gen_loss_low_mse_x2*16.0)/20.0
         gen_loss_low = gen_loss_low_ssim + gen_loss_low_mse
 
         '''fake_hic_h = fake_hic[3]'''
@@ -513,8 +522,10 @@ def _train_step_generator(Gen, Dis, imgl, imgr, loss_filter, loss_weights, opts,
     gen_high_v += Gen.get_layer('usc_x2').trainable_variables
     gen_high_v += Gen.get_layer('r1c_x4').trainable_variables
     gen_high_v += Gen.get_layer('usc_x4').trainable_variables
-    '''gen_high_v += Gen.get_layer('r1c_x8').trainable_variables
-    gen_high_v += Gen.get_layer('usc_x8').trainable_variables'''
+    gen_high_v += Gen.get_layer('conv2d_x2_1').trainable_variables
+    gen_high_v += Gen.get_layer('batch_normalization_1').trainable_variables
+    gen_high_v += Gen.get_layer('conv2d_x2_2').trainable_variables
+    gen_high_v += Gen.get_layer('batch_normalization_2').trainable_varibales
     gen_high_v += Gen.get_layer('sum_high').trainable_variables
     gen_high_v += Gen.get_layer('out_high').trainable_variables
     gradients_of_generator_high = gen_tape_high.gradient(
@@ -666,8 +677,10 @@ def train(gen, dis, dataset, epochs, len_high_size, scale, test_dataset=None):
                                          opts=[discriminator_optimizer], train_logs=[discriminator_log])
         # log the model epochs
         if (epoch+10) % 50 == 0:
-            gen.save_weights('./saved_model/'+current_time+'/gen_weights_'+str(len_high_size))
-            dis.save_weights('./saved_model/'+current_time+'/dis_weights_'+str(len_high_size))
+            gen.save_weights('./saved_model/'+current_time +
+                             '/gen_weights_'+str(len_high_size))
+            dis.save_weights('./saved_model/'+current_time +
+                             '/dis_weights_'+str(len_high_size))
 
         if (epoch) % 10 == 0 or True:
             [dpl_x2, dpl_x4, dph, _, _] = gen(
@@ -790,8 +803,8 @@ def plot_to_image(figure):
 
 
 if __name__ == '__main__':
-    len_size=80
-    scale=4
+    len_size = 200
+    scale = 4
     Gen = make_generator_model(len_high_size=len_size, scale=scale)
     Dis = make_discriminator_model(len_high_size=len_size, scale=scale)
     print(Gen.summary())
