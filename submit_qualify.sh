@@ -22,3 +22,5 @@ python qualify.py
 
 #source activate 3dchromatin_replicate_qc
 #3DChromatin_ReplicateQC run_all --metadata_samples data/output/Rao2014_10kb/SR/chr6/demo.samples  --metadata_pairs data/output/Rao2014_10kb/SR/chr6/demo.pairs --bins data/output/Rao2014_10kb/SR/chr6/demo.bed.gz --outdir data/output/Rao2014_10kb/SR/chr6/ 
+#3DChromatin_ReplicateQC preprocess --metadata_samples ./data/output/Rao2014_10kb/SR/chr22/demo.samples --bins ./data/output/Rao2014_10kb/SR/chr22/demo.bed.gz --outdir ./data/output/Rao2014_10kb/SR/chr22/
+#3DChromatin_ReplicateQC concordance --metadata_pairs ./data/output/Rao2014_10kb/SR/chr22/demo.pairs  --outdir ./data/output/Rao2014_10kb/SR/chr22/ --methods HiCRep

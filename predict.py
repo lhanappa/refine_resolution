@@ -16,9 +16,9 @@ path = './data'
 raw_path = 'raw'
 raw_file = 'Rao2014-GM12878-DpnII-allreps-filtered.10kb.cool'
 #'Dixon2012-H1hESC-HindIII-allreps-filtered.10kb.cool'
-chromosome = '6'
+chromosome = '22'
 scale = 4
-len_size = 80
+len_size = 200
 sr_path = 'output'
 sr_file = raw_file.split('-')[0] + '_' + raw_file.split('.')[1]
 directory_sr = os.path.join(path, sr_path, sr_file, 'SR', 'chr'+chromosome)
@@ -36,10 +36,11 @@ name = os.path.join(path, raw_path, raw_file)
 c = cooler.Cooler(name)
 resolution = c.binsize
 mat = c.matrix(balance=True).fetch('chr'+chromosome)
-
+#mat = mat[3300:3525, 3300:3525]
 [Mh, _] = operations.remove_zeros(mat)
+print('shape HR: ', Mh.shape)
 start = 0
-end = 80
+end = 1000#Mh.shape[1]
 Mh = Mh[start:end, start:end]
 print('MH: ', Mh.shape)
 

@@ -68,8 +68,8 @@ GenomeDISCO|norm	sqrtvc
 GenomeDISCO|scoresByStep	no
 GenomeDISCO|removeDiag	yes
 GenomeDISCO|transition	yes
-HiCRep|h	5
-HiCRep|maxdist	5000000
+HiCRep|h	20
+HiCRep|maxdist	2000000
 HiC-Spector|n	20
 QuASAR|rebinning	resolution
 SGE|text	"-l h_vmem=10G"
