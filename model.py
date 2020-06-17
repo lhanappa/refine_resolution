@@ -291,11 +291,11 @@ def make_generator_model(len_high_size=128, scale=4):
     concat = tf.keras.layers.Conv2D(128, [3, 3], strides=1, padding='same', data_format="channels_last",
                                     activation='relu', use_bias=False,
                                     name='conv2d_x2_1')(concat)
-    concat = tf.keras.layers.BatchNormalization()(concat)
+    concat = tf.keras.layers.BatchNormalization(name='bn_1')(concat)
     concat = tf.keras.layers.Conv2D(64, [3, 3], strides=1, padding='same', data_format="channels_last",
                                     activation='relu', use_bias=False,
                                     name='conv2d_x2_2')(concat)
-    concat = tf.keras.layers.BatchNormalization()(concat)
+    concat = tf.keras.layers.BatchNormalization(name='bn_2')(concat)
     usc_x2 = block_upsample_convolution(
         filters=64, input_len_size=len_low_size_x2, input_channels=64, upsample_ratio=2, name='usc_x2')
     sym = usc_x2(concat)
@@ -523,9 +523,9 @@ def _train_step_generator(Gen, Dis, imgl, imgr, loss_filter, loss_weights, opts,
     gen_high_v += Gen.get_layer('r1c_x4').trainable_variables
     gen_high_v += Gen.get_layer('usc_x4').trainable_variables
     gen_high_v += Gen.get_layer('conv2d_x2_1').trainable_variables
-    gen_high_v += Gen.get_layer('batch_normalization_1').trainable_variables
+    gen_high_v += Gen.get_layer('bn_1').trainable_variables
     gen_high_v += Gen.get_layer('conv2d_x2_2').trainable_variables
-    gen_high_v += Gen.get_layer('batch_normalization_2').trainable_varibales
+    gen_high_v += Gen.get_layer('bn_2').trainable_variables
     gen_high_v += Gen.get_layer('sum_high').trainable_variables
     gen_high_v += Gen.get_layer('out_high').trainable_variables
     gradients_of_generator_high = gen_tape_high.gradient(
