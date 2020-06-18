@@ -47,7 +47,7 @@ def divide_pieces_hic(hic_matrix, block_size=128, max_distance=None, save_file=F
     count = 0
     for dis in np.arange(1, hic_half_h.shape[0]):
         for i in np.arange(0, hic_half_h.shape[1]-dis):
-            if max_distance is not None and (dis>max_distance):
+            if (max_distance is not None) and (dis>max_distance):
                 continue
             hic_m.append(np.block([[hic_half_h[i, i], hic_half_h[i, i+dis]],
                                    [hic_half_h[i+dis, i], hic_half_h[i+dis, i+dis]]]))
@@ -94,6 +94,13 @@ def merge_hic(hic_lists, index_1D_2D):
     matrix = matrix + np.transpose(matrix)
     return matrix
 
+def filter_diag_boundary(hic, diag_k=0, boundary_k=None):
+    if boundary_k is None:
+        boundary_k = hic.shape[0]-1
+    filter_m = np.tri(N = hic.shape[0], k=boundary_k)
+    filter_m = np.triu(filter_m, k=diag_k)
+    filter_m = filer_m + np.transpose(filter_m)
+    return np.multiply(hic, filter_m)
 
 def dense2tag(matrix):
     """converting a square matrix (dense) to coo-based tag matrix"""

@@ -14,6 +14,8 @@ raw_path = 'raw'
 raw_file = 'Rao2014-GM12878-DpnII-allreps-filtered.10kb.cool'
 #'Dixon2012-H1hESC-HindIII-allreps-filtered.10kb.cool'
 chromosome = '6'
+max_distance = 2000000
+resolution = 10000
 
 sr_path = 'output'
 sr_file = raw_file.split('-')[0] + '_' + raw_file.split('.')[1]
@@ -41,11 +43,10 @@ print('shape of merge predict hic hr', predict_hic_hr_merge.shape)
 true_hic_hr_merge = operations.merge_hic(true_hic, index_1D_2D=idx_1d_2d)
 print('shape of merge predict hic hr', predict_hic_hr_merge.shape)
 
-diag = np.ones(true_hic_hr_merge.shape) - np.diag(np.ones(true_hic_hr_merge.shape[0])) - np.diag(
-    np.ones(true_hic_hr_merge.shape[0]-1), k=1) - np.diag(np.ones(true_hic_hr_merge.shape[0]-1), k=-1)
+k = np.ceil(max_distance/resolution).astype(int)
 
-true_hic_hr_merge = true_hic_hr_merge*diag
-predict_hic_hr_merge = predict_hic_hr_merge*diag
+true_hic_hr_merge = operations.filter_diag_boundary(true_hic_hr_merge, diag_k=2, boundary_k=k)
+predict_hic_hr_merge = operations.filter_diag_boundary(predict_hic_hr_merge, diag_k=2, boundary_k=k)
 print('sum true:', np.sum(np.abs(true_hic_hr_merge)))
 print('sum predict:', np.sum(np.abs(predict_hic_hr_merge)))
 diff = np.abs(true_hic_hr_merge-predict_hic_hr_merge)

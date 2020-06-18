@@ -40,7 +40,7 @@ mat = c.matrix(balance=True).fetch('chr'+chromosome)
 [Mh, _] = operations.remove_zeros(mat)
 print('shape HR: ', Mh.shape)
 start = 0
-end = 1000#Mh.shape[1]
+end = 200#Mh.shape[1]
 Mh = Mh[start:end, start:end]
 print('MH: ', Mh.shape)
 
