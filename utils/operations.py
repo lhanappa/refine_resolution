@@ -99,7 +99,7 @@ def filter_diag_boundary(hic, diag_k=0, boundary_k=None):
         boundary_k = hic.shape[0]-1
     filter_m = np.tri(N = hic.shape[0], k=boundary_k)
     filter_m = np.triu(filter_m, k=diag_k)
-    filter_m = filer_m + np.transpose(filter_m)
+    filter_m = filter_m + np.transpose(filter_m)
     return np.multiply(hic, filter_m)
 
 def dense2tag(matrix):
