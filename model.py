@@ -295,7 +295,6 @@ def make_generator_model(len_high_size=128, scale=4):
 
     concat = tf.keras.layers.concatenate([sym_x4, sym_x2], axis=-1)
     concat = block_convolution(filters=128, name='conv2d_bn_x2')(concat)
-    concat = tf.keras.layers.BatchNormalization(name='bn_2')(concat)
     usc_x2 = block_upsample_convolution(
         filters=128, input_len_size=len_low_size_x2, input_channels=128, upsample_ratio=2, name='usc_x2')
     sym = usc_x2(concat)
