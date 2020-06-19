@@ -13,6 +13,7 @@ import tensorflow as tf
 tf.keras.backend.set_floatx('float32')
 
 # 'Dixon2012-H1hESC-HindIII-allreps-filtered.10kb.cool'
+# data from ftp://cooler.csail.mit.edu/coolers/hg19/
 
 
 def predict(path='./data',
@@ -34,7 +35,6 @@ def predict(path='./data',
     Generator.load_weights(file_path)
     print(Generator)
 
-    # data from ftp://cooler.csail.mit.edu/coolers/hg19/
     name = os.path.join(path, raw_path, raw_file)
     c = cooler.Cooler(name)
     resolution = c.binsize
@@ -110,4 +110,4 @@ def predict(path='./data',
 
 
 if __name__ == '__main__':
-    predict(start=0, end=200, draw_out=True);
+    predict(start=0, end=200, draw_out=True)
