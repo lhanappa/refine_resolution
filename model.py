@@ -234,10 +234,9 @@ def block_rank1_estimation(dims, input_len_size, input_channels, name=None):
 def block_channel_combination(channels, name=None):
     result = tf.keras.Sequential(name=name)
     result.add(tf.keras.layers.Conv2D(channels, [1, 1], strides=1, padding='same', data_format="channels_last",
-                                      kernel_initializer=tf.keras.initializers.ones(),
+                                      kernel_initializer=tf.keras.initializers.RandomUniform(minval=0., maxval=1./channels),
+                                      kernel_constraint=tf.keras.constraints.NonNeg(),
                                       activation='relu', use_bias=False))
-    result.add(tf.keras.layers.BatchNormalization())
-    result.add(Symmetry_R1M())
     return result
 
 
