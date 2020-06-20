@@ -18,17 +18,8 @@ import sys
 import io
 import os
 
-def qualify_hic(predict, true):
-    if type(predict) is np.ndarray:
-        predict_m = predict
-    elif type(predict) is str:
-        predict_filepath = predict
-        pred_m = np.load(predict_filepath, allow_pickle=True)
-    if type(true) is np.ndarray:
-        true_m = true
-    elif type(true) is str:
-        true_filepath = true
-        true_m = np.load(true_filepath, allow_pickle=True)
+def run_hicrep(predict, true):
+    pass
 
 
 def configure_file(path, filename, pair_1, pair_2, sample_1_file, sample_2_file):
@@ -61,13 +52,6 @@ def configure_file(path, filename, pair_1, pair_2, sample_1_file, sample_2_file)
     file_parameters = os.path.join(path, filename+'_parameters.txt')
     with open(file_parameters, 'w+') as fin:
         txt = """
-GenomeDISCO|subsampling	lowest
-GenomeDISCO|tmin	3
-GenomeDISCO|tmax	3
-GenomeDISCO|norm	sqrtvc
-GenomeDISCO|scoresByStep	no
-GenomeDISCO|removeDiag	yes
-GenomeDISCO|transition	yes
 HiCRep|h	20
 HiCRep|maxdist	2000000
 HiC-Spector|n	20

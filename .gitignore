@@ -17,3 +17,5 @@ datasets_hic.npz
 test_*.ipynb
 data/*
 utils/__pycache__/*.pyc
+.Rhistory
+SCORES.txt

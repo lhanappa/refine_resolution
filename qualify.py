@@ -13,7 +13,7 @@ path = './data'
 raw_path = 'raw'
 raw_file = 'Rao2014-GM12878-DpnII-allreps-filtered.10kb.cool'
 #'Dixon2012-H1hESC-HindIII-allreps-filtered.10kb.cool'
-chromosome = '6'
+chromosome = '22'
 max_distance = 2000000
 resolution = 10000
 
@@ -52,13 +52,13 @@ print('sum predict:', np.sum(np.abs(predict_hic_hr_merge)))
 diff = np.abs(true_hic_hr_merge-predict_hic_hr_merge)
 print('sum diff: {:.5}'.format(np.sum(diff**2)))
 
-'''fig, axs = plt.subplots(1, 2, figsize=(8, 15))
+fig, axs = plt.subplots(1, 2, figsize=(8, 15))
 ax = axs[0].imshow(np.log1p(1000*predict_hic_hr_merge), cmap='RdBu_r')
 axs[0].set_title('predict')
 ax = axs[1].imshow(np.log1p(1000*true_hic_hr_merge), cmap='RdBu_r')
 axs[1].set_title('true')
 plt.tight_layout()
-plt.show()'''
+plt.show()
 
 operations.format_bin(true_hic_hr_merge, coordinate=(
     0, 1), resolution=10000, chrm=chromosome, save_file=True, filename=input_path+'/demo.bed.gz')
@@ -67,4 +67,4 @@ operations.format_contact(true_hic_hr_merge, coordinate=(
 operations.format_contact(predict_hic_hr_merge, coordinate=(
     0, 1), resolution=10000, chrm=chromosome, save_file=True, filename=input_path+'/demo_contact_predict.gz')
 
-quality_hic.configure_file(input_path+'/', 'demo', 'p1', 'p2', input_path+'/demo_contact_true.gz', input_path+'/demo_contact_predict.gz')
+#quality_hic.configure_file(input_path+'/', 'demo', 'p1', 'p2', input_path+'/demo_contact_true.gz', input_path+'/demo_contact_predict.gz')
