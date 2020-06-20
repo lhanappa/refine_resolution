@@ -54,7 +54,7 @@ if __name__ == '__main__':
     scale = 4
     # genomic_disstance is used for input path, nothing to do with model
     genomic_distance = int(sys.argv[2])  # 2000000, 2560000
-    EPOCHS = 1200
+    EPOCHS = 400
     BATCH_SIZE = 9
     data_path = './data'
     raw_path = 'raw'
@@ -65,7 +65,7 @@ if __name__ == '__main__':
     output_path = 'output'
     output_file = input_file
     #'1' '2' '3' '4' '5' '6' '7' '8' '9' '10' '11' '12' '13' '14' '15' '16' '17' '18' '19' '20' '21' '22' 'X'
-    chromosome_list = ['6']#['1', '2', '3', '4', '5','6', '7', '8', '9', '10', '11', '12', '13', '14', '15']
+    chromosome_list = ['1', '2', '3', '4', '5','6']#['1', '2', '3', '4', '5','6', '7', '8', '9', '10', '11', '12', '13', '14', '15']
     hr_file_list = []
 
     for chri in chromosome_list:
