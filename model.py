@@ -264,14 +264,14 @@ def make_generator_model(len_high_size=128, scale=4):
     out_low_x4 = r1e(rech_x4)
 
     usc_x4 = block_upsample_convolution(
-        channels=64, input_len_size=len_low_size_x4, input_channels=128, upsample_ratio=2, name='usc_x4')
+        channels=128, input_len_size=len_low_size_x4, input_channels=128, upsample_ratio=2, name='usc_x4')
     sym_x4 = usc_x4(sym_x4)
 
     dsd_x2 = block_downsample_decomposition(len_size=len_low_size_x2, channels_decompose=768, input_len_size=len_high_size,
                                             input_channels=1, downsample_ratio=2, name='dsd_x2')
     rech_x2 = dsd_x2(inp)
     r1c_x2 = block_rank1channels_convolution(
-        channels=256, input_len_size=len_low_size_x2, input_channels=768, name='r1c_x2')
+        channels=128, input_len_size=len_low_size_x2, input_channels=768, name='r1c_x2')
     sym_x2 = r1c_x2(rech_x2)
     r1e_x2 = block_rank1_estimation(
         dims=len_low_size_x2, input_len_size=len_low_size_x2, input_channels=768, name='r1e_x2')
