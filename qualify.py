@@ -86,9 +86,18 @@ def score_hicrep(file1,
                  file2,
                  bedfile,
                  output,
-                 script='./utils/hicrep_wrapper.R'):
+                 script='./utils/hicrep_wrapper.R',
+                 maxdist=int(2000000),
+                 resolution=int(10000),
+                 h=int(20),
+                 m1name='m1',
+                 m2name='m2'):
     quality_hic.run_hicrep(script=script, f1=file1, f2=file2,
-                          bedfile=bedfile, output_path=output)
+                           bedfile=bedfile, output_path=output, maxdist=maxdist,
+                           resolution=resolution,
+                           h=h,
+                           m1name=m1name,
+                           m2name=m1name)
 
 
 if __name__ == '__main__':

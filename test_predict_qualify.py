@@ -23,5 +23,8 @@ file2 = input_path+'/demo_contact_predict.gz'
 output = input_path+'/demo_scores.txt'
 bedfile = input_path+'/demo.bed.gz'
 script = './utils/hicrep_wrapper.R'
-qualify.score_hicrep(file1=file1, file2=file2,
-                     bedfile=bedfile, output=output, script=script)
+h_list = [20, 40, 60, 80]
+for h in h_list:
+    print('h: ', h)
+    qualify.score_hicrep(file1=file1, file2=file2,
+                     bedfile=bedfile, output=output, script=script, h=h)
