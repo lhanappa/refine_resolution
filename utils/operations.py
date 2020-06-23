@@ -2,6 +2,7 @@ import numpy as np
 import gzip
 import os
 
+
 def sampling_hic(hic_matrix, sampling_ratio, fix_seed=False):
     """sampling dense hic matrix"""
     m = np.matrix(hic_matrix)
@@ -26,6 +27,8 @@ def sampling_hic(hic_matrix, sampling_ratio, fix_seed=False):
 
 
 def divide_pieces_hic(hic_matrix, block_size=128, max_distance=None, save_file=False, pathfile=None):
+    #max_boundary
+    max_distance = int(max_distance/(block_size/2.0))
     M = hic_matrix
 
     IMG_HEIGHT, IMG_WIDTH = int(block_size), int(block_size)
@@ -37,7 +40,7 @@ def divide_pieces_hic(hic_matrix, block_size=128, max_distance=None, save_file=F
     M_d1 = list(map(lambda x: np.split(x, np.arange(
         block_width, M_w, block_width), axis=1), M_d0))
     hic_half_h = np.array(M_d1)
-    if M_h%block_height!=0 or M_w%block_width!=0:
+    if M_h % block_height != 0 or M_w % block_width != 0:
         hic_half_h = hic_half_h[0:-1, 0:-1]
     print('shape of blocks: ', hic_half_h.shape)
 
@@ -47,7 +50,7 @@ def divide_pieces_hic(hic_matrix, block_size=128, max_distance=None, save_file=F
     count = 0
     for dis in np.arange(1, hic_half_h.shape[0]):
         for i in np.arange(0, hic_half_h.shape[1]-dis):
-            if (max_distance is not None) and (dis>max_distance):
+            if (max_distance is not None) and (dis > max_distance):
                 continue
             hic_m.append(np.block([[hic_half_h[i, i], hic_half_h[i, i+dis]],
                                    [hic_half_h[i+dis, i], hic_half_h[i+dis, i+dis]]]))
@@ -66,7 +69,11 @@ def divide_pieces_hic(hic_matrix, block_size=128, max_distance=None, save_file=F
     return hic_m, hic_index, hic_index_rev
 
 
-def merge_hic(hic_lists, index_1D_2D):
+def merge_hic(hic_lists, index_1D_2D, max_distance=None):
+    # hic_lists: pieces of hic matrix
+    # index_1D_2D: index of matrix from list to 2D(x,y)
+    # max_distance: if hic_lists is not for whole matrix, the max_distance is required,
+    #   max_distance = max_genomic_distance/resolution
     hic_m = np.asarray(hic_lists)
     lensize, Height, Width = hic_m.shape
     lenindex = len(index_1D_2D)
@@ -75,32 +82,44 @@ def merge_hic(hic_lists, index_1D_2D):
         raise 'ERROR dimension must equal. length of hic list: ' + lensize + \
             'is not equal to length of index_1D_2D: ' + len(index_1D_2D)
 
-    if 2*lenindex != int(np.sqrt(2*lenindex))*(int(np.sqrt(2*lenindex))+1):
-        raise 'ERROR: not square'
-
-    n = int(np.sqrt(2*lenindex)+1)
     Height_hf = int(Height/2)
     Width_hf = int(Width/2)
+
+    if max_distance is None:
+        if 2*lenindex != int(np.sqrt(2*lenindex))*(int(np.sqrt(2*lenindex))+1):
+            raise 'ERROR: not square'
+        n = int(np.sqrt(2*lenindex)+1)
+    else:
+        k = np.ceil(max_distance/Height_hf)
+        n = int((lensize+(1+k)*k/2)/k)
+
     matrix = np.zeros(shape=(n*Height_hf, n*Width_hf))
     for i in np.arange(lenindex):
         h, w = index_1D_2D[i]
+        if max_distance is not None and np.abs(h-w) > np.ceil(max_distance/Height_hf):
+            continue
         x = h*Height_hf
         y = w*Width_hf
-        matrix[x:x+Height_hf, y:y+Width_hf] += hic_m[i, 0:Height_hf, 0+Width_hf:Width]
+        matrix[x:x+Height_hf, y:y+Width_hf] += hic_m[i,
+                                                     0:Height_hf, 0+Width_hf:Width]
 
-        matrix[x:x+Height_hf, x:x+Height_hf] += hic_m[i, 0:Height_hf, 0:Width_hf]/(2.0*(n-1))
-        matrix[y:y+Width_hf, y:y+Width_hf] += hic_m[i, 0+Height_hf:Height, 0+Width_hf:Width]/(2.0*(n-1))
+        matrix[x:x+Height_hf, x:x+Height_hf] += hic_m[i,
+                                                      0:Height_hf, 0:Width_hf]/(2.0*(n-1))
+        matrix[y:y+Width_hf, y:y+Width_hf] += hic_m[i, 0 +
+                                                    Height_hf:Height, 0+Width_hf:Width]/(2.0*(n-1))
 
     matrix = matrix + np.transpose(matrix)
     return matrix
 
+
 def filter_diag_boundary(hic, diag_k=0, boundary_k=None):
     if boundary_k is None:
         boundary_k = hic.shape[0]-1
-    filter_m = np.tri(N = hic.shape[0], k=boundary_k)
+    filter_m = np.tri(N=hic.shape[0], k=boundary_k)
     filter_m = np.triu(filter_m, k=diag_k)
     filter_m = filter_m + np.transpose(filter_m)
     return np.multiply(hic, filter_m)
+
 
 def dense2tag(matrix):
     """converting a square matrix (dense) to coo-based tag matrix"""
@@ -163,14 +182,15 @@ def format_bin(matrix, coordinate=(0, 1), resolution=10000, chrm='1', save_file=
 
     for i in np.arange(n):
         chr1 = chrm
-        start = int((i - int(i/nhf)*nhf + coordinate[int(i/nhf)]*nhf)*resolution)
+        start = int(
+            (i - int(i/nhf)*nhf + coordinate[int(i/nhf)]*nhf)*resolution)
         end = int(start + resolution)
         entry = [chr1, str(start), str(end), str(start)]
         bins.append('\t'.join(entry))
     if save_file:
         if filename is None:
             filename = './demo.bed.gz'
-        file = gzip.open(filename,"w+")
+        file = gzip.open(filename, "w+")
         for l in bins:
             line = l + '\n'
             file.write(line.encode())
@@ -185,4 +205,3 @@ def remove_zeros(matrix):
     M = np.asarray(M)
     idxy = np.asarray(idxy)
     return M, idxy
-

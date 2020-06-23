@@ -69,7 +69,7 @@ def save_samples(configure=None, chromosome=None):
 
     max_boundary = None
     if genomic_distance is not None:
-        max_boundary = np.ceil(genomic_distance/(resolution*len_size/2.0))
+        max_boundary = np.ceil(genomic_distance/(resolution))
 
     hic_hr, _, _ = operations.divide_pieces_hic(
         Mh, block_size=len_size, max_distance=max_boundary, save_file=False)

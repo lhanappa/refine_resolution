@@ -23,6 +23,7 @@ def predict(path='./data',
             scale=4,
             len_size=200,
             sr_path='output',
+            genomic_distance = 2000000,
             start=None, end=None, draw_out=False):
     sr_file = raw_file.split('-')[0] + '_' + raw_file.split('.')[1]
     directory_sr = os.path.join(path, sr_path, sr_file, 'SR', 'chr'+chromosome)
@@ -59,12 +60,16 @@ def predict(path='./data',
     Ml = normalization.SCN_normalization(np.asarray(Ml), max_iter=3000)
     Mh = normalization.SCN_normalization(np.asarray(Mh), max_iter=3000)
 
+    if genomic_distance is None:
+        max_boundary = None
+    else:
+        max_boundary = np.ceil(genomic_distance/(resolution))
     hic_hr, index_1d_2d, index_2d_1d = operations.divide_pieces_hic(
-        Mh, block_size=len_size, save_file=False)
+        Mh, block_size=len_size, max_distance=max_boundary, save_file=False)
     hic_hr = np.asarray(hic_hr, dtype=np.float32)
     print('shape hic_hr: ', hic_hr.shape)
     hic_lr, _, _ = operations.divide_pieces_hic(
-        Ml, block_size=len_size, save_file=False)
+        Ml, block_size=len_size, max_distance=max_boundary, save_file=False)
     hic_lr = np.asarray(hic_lr, dtype=np.float32)
     print('shape hic_lr: ', hic_lr.shape)
 
@@ -81,7 +86,7 @@ def predict(path='./data',
                         true_hic=true_hic_hr, index_1D_2D=index_1d_2d, index_2D_1D=index_2d_1d, start_id=start, end_id=end)
 
     predict_hic_hr_merge = operations.merge_hic(
-        predict_hic_hr, index_1D_2D=index_1d_2d)
+        predict_hic_hr, index_1D_2D=index_1d_2d, max_distance=max_boundary)
     #predict_hic_hr_merge = normalization.SCN_normalization(predict_hic_hr_merge, max_iter=3000)
     print('shape of merge predict hic hr', predict_hic_hr_merge.shape)
 
@@ -90,10 +95,11 @@ def predict(path='./data',
     if residual > 0:
         Mh = Mh[0:-residual, 0:-residual]
 
-    diag = np.ones(Mh.shape) - np.diag(np.ones(Mh.shape[0])) - np.diag(
-        np.ones(Mh.shape[0]-1), k=1) - np.diag(np.ones(Mh.shape[0]-1), k=-1)
-    Mh = Mh*diag
-    predict_hic_hr_merge = predict_hic_hr_merge*diag
+    k = max_boundary.astype(int)
+    Mh = operations.filter_diag_boundary(Mh, diag_k=2, boundary_k=k)
+    predict_hic_hr_merge = operations.filter_diag_boundary(
+        predict_hic_hr_merge, diag_k=2, boundary_k=k)
+
     print('sum Mh:', np.sum(np.abs(Mh)))
     print('sum merge:', np.sum(np.abs(predict_hic_hr_merge)))
     diff = np.abs(Mh-predict_hic_hr_merge)
@@ -110,4 +116,4 @@ def predict(path='./data',
 
 
 if __name__ == '__main__':
-    predict(start=0, end=400, draw_out=False)
+    predict(start=0, end=400, draw_out=True)
