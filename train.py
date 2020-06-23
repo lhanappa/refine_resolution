@@ -25,8 +25,7 @@ def run(train_data, test_data, len_size, scale, EPOCHS, summary=False):
     Gen = model.make_generator_model(len_high_size=len_size, scale=scale)
     file_path = os.path.join('./saved_model/gen_model_'+str(len_size), 'gen_weights')
     if os.path.exists(file_path):
-        pass
-        #Gen.load_weights(file_path)
+        Gen.load_weights(file_path)
 
     # get discriminator model
     Dis = model.make_discriminator_model(len_high_size=len_size, scale=scale)

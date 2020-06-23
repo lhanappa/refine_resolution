@@ -18,7 +18,22 @@ import sys
 import io
 import os
 
-def run_hicrep(predict, true):
+
+def run_hicrep(script,
+               f1,
+               f2,
+               bedfile,
+               output_path='./',
+               maxdist=int(2000000),
+               resolution=int(10000),
+               h=int(20),
+               m1name='m1',
+               m2name='m2'):
+
+    cmd = ['Rscript', script, f1, f2, output_path, str(
+        maxdist), str(resolution), bedfile, str(h), m1name, m2name]
+    print(' '.join(cmd))
+    os.system(' '.join(cmd))
     pass
 
 

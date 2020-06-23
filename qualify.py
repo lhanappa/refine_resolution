@@ -67,4 +67,9 @@ operations.format_contact(true_hic_hr_merge, coordinate=(
 operations.format_contact(predict_hic_hr_merge, coordinate=(
     0, 1), resolution=10000, chrm=chromosome, save_file=True, filename=input_path+'/demo_contact_predict.gz')
 
-#quality_hic.configure_file(input_path+'/', 'demo', 'p1', 'p2', input_path+'/demo_contact_true.gz', input_path+'/demo_contact_predict.gz')
+file1 = input_path+'/demo_contact_true.gz'
+file2 = input_path+'/demo_contact_predict.gz'
+output = input_path+'/demo_scores.txt'
+bedfile= input_path+'/demo.bed.gz'
+script = './utils/hicrep_wrapper.R'
+quality_hic.run_hicrep(script=script, f1=file1, f2=file2, bedfile=bedfile, output_path=output)

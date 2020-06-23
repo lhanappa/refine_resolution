@@ -30,7 +30,7 @@ def predict(path='./data',
         os.makedirs(directory_sr)
 
     # get generator model
-    file_path = './saved_model/gen_model_' + str(len_size)+'/gen_weights_200'
+    file_path = './saved_model/gen_model_' + str(len_size)+'/gen_weights'
     Generator = model.make_generator_model(len_high_size=len_size, scale=4)
     Generator.load_weights(file_path)
     print(Generator)
@@ -110,4 +110,4 @@ def predict(path='./data',
 
 
 if __name__ == '__main__':
-    predict(start=0, end=400, draw_out=True)
+    predict(start=0, end=400, draw_out=False)
