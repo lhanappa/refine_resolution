@@ -97,7 +97,7 @@ def score_hicrep(file1,
                            resolution=resolution,
                            h=h,
                            m1name=m1name,
-                           m2name=m1name)
+                           m2name=m2name)
 
 
 if __name__ == '__main__':
