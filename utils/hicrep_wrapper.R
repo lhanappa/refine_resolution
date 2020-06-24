@@ -2,7 +2,7 @@
 #{install.packages("BiocManager")}
 #BiocManager::install("hicrep")
 args=commandArgs(trailingOnly=TRUE)
-require("hicrep")
+require("hicrep", lib.loc='/rhome/yhu/bigdata/.rlib')
 require("reshape2")
 
 #=============================
