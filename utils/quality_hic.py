@@ -30,7 +30,7 @@ def run_hicrep(script,
                m1name='m1',
                m2name='m2'):
 
-    cmd = ['Rscript', script, f1, f2, output_path, str(
+    cmd = ['Rscript --vanilla', script, f1, f2, output_path, str(
         maxdist), str(resolution), bedfile, str(h), m1name, m2name]
     print(' '.join(cmd))
     os.system(' '.join(cmd))
