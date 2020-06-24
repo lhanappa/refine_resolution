@@ -1,6 +1,6 @@
-if (!requireNamespace("BiocManager", quietly = TRUE))
-    install.packages("BiocManager")
-BiocManager::install("hicrep")
+#if (!requireNamespace("BiocManager", quietly = TRUE)) 
+#{install.packages("BiocManager")}
+#BiocManager::install("hicrep")
 args=commandArgs(trailingOnly=TRUE)
 require("hicrep")
 require("reshape2")
