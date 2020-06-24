@@ -15,7 +15,7 @@ predict(path='./data',
 input_path = qualify.configure(path='./data',
                                raw_path='raw',
                                raw_file='Rao2014-GM12878-DpnII-allreps-filtered.10kb.cool',
-                               chromosome=chromsome,
+                               chromosome=chromosome,
                                genomic_distance=2000000,
                                resolution=10000)
 file1 = input_path+'/demo_contact_true.gz'
