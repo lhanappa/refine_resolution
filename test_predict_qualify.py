@@ -26,5 +26,6 @@ script = './utils/hicrep_wrapper.R'
 h_list = [20, 40, 60, 80]
 for h in h_list:
     print('h: ', h)
+    output = input_path+'/demo_scores_'+ str(h)+'.txt'
     qualify.score_hicrep(file1=file1, file2=file2,
                      bedfile=bedfile, output=output, script=script, h=h)
