@@ -23,7 +23,7 @@ def predict(path='./data',
             scale=4,
             len_size=200,
             sr_path='output',
-            genomic_distance = 2000000,
+            genomic_distance=2000000,
             start=None, end=None, draw_out=False):
     sr_file = raw_file.split('-')[0] + '_' + raw_file.split('.')[1]
     directory_sr = os.path.join(path, sr_path, sr_file, 'SR', 'chr'+chromosome)
@@ -75,10 +75,19 @@ def predict(path='./data',
 
     true_hic_hr = hic_hr
     print('shape true hic_hr: ', true_hic_hr.shape)
-    [_, _, predict_hic_hr, _, _] = Generator(
-        hic_lr[..., np.newaxis], training=False)
-    predict_hic_hr = np.squeeze(predict_hic_hr.numpy(), axis=3)
-    print(predict_hic_hr.shape)
+
+    hic_lr_ds = tf.data.Dataset.from_tensor_slices(hic_lr[..., np.newaxis]).batch(9)
+    predict_hic_hr = None
+    for i, input_data in enumerate(hic_lr_ds):
+        [_, _, tmp, _, _] = Generator(input_data, training=False)
+        if predict_hic_hr is None:
+            predict_hic_hr = tmp.numpy()
+        else:
+            predict_hic_hr = np.concatenate((predict_hic_hr, tmp.numpy()), axis=0)
+
+    
+    predict_hic_hr = np.squeeze(predict_hic_hr, axis=3)
+    print('shape of prediction: ', predict_hic_hr.shape)
 
     sr_file += '_chr'+chromosome
     file_path = os.path.join(directory_sr, sr_file)

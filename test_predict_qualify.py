@@ -1,21 +1,21 @@
 from predict import predict
 
 import qualify
-
+chromosome = '19'
 predict(path='./data',
         raw_path='raw',
         raw_file='Rao2014-GM12878-DpnII-allreps-filtered.10kb.cool',
-        chromosome='22',
+        chromosome=chromosome,
         scale=4,
         len_size=200,
         sr_path='output',
         genomic_distance=2000000,
-        start=None, end=None, draw_out=False)
+        start=None, end=None, draw_out=True)
 
 input_path = qualify.configure(path='./data',
                                raw_path='raw',
                                raw_file='Rao2014-GM12878-DpnII-allreps-filtered.10kb.cool',
-                               chromosome='22',
+                               chromosome=chromsome,
                                genomic_distance=2000000,
                                resolution=10000)
 file1 = input_path+'/demo_contact_true.gz'
