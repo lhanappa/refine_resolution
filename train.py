@@ -25,13 +25,15 @@ def run(train_data, test_data, len_size, scale, EPOCHS, summary=False):
     Gen = model.make_generator_model(len_high_size=len_size, scale=scale)
     file_path = os.path.join('./saved_model/gen_model_'+str(len_size), 'gen_weights')
     if os.path.exists(file_path):
-        Gen.load_weights(file_path)
+        pass
+        #Gen.load_weights(file_path)
 
     # get discriminator model
     Dis = model.make_discriminator_model(len_high_size=len_size, scale=scale)
     file_path = os.path.join('./saved_model/dis_model_'+str(len_size), 'dis_weights')
     if os.path.exists(file_path):
-        Dis.load_weights(file_path)
+        pass
+        #Dis.load_weights(file_path)
 
     if summary:
         print(Gen.summary())
@@ -54,7 +56,7 @@ if __name__ == '__main__':
     scale = 4
     # genomic_disstance is used for input path, nothing to do with model
     genomic_distance = int(sys.argv[2])  # 2000000, 2560000
-    EPOCHS = 400
+    EPOCHS = 800
     BATCH_SIZE = 9
     data_path = './data'
     raw_path = 'raw'
@@ -65,7 +67,7 @@ if __name__ == '__main__':
     output_path = 'output'
     output_file = input_file
     #'1' '2' '3' '4' '5' '6' '7' '8' '9' '10' '11' '12' '13' '14' '15' '16' '17' '18' '19' '20' '21' '22' 'X'
-    chromosome_list = ['1', '2', '3', '4', '5','6']#['1', '2', '3', '4', '5','6', '7', '8', '9', '10', '11', '12', '13', '14', '15']
+    chromosome_list = ['1', '2', '3', '4', '5','6', '7', '8', '9', '10', '11', '12', '13', '14', '15']#['1', '2', '3', '4', '5','6', '7', '8', '9', '10', '11', '12', '13', '14', '15']
     hr_file_list = []
 
     for chri in chromosome_list:
