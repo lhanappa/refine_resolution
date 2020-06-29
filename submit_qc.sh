@@ -17,4 +17,4 @@ date
 #source activate tf_base
 source activate tf_gpu_base
 
-python test_predict_qualify.py
+python test_predict_qualify.py ${1}

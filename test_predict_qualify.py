@@ -1,7 +1,7 @@
 from predict import predict
-
+import sys
 import qualify
-chromosome = '19'
+chromosome = str(sys.argv[1])
 predict(path='./data',
         raw_path='raw',
         raw_file='Rao2014-GM12878-DpnII-allreps-filtered.10kb.cool',
