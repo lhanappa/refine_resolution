@@ -205,3 +205,13 @@ def remove_zeros(matrix):
     M = np.asarray(M)
     idxy = np.asarray(idxy)
     return M, idxy
+
+
+if __name__ == '__main__':
+    m = np.ones(shape=(8,8))*2+ 400*np.diag(np.ones(shape=(8,)))
+    print(m.sum())
+    #print(m)
+    sample = sampling_hic(m, sampling_ratio=2, fix_seed=True)
+    print(sample.shape)
+    print(sample.sum())
+    print(sample)

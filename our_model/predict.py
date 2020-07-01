@@ -116,13 +116,13 @@ def predict(path='./data',
 
     if draw_out:
         fig, axs = plt.subplots(1, 2, figsize=(8, 15))
-        ax = axs[0].imshow(np.log1p(1000*predict_hic_hr_merge), cmap='RdBu_r')
+        ax = axs[0].imshow(np.log1p(1000*predict_hic_hr_merge))#, cmap='RdBu_r'
         axs[0].set_title('predict')
-        ax = axs[1].imshow(np.log1p(1000*Mh), cmap='RdBu_r')
+        ax = axs[1].imshow(np.log1p(1000*Mh))#, cmap='RdBu_r'
         axs[1].set_title('true')
         plt.tight_layout()
         plt.show()
 
 
 if __name__ == '__main__':
-    predict(start=0, end=400, draw_out=True)
+    predict(start=0, end=600, draw_out=True)
