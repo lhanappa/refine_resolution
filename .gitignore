@@ -1,4 +1,3 @@
-our_model/*.png
 .vscode/settings.json
 *.cool
 training_checkpoints/*

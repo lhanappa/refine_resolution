@@ -7,16 +7,15 @@ import wget
 from iced import normalization
 from utils import operations
 
+# data from ftp://cooler.csail.mit.edu/coolers/hg19/
 
-def configure(len_size=None, genomic_distance=None):
-    # set path
-    data_path = './data'
-    raw_path = 'raw'
-    # data from ftp://cooler.csail.mit.edu/coolers/hg19/
-    raw_hic = 'Rao2014-GM12878-DpnII-allreps-filtered.10kb.cool'
-    input_path = 'input'
-    input_file = raw_hic.split('-')[0] + '_' + raw_hic.split('.')[1]
-    output_path = 'output'
+
+def configure(len_size=None, genomic_distance=None, methods_name='ours',
+              dataset_path=None,
+              raw_path='raw',
+              raw_hic='Rao2014-GM12878-DpnII-allreps-filtered.10kb.cool',
+              input_path='input',
+              output_path='output'):
 
     resolution = None  # assigned by cooler binsizes
     scale = 4
@@ -24,25 +23,33 @@ def configure(len_size=None, genomic_distance=None):
         len_size = 40
     block_size = 2048  # number of entries in one file
     if genomic_distance is None:
-        genomic_distance=200000
-
+        genomic_distance = 200000
+    if dataset_path is None:
+        #pathto/proj/data
+        #pathto/proj/our_method
+        dataset_path = os.path.join(os.path.dirname(os.getcwd()),'data')
+        print(dataset_path)
+    input_file = raw_hic.split('-')[0] + '_' + raw_hic.split('.')[1]
     input_path = '_'.join(
-        [input_path, 'ours', str(genomic_distance), str(len_size)])
+        [input_path, methods_name, str(genomic_distance), str(len_size)])
+    output_path = '_'.join(
+        [output_path, methods_name, str(genomic_distance), str(len_size)])
 
-    output_path= '_'.join([output_path, 'ours', str(genomic_distance), str(len_size)])
+    output_path = '_'.join(
+        [output_path, methods_name, str(genomic_distance), str(len_size)])
     output_file = input_file
 
     # load raw hic matrix
-    file = os.path.join(data_path, raw_path, raw_hic)
+    file = os.path.join(dataset_path, raw_path, raw_hic)
     print(file)
     '''if ~os.path.exists(file):
         url = 'ftp://cooler.csail.mit.edu/coolers/hg19/'+raw_hic
         print(url)
         file = wget.download(url, file)'''
-    cool_hic = cooler.Cooler(file)
-    resolution = cool_hic.binsize
+    cool_hic = None #cooler.Cooler(file)
+    #resolution = cool_hic.binsize
     return cool_hic, resolution, scale, len_size, genomic_distance,\
-        block_size, data_path, \
+        block_size, dataset_path, \
         [raw_path, raw_hic], \
         [input_path, input_file], \
         [output_path, output_file]
@@ -79,7 +86,6 @@ def save_samples(configure=None, chromosome=None):
         Ml, block_size=len_size, max_distance=max_boundary, save_file=False)
     hic_lr = np.asarray(hic_lr)
     print('shape hic_lr: ', hic_lr.shape)
-
 
     directory_hr = os.path.join(
         data_path, input_path, input_file, 'HR', chromosome)
@@ -120,7 +126,8 @@ def save_samples(configure=None, chromosome=None):
 
 
 if __name__ == '__main__':
-    config = configure(len_size=int(sys.argv[2]), genomic_distance=int(sys.argv[3]))
+    config = configure(200, 2000000)
+    '''config = configure(len_size=int(sys.argv[2]), genomic_distance=int(sys.argv[3]))
     chromosome_list = [str(sys.argv[1])]
     for chri in chromosome_list:
-        save_samples(config, chromosome=chri)
+        save_samples(config, chromosome=chri)'''
