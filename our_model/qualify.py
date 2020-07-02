@@ -102,10 +102,10 @@ def score_hicrep(file1,
 if __name__ == '__main__':
     root = operations.redircwd_back_projroot(project_name='refine_resolution')
     [input_path, hicfile] = configure_our_model(path = os.path.join(root, 'data'))
-    file1 = input_path+'/' + hicfile + '_contact_true.gz'
-    file2 = input_path+'/' + hicfile + '_contact_predict.gz'
-    output = input_path+'/'+ hicfile + '_scores.txt'
-    bedfile = input_path+'/'+ hicfile+ '.bed.gz'
+    file1 = '"' + input_path+'/' + hicfile + '_contact_true.gz' + '"'
+    file2 = '"' +input_path+'/' + hicfile + '_contact_predict.gz'+ '"'
+    output = '"' +input_path+'/'+ hicfile + '_scores.txt'+ '"'
+    bedfile = '"' +input_path+'/'+ hicfile+ '.bed.gz' + '"'
     script = './our_model/utils/hicrep_wrapper.R'
     score_hicrep(script=script, file1=file1, file2=file2,
                  bedfile=bedfile, output_path=output)
