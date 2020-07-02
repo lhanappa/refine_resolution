@@ -2,6 +2,16 @@ import numpy as np
 import gzip
 import os
 
+def redircwd_back_projroot(project_name='refine_resolution'):
+    root = os.getcwd().split('/')
+    for i, f in enumerate(root):
+        if f == project_name:
+            root = root[:i+1]
+            break
+    root = '/'.join(root)
+    os.chdir(root)
+    print('current working directory: ', os.getcwd())
+    return root
 
 def sampling_hic(hic_matrix, sampling_ratio, fix_seed=False):
     """sampling dense hic matrix"""

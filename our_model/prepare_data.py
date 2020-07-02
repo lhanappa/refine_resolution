@@ -25,10 +25,12 @@ def configure(len_size=None, genomic_distance=None, methods_name='ours',
     if genomic_distance is None:
         genomic_distance = 200000
     if dataset_path is None:
-        #pathto/proj/data
-        #pathto/proj/our_method
-        dataset_path = os.path.join(os.path.dirname(os.getcwd()),'data')
-        print(dataset_path)
+        # assume current directory is the root of project
+        # pathto/proj/data
+        # pathto/proj/our_method
+        dataset_path = os.path.join(os.getcwd(), 'data')
+
+    print('data path: ', dataset_path)
     input_file = raw_hic.split('-')[0] + '_' + raw_hic.split('.')[1]
     input_path = '_'.join(
         [input_path, methods_name, str(genomic_distance), str(len_size)])
@@ -41,13 +43,13 @@ def configure(len_size=None, genomic_distance=None, methods_name='ours',
 
     # load raw hic matrix
     file = os.path.join(dataset_path, raw_path, raw_hic)
-    print(file)
+    print('raw hic data: ', file)
     '''if ~os.path.exists(file):
         url = 'ftp://cooler.csail.mit.edu/coolers/hg19/'+raw_hic
         print(url)
         file = wget.download(url, file)'''
-    cool_hic = None #cooler.Cooler(file)
-    #resolution = cool_hic.binsize
+    cool_hic = cooler.Cooler(file)
+    resolution = cool_hic.binsize
     return cool_hic, resolution, scale, len_size, genomic_distance,\
         block_size, dataset_path, \
         [raw_path, raw_hic], \
@@ -125,8 +127,16 @@ def save_samples(configure=None, chromosome=None):
                             index_1D_2D=None, index_2D_1D=None)
 
 
+"""
+configure data:
+dataset_path-raw
+            -input
+            -output
+"""
+
 if __name__ == '__main__':
-    config = configure(200, 2000000)
+    root = operations.redircwd_back_projroot(project_name='refine_resolution')
+    config = configure(200, 2000000, dataset_path = os.path.join(root, 'data'))
     '''config = configure(len_size=int(sys.argv[2]), genomic_distance=int(sys.argv[3]))
     chromosome_list = [str(sys.argv[1])]
     for chri in chromosome_list:

@@ -11,15 +11,14 @@ from utils import operations, quality_hic
 # 'Dixon2012-H1hESC-HindIII-allreps-filtered.10kb.cool'
 
 
-def configure(
+def configure_our_model(
         path='./data',
-        raw_path='raw',
         raw_file='Rao2014-GM12878-DpnII-allreps-filtered.10kb.cool',
+        sr_path = 'output',
         chromosome='22',
         genomic_distance=2000000,
         resolution=10000):
 
-    sr_path = 'output'
     sr_file = raw_file.split('-')[0] + '_' + raw_file.split('.')[1]
     directory_sr = os.path.join(path, sr_path, sr_file, 'SR', 'chr'+chromosome)
 
@@ -73,19 +72,19 @@ def configure(
     plt.show()'''
 
     operations.format_bin(true_hic_hr_merge, coordinate=(
-        0, 1), resolution=10000, chrm=chromosome, save_file=True, filename=input_path+'/demo.bed.gz')
+        0, 1), resolution=10000, chrm=chromosome, save_file=True, filename=input_path+'/'+ sr_file+'.bed.gz')
     operations.format_contact(true_hic_hr_merge, coordinate=(
-        0, 1), resolution=10000, chrm=chromosome, save_file=True, filename=input_path+'/demo_contact_true.gz')
+        0, 1), resolution=10000, chrm=chromosome, save_file=True, filename=input_path+'/'+ sr_file+'_contact_true.gz')
     operations.format_contact(predict_hic_hr_merge, coordinate=(
-        0, 1), resolution=10000, chrm=chromosome, save_file=True, filename=input_path+'/demo_contact_predict.gz')
+        0, 1), resolution=10000, chrm=chromosome, save_file=True, filename=input_path+'/'+ sr_file+'_contact_predict.gz')
 
-    return input_path
+    return input_path, sr_file
 
 
 def score_hicrep(file1,
                  file2,
                  bedfile,
-                 output,
+                 output_path,
                  script='./utils/hicrep_wrapper.R',
                  maxdist=int(2000000),
                  resolution=int(10000),
@@ -93,7 +92,7 @@ def score_hicrep(file1,
                  m1name='m1',
                  m2name='m2'):
     quality_hic.run_hicrep(script=script, f1=file1, f2=file2,
-                           bedfile=bedfile, output_path=output, maxdist=maxdist,
+                           bedfile=bedfile, output_path=output_path, maxdist=maxdist,
                            resolution=resolution,
                            h=h,
                            m1name=m1name,
@@ -101,11 +100,12 @@ def score_hicrep(file1,
 
 
 if __name__ == '__main__':
-    input_path = configure()
-    file1 = input_path+'/demo_contact_true.gz'
-    file2 = input_path+'/demo_contact_predict.gz'
-    output = input_path+'/demo_scores.txt'
-    bedfile = input_path+'/demo.bed.gz'
-    script = './utils/hicrep_wrapper.R'
-    score_hicrep(script=script, f1=file1, f2=file2,
+    root = operations.redircwd_back_projroot(project_name='refine_resolution')
+    [input_path, hicfile] = configure_our_model(path = os.path.join(root, 'data'))
+    file1 = input_path+'/' + hicfile + '_contact_true.gz'
+    file2 = input_path+'/' + hicfile + '_contact_predict.gz'
+    output = input_path+'/'+ hicfile + '_scores.txt'
+    bedfile = input_path+'/'+ hicfile+ '.bed.gz'
+    script = './our_model/utils/hicrep_wrapper.R'
+    score_hicrep(script=script, file1=file1, file2=file2,
                  bedfile=bedfile, output_path=output)

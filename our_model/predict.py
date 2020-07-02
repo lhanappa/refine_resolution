@@ -19,10 +19,11 @@ tf.keras.backend.set_floatx('float32')
 def predict(path='./data',
             raw_path='raw',
             raw_file='Rao2014-GM12878-DpnII-allreps-filtered.10kb.cool',
+            model_path = None,
+            sr_path='output',
             chromosome='22',
             scale=4,
             len_size=200,
-            sr_path='output',
             genomic_distance=2000000,
             start=None, end=None, draw_out=False):
     sr_file = raw_file.split('-')[0] + '_' + raw_file.split('.')[1]
@@ -31,9 +32,12 @@ def predict(path='./data',
         os.makedirs(directory_sr)
 
     # get generator model
-    file_path = './saved_model/gen_model_' + str(len_size)+'/gen_weights'
+    if model_path is None:
+        gan_model_weights_path = './our_model/saved_model/gen_model_' + str(len_size)+'/gen_weights'
+    else:
+        gan_model_weights_path = model_path
     Generator = model.make_generator_model(len_high_size=len_size, scale=4)
-    Generator.load_weights(file_path)
+    Generator.load_weights(gan_model_weights_path)
     print(Generator)
 
     name = os.path.join(path, raw_path, raw_file)
@@ -125,4 +129,13 @@ def predict(path='./data',
 
 
 if __name__ == '__main__':
-    predict(start=0, end=600, draw_out=True)
+    root = operations.redircwd_back_projroot(project_name='refine_resolution')
+    data_path = os.path.join(root, 'data')
+    predict(path=data_path,
+            raw_path='raw',
+            raw_file='Rao2014-GM12878-DpnII-allreps-filtered.10kb.cool',
+            chromosome='22',
+            scale=4,
+            len_size=200,
+            sr_path='output',
+            genomic_distance=2000000,start=0, end=600, draw_out=True)

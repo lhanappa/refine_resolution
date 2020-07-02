@@ -17,6 +17,7 @@ import numpy as np
 import sys
 import io
 import os
+import subprocess
 
 
 def run_hicrep(script,
@@ -33,4 +34,6 @@ def run_hicrep(script,
     cmd = ['Rscript --vanilla', script, f1, f2, output_path, str(
         maxdist), str(resolution), bedfile, str(h), m1name, m2name]
     print(' '.join(cmd))
-    os.system(' '.join(cmd))
+    #os.system(' '.join(cmd))
+    proc = subprocess.call([str(' '.join(cmd))],stdout=subprocess.PIPE)
+    stdout_value = proc.wait()
