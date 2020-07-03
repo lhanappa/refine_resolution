@@ -5,7 +5,7 @@ import cooler
 import wget
 
 from iced import normalization
-from utils import operations
+from .utils import operations
 
 # data from ftp://cooler.csail.mit.edu/coolers/hg19/
 

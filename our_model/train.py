@@ -1,4 +1,3 @@
-import model
 import glob
 import imageio
 import time
@@ -12,9 +11,12 @@ import copy
 import os
 import sys
 import shutil
-from utils.operations import sampling_hic
-from utils.operations import divide_pieces_hic, merge_hic
+from . import model
+from .utils.operations import sampling_hic
+from .utils.operations import divide_pieces_hic, merge_hic
+from .utils.operations import redircwd_back_projroot
 import tensorflow as tf
+
 tf.keras.backend.set_floatx('float32')
 
 
@@ -23,17 +25,19 @@ tf.keras.backend.set_floatx('float32')
 def run(train_data, test_data, len_size, scale, EPOCHS, summary=False):
     # get generator model
     Gen = model.make_generator_model(len_high_size=len_size, scale=scale)
-    file_path = os.path.join('./saved_model/gen_model_'+str(len_size), 'gen_weights')
+    file_path = os.path.join(
+        './our_model/saved_model/gen_model_'+str(len_size), 'gen_weights')
     if os.path.exists(file_path):
         pass
-        #Gen.load_weights(file_path)
+        # Gen.load_weights(file_path)
 
     # get discriminator model
     Dis = model.make_discriminator_model(len_high_size=len_size, scale=scale)
-    file_path = os.path.join('./saved_model/dis_model_'+str(len_size), 'dis_weights')
+    file_path = os.path.join(
+        './our_model/saved_model/dis_model_'+str(len_size), 'dis_weights')
     if os.path.exists(file_path):
         pass
-        #Dis.load_weights(file_path)
+        # Dis.load_weights(file_path)
 
     if summary:
         print(Gen.summary())
@@ -43,10 +47,12 @@ def run(train_data, test_data, len_size, scale, EPOCHS, summary=False):
 
     model.train(Gen, Dis, train_data, EPOCHS, len_size, scale, test_data)
 
-    file_path = os.path.join('./saved_model/gen_model_'+str(len_size), 'gen_weights')
+    file_path = os.path.join(
+        './our_model/saved_model/gen_model_'+str(len_size), 'gen_weights')
     Gen.save_weights(file_path)
 
-    file_path = os.path.join('./saved_model/dis_model_'+str(len_size), 'dis_weights')
+    file_path = os.path.join(
+        './our_model/saved_model/dis_model_'+str(len_size), 'dis_weights')
     Dis.save_weights(file_path)
 
 
@@ -58,16 +64,20 @@ if __name__ == '__main__':
     genomic_distance = int(sys.argv[2])  # 2000000, 2560000
     EPOCHS = 800
     BATCH_SIZE = 9
-    data_path = './data'
-    raw_path = 'raw'
+    root_path = redircwd_back_projroot(project_name='refine_resolution')
+    data_path = os.path.join(root_path, 'data')
+    #raw_path = 'raw'
     raw_hic = 'Rao2014-GM12878-DpnII-allreps-filtered.10kb.cool'
     input_path = '_'.join(
         ['input', 'ours', str(genomic_distance), str(len_size)])
     input_file = raw_hic.split('-')[0] + '_' + raw_hic.split('.')[1]
-    output_path = 'output'
-    output_file = input_file
-    #'1' '2' '3' '4' '5' '6' '7' '8' '9' '10' '11' '12' '13' '14' '15' '16' '17' '18' '19' '20' '21' '22' 'X'
-    chromosome_list = ['1', '2', '3', '4', '5','6', '7', '8', '9', '10', '11', '12', '13', '14', '15']#['1', '2', '3', '4', '5','6', '7', '8', '9', '10', '11', '12', '13', '14', '15']
+    #output_path = 'output'
+    #output_file = input_file
+
+    #['1', '2', '3', '4', '5','6', '7', '8', '9', '10', '11', '12', '13', '14', '15']
+    #['16', '17', '18', '19', '20', '21', '22', 'X']
+    chromosome_list = ['1', '2', '3', '4', '5', '6', '7',
+                       '8', '9', '10', '11', '12', '13', '14', '15']
     hr_file_list = []
 
     for chri in chromosome_list:
