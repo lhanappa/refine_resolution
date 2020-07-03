@@ -31,7 +31,7 @@ else
    echo "Error: Please provide a valid virtual environment. For a list of valid virtual environment, please see 'conda env list' "
    echo "Creating env $deephic from ./HiCSR/environment.yaml"
    echo conda env create -f ./environment_deephic.yaml
-   conda env create --file ./environment.yaml
+   conda env create --file ./environment_deephic.yaml
    exit
 fi;
 
