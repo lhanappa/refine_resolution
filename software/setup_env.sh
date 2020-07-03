@@ -1,3 +1,4 @@
+#!/bin/sh
 #setup env and check pre request
 
 #HiCSR
