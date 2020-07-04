@@ -31,7 +31,7 @@ def configure(len_size=None, genomic_distance=None, methods_name='ours',
         dataset_path = os.path.join(os.getcwd(), 'data')
 
     print('data path: ', dataset_path)
-    input_file = raw_hic.split('-')[0] + '_' + raw_hic.split('.')[1]
+    input_file = raw_hic.split('-')[0] + '_' + raw_hic.split('-')[1] + '_' + raw_hic.split('.')[1]
     input_path = '_'.join(
         [input_path, methods_name, str(genomic_distance), str(len_size)])
     output_path = '_'.join(
@@ -136,8 +136,7 @@ dataset_path-raw
 
 if __name__ == '__main__':
     root = operations.redircwd_back_projroot(project_name='refine_resolution')
-    config = configure(200, 2000000, dataset_path = os.path.join(root, 'data'))
-    '''config = configure(len_size=int(sys.argv[2]), genomic_distance=int(sys.argv[3]))
+    config = configure(len_size=int(sys.argv[2]), genomic_distance=int(sys.argv[3]))
     chromosome_list = [str(sys.argv[1])]
     for chri in chromosome_list:
-        save_samples(config, chromosome=chri)'''
+        save_samples(config, chromosome=chri)

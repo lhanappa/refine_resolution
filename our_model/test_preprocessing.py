@@ -1,4 +1,4 @@
-import prepare_data
+from . import prepare_data
 import sys
 
 config = prepare_data.configure(len_size=int(sys.argv[2]), genomic_distance=int(sys.argv[3]))

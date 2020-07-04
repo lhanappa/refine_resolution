@@ -7,8 +7,8 @@ import numpy as np
 import copy
 import os
 
-import model
-from utils import operations
+from . import model
+from .utils import operations
 import tensorflow as tf
 tf.keras.backend.set_floatx('float32')
 
@@ -26,7 +26,7 @@ def predict(path='./data',
             len_size=200,
             genomic_distance=2000000,
             start=None, end=None, draw_out=False):
-    sr_file = raw_file.split('-')[0] + '_' + raw_file.split('.')[1]
+    sr_file = raw_file.split('-')[0] + '_' + raw_hic.split('-')[1] + '_' + raw_file.split('.')[1]
     directory_sr = os.path.join(path, sr_path, sr_file, 'SR', 'chr'+chromosome)
     if not os.path.exists(directory_sr):
         os.makedirs(directory_sr)
