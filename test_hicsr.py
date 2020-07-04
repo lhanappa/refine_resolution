@@ -40,8 +40,7 @@ script = "preprocessing.py"
 cmd = ["python ", script, "--input ", input_path,
        "--output ", preprocessing_output_path, "--normalize 1"]
 print(' '.join(cmd))
-os.chdir(os.path.join(root_dir,'software', 'HiCSR'))
-process = subprocess.Popen(cmd, shell=False, stdout=subprocess.PIPE)
+process = subprocess.Popen(cmd, shell=False, stdout=subprocess.PIPE, cwd=os.path.join(root_dir,'software', 'HiCSR'))
 process.wait()
 
 # ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16']
