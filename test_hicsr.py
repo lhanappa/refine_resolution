@@ -40,7 +40,7 @@ script = "preprocessing.py"
 cmd = ["python ", script, "--input ", input_path,
        "--output ", preprocessing_output_path, "--normalize 1"]
 print(' '.join(cmd))
-sys.path.append(os.path.join(root_dir,'software', 'HiCSR'))
+os.chdir(os.path.join(root_dir,'software', 'HiCSR'))
 process = subprocess.Popen(cmd, shell=False, stdout=subprocess.PIPE)
 process.wait()
 
