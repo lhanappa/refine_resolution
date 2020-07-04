@@ -14,6 +14,7 @@ lr_size=40
 hr_size=28
 downsample_factor=16
 
+methods_name = 'hicsr'
 root_dir = redircwd_back_projroot(project_name='refine_resolution')
 experiment_name = '_'.join([methods_name, str(genomic_distance), str(lr_size), str(hr_size)])
 chr_list =  ['22']#['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', 'X']
