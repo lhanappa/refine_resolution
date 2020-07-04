@@ -1,6 +1,7 @@
 import os
 import numpy as np
 
+
 def redircwd_back_projroot(project_name='refine_resolution'):
     root = os.getcwd().split('/')
     for i, f in enumerate(root):
@@ -12,6 +13,7 @@ def redircwd_back_projroot(project_name='refine_resolution'):
     print('current working directory: ', os.getcwd())
     return root
 
+
 def remove_zeros(matrix):
     idxy = ~np.all(np.isnan(matrix), axis=0)
     M = matrix[idxy, :]
@@ -19,3 +21,9 @@ def remove_zeros(matrix):
     M = np.asarray(M)
     idxy = np.asarray(idxy)
     return M, idxy
+
+
+def path_wrap(path: str):
+    # add "" around path
+    path = '"' + path + '"'
+    return path

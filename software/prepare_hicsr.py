@@ -46,22 +46,24 @@ def sampling_hic(hic_matrix, sampling_ratio, fix_seed=False):
     return np.asarray(sample_m)
 
 
-def run():
-    root_dir = redircwd_back_projroot(project_name='refine_resolution')
-    raw_hic = 'Rao2014-GM12878-DpnII-allreps-filtered.10kb.cool'
+def run(raw_hic='Rao2014-GM12878-DpnII-allreps-filtered.10kb.cool',
+        chromosome_list=['22'],
+        genomic_distance=2000000,
+        lr_size=40,
+        hr_size=28,
+        downsample_factor=16
+        ):
+
     methods_name = 'hicsr'
-    genomic_distance = 2000000
-    lr_size = 40
-    hr_size = 28
+    root_dir = redircwd_back_projroot(project_name='refine_resolution')
     experiment_name = '_'.join(
         [methods_name, str(genomic_distance), str(lr_size), str(hr_size)])
     input_path = os.path.join(root_dir, 'data', 'input_'+experiment_name)
     preprocessing_output_path = os.path.join(
         root_dir, 'data', 'input_' + experiment_name)
 
-    chromosome_list = ['22']
     cell_type = raw_hic.split('-')[1]
-    downsample_factor = 16
+
     file_tag = 'sample'
     [hic_m, _] = cool_to_raw(raw_path=os.path.join(
         root_dir, 'data', 'raw'), raw_hic=raw_hic)
@@ -91,7 +93,7 @@ def run():
     # These sample matrices are stored in the input_samples directory, where each sample has the following naming convention
     # <chromosome>-<cell_type>-<downsample_factor>-<file_tag>.txt.gz
     # ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15']
-    
+
     # python train.py --data_fp preprocessing_output/HiCSR_dataset/samples/ --model HiCSR --experiment test_HiCSR
 
     # python predict.py --input preprocessing_output/normalized/lr/ --output HiCSR_predictions/ --model_type HiCSR --model_fp pretrained_models/HiCSR.pth
