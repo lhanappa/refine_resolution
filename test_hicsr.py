@@ -33,7 +33,7 @@ prepare_hicsr.run(raw_hic='Rao2014-GM12878-DpnII-allreps-filtered.10kb.cool',
 # <chromosome>-<cell_type>-<downsample_factor>-<file_tag>.txt.gz
 
 input_path = os.path.join(root_dir, 'data', 'input_'+experiment_name)
-input_path = path_wrap(input_path)
+input_path = path_wrap(input_path+'/')
 preprocessing_output_path = os.path.join(root_dir, 'data', 'input_' + experiment_name, 'preprocessing_output/')
 preprocessing_output_path = path_wrap(preprocessing_output_path)
 script = "preprocessing.py"
