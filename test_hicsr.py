@@ -39,7 +39,8 @@ preprocessing_output_path = path_wrap(preprocessing_output_path)
 script = "preprocessing.py"
 cmd = ["python ", script, "--input ", input_path,
        "--output ", preprocessing_output_path, "--normalize 1"]
-process = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
+print(' '.join(cmd))
+process = subprocess.Popen(cmd, shell=False, stdout=subprocess.PIPE)
 process.wait()
 
 # ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16']
