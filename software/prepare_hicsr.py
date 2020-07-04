@@ -1,7 +1,7 @@
 import os
 import sys
 import cooler
-from utils import redircwd_back_projroot, remove_zeros
+from .utils import redircwd_back_projroot, remove_zeros
 
 import numpy as np
 
