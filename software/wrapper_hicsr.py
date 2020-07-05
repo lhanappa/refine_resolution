@@ -22,7 +22,7 @@ def configure_hicsr():
     experiment_name = '_'.join(
         [methods_name, str(genomic_distance), str(lr_size), str(hr_size)])
     # ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', 'X']
-    chr_list = ['22']
+    preprocessing_chr_list = ['22']
 
     input_path = os.path.join(root_dir, 'data', 'input_'+experiment_name)+'/'
     preprocessing_output_path = os.path.join(
@@ -44,5 +44,6 @@ def configure_hicsr():
     valid_list = ['17', '18', '22']
 
     return raw_hic, genomic_distance, lr_size, hr_size, downsample_factor, \
-        root_dir, experiment_name, input_path, preprocessing_output_path, \
-        script_work_dir, train_path, train_list, valid_path, valid_list
+        root_dir, experiment_name, preprocessing_chr_list, input_path, \
+        preprocessing_output_path, script_work_dir, train_path, train_list, \
+        valid_path, valid_list

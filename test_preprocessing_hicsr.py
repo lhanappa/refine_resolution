@@ -5,10 +5,10 @@ import subprocess
 import shutil
 
 from software import prepare_hicsr
-from .software.utils import path_wrap, redircwd_back_projroot
-from .software.HiCSR import *
+from software.utils import path_wrap, redircwd_back_projroot
+from software.HiCSR import *
 
-from wrapper_hicsr import configure_hicsr
+from software.wrapper_hicsr import configure_hicsr
 """test hicsr"""
 
 """raw_hic = 'Rao2014-GM12878-DpnII-allreps-filtered.10kb.cool'
@@ -25,7 +25,7 @@ experiment_name = '_'.join(
 chr_list = ['22']"""
 
 [raw_hic, genomic_distance, lr_size, hr_size, downsample_factor,
- root_dir, experiment_name, input_path, preprocessing_output_path,
+ root_dir, experiment_name, chr_list, input_path, preprocessing_output_path,
  script_work_dir, train_path, train_list, valid_path, valid_list] = configure_hicsr()
 
 
