@@ -54,7 +54,7 @@ if not os.path.exists(train_path):
 train_list = ['1', '2', '3', '4', '5', '6', '7', '8',
               '9', '10', '11', '12', '13', '14', '15', '16', '22']
 valid_path = os.path.join(root_dir, 'data', 'input_'+experiment_name, 'valid')
-if not os.pasth.exists(valid_path):
+if not os.path.exists(valid_path):
     os.mkdir(valid_path)
 valid_list = ['17', '18', '22']
 
