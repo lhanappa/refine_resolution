@@ -38,7 +38,7 @@ SSH port: 22
 # load modules or conda environments here
 source activate tf_base
 echo -e "PLEASE USE GENERATED URL BELOW IN BROWSER\nYOU MUST REPLACE '${node}' with 'localhost'"
-tensorboard --logdir='/rhome/yhu/bigdata/proj/refine_resolution/logs/model/' --port=${port} --host=${node} --samples_per_plugin images=50
+tensorboard --logdir='/rhome/yhu/bigdata/proj/refine_resolution/our_model/logs/model/' --port=${port} --host=${node} --samples_per_plugin images=50
 # Comment out the line above and uncomment the line below if you would like jupyter-notebook instead of jupyter-lab
 #jupyter-notebook --no-browser --port=${port} --ip=${node}
 

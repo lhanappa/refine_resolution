@@ -3,7 +3,7 @@ import tensorflow as tf
 import time
 from IPython import display
 import datetime
-
+import os
 
 class Reconstruct_R1M(tf.keras.layers.Layer):
     def __init__(self, filters, name='RR'):
@@ -525,7 +525,11 @@ def tracegraph(x, model):
     return model(x)
 
 
-def train(gen, dis, dataset, epochs, len_high_size, scale, test_dataset=None):
+def train(gen, dis, dataset, epochs, len_high_size, scale, test_dataset=None, log_dir=None, saved_model_dir=None):
+    if log_dir is None:
+        log_dir = './logs/model'
+    if saved_model_dir is None:
+        saved_model_dir = './saved_model'
     generator_optimizer_low = tf.keras.optimizers.Adam()
     generator_optimizer_high = tf.keras.optimizers.Adam()
     discriminator_optimizer = tf.keras.optimizers.Adam()
@@ -547,14 +551,15 @@ def train(gen, dis, dataset, epochs, len_high_size, scale, test_dataset=None):
     logs = [generator_log_ssim_low, generator_log_mse_low, generator_log_bce_high,
             generator_log_mse_high, generator_log_ssim_high]  # for generator, discriminator_log]
     current_time = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
-    train_log_dir = 'logs/model/' + current_time + '/generator'
+
+    train_log_dir = os.path.join(log_dir, current_time, 'generator')
     train_summary_G_writer = tf.summary.create_file_writer(train_log_dir)
-    train_log_dir = 'logs/model/' + current_time + '/discriminator'
+    train_log_dir = os.path.join(log_dir, current_time, 'discriminator')
     train_summary_D_writer = tf.summary.create_file_writer(train_log_dir)
-    test_log_dir = 'logs/model/' + current_time + '/test'
+    test_log_dir = os.path.join(log_dir, current_time, 'test')
     test_writer = tf.summary.create_file_writer(test_log_dir)
 
-    train_log_dir = 'logs/model/' + current_time + '/model'
+    train_log_dir = os.path.join(log_dir, current_time, 'model')
     writer = tf.summary.create_file_writer(train_log_dir)
     tf.summary.trace_on(graph=True, profiler=False)
     # Forward pass
@@ -636,10 +641,8 @@ def train(gen, dis, dataset, epochs, len_high_size, scale, test_dataset=None):
                                          opts=[discriminator_optimizer], train_logs=[discriminator_log])
         # log the model epochs
         if (epoch+10) % 20 == 0:
-            gen.save_weights('./saved_model/'+current_time +
-                             '/gen_weights_'+str(len_high_size))
-            dis.save_weights('./saved_model/'+current_time +
-                             '/dis_weights_'+str(len_high_size))
+            gen.save_weights(os.path.join(saved_model_dir, current_time, 'gen_weights_'+str(len_high_size)))
+            dis.save_weights(os.path.join(saved_model_dir, current_time, 'dis_weights_'+str(len_high_size)))
 
         if (epoch) % 10 == 0 or True:
             [dpl_x2, dpl_x4, dph, _, _] = gen(

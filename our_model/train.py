@@ -22,11 +22,13 @@ tf.keras.backend.set_floatx('float32')
 
 # data from ftp://cooler.csail.mit.edu/coolers/hg19/
 
-def run(train_data, test_data, len_size, scale, EPOCHS, summary=False):
+def run(train_data, test_data, len_size, scale, EPOCHS, root_path='./', summary=False):
     # get generator model
+
+    saved_model_dir = os.path.join(root_path, 'our_model', 'saved_model')
     Gen = model.make_generator_model(len_high_size=len_size, scale=scale)
     file_path = os.path.join(
-        './our_model/saved_model/gen_model_'+str(len_size), 'gen_weights')
+        saved_model_dir, 'gen_model_'+str(len_size), 'gen_weights')
     if os.path.exists(file_path):
         pass
         # Gen.load_weights(file_path)
@@ -34,7 +36,7 @@ def run(train_data, test_data, len_size, scale, EPOCHS, summary=False):
     # get discriminator model
     Dis = model.make_discriminator_model(len_high_size=len_size, scale=scale)
     file_path = os.path.join(
-        './our_model/saved_model/dis_model_'+str(len_size), 'dis_weights')
+        saved_model_dir, 'dis_model_'+str(len_size), 'dis_weights')
     if os.path.exists(file_path):
         pass
         # Dis.load_weights(file_path)
@@ -45,14 +47,16 @@ def run(train_data, test_data, len_size, scale, EPOCHS, summary=False):
         print(Dis.summary())
         tf.keras.utils.plot_model(Dis, to_file='D.png', show_shapes=True)
 
-    model.train(Gen, Dis, train_data, EPOCHS, len_size, scale, test_data)
+    log_dir = os.path.join(root_path, 'our_model', 'logs', 'model')
+    model.train(Gen, Dis, train_data, EPOCHS, len_size, scale,
+                test_data, log_dir=None, saved_model_dir=None)
 
     file_path = os.path.join(
-        './our_model/saved_model/gen_model_'+str(len_size), 'gen_weights')
+        saved_model_dir, 'gen_model_'+str(len_size), 'gen_weights')
     Gen.save_weights(file_path)
 
     file_path = os.path.join(
-        './our_model/saved_model/dis_model_'+str(len_size), 'dis_weights')
+        saved_model_dir, 'dis_model_'+str(len_size), 'dis_weights')
     Dis.save_weights(file_path)
 
 
@@ -70,14 +74,14 @@ if __name__ == '__main__':
     raw_hic = 'Rao2014-GM12878-DpnII-allreps-filtered.10kb.cool'
     input_path = '_'.join(
         ['input', 'ours', str(genomic_distance), str(len_size)])
-    input_file = raw_hic.split('-')[0] + '_' + raw_hic.split('-')[1] + '_' + raw_hic.split('.')[1]
+    input_file = raw_hic.split(
+        '-')[0] + '_' + raw_hic.split('-')[1] + '_' + raw_hic.split('.')[1]
     #output_path = 'output'
     #output_file = input_file
 
     #['1', '2', '3', '4', '5','6', '7', '8', '9', '10', '11', '12', '13', '14', '15']
     #['16', '17', '18', '19', '20', '21', '22', 'X']
-    chromosome_list = ['1', '2', '3', '4', '5', '6', '7',
-                       '8', '9', '10', '11', '12', '13', '14', '15']
+    chromosome_list = ['22']#['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15']
     hr_file_list = []
 
     for chri in chromosome_list:
