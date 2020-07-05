@@ -49,7 +49,7 @@ def run(train_data, test_data, len_size, scale, EPOCHS, root_path='./', summary=
 
     log_dir = os.path.join(root_path, 'our_model', 'logs', 'model')
     model.train(Gen, Dis, train_data, EPOCHS, len_size, scale,
-                test_data, log_dir=None, saved_model_dir=None)
+                test_data, log_dir=log_dir, saved_model_dir=saved_model_dir)
 
     file_path = os.path.join(
         saved_model_dir, 'gen_model_'+str(len_size), 'gen_weights')
