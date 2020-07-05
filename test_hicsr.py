@@ -2,28 +2,31 @@ import os
 import sys
 import numpy as np
 import subprocess
+import shutil
 
 from software import prepare_hicsr
 from software.utils import path_wrap, redircwd_back_projroot
 from software.HiCSR import *
 """test hicsr"""
 
-raw_hic='Rao2014-GM12878-DpnII-allreps-filtered.10kb.cool'
-genomic_distance=2000000
-lr_size=40
-hr_size=28
-downsample_factor=16
+raw_hic = 'Rao2014-GM12878-DpnII-allreps-filtered.10kb.cool'
+genomic_distance = 2000000
+lr_size = 40
+hr_size = 28
+downsample_factor = 16
 
 methods_name = 'hicsr'
 root_dir = redircwd_back_projroot(project_name='refine_resolution')
-experiment_name = '_'.join([methods_name, str(genomic_distance), str(lr_size), str(hr_size)])
-chr_list =  ['22']#['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', 'X']
-prepare_hicsr.run(raw_hic='Rao2014-GM12878-DpnII-allreps-filtered.10kb.cool',
+experiment_name = '_'.join(
+    [methods_name, str(genomic_distance), str(lr_size), str(hr_size)])
+# ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', 'X']
+chr_list = ['22']
+prepare_hicsr.run(raw_hic=raw_hic,
                   chromosome_list=chr_list,
-                  genomic_distance=2000000,
-                  lr_size=40,
-                  hr_size=28,
-                  downsample_factor=16
+                  genomic_distance=genomic_distance,
+                  lr_size=lr_size,
+                  hr_size=hr_size,
+                  downsample_factor=downsample_factor
                   )
 
 # python preprocessing.py --input input_samples/ --output preprocessing_output/ --normalize 1
@@ -33,21 +36,39 @@ prepare_hicsr.run(raw_hic='Rao2014-GM12878-DpnII-allreps-filtered.10kb.cool',
 # <chromosome>-<cell_type>-<downsample_factor>-<file_tag>.txt.gz
 
 input_path = os.path.join(root_dir, 'data', 'input_'+experiment_name)+'/'
-preprocessing_output_path = os.path.join(root_dir, 'data', 'input_' + experiment_name, 'preprocessing_output/')
+preprocessing_output_path = os.path.join(
+    root_dir, 'data', 'input_' + experiment_name, 'preprocessing_output/')
 
 if os.path.exists(preprocessing_output_path):
-    os.rmdir(preprocessing_output_path)
+    shutil.rmtree(preprocessing_output_path)
 script = "preprocessing.py"
 cmd = ["python", script, "--input", input_path,
        "--output", preprocessing_output_path, "--normalize", "1"]
 print(' '.join(cmd))
-process = subprocess.run(cmd, cwd=os.path.join(root_dir,'software', 'HiCSR'))
+process = subprocess.run(cmd, cwd=os.path.join(root_dir, 'software', 'HiCSR'))
 
 # ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16']
-train_path = ""
-train_list = []
-valid_path = ""
-valid_list = []
+train_path = os.path.join(root_dir, 'data', 'input_'+experiment_name, 'train')
+if not os.path.exists(train_path):
+    os.mkdir(train_path)
+train_list = ['1', '2', '3', '4', '5', '6', '7', '8',
+              '9', '10', '11', '12', '13', '14', '15', '16', '22']
+valid_path = os.path.join(root_dir, 'data', 'input_'+experiment_name, 'valid')
+if not os.pasth.exists(valid_path):
+    os.mkdir(valid_path)
+valid_list = ['17', '18', '22']
+
+cp_path = os.path.join(root_dir, 'data', 'input_' + experiment_name,
+                       'preprocessing_output', 'HiCSR_dataset', 'samples')
+for chro in chr_list:
+    file = 'chr'+tr+'-GM12878-HiCSR-dataset-normalized-samples.npz'
+    if chro in train_list:
+        subprocess.run(["cp", os.path.join(cp_path, file),
+                        os.path.join(train_path, file)])
+    if chro in valid_list:
+        subprocess.run(["cp", os.path.join(cp_path, file),
+                        os.path.join(valid_path, file)])
+
 
 # python train.py --data_fp preprocessing_output/HiCSR_dataset/samples/ --model HiCSR --experiment test_HiCSR
 
