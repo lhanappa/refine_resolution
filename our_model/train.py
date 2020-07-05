@@ -11,10 +11,10 @@ import copy
 import os
 import sys
 import shutil
-from . import model
-from .utils.operations import sampling_hic
-from .utils.operations import divide_pieces_hic, merge_hic
-from .utils.operations import redircwd_back_projroot
+import model
+from utils.operations import sampling_hic
+from utils.operations import divide_pieces_hic, merge_hic
+from utils.operations import redircwd_back_projroot
 import tensorflow as tf
 
 tf.keras.backend.set_floatx('float32')

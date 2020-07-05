@@ -5,7 +5,7 @@ import cooler
 import wget
 
 from iced import normalization
-from .utils import operations
+from utils import operations
 
 # data from ftp://cooler.csail.mit.edu/coolers/hg19/
 
@@ -28,7 +28,7 @@ def configure(len_size=None, genomic_distance=None, methods_name='ours',
         # assume current directory is the root of project
         # pathto/proj/data
         # pathto/proj/our_method
-        dataset_path = os.path.join(os.getcwd(), 'data')
+        dataset_path = os.path.join(operations.redircwd_back_projroot(project_name='refine_resolution'), 'data')
 
     print('data path: ', dataset_path)
     input_file = raw_hic.split('-')[0] + '_' + raw_hic.split('-')[1] + '_' + raw_hic.split('.')[1]
