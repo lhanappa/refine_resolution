@@ -61,7 +61,7 @@ valid_list = ['17', '18', '22']
 cp_path = os.path.join(root_dir, 'data', 'input_' + experiment_name,
                        'preprocessing_output', 'HiCSR_dataset', 'samples')
 for chro in chr_list:
-    file = 'chr'+tr+'-GM12878-HiCSR-dataset-normalized-samples.npz'
+    file = 'chr'+chro+'-GM12878-HiCSR-dataset-normalized-samples.npz'
     if chro in train_list:
         subprocess.run(["cp", os.path.join(cp_path, file),
                         os.path.join(train_path, file)])
