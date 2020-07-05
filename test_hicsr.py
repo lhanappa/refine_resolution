@@ -38,7 +38,7 @@ preprocessing_output_path = os.path.join(root_dir, 'data', 'input_' + experiment
 preprocessing_output_path = path_wrap(preprocessing_output_path)
 if os.path.exists(preprocessing_output_path):
     os.rmdir(preprocessing_output_path)
-script = "preprocessing.py "
+script = "preprocessing.py"
 cmd = ["python", script, "--input", input_path,
        "--output", preprocessing_output_path, "--normalize", "1"]
 print(' '.join(cmd))
