@@ -32,10 +32,9 @@ prepare_hicsr.run(raw_hic='Rao2014-GM12878-DpnII-allreps-filtered.10kb.cool',
 # These sample matrices are stored in the input_samples directory, where each sample has the following naming convention
 # <chromosome>-<cell_type>-<downsample_factor>-<file_tag>.txt.gz
 
-input_path = os.path.join(root_dir, 'data', 'input_'+experiment_name)
-input_path = path_wrap(input_path+'/')
+input_path = os.path.join(root_dir, 'data', 'input_'+experiment_name)+'/'
 preprocessing_output_path = os.path.join(root_dir, 'data', 'input_' + experiment_name, 'preprocessing_output/')
-preprocessing_output_path = path_wrap(preprocessing_output_path)
+
 if os.path.exists(preprocessing_output_path):
     os.rmdir(preprocessing_output_path)
 script = "preprocessing.py"
