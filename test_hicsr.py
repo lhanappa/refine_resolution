@@ -36,9 +36,9 @@ input_path = os.path.join(root_dir, 'data', 'input_'+experiment_name)
 input_path = path_wrap(input_path+'/')
 preprocessing_output_path = os.path.join(root_dir, 'data', 'input_' + experiment_name, 'preprocessing_output/')
 preprocessing_output_path = path_wrap(preprocessing_output_path)
-script = "preprocessing.py"
-cmd = ["python ", script, "--input ", input_path,
-       "--output ", preprocessing_output_path, "--normalize 1"]
+script = "preprocessing.py "
+cmd = ["python ", script, " --input ", input_path,
+       " --output ", preprocessing_output_path, " --normalize 1 "]
 print(' '.join(cmd))
 process = subprocess.run(cmd, shell=False, stdout=subprocess.PIPE, cwd=os.path.join(root_dir,'software', 'HiCSR'))
 
