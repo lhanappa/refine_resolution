@@ -1,18 +1,25 @@
 from predict import predict
 import sys
+import os
 import qualify
+from utils import operations
 chromosome = str(sys.argv[1])
-predict(path='./data',
+
+root_dir = operations.redircwd_back_projroot(project_name='refine_resolution')
+raw_file='Rao2014-GM12878-DpnII-allreps-filtered.10kb.cool'
+len_size = 200
+max_dis = 2000000
+predict(path=os.path.join(root_dir, 'data'),
         raw_path='raw',
         raw_file='Rao2014-GM12878-DpnII-allreps-filtered.10kb.cool',
         chromosome=chromosome,
         scale=4,
         len_size=200,
-        sr_path='output',
+        sr_path='_'.join(['output','ours',str(len_size),str(max_dis)]),
         genomic_distance=2000000,
         start=None, end=None, draw_out=True)
 
-input_path,_ = qualify.configure(path='./data',
+input_path,_ = qualify.configure(path=os.path.join(root_dir, 'data'),
                                raw_path='raw',
                                raw_file='Rao2014-GM12878-DpnII-allreps-filtered.10kb.cool',
                                chromosome=chromosome,
