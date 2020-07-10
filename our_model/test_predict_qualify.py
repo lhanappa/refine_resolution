@@ -15,13 +15,13 @@ predict(path=os.path.join(root_dir, 'data'),
         chromosome=chromosome,
         scale=4,
         len_size=200,
-        sr_path='_'.join(['output','ours',str(len_size),str(max_dis)]),
+        sr_path='_'.join(['output','ours',str(max_dis), str(len_size)]),
         genomic_distance=2000000,
         start=None, end=None, draw_out=True)
 
-input_path,_ = qualify.configure(path=os.path.join(root_dir, 'data'),
-                               raw_path='raw',
+input_path,_ = qualify.configure_our_model(path=os.path.join(root_dir, 'data'),
                                raw_file='Rao2014-GM12878-DpnII-allreps-filtered.10kb.cool',
+                               sr_path = '_'.join(['output','ours',str(max_dis), str(len_size)]),
                                chromosome=chromosome,
                                genomic_distance=2000000,
                                resolution=10000)
