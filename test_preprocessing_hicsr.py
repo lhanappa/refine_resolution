@@ -57,8 +57,7 @@ process = subprocess.run(cmd, cwd=script_work_dir)
 
 
 # move train and valid data to cp_path
-cp_path = os.path.join(root_dir, 'data', 'input_' + experiment_name,
-                       'preprocessing_output', 'HiCSR_dataset', 'samples')
+cp_path = os.path.join(preprocessing_output_path, 'HiCSR_dataset', 'samples')
 for chro in chr_list:
     file = 'chr'+chro+'-GM12878-HiCSR-dataset-normalized-samples.npz'
     if chro in train_list:
