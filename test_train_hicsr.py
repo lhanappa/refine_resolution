@@ -34,8 +34,8 @@ valid_list = ['17', '18', '22']
 
 # training model
 # python train.py --data_fp preprocessing_output/HiCSR_dataset/samples/ --model HiCSR --experiment test_HiCSR
-data_fp = ""
-model_hicsr = ""
+data_fp = os.path.join(preprocessing_output_path, 'HiCSR_dataset', 'samples')
+model_hicsr = "HiCSR"
 cmd = ["python", "train.py", "--data_fp", data_fp, "--model",
        model_hicsr, "--experiment", "test_"+experiment_name]
 process = subprocess.run(cmd, cwd=script_work_dir)
