@@ -19,7 +19,7 @@ def configure_our_model(
         genomic_distance=2000000,
         resolution=10000):
 
-    sr_file = raw_file.split('-')[0] + '_' + raw_hic.split('-')[1] + '_' + raw_file.split('.')[1]
+    sr_file = raw_file.split('-')[0] + '_' + raw_file.split('-')[1] + '_' + raw_file.split('.')[1]
     directory_sr = os.path.join(path, sr_path, sr_file, 'SR', 'chr'+chromosome)
 
     input_path = directory_sr

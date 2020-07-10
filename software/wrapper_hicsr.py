@@ -23,22 +23,19 @@ def configure_hicsr():
         [methods_name, str(genomic_distance), str(lr_size), str(hr_size)])
     # ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', 'X']
     preprocessing_chr_list = ['22']
-
-    input_path = os.path.join(root_dir, 'data', 'input_'+experiment_name)+'/'
-    preprocessing_output_path = os.path.join(
-        root_dir, 'data', 'input_' + experiment_name, 'preprocessing_output/')
+    data_cat = raw_hic.split('-')[0] + '_' + raw_hic.split('-')[1] + '_' + raw_hic.split('.')[1]
+    input_path = os.path.join(root_dir, 'data', 'input_'+experiment_name, data_cat)+'/'
+    preprocessing_output_path = os.path.join(input_path, 'preprocessing_output/')
 
     script_work_dir = os.path.join(root_dir, 'software', 'HiCSR')
 
     # ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16']
-    train_path = os.path.join(
-        root_dir, 'data', 'input_'+experiment_name, 'train')
+    train_path = os.path.join(input_path, 'train')
     if not os.path.exists(train_path):
         os.mkdir(train_path)
     train_list = ['1', '2', '3', '4', '5', '6', '7', '8',
                   '9', '10', '11', '12', '13', '14', '15', '16', '22']
-    valid_path = os.path.join(
-        root_dir, 'data', 'input_'+experiment_name, 'valid')
+    valid_path = os.path.join(input_path, 'valid')
     if not os.path.exists(valid_path):
         os.mkdir(valid_path)
     valid_list = ['17', '18', '22']
