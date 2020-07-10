@@ -69,7 +69,7 @@ def run(raw_hic='Rao2014-GM12878-DpnII-allreps-filtered.10kb.cool',
         root_dir, 'data', 'raw'), raw_hic=raw_hic)
 
     if not os.path.exists(input_path):
-        os.makedirs(input_path)
+        os.makedirs(input_path, exist_ok=True)
 
     # <chromosome>-<cell_type>-<downsample_factor>-<file_tag>.txt.gz
     for chro in chromosome_list:
