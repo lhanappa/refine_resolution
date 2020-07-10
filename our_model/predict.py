@@ -7,8 +7,8 @@ import numpy as np
 import copy
 import os
 
-from . import model
-from .utils import operations
+import model
+from utils import operations
 import tensorflow as tf
 tf.keras.backend.set_floatx('float32')
 

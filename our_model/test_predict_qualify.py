@@ -1,6 +1,6 @@
-from .predict import predict
+from predict import predict
 import sys
-from . import qualify
+import qualify
 chromosome = str(sys.argv[1])
 predict(path='./data',
         raw_path='raw',
