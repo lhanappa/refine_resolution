@@ -4,9 +4,7 @@ import numpy as np
 import subprocess
 import shutil
 
-from software import prepare_hicsr
-from software.utils import path_wrap, redircwd_back_projroot
-from software.HiCSR import *
+from software.utils import redircwd_back_projroot
 
 from software.wrapper_hicsr import configure_hicsr
 """test hicsr"""

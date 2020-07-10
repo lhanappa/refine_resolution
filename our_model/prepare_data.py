@@ -7,6 +7,7 @@ import wget
 from iced import normalization
 from utils import operations
 
+# https://github.com/mirnylab/cooler-binder/blob/master/cooler_api.ipynb
 # data from ftp://cooler.csail.mit.edu/coolers/hg19/
 
 
@@ -28,18 +29,17 @@ def configure(len_size=None, genomic_distance=None, methods_name='ours',
         # assume current directory is the root of project
         # pathto/proj/data
         # pathto/proj/our_method
-        dataset_path = os.path.join(operations.redircwd_back_projroot(project_name='refine_resolution'), 'data')
+        dataset_path = os.path.join(operations.redircwd_back_projroot(
+            project_name='refine_resolution'), 'data')
 
     print('data path: ', dataset_path)
-    input_file = raw_hic.split('-')[0] + '_' + raw_hic.split('-')[1] + '_' + raw_hic.split('.')[1]
+    input_file = raw_hic.split(
+        '-')[0] + '_' + raw_hic.split('-')[1] + '_' + raw_hic.split('.')[1]
     input_path = '_'.join(
         [input_path, methods_name, str(genomic_distance), str(len_size)])
-    output_path = '_'.join(
-        [output_path, methods_name, str(genomic_distance), str(len_size)])
-
-    output_path = '_'.join(
-        [output_path, methods_name, str(genomic_distance), str(len_size)])
     output_file = input_file
+    output_path = '_'.join(
+        [output_path, methods_name, str(genomic_distance), str(len_size)])
 
     # load raw hic matrix
     file = os.path.join(dataset_path, raw_path, raw_hic)
@@ -136,7 +136,8 @@ dataset_path-raw
 
 if __name__ == '__main__':
     root = operations.redircwd_back_projroot(project_name='refine_resolution')
-    config = configure(len_size=int(sys.argv[2]), genomic_distance=int(sys.argv[3]))
+    config = configure(len_size=int(
+        sys.argv[2]), genomic_distance=int(sys.argv[3]))
     chromosome_list = [str(sys.argv[1])]
     for chri in chromosome_list:
         save_samples(config, chromosome=chri)

@@ -131,7 +131,7 @@ def filter_diag_boundary(hic, diag_k=0, boundary_k=None):
     return np.multiply(hic, filter_m)
 
 
-def dense2tag(matrix):
+'''def dense2tag(matrix):
     """converting a square matrix (dense) to coo-based tag matrix"""
     Height, Width = matrix.shape
     tag_mat = list()
@@ -152,7 +152,7 @@ def tag2dense(tag_mat, mat_length):
         x, y, c = tag_mat[i]
         matrix[int(x), int(y)] = float(c)
 
-    return tag_mat
+    return tag_mat'''
 
 
 def format_contact(matrix, coordinate=(0, 1), resolution=10000, chrm='1', save_file=True, filename=None):

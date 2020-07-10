@@ -22,24 +22,25 @@ tf.keras.backend.set_floatx('float32')
 
 # data from ftp://cooler.csail.mit.edu/coolers/hg19/
 
-def run(train_data, test_data, len_size, scale, EPOCHS, root_path='./', summary=False):
+def run(train_data, test_data, len_size, scale, EPOCHS, root_path='./', load_model_dir=None, saved_model_dir=None, log_dir=None, summary=False):
     # get generator model
+    if load_model_dir is not None:
+        #load_model_dir = os.path.join(root_path, 'our_model', 'saved_model')
+        Gen = model.make_generator_model(len_high_size=len_size, scale=scale)
+        file_path = os.path.join(
+            load_model_dir, 'gen_model_'+str(len_size), 'gen_weights')
+        if os.path.exists(file_path):
+            pass
+            # Gen.load_weights(file_path)
 
-    saved_model_dir = os.path.join(root_path, 'our_model', 'saved_model')
-    Gen = model.make_generator_model(len_high_size=len_size, scale=scale)
-    file_path = os.path.join(
-        saved_model_dir, 'gen_model_'+str(len_size), 'gen_weights')
-    if os.path.exists(file_path):
-        pass
-        # Gen.load_weights(file_path)
-
-    # get discriminator model
-    Dis = model.make_discriminator_model(len_high_size=len_size, scale=scale)
-    file_path = os.path.join(
-        saved_model_dir, 'dis_model_'+str(len_size), 'dis_weights')
-    if os.path.exists(file_path):
-        pass
-        # Dis.load_weights(file_path)
+        # get discriminator model
+        Dis = model.make_discriminator_model(
+            len_high_size=len_size, scale=scale)
+        file_path = os.path.join(
+            load_model_dir, 'dis_model_'+str(len_size), 'dis_weights')
+        if os.path.exists(file_path):
+            pass
+            # Dis.load_weights(file_path)
 
     if summary:
         print(Gen.summary())
@@ -47,7 +48,10 @@ def run(train_data, test_data, len_size, scale, EPOCHS, root_path='./', summary=
         print(Dis.summary())
         tf.keras.utils.plot_model(Dis, to_file='D.png', show_shapes=True)
 
-    log_dir = os.path.join(root_path, 'our_model', 'logs', 'model')
+    if log_dir is None:
+        log_dir = os.path.join(root_path, 'our_model', 'logs', 'model')
+    if saved_model_dir is None:
+        saved_model_dir = os.path.join(root_path, 'our_model', 'saved_model')
     model.train(Gen, Dis, train_data, EPOCHS, len_size, scale,
                 test_data, log_dir=log_dir, saved_model_dir=saved_model_dir)
 
@@ -81,7 +85,8 @@ if __name__ == '__main__':
 
     #['1', '2', '3', '4', '5','6', '7', '8', '9', '10', '11', '12', '13', '14', '15']
     #['16', '17', '18', '19', '20', '21', '22', 'X']
-    chromosome_list = ['22']#['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15']
+    # ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15']
+    chromosome_list = ['22']
     hr_file_list = []
 
     for chri in chromosome_list:
@@ -119,5 +124,9 @@ if __name__ == '__main__':
         (hic_lr[..., np.newaxis], hic_hr[..., np.newaxis])).batch(BATCH_SIZE)
     test_data = tf.data.Dataset.from_tensor_slices(
         (hic_lr[0:9, ..., np.newaxis], hic_hr[0:9, ..., np.newaxis])).batch(BATCH_SIZE)
-    run(train_data=train_data, test_data=test_data,
-        len_size=len_size, scale=scale, EPOCHS=EPOCHS, summary=False)
+
+    load_model_dir = os.path.join(root_path, 'our_model', 'saved_model')
+    run(train_data=train_data, test_data=test_data, len_size=len_size, scale=scale,
+        EPOCHS=EPOCHS, root_path=root_path,
+        load_model_dir=load_model_dir, saved_model_dir=load_model_dir, log_dir=None,
+        summary=False)
