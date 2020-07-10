@@ -34,10 +34,10 @@ valid_list = ['17', '18', '22']
 
 # training model
 # python train.py --data_fp preprocessing_output/HiCSR_dataset/samples/ --model HiCSR --experiment test_HiCSR
-data_fp = os.path.join(preprocessing_output_path, 'HiCSR_dataset', 'samples')
+data_fp = input_path
 model_hicsr = "HiCSR"
 cmd = ["python", "train.py", "--data_fp", data_fp, "--model",
-       model_hicsr, "--experiment", "test_"+experiment_name]
+       model_hicsr, "--experiment", "test_HiCSR"]
 process = subprocess.run(cmd, cwd=script_work_dir)
 
 # predict data
