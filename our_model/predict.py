@@ -137,5 +137,5 @@ if __name__ == '__main__':
             chromosome='22',
             scale=4,
             len_size=200,
-            sr_path='output',
+            sr_path='_'.join(['output','ours',str(max_dis), str(len_size)]),
             genomic_distance=2000000,start=0, end=600, draw_out=True)
