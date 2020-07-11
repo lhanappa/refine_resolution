@@ -4,8 +4,8 @@ import numpy as np
 import subprocess
 import shutil
 
-import prepare_hicsr
-from utils import path_wrap, redircwd_back_projroot, configure
+from . import prepare_hicsr
+from .utils import redircwd_back_projroot, configure
 
 """test hicsr"""
 

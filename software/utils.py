@@ -1,6 +1,6 @@
 import os
 import numpy as np
-
+import cooler
 
 def redircwd_back_projroot(project_name='refine_resolution'):
     root = os.getcwd().split('/')
