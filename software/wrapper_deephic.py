@@ -88,7 +88,7 @@ def generate(input_lr_dir, input_hr_dir, output_dir,
         down_file = os.path.join(data_lr_dir, f'chr{n}_{low_res}.npz')
         kwargs = {'scale': scale, 'pool_type': pool_type, 'chunk': chunk,
                   'stride': stride, 'bound': bound}
-        if isnumeric(n):
+        if n.isnumeric():
             chrn = int(n)
         else:
             chrn = n
