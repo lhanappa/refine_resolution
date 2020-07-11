@@ -86,7 +86,7 @@ def generate(input_lr_dir, input_hr_dir, output_dir,
         high_file = os.path.join(data_hr_dir, f'chr{n}_{high_res}.npz')
         down_file = os.path.join(data_lr_dir, f'chr{n}_{low_res}.npz')
         kwargs = {'scale': scale, 'pool_type': pool_type, 'chunk': chunk,
-                  'stride': stride, 'bound': bound, 'lr_cutoff': lr_cutoff}
+                  'stride': stride, 'bound': bound}
         res = pool.apply_async(
             data_generate.deephic_divider, (n, high_file, down_file,), kwargs)
         results.append(res)
