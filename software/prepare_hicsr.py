@@ -1,17 +1,9 @@
 import os
 import sys
 import cooler
-from .utils import redircwd_back_projroot, remove_zeros
+from utils import redircwd_back_projroot, remove_zeros, cool_to_raw
 
 import numpy as np
-
-
-def cool_to_raw(raw_path, raw_hic):
-    file = os.path.join(raw_path, raw_hic)
-    print('raw hic data: ', file)
-    cool_hic = cooler.Cooler(file)
-    resolution = cool_hic.binsize
-    return cool_hic, resolution
 
 
 def save_to_raw(hic, output_path, output_name):
@@ -58,8 +50,10 @@ def run(raw_hic='Rao2014-GM12878-DpnII-allreps-filtered.10kb.cool',
     root_dir = redircwd_back_projroot(project_name='refine_resolution')
     experiment_name = '_'.join(
         [methods_name, str(genomic_distance), str(lr_size), str(hr_size)])
-    data_cat = raw_hic.split('-')[0] + '_' + raw_hic.split('-')[1] + '_' + raw_hic.split('.')[1]
-    input_path = os.path.join(root_dir, 'data', 'input_'+experiment_name, data_cat)
+    data_cat = raw_hic.split(
+        '-')[0] + '_' + raw_hic.split('-')[1] + '_' + raw_hic.split('.')[1]
+    input_path = os.path.join(
+        root_dir, 'data', 'input_'+experiment_name, data_cat)
     # preprocessing_output_path = os.path.join( root_dir, 'data', 'input_' + experiment_name, data_cat)
 
     cell_type = raw_hic.split('-')[1]

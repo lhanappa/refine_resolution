@@ -7,17 +7,17 @@ import shutil
 import prepare_hicsr
 from utils import path_wrap, redircwd_back_projroot, configure
 
-"""test hicsr"""
+"""test deephic"""
 
 
-def configure_hicsr():
+def configure_deephic():
     raw_hic = 'Rao2014-GM12878-DpnII-allreps-filtered.10kb.cool'
     genomic_distance = 2000000
     lr_size = 40
     hr_size = 40
     downsample_factor = 16
 
-    methods_name = 'hicsr'
+    methods_name = 'deephic'
 
     [raw_hic, genomic_distance, lr_size, hr_size, downsample_factor,
      root_dir, experiment_name, input_path, script_work_dir] = configure(
