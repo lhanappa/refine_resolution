@@ -83,6 +83,7 @@ def generate(input_lr_dir, input_hr_dir, output_dir,
         f'Start a multiprocess pool with processes = {pool_num} for generating DeepHiC data')
     results = []
     for n in chr_list:
+        print(n)
         high_file = os.path.join(data_hr_dir, f'chr{n}_{high_res}.npz')
         down_file = os.path.join(data_lr_dir, f'chr{n}_{low_res}.npz')
         kwargs = {'scale': scale, 'pool_type': pool_type, 'chunk': chunk,
