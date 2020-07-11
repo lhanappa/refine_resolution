@@ -11,7 +11,7 @@ def save_to_compressed(hic, idx, output_path, output_name):
     output = os.path.join(output_path, output_name)
     hic = np.asarray(hic)
     print(output)
-    np.savez_compressed(output, hic=HiC, compact=idx)
+    np.savez_compressed(output, hic=hic, compact=idx)
 
 
 '''def read_data(data_file, norm_file, out_dir, resolution):
