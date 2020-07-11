@@ -15,15 +15,12 @@ def save_to_compressed(hic, idx, output_path, output_name):
     np.savez_compressed(output, hic=hic, compact=idx)
 
 
-'''def read_data(data_file, norm_file, out_dir, resolution):
-    filename = os.path.basename(data_file).split('.')[0] + '.npz'
-    out_file = os.path.join(out_dir, filename)
-    try:
-        HiC, idx = readcoo2mat(data_file, norm_file, resolution)
-    except:
-        print(f'Abnormal file: {norm_file}')
-    np.savez_compressed(out_file, hic=HiC, compact=idx)
-    print('Saving file:', out_file)'''
+def compact(cooler_mat):
+    """function used for compact idx."""
+    idx = np.all(np.isnan(matrix), axis=0)
+    compact_idx = list(np.where(idx^True)[0])
+    HiC = cooler_mat
+    return HiC.astype(float), compact_idx
 
 
 def run(raw_hic='Rao2014-GM12878-DpnII-allreps-filtered.10kb.cool',
@@ -54,7 +51,7 @@ def run(raw_hic='Rao2014-GM12878-DpnII-allreps-filtered.10kb.cool',
         name_hr = f'chr{chro}_{hi_res}.npz'
         chromosome = 'chr' + chro
         mat_hr = hic_m.matrix(balance=True).fetch(chromosome)
-        [mat_hr, idx] = remove_zeros(mat_hr)
+        [mat_hr, idx] = compact(mat_hr)
         save_to_compressed(mat_hr, idx, output_path=os.path.join(
             input_path, 'hr'), output_name=name_hr)
         # chrN_40kb.npz
