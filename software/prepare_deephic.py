@@ -45,10 +45,9 @@ def run(raw_hic='Rao2014-GM12878-DpnII-allreps-filtered.10kb.cool',
 
     [hic_m, hi_res] = cool_to_raw(raw_path=os.path.join(
         root_dir, 'data', 'raw'), raw_hic=raw_hic)
-    
+
     low_res = int(np.sqrt(downsample_factor)*hi_res)
-    
-    low_res[0] = str(sqrt(downsample_factor))
+
     for chro in chromosome_list:
         # chrN_10kb.npz
         name_hr = f'chr{chro}_{hi_res}.npz'
