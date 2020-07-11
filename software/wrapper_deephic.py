@@ -88,12 +88,14 @@ def generate(input_lr_dir, input_hr_dir, output_dir,
         down_file = os.path.join(data_lr_dir, f'chr{n}_{low_res}.npz')
         kwargs = {'scale': scale, 'pool_type': pool_type, 'chunk': chunk,
                   'stride': stride, 'bound': bound}
-        print(high_file)
-        print(down_file)
+        if isnumeric(n):
+            chrn = int(n)
+        else:
+            chrn = n
         res = data_generate.deephic_divider(
-            n, high_file, down_file, scale=scale, pool_type=pool_type, chunk=chunk, stride=stride, bound=bound)
+            chrn, high_file, down_file, scale=scale, pool_type=pool_type, chunk=chunk, stride=stride, bound=bound)
         results.append(res)
-        print(results)
+
     #pool.close()
     #pool.join()
     print(
