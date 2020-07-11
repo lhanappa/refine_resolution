@@ -93,6 +93,7 @@ def generate(input_lr_dir, input_hr_dir, output_dir,
         res = pool.apply_async(
             data_generate.deephic_divider, (n, high_file, down_file,), kwargs)
         results.append(res)
+        print(results)
     pool.close()
     pool.join()
     print(
