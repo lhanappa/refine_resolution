@@ -4,7 +4,7 @@ import numpy as np
 import subprocess
 import shutil
 
-import prepare_hicsr
+from . import prepare_deephic
 from .utils import redircwd_back_projroot, configure
 
 """test deephic"""
