@@ -2,7 +2,8 @@ import os
 import sys
 import cooler
 import numpy as np
-from .utils import redircwd_back_projroot, remove_zeros, cool_to_raw
+from .utils import redircwd_back_projroot, cool_to_raw
+from .utils import remove_zeros, sampling_hic
 
 
 def save_to_compressed(hic, idx, output_path, output_name):
