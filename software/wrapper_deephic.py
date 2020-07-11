@@ -78,7 +78,7 @@ def generate(input_lr_dir, input_hr_dir, output_dir,
     os.makedirs(out_dir, exist_ok=True)
 
     start = time.time()
-    pool = multiprocessing.Pool(processes=pool_num)
+    #pool = multiprocessing.Pool(processes=pool_num)
     print(
         f'Start a multiprocess pool with processes = {pool_num} for generating DeepHiC data')
     results = []
@@ -90,12 +90,12 @@ def generate(input_lr_dir, input_hr_dir, output_dir,
                   'stride': stride, 'bound': bound}
         print(high_file)
         print(down_file)
-        res = pool.apply_async(
-            data_generate.deephic_divider, (n, high_file, down_file,), kwargs)
+        res = data_generate.deephic_divider(
+            n, high_file, down_file, scale=scale, pool_type=pool_type, chunk=chunk, stride=stride, bound=bound)
         results.append(res)
         print(results)
-    pool.close()
-    pool.join()
+    #pool.close()
+    #pool.join()
     print(
         f'All DeepHiC data generated. Running cost is {(time.time()-start)/60:.1f} min.')
 
