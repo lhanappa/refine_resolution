@@ -15,13 +15,6 @@ def save_to_compressed(hic, idx, output_path, output_name):
     np.savez_compressed(output, hic=hic, compact=idx)
 
 
-def compact(cooler_mat):
-    """function used for compact idx."""
-    idx = np.all(np.isnan(cooler_mat), axis=0)
-    compact_idx = list(np.where(idx^True)[0])
-    HiC = cooler_mat
-    return HiC.astype(float), compact_idx
-
 
 def run(raw_hic='Rao2014-GM12878-DpnII-allreps-filtered.10kb.cool',
         chromosome_list=['22'],
@@ -51,7 +44,7 @@ def run(raw_hic='Rao2014-GM12878-DpnII-allreps-filtered.10kb.cool',
         name_hr = f'chr{chro}_{hi_res}.npz'
         chromosome = 'chr' + chro
         mat_hr = hic_m.matrix(balance=True).fetch(chromosome)
-        [mat_hr, idx] = compact(mat_hr)
+        [mat_hr, idx] = remove_zeros(mat_hr)
         save_to_compressed(mat_hr, idx, output_path=os.path.join(
             input_path, 'hr'), output_name=name_hr)
         # chrN_40kb.npz
