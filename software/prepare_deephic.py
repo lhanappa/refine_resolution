@@ -17,7 +17,7 @@ def save_to_compressed(hic, idx, output_path, output_name):
 
 def compact(cooler_mat):
     """function used for compact idx."""
-    idx = np.all(np.isnan(matrix), axis=0)
+    idx = np.all(np.isnan(cooler_mat), axis=0)
     compact_idx = list(np.where(idx^True)[0])
     HiC = cooler_mat
     return HiC.astype(float), compact_idx
