@@ -75,7 +75,7 @@ def generate(input_lr_dir, input_hr_dir, output_dir,
     data_lr_dir = input_lr_dir
     data_hr_dir = input_hr_dir
     out_dir = output_dir
-    mkdir(out_dir)
+    os.makedirs(out_dir, exist_ok=True)
 
     start = time.time()
     pool = multiprocessing.Pool(processes=pool_num)

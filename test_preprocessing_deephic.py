@@ -36,7 +36,7 @@ raw_hic, genomic_distance, lr_size, hr_size, downsample_factor, \
 
 
 prepare_deephic.run(raw_hic=raw_hic,
-                    chromosome_list=chr_list,
+                    chromosome_list=preprocessing_chr_list,
                     genomic_distance=genomic_distance,
                     lr_size=lr_size,
                     hr_size=hr_size,
