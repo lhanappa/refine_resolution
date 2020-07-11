@@ -6,7 +6,7 @@ import shutil
 
 from software import prepare_deephic
 from software.utils import redircwd_back_projroot
-from software.wrapper_deephic import configure_deephic
+from software.wrapper_deephic import configure_deephic, generate
 
 """test deephic"""
 
@@ -29,35 +29,25 @@ valid_path = ‘pathto/refine_resolution/data/input_deephic_2000000_40_28/valid'
 valid_list = ['17', '18', '22']
 """
 
-[raw_hic, genomic_distance, lr_size, hr_size, downsample_factor,
- root_dir, experiment_name, chr_list, input_path, preprocessing_output_path,
- script_work_dir, train_path, train_list, valid_path, valid_list] = configure_deephic()
+raw_hic, genomic_distance, lr_size, hr_size, downsample_factor, \
+    root_dir, experiment_name, preprocessing_chr_list, input_path, \
+    preprocessing_output_path, script_work_dir, train_path, train_list, \
+    valid_path, valid_list = configure_deephic()
 
 
 prepare_deephic.run(raw_hic=raw_hic,
-                  chromosome_list=chr_list,
-                  genomic_distance=genomic_distance,
-                  lr_size=lr_size,
-                  hr_size=hr_size,
-                  downsample_factor=downsample_factor
-                  )
+                    chromosome_list=chr_list,
+                    genomic_distance=genomic_distance,
+                    lr_size=lr_size,
+                    hr_size=hr_size,
+                    downsample_factor=downsample_factor
+                    )
 
-"""if os.path.exists(preprocessing_output_path):
-    shutil.rmtree(preprocessing_output_path)
-script = "preprocessing.py"
-cmd = ["python", script, "--input", input_path,
-       "--output", preprocessing_output_path, "--normalize", "1"]
-print(' '.join(cmd))
-process = subprocess.run(cmd, cwd=script_work_dir)
+lr_dir = os.path.join(preprocessing_output_path, 'lr')
+hr_dir = os.path.join(preprocessing_output_path, 'hr')
+for c in preprocessing_chr_list:
+    if c in train_list:
+        chr_list.append(c)
 
+generate(input_lr_dir=lr_dir, input_hr_dir=hr_dir, output_dir=train_path, chr_list=chr_list)
 
-# move train and valid data to cp_path
-cp_path = os.path.join(preprocessing_output_path, 'deephic_dataset', 'samples')
-for chro in chr_list:
-    file = 'chr'+chro+'.npz'
-    if chro in train_list:
-        subprocess.run(["cp", os.path.join(cp_path, file),
-                        os.path.join(train_path, file)])
-    if chro in valid_list:
-        subprocess.run(["cp", os.path.join(cp_path, file),
-                        os.path.join(valid_path, file)])"""

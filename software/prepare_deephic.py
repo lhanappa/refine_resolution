@@ -62,3 +62,6 @@ def run(raw_hic='Rao2014-GM12878-DpnII-allreps-filtered.10kb.cool',
         mat_lr = sampling_hic(mat_hr, downsample_factor, fix_seed=True)
         save_to_compressed(mat_lr, idx, output_path=os.path.join(
             input_path, 'lr'), output_name=name_lr)
+
+if __name__ == '__main__':
+    run()
