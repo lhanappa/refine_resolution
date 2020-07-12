@@ -12,5 +12,5 @@ dependencies:
     - TensorFlow=2.0
     - pip
     - pip:
-        - TensorLayer=1.9.1
-    - hickle=2.1.0
+        - TensorLayer
+    - hickle
