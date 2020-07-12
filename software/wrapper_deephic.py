@@ -122,6 +122,6 @@ def train(data_dir, out_dir, lr=40000, hr=10000,
     print("data_dir: ", data_dir)
     print("out_dir: ", out_dir)
     print("train deephic start")
-    train_deephic.train(data_dir, out_dir, lr=40000, hr=10000,
-          chunk=40, stride=40, bound=201, pool='nonpool',
-          upscale=1, num_epochs=200, batch_size=64)
+    train_deephic.train(data_dir, out_dir, lr=lr, hr=hr,
+          chunk=chunk, stride=stride, bound=bound, pool=pool,
+          upscale=upscale, num_epochs=num_epochs, batch_size=batch_size)

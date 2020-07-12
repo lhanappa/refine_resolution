@@ -40,5 +40,6 @@ cmd = ["python", "train.py", "--data_fp", data_fp, "--model",
        model_hicsr, "--experiment", "test_HiCSR"]
 process = subprocess.run(cmd, cwd=script_work_dir)
 
+# model saved in: software/HiCSR/experiments/[test_HiCSR/]
 # predict data
 # python predict.py --input preprocessing_output/normalized/lr/ --output HiCSR_predictions/ --model_type HiCSR --model_fp pretrained_models/HiCSR.pth
