@@ -56,7 +56,7 @@ def configure_deephic():
 
 # python data_generate.py -hr 10kb -lr 40kb -s all -chunk 40 -stride 40 -bound 201 -scale 1 -c GM12878
 def generate(input_lr_dir, input_hr_dir, output_dir,
-             cell_line='GM12878',
+             postfix='train',
              high_res=10000,
              low_res=40000,
              chunk=40,

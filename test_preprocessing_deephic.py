@@ -43,12 +43,15 @@ prepare_deephic.run(raw_hic=raw_hic,
                     downsample_factor=downsample_factor
                     )
 
-chr_list = []
+chr_t_list = []
+chr_c_list = []
 lr_dir = os.path.join(preprocessing_output_path, 'lr')
 hr_dir = os.path.join(preprocessing_output_path, 'hr')
 for c in preprocessing_chr_list:
     if c in train_list:
-        chr_list.append(c)
+        chr_t_list.append(c)
+    if c in valid_list:
+        chr_v_list.append(c)
 
-generate(input_lr_dir=lr_dir, input_hr_dir=hr_dir, output_dir=train_path, chr_list=chr_list)
-
+generate(input_lr_dir=lr_dir, input_hr_dir=hr_dir, output_dir=train_path, chr_list=chr_t_list)
+generate(input_lr_dir=lr_dir, input_hr_dir=hr_dir, output_dir=valid_path, chr_list=chr_v_list)
