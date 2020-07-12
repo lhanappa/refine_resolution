@@ -33,7 +33,7 @@ def configure_deephic():
         methods_name=methods_name)
 
     # ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', 'X']
-    preprocessing_chr_list = ['22']
+    preprocessing_chr_list = ['21', '22']
 
     preprocessing_output_path = input_path
 
@@ -77,7 +77,7 @@ def generate(input_lr_dir, input_hr_dir, output_dir,
     out_dir = output_dir
     os.makedirs(out_dir, exist_ok=True)
 
-    start = time.time()
+    """start = time.time()
     #pool = multiprocessing.Pool(processes=pool_num)
     print(
         f'Start a multiprocess pool with processes = {pool_num} for generating DeepHiC data')
@@ -106,7 +106,34 @@ def generate(input_lr_dir, input_hr_dir, output_dir,
     target = np.concatenate([r[2] for r in results])
     inds = np.concatenate([r[3] for r in results])
     sizes = {r[0]: r[4] for r in results}
-    compacts = {r[0]: np.arange(r[4]) for r in results}
+    compacts = {r[0]: np.arange(r[4]) for r in results}"""
+
+    start = time.time()
+    pool = multiprocessing.Pool(processes=pool_num)
+    print(f'Start a multiprocess pool with processes = {pool_num} for generating DeepHiC data')
+    results = []
+    for n in chr_list:
+        high_file = os.path.join(data_dir, f'chr{n}_{high_res}.npz')
+        down_file = os.path.join(data_dir, f'chr{n}_{low_res}.npz')
+        kwargs = {'scale':scale, 'pool_type':pool_type, 'chunk':chunk, 'stride':stride, 'bound':bound}
+        if n.isnumeric():
+            chrn = int(n)
+        else:
+            chrn = n
+        res = pool.apply_async(deephic_divider, (chrn, high_file, down_file,), kwargs)
+        results.append(res)
+    pool.close()
+    pool.join()
+    print(f'All DeepHiC data generated. Running cost is {(time.time()-start)/60:.1f} min.')
+
+    # return: n, div_dhic, div_hhic, div_inds, compact_idx, full_size
+    data = np.concatenate([r.get()[1] for r in results])
+    target = np.concatenate([r.get()[2] for r in results])
+    inds = np.concatenate([r.get()[3] for r in results])
+    sizes = {r.get()[0]: r.get()[4] for r in results}
+    compacts = {r.get()[0]: np.arange(r.get()[4]) for r in results}
+    
+
     filename = f'deephic_{high_res}{low_res}_c{chunk}_s{stride}_b{bound}_{pool_str}_{postfix}.npz'
     deephic_file = os.path.join(out_dir, filename)
     np.savez_compressed(deephic_file, data=data, target=target,
