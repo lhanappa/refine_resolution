@@ -106,7 +106,7 @@ def generate(input_lr_dir, input_hr_dir, output_dir,
     target = np.concatenate([r[2] for r in results])
     inds = np.concatenate([r[3] for r in results])
     sizes = {r[0]: r[4] for r in results}
-    compacts = np.range(sizes)
+    compacts = {r[0]: np.arange(r[4]) for r in results}
     filename = f'deephic_{high_res}{low_res}_c{chunk}_s{stride}_b{bound}_{pool_str}_{postfix}.npz'
     deephic_file = os.path.join(out_dir, filename)
     np.savez_compressed(deephic_file, data=data, target=target,
