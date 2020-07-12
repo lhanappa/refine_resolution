@@ -110,21 +110,25 @@ def generate(input_lr_dir, input_hr_dir, output_dir,
 
     start = time.time()
     pool = multiprocessing.Pool(processes=pool_num)
-    print(f'Start a multiprocess pool with processes = {pool_num} for generating DeepHiC data')
+    print(
+        f'Start a multiprocess pool with processes = {pool_num} for generating DeepHiC data')
     results = []
     for n in chr_list:
-        high_file = os.path.join(data_dir, f'chr{n}_{high_res}.npz')
-        down_file = os.path.join(data_dir, f'chr{n}_{low_res}.npz')
-        kwargs = {'scale':scale, 'pool_type':pool_type, 'chunk':chunk, 'stride':stride, 'bound':bound}
+        high_file = os.path.join(data_hr_dir, f'chr{n}_{high_res}.npz')
+        down_file = os.path.join(data_lr_dir, f'chr{n}_{low_res}.npz')
+        kwargs = {'scale': scale, 'pool_type': pool_type,
+                  'chunk': chunk, 'stride': stride, 'bound': bound}
         if n.isnumeric():
             chrn = int(n)
         else:
             chrn = n
-        res = pool.apply_async(deephic_divider, (chrn, high_file, down_file,), kwargs)
+        res = pool.apply_async(
+            deephic_divider, (chrn, high_file, down_file,), kwargs)
         results.append(res)
     pool.close()
     pool.join()
-    print(f'All DeepHiC data generated. Running cost is {(time.time()-start)/60:.1f} min.')
+    print(
+        f'All DeepHiC data generated. Running cost is {(time.time()-start)/60:.1f} min.')
 
     # return: n, div_dhic, div_hhic, div_inds, compact_idx, full_size
     data = np.concatenate([r.get()[1] for r in results])
@@ -132,7 +136,6 @@ def generate(input_lr_dir, input_hr_dir, output_dir,
     inds = np.concatenate([r.get()[3] for r in results])
     sizes = {r.get()[0]: r.get()[4] for r in results}
     compacts = {r.get()[0]: np.arange(r.get()[4]) for r in results}
-    
 
     filename = f'deephic_{high_res}{low_res}_c{chunk}_s{stride}_b{bound}_{pool_str}_{postfix}.npz'
     deephic_file = os.path.join(out_dir, filename)
