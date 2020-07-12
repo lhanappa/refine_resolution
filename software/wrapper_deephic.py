@@ -65,7 +65,7 @@ def generate(input_lr_dir, input_hr_dir, output_dir,
              scale=1,
              pool_type='max',
              chr_list=['22']):
-    postfix = cell_line.lower()
+    postfix = postfix.lower()
     pool_str = 'nonpool' if scale == 1 else f'{pool_type}pool{scale}'
     print(
         f'Going to read {high_res} and {low_res} data, then deviding matrices with {pool_str}')
