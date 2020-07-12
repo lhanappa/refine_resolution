@@ -44,7 +44,7 @@ prepare_deephic.run(raw_hic=raw_hic,
                     )
 
 chr_t_list = []
-chr_c_list = []
+chr_v_list = []
 lr_dir = os.path.join(preprocessing_output_path, 'lr')
 hr_dir = os.path.join(preprocessing_output_path, 'hr')
 for c in preprocessing_chr_list:
