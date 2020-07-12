@@ -123,7 +123,7 @@ def generate(input_lr_dir, input_hr_dir, output_dir,
         else:
             chrn = n
         res = pool.apply_async(
-            deephic_divider, (chrn, high_file, down_file,), kwargs)
+            data_generate.deephic_divider, (chrn, high_file, down_file,), kwargs)
         results.append(res)
     pool.close()
     pool.join()
