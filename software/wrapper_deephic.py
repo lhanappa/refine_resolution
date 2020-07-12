@@ -12,7 +12,7 @@ from . import prepare_deephic
 from .utils import redircwd_back_projroot, configure
 
 from software.DeepHiC.utils.io import compactM, divide, pooling
-from software.DeepHiC import data_generate
+from software.DeepHiC import data_generate, train_deephic
 """test deephic"""
 
 
@@ -77,37 +77,6 @@ def generate(input_lr_dir, input_hr_dir, output_dir,
     out_dir = output_dir
     os.makedirs(out_dir, exist_ok=True)
 
-    """start = time.time()
-    #pool = multiprocessing.Pool(processes=pool_num)
-    print(
-        f'Start a multiprocess pool with processes = {pool_num} for generating DeepHiC data')
-    results = []
-    for n in chr_list:
-        print(n)
-        high_file = os.path.join(data_hr_dir, f'chr{n}_{high_res}.npz')
-        down_file = os.path.join(data_lr_dir, f'chr{n}_{low_res}.npz')
-        kwargs = {'scale': scale, 'pool_type': pool_type, 'chunk': chunk,
-                  'stride': stride, 'bound': bound}
-        if n.isnumeric():
-            chrn = int(n)
-        else:
-            chrn = n
-        res = data_generate.deephic_divider(
-            chrn, high_file, down_file, scale=scale, pool_type=pool_type, chunk=chunk, stride=stride, bound=bound)
-        results.append(res)
-
-    #pool.close()
-    #pool.join()
-    print(
-        f'All DeepHiC data generated. Running cost is {(time.time()-start)/60:.1f} min.')
-
-    # return: n, div_dhic, div_hhic, div_inds, compact_idx, full_size
-    data = np.concatenate([r[1] for r in results])
-    target = np.concatenate([r[2] for r in results])
-    inds = np.concatenate([r[3] for r in results])
-    sizes = {r[0]: r[4] for r in results}
-    compacts = {r[0]: np.arange(r[4]) for r in results}"""
-
     start = time.time()
     pool = multiprocessing.Pool(processes=pool_num)
     print(
@@ -142,3 +111,17 @@ def generate(input_lr_dir, input_hr_dir, output_dir,
     np.savez_compressed(deephic_file, data=data, target=target,
                         inds=inds, compacts=compacts, sizes=sizes)
     print('Saving file:', deephic_file)
+
+
+def train(data_dir, out_dir, lr=40000, hr=10000,
+          chunk=40, stride=40, bound=201, pool='nonpool',
+          upscale=1, num_epochs=200, batch_size=64, cwd_dir=None):
+    if cwd_dir is not None:
+        os.chdir(cwd_dir)
+    print("cwd: ", os.getcwd())
+    print("data_dir: ", data_dir)
+    print("out_dir: ", out_dir)
+    print("train deephic start")
+    train_deephic(data_dir, out_dir, lr=40000, hr=10000,
+          chunk=40, stride=40, bound=201, pool='nonpool',
+          upscale=1, num_epochs=200, batch_size=64)
