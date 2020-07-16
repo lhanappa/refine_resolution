@@ -103,7 +103,7 @@ def generate(input_lr_dir, input_hr_dir, output_dir,
     print('Saving file:', hicgan_file)
 
 
-def train(train_dir, valid_dir, model_dir, cwd_dir=None):
+def train(train_dir, valid_dir, model_dir, lr, hr, chunk, stride, bound, num_epochs, cwd_dir=None):
     if cwd_dir is not None:
         os.chdir(cwd_dir)
     print("cwd: ", os.getcwd())
@@ -111,4 +111,7 @@ def train(train_dir, valid_dir, model_dir, cwd_dir=None):
     print("valid_dir: ", valid_dir)
     print("model_dir: ", model_dir)
     print("train hicgan start")
-    train_hicgan.train(train_dir, valid_dir, model_dir)
+    resos = str(hr)+str(lr)
+    train_dir = os.path.join(train_dir, f'hicgan_{resos}_c{chunk}_s{stride}_b{bound}_train.npz')
+    valid_dir = os.path.join(train_dir, f'hicgan_{resos}_c{chunk}_s{stride}_b{bound}_valid.npz')
+    train_hicgan.train(train_dir, valid_dir, model_dir, num_epochs=num_epochs)
