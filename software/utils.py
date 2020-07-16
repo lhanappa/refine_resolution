@@ -2,6 +2,7 @@ import os
 import numpy as np
 import cooler
 
+
 def redircwd_back_projroot(project_name='refine_resolution'):
     root = os.getcwd().split('/')
     for i, f in enumerate(root):
@@ -22,13 +23,15 @@ def remove_zeros(matrix):
     idxy = np.asarray(idxy)
     return M, idxy
 
+
 def cool_to_raw(raw_path, raw_hic):
     file = os.path.join(raw_path, raw_hic)
     print('raw hic data: ', file)
     cool_hic = cooler.Cooler(file)
     resolution = cool_hic.binsize
     return cool_hic, resolution
-    
+
+
 def configure(raw_hic='Rao2014-GM12878-DpnII-allreps-filtered.10kb.cool',
               genomic_distance=2000000,
               lr_size=40,
@@ -52,6 +55,7 @@ def configure(raw_hic='Rao2014-GM12878-DpnII-allreps-filtered.10kb.cool',
 
     return raw_hic, genomic_distance, lr_size, hr_size, downsample_factor, \
         root_dir, experiment_name, input_path, script_work_dir
+
 
 def sampling_hic(hic_matrix, sampling_ratio, fix_seed=False):
     """sampling dense hic matrix"""
