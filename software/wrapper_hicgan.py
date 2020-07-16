@@ -113,5 +113,5 @@ def train(train_dir, valid_dir, model_dir, lr, hr, chunk, stride, bound, num_epo
     print("train hicgan start")
     resos = str(hr)+str(lr)
     train_dir = os.path.join(train_dir, f'hicgan_{resos}_c{chunk}_s{stride}_b{bound}_train.npz')
-    valid_dir = os.path.join(train_dir, f'hicgan_{resos}_c{chunk}_s{stride}_b{bound}_valid.npz')
+    valid_dir = os.path.join(valid_dir, f'hicgan_{resos}_c{chunk}_s{stride}_b{bound}_valid.npz')
     train_hicgan.train(train_dir, valid_dir, model_dir, num_epochs=num_epochs)
