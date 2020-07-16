@@ -100,8 +100,9 @@ def generate(input_lr_dir, input_hr_dir, output_dir,
 
     # return: n, div_dhic, div_hhic, div_inds, compact_idx, full_size
     data = np.concatenate([r.get()[1] for r in results])
+    data = np.transpose(data, axes=(0,2,3,1))
     target = np.concatenate([r.get()[2] for r in results])
-
+    target = np.transpose(target, axes=(0,2,3,1))
     filename = f'hicgan_{high_res}{low_res}_c{chunk}_s{stride}_b{bound}_{pool_str}_{postfix}.npz'
     hicgan_file = os.path.join(out_dir, filename)
     np.savez_compressed(hicgan_file, data=data, target=target)
