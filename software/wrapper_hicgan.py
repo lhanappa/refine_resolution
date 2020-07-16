@@ -11,7 +11,7 @@ import multiprocessing
 from . import prepare_hicgan
 from .utils import redircwd_back_projroot, configure
 
-
+from software.hicGAN import train_hicgan
 """test hicgan"""
 
 
