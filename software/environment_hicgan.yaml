@@ -13,6 +13,6 @@ dependencies:
     - scikit-image
     - pip
     - pip:
-        - TensorLayer==1.14
+        - TensorLayer==1.11.0
         - TensorFlow==1.15.0
     - hickle
