@@ -19,21 +19,23 @@ tf.keras.backend.set_floatx('float32')
 def predict(path='./data',
             raw_path='raw',
             raw_file='Rao2014-GM12878-DpnII-allreps-filtered.10kb.cool',
-            model_path = None,
+            model_path=None,
             sr_path='output',
             chromosome='22',
             scale=4,
             len_size=200,
             genomic_distance=2000000,
             start=None, end=None, draw_out=False):
-    sr_file = raw_file.split('-')[0] + '_' + raw_file.split('-')[1] + '_' + raw_file.split('.')[1]
+    sr_file = raw_file.split(
+        '-')[0] + '_' + raw_file.split('-')[1] + '_' + raw_file.split('.')[1]
     directory_sr = os.path.join(path, sr_path, sr_file, 'SR', 'chr'+chromosome)
     if not os.path.exists(directory_sr):
         os.makedirs(directory_sr)
 
     # get generator model
     if model_path is None:
-        gan_model_weights_path = './our_model/saved_model/gen_model_' + str(len_size)+'/gen_weights'
+        gan_model_weights_path = './our_model/saved_model/gen_model_' + \
+            str(len_size)+'/gen_weights'
     else:
         gan_model_weights_path = model_path
     Generator = model.make_generator_model(len_high_size=len_size, scale=4)
@@ -61,8 +63,14 @@ def predict(path='./data',
 
     # Normalization
     # the input should not be type of np.matrix!
-    Ml = normalization.SCN_normalization(np.asarray(Ml), max_iter=3000)
-    Mh = normalization.SCN_normalization(np.asarray(Mh), max_iter=3000)
+    # Ml = normalization.SCN_normalization(np.asarray(Ml), max_iter=3000)
+    # Mh = normalization.SCN_normalization(np.asarray(Mh), max_iter=3000)
+    Ml = np.asarray(Ml)
+    Mh = np.asarray(Mh)
+    Ml = np.divide((Ml-Ml.min()), (Ml.max()-Ml.min()), dtype=float,
+                   out=np.zeros_like(Ml), where=(Ml.max()-Ml.min()) != 0)
+    Mh = np.divide((Mh-Mh.min()), (Mh.max()-Mh.min()), dtype=float,
+                   out=np.zeros_like(Mh), where=(Mh.max()-Mh.min()) != 0)
 
     if genomic_distance is None:
         max_boundary = None
@@ -80,16 +88,17 @@ def predict(path='./data',
     true_hic_hr = hic_hr
     print('shape true hic_hr: ', true_hic_hr.shape)
 
-    hic_lr_ds = tf.data.Dataset.from_tensor_slices(hic_lr[..., np.newaxis]).batch(9)
+    hic_lr_ds = tf.data.Dataset.from_tensor_slices(
+        hic_lr[..., np.newaxis]).batch(9)
     predict_hic_hr = None
     for i, input_data in enumerate(hic_lr_ds):
         [_, _, tmp, _, _] = Generator(input_data, training=False)
         if predict_hic_hr is None:
             predict_hic_hr = tmp.numpy()
         else:
-            predict_hic_hr = np.concatenate((predict_hic_hr, tmp.numpy()), axis=0)
+            predict_hic_hr = np.concatenate(
+                (predict_hic_hr, tmp.numpy()), axis=0)
 
-    
     predict_hic_hr = np.squeeze(predict_hic_hr, axis=3)
     print('shape of prediction: ', predict_hic_hr.shape)
 
@@ -120,9 +129,10 @@ def predict(path='./data',
 
     if draw_out:
         fig, axs = plt.subplots(1, 2, figsize=(8, 15))
-        ax = axs[0].imshow(np.log1p(1000*predict_hic_hr_merge))#, cmap='RdBu_r'
+        # , cmap='RdBu_r'
+        ax = axs[0].imshow(np.log1p(1000*predict_hic_hr_merge))
         axs[0].set_title('predict')
-        ax = axs[1].imshow(np.log1p(1000*Mh))#, cmap='RdBu_r'
+        ax = axs[1].imshow(np.log1p(1000*Mh))  # , cmap='RdBu_r'
         axs[1].set_title('true')
         plt.tight_layout()
         plt.show()
@@ -137,5 +147,5 @@ if __name__ == '__main__':
             chromosome='22',
             scale=4,
             len_size=200,
-            sr_path='_'.join(['output','ours',str(max_dis), str(len_size)]),
-            genomic_distance=2000000,start=0, end=600, draw_out=True)
+            sr_path='_'.join(['output', 'ours', str(max_dis), str(len_size)]),
+            genomic_distance=2000000, start=0, end=600, draw_out=True)

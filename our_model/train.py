@@ -4,7 +4,6 @@ import time
 import datetime
 from IPython import display
 import matplotlib.pyplot as plt
-from iced import normalization
 import cooler
 import numpy as np
 import copy

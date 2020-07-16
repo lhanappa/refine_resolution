@@ -73,8 +73,14 @@ def save_samples(configure=None, chromosome=None):
 
     # Normalization
     # the input should not be type of np.matrix!
-    Ml = normalization.SCN_normalization(np.asarray(Ml), max_iter=3000)
-    Mh = normalization.SCN_normalization(np.asarray(Mh), max_iter=3000)
+    # Ml = normalization.SCN_normalization(np.asarray(Ml), max_iter=3000)
+    # Mh = normalization.SCN_normalization(np.asarray(Mh), max_iter=3000)
+    Ml = np.asarray(Ml)
+    Mh = np.asarray(Mh)
+    Ml = np.divide((Ml-Ml.min()), (Ml.max()-Ml.min()), dtype=float,
+                   out=np.zeros_like(Ml), where=(Ml.max()-Ml.min()) != 0)
+    Mh = np.divide((Mh-Mh.min()), (Mh.max()-Mh.min()), dtype=float,
+                   out=np.zeros_like(Mh), where=(Mh.max()-Mh.min()) != 0)
 
     max_boundary = None
     if genomic_distance is not None:

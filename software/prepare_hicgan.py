@@ -40,7 +40,7 @@ def divide(mat, chr_num, chunk_size=40, stride=28, bound=201, padding=True, verb
     return result
 
 
-def hicgan_divider(n, high_file, down_file, scale=1, pool_type='max', chunk=40, stride=40, bound=201, lr_cutoff=100, hr_cutoff=255):
+def hicgan_divider(n, high_file, down_file, scale=1, chunk=40, stride=40, bound=201):
     hic_data = np.load(high_file)
     down_data = np.load(down_file)
 
@@ -49,12 +49,7 @@ def hicgan_divider(n, high_file, down_file, scale=1, pool_type='max', chunk=40, 
     #down_hic = compactM(down_data['hic'], compact_idx)
     hic = hic_data['hic']
     down_hic = down_data['hic']
-    # Clamping
-    hic = np.minimum(hr_cutoff, hic)
-    down_hic = np.minimum(lr_cutoff, down_hic)
-    # Rescaling
-    hic = hic / np.max(hic)
-    down_hic = down_hic / lr_cutoff
+
     # Deviding and Pooling (pooling is not performed actually)
     div_dhic = divide(down_hic, n, chunk, stride, bound)
     #div_dhic = pooling(div_dhic, scale, pool_type=pool_type, verbose=False).numpy()

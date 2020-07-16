@@ -61,13 +61,8 @@ def generate(input_lr_dir, input_hr_dir, output_dir,
              chunk=40,
              stride=40,
              bound=201,
-             scale=1,
-             pool_type='max',
              chr_list=['22']):
     postfix = postfix.lower()
-    pool_str = 'nonpool' if scale == 1 else f'{pool_type}pool{scale}'
-    print(
-        f'Going to read {high_res} and {low_res} data, then deviding matrices with {pool_str}')
 
     pool_num = 23 if multiprocessing.cpu_count() > 23 else multiprocessing.cpu_count()
 
@@ -84,8 +79,7 @@ def generate(input_lr_dir, input_hr_dir, output_dir,
     for n in chr_list:
         high_file = os.path.join(data_hr_dir, f'chr{n}_{high_res}.npz')
         down_file = os.path.join(data_lr_dir, f'chr{n}_{low_res}.npz')
-        kwargs = {'scale': scale, 'pool_type': pool_type,
-                  'chunk': chunk, 'stride': stride, 'bound': bound}
+        kwargs = {'scale': scale, 'chunk': chunk, 'stride': stride, 'bound': bound}
         if n.isnumeric():
             chrn = int(n)
         else:
@@ -103,7 +97,7 @@ def generate(input_lr_dir, input_hr_dir, output_dir,
     data = np.transpose(data, axes=(0,2,3,1))
     target = np.concatenate([r.get()[2] for r in results])
     target = np.transpose(target, axes=(0,2,3,1))
-    filename = f'hicgan_{high_res}{low_res}_c{chunk}_s{stride}_b{bound}_{pool_str}_{postfix}.npz'
+    filename = f'hicgan_{high_res}{low_res}_c{chunk}_s{stride}_b{bound}_{postfix}.npz'
     hicgan_file = os.path.join(out_dir, filename)
     np.savez_compressed(hicgan_file, data=data, target=target)
     print('Saving file:', hicgan_file)
