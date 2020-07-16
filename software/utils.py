@@ -52,6 +52,8 @@ def configure(raw_hic='Rao2014-GM12878-DpnII-allreps-filtered.10kb.cool',
         script_work_dir = os.path.join(root_dir, 'software', 'HiCSR')
     elif methods_name == 'deephic':
         script_work_dir = os.path.join(root_dir, 'software', 'DeepHiC')
+    elif methods_name == 'hicgan':
+        script_work_dir = os.path.join(root_dir, 'software', 'hicGAN')
 
     return raw_hic, genomic_distance, lr_size, hr_size, downsample_factor, \
         root_dir, experiment_name, input_path, script_work_dir
