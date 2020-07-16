@@ -99,19 +99,16 @@ def generate(input_lr_dir, input_hr_dir, output_dir,
     target = np.transpose(target, axes=(0,2,3,1))
     filename = f'hicgan_{high_res}{low_res}_c{chunk}_s{stride}_b{bound}_{postfix}.npz'
     hicgan_file = os.path.join(out_dir, filename)
-    np.savez_compressed(hicgan_file, data=data, target=target)
+    np.savez_compressed(hicgan_file, lr_data=data, hr_data=target)
     print('Saving file:', hicgan_file)
 
 
-"""def train(data_dir, out_dir, lr=40000, hr=10000,
-          chunk=40, stride=40, bound=201, pool='nonpool',
-          upscale=1, num_epochs=200, batch_size=64, cwd_dir=None):
+def train(train_dir, valid_dir, model_dir, cwd_dir=None):
     if cwd_dir is not None:
         os.chdir(cwd_dir)
     print("cwd: ", os.getcwd())
-    print("data_dir: ", data_dir)
-    print("out_dir: ", out_dir)
+    print("train_dir: ", train_dir)
+    print("valid_dir: ", valid_dir)
+    print("model_dir: ", model_dir)
     print("train hicgan start")
-    train_hicgan.train(data_dir, out_dir, lr=lr, hr=hr,
-          chunk=chunk, stride=stride, bound=bound, pool=pool,
-          upscale=upscale, num_epochs=num_epochs, batch_size=batch_size)"""
+    train_hicgan.train(train_dir, valid_dir, model_dir)
