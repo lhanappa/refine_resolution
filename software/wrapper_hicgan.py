@@ -79,7 +79,7 @@ def generate(input_lr_dir, input_hr_dir, output_dir,
     for n in chr_list:
         high_file = os.path.join(data_hr_dir, f'chr{n}_{high_res}.npz')
         down_file = os.path.join(data_lr_dir, f'chr{n}_{low_res}.npz')
-        kwargs = {'scale': scale, 'chunk': chunk, 'stride': stride, 'bound': bound}
+        kwargs = {'chunk': chunk, 'stride': stride, 'bound': bound}
         if n.isnumeric():
             chrn = int(n)
         else:
