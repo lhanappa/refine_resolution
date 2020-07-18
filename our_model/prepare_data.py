@@ -4,7 +4,6 @@ import sys
 import cooler
 import wget
 
-from iced import normalization
 from utils import operations
 
 # https://github.com/mirnylab/cooler-binder/blob/master/cooler_api.ipynb
@@ -73,14 +72,13 @@ def save_samples(configure=None, chromosome=None):
 
     # Normalization
     # the input should not be type of np.matrix!
-    # Ml = normalization.SCN_normalization(np.asarray(Ml), max_iter=3000)
-    # Mh = normalization.SCN_normalization(np.asarray(Mh), max_iter=3000)
     Ml = np.asarray(Ml)
     Mh = np.asarray(Mh)
-    Ml = np.divide((Ml-Ml.min()), (Ml.max()-Ml.min()), dtype=float,
-                   out=np.zeros_like(Ml), where=(Ml.max()-Ml.min()) != 0)
-    Mh = np.divide((Mh-Mh.min()), (Mh.max()-Mh.min()), dtype=float,
-                   out=np.zeros_like(Mh), where=(Mh.max()-Mh.min()) != 0)
+    Ml,_ = operations.scn_normalization(Ml, max_iter=3000)
+    Mh,_ = operations.scn_normalization(Mh, max_iter=3000)
+    # min-max norm
+    # Ml = np.divide((Ml-Ml.min()), (Ml.max()-Ml.min()), dtype=float, out=np.zeros_like(Ml), where=(Ml.max()-Ml.min()) != 0)
+    # Mh = np.divide((Mh-Mh.min()), (Mh.max()-Mh.min()), dtype=float, out=np.zeros_like(Mh), where=(Mh.max()-Mh.min()) != 0)
 
     max_boundary = None
     if genomic_distance is not None:

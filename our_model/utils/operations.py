@@ -2,6 +2,44 @@ import numpy as np
 import gzip
 import os
 
+
+def scn_normalization(X, max_iter=1000, eps=1e-10, copy=True):
+    m, n = X.shape
+    if m != n:
+        raise ValueError
+    if copy:
+        X = X.copy()
+    X = np.asarray(X)
+    X = X.astype(float)
+    D = np.ones((X.shape[0],))
+    for it in np.arange(max_iter):
+        # sqrt(sqrt(sum(X.^2, 1))).^(-1)
+        square = np.multiply(X, X)
+        # sss_row and sss_col should be equal because of sysmmetry
+        sss_row = np.sqrt(np.sqrt(square.sum(axis=0)))
+        sss_col = np.sqrt(np.sqrt(square.sum(axis=1)))
+        sss_row[sss_row == 0] = 1
+        sss_col[sss_col == 0] = 1
+        sss_row = sss_row**(-1)
+        sss_col = sss_col**(-1)
+        # D*X*D
+        next_X = np.diag(sss_row)@X@np.diag(sss_col)
+        D = np.multiply(sss_row, D)
+
+        if np.abs(X - next_X).sum() < eps:
+            print("break at iteration %d" % (it,))
+            break
+        X = next_X
+    return X, D
+
+
+def scn_recover(normX, D):
+    # recover matrix from scn_normalization
+    # normX, D = scn_normalization(X, max_iter=1000, eps=1e-10, copy=True)
+    # X = scn_recover(normX, D)
+    return np.diag(D**-1)@normX@np.diag(D**-1)
+
+
 def redircwd_back_projroot(project_name='refine_resolution'):
     root = os.getcwd().split('/')
     for i, f in enumerate(root):
@@ -12,6 +50,7 @@ def redircwd_back_projroot(project_name='refine_resolution'):
     os.chdir(root)
     print('current working directory: ', os.getcwd())
     return root
+
 
 def sampling_hic(hic_matrix, sampling_ratio, fix_seed=False):
     """sampling dense hic matrix"""
@@ -37,7 +76,7 @@ def sampling_hic(hic_matrix, sampling_ratio, fix_seed=False):
 
 
 def divide_pieces_hic(hic_matrix, block_size=128, max_distance=None, save_file=False, pathfile=None):
-    #max_boundary
+    # max_boundary
     max_distance = int(max_distance/(block_size/2.0))
     M = hic_matrix
 
@@ -218,10 +257,21 @@ def remove_zeros(matrix):
 
 
 if __name__ == '__main__':
-    m = np.ones(shape=(8,8))*2+ 400*np.diag(np.ones(shape=(8,)))
+    """m = np.ones(shape=(8,8))*2+ 400*np.diag(np.ones(shape=(8,)))
     print(m.sum())
     #print(m)
     sample = sampling_hic(m, sampling_ratio=2, fix_seed=True)
     print(sample.shape)
     print(sample.sum())
-    print(sample)
+    print(sample)"""
+    X = np.random.rand(8, 8)
+    X = np.abs(X + X.T)
+    normX, D = scn_normalization(X, max_iter=1000, eps=1e-6, copy=True)
+    np.set_printoptions(precision=2)
+    print(normX)
+    print(D)
+    recover = scn_recover(normX, D)
+    print(recover)
+    print((recover-X).sum()/X.sum()*100)
+    print((normX**2).sum(axis=0))
+    print((normX**2).sum(axis=1))

@@ -6,7 +6,6 @@ import os
 import sys
 import matplotlib.pyplot as plt
 
-from iced import normalization
 from utils import operations, quality_hic
 # 'Dixon2012-H1hESC-HindIII-allreps-filtered.10kb.cool'
 

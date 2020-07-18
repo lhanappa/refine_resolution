@@ -1,7 +1,6 @@
 import time
 import datetime
 import matplotlib.pyplot as plt
-from iced import normalization
 import cooler
 import numpy as np
 import copy
@@ -63,14 +62,12 @@ def predict(path='./data',
 
     # Normalization
     # the input should not be type of np.matrix!
-    # Ml = normalization.SCN_normalization(np.asarray(Ml), max_iter=3000)
-    # Mh = normalization.SCN_normalization(np.asarray(Mh), max_iter=3000)
     Ml = np.asarray(Ml)
     Mh = np.asarray(Mh)
-    Ml = np.divide((Ml-Ml.min()), (Ml.max()-Ml.min()), dtype=float,
-                   out=np.zeros_like(Ml), where=(Ml.max()-Ml.min()) != 0)
-    Mh = np.divide((Mh-Mh.min()), (Mh.max()-Mh.min()), dtype=float,
-                   out=np.zeros_like(Mh), where=(Mh.max()-Mh.min()) != 0)
+    Ml, Dh = operations.scn_normalization(Ml, max_iter=3000)
+    Mh, Dl = operations.scn_normalization(Mh, max_iter=3000)
+    #Ml = np.divide((Ml-Ml.min()), (Ml.max()-Ml.min()), dtype=float, out=np.zeros_like(Ml), where=(Ml.max()-Ml.min()) != 0)
+    #Mh = np.divide((Mh-Mh.min()), (Mh.max()-Mh.min()), dtype=float, out=np.zeros_like(Mh), where=(Mh.max()-Mh.min()) != 0)
 
     if genomic_distance is None:
         max_boundary = None
@@ -104,12 +101,13 @@ def predict(path='./data',
 
     sr_file += '_chr'+chromosome
     file_path = os.path.join(directory_sr, sr_file)
-    np.savez_compressed(file_path+'.npz', predict_hic=predict_hic_hr,
-                        true_hic=true_hic_hr, index_1D_2D=index_1d_2d, index_2D_1D=index_2d_1d, start_id=start, end_id=end)
+    np.savez_compressed(file_path+'.npz', predict_hic=predict_hic_hr, true_hic=true_hic_hr,
+                        index_1D_2D=index_1d_2d, index_2D_1D=index_2d_1d,
+                        start_id=start, end_id=end)
 
     predict_hic_hr_merge = operations.merge_hic(
         predict_hic_hr, index_1D_2D=index_1d_2d, max_distance=max_boundary)
-    #predict_hic_hr_merge = normalization.SCN_normalization(predict_hic_hr_merge, max_iter=3000)
+
     print('shape of merge predict hic hr', predict_hic_hr_merge.shape)
 
     # chrop Mh
@@ -117,6 +115,11 @@ def predict(path='./data',
     if residual > 0:
         Mh = Mh[0:-residual, 0:-residual]
 
+    # recover M from scn to origin
+    Mh = operations.scn_recover(Mh, Dh)
+    predict_hic_hr_merge = operations.scn_recover(predict_hic_hr_merge, Dh)
+
+    # remove diag and off diag
     k = max_boundary.astype(int)
     Mh = operations.filter_diag_boundary(Mh, diag_k=2, boundary_k=k)
     predict_hic_hr_merge = operations.filter_diag_boundary(
