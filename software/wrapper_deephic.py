@@ -16,7 +16,7 @@ from software.DeepHiC import data_generate, train_deephic
 """test deephic"""
 
 
-def configure_deephic(chr_list = ['21', '22']):
+def configure_deephic():
     raw_hic = 'Rao2014-GM12878-DpnII-allreps-filtered.10kb.cool'
     genomic_distance = 2000000
     lr_size = 40
@@ -33,6 +33,7 @@ def configure_deephic(chr_list = ['21', '22']):
         methods_name=methods_name)
 
     # ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', 'X']
+    chr_list = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', 'X']
     preprocessing_chr_list = chr_list
 
     preprocessing_output_path = input_path
@@ -42,11 +43,11 @@ def configure_deephic(chr_list = ['21', '22']):
     if not os.path.exists(train_path):
         os.makedirs(train_path, exist_ok=True)
     train_list = ['1', '2', '3', '4', '5', '6', '7', '8',
-                  '9', '10', '11', '12', '13', '14', '15', '16', '22']
+                  '9', '10', '11', '12', '13', '14', '15', '16']
     valid_path = os.path.join(input_path, 'valid')
     if not os.path.exists(valid_path):
         os.makedirs(valid_path, exist_ok=True)
-    valid_list = ['17', '18', '22']
+    valid_list = ['17', '18']
 
     return raw_hic, genomic_distance, lr_size, hr_size, downsample_factor, \
         root_dir, experiment_name, preprocessing_chr_list, input_path, \

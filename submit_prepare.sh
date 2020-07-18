@@ -9,6 +9,12 @@
 #SBATCH --gres=gpu:k80:1
 #SBATCH --output=slurm-train-%J.out
 
+# Print current date
+date
+# Print name of node
+hostname
+
 METHOD=${1}
 source activate env_${METHOD}
+echo python test_preprocessing_${METHOD}.py
 python test_preprocessing_${METHOD}.py
