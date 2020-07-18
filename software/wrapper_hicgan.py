@@ -15,7 +15,7 @@ from software.hicGAN import train_hicgan
 """test hicgan"""
 
 
-def configure_hicgan():
+def configure_hicgan(chr_list = ['21', '22']):
     raw_hic = 'Rao2014-GM12878-DpnII-allreps-filtered.10kb.cool'
     genomic_distance = 2000000
     lr_size = 40
@@ -32,7 +32,7 @@ def configure_hicgan():
         methods_name=methods_name)
 
     # ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', 'X']
-    preprocessing_chr_list = ['21', '22']
+    preprocessing_chr_list = chr_list
 
     preprocessing_output_path = input_path
 
