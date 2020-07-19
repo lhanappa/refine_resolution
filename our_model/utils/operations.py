@@ -16,16 +16,18 @@ def scn_normalization(X, max_iter=1000, eps=1e-6, copy=True):
         # sqrt(sqrt(sum(X.^2, 1))).^(-1)
         square = np.multiply(X, X)
         # sss_row and sss_col should be equal because of sysmmetry
-        sss_row = np.sqrt(np.sqrt(square.sum(axis=0)))
+        sss_row = np.sqrt(np.sqrt(square.sum(axis=-1)))
         sss_row[sss_row == 0] = 1
         sss_row = sss_row**(-1)
+
+        # sss_col = np.sqrt(np.sqrt(square.sum(axis=-2)))
+        # sss_col[sss_col == 0] = 1
+        # sss_col = sss_col**(-1)
+
         sss_col = sss_row
-        #sss_col = np.sqrt(np.sqrt(square.sum(axis=1)))
-        #sss_col[sss_col == 0] = 1
-        #sss_col = sss_col**(-1)
         # D*X*D
-        #next_X = np.diag(sss_row)@X@np.diag(sss_col)
-        next_X = sss_row*(sss_row*X.T).T
+        # next_X = np.diag(sss_row)@X@np.diag(sss_col)
+        next_X = (sss_row*(X*sss_col).T).T
         D = sss_row * D
 
         if np.abs(X - next_X).sum() < eps:
@@ -39,17 +41,17 @@ def scn_recover(normX, D):
     # recover matrix from scn_normalization
     # normX, D = scn_normalization(X, max_iter=1000, eps=1e-10, copy=True)
     # X = scn_recover(normX, D)
-    return (D**-1)*((D**-1)*normX.T).T
+    return ((D**-1)*(normX*(D**-1)).T).T
 
 
 def check_scn(X, normX, D):
     recover = scn_recover(normX, D)
     print("sum of matrix: ", X.sum())
     print("sum of recover: ", recover.sum())
-    print("diff abs ratio (recover - X)/x: {:6.4f}%".format((np.abs(recover-X)).sum()/X.sum()*100))
+    print(
+        "diff abs ratio (recover - X)/x: {:6.4f}%".format((np.abs(recover-X)).sum()/X.sum()*100))
     print("sum of axis0: ", (normX**2).sum(axis=0))
     print("sum of axis1: ", (normX**2).sum(axis=1))
-    
 
 
 def redircwd_back_projroot(project_name='refine_resolution'):
