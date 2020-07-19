@@ -46,4 +46,4 @@ saved_cpt_dir = os.path.join(preprocessing_output_path, 'model')
 if not os.path.exists(saved_cpt_dir):
     os.makedirs(saved_cpt_dir)
 train(data_dir=preprocessing_output_path, out_dir=saved_cpt_dir, lr=40000, hr=10000, chunk=40,
-      stride=40, bound=201, num_epochs=5, cwd_dir=script_work_dir)
+      stride=40, bound=201, num_epochs=800, cwd_dir=script_work_dir)

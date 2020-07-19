@@ -3,11 +3,11 @@
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=1
 #SBATCH --mem=80G
-#SBATCH --time=1-10:15:00     # 1 day and 10 hours 15 minutes
-#SBATCH --job-name="data"
+#SBATCH --time=10-10:15:00     # 10 day and 10 hours 15 minutes
+#SBATCH --job-name="comparison"
 #SBATCH -p gpu # This is the default partition, you can use any of the following; intel, batch, highmem, gpu
 #SBATCH --gres=gpu:k80:1
-#SBATCH --output=slurm-data-%J.out
+#SBATCH --output=slurm-train-%J.out
 
 # Print current date
 date
@@ -16,5 +16,5 @@ hostname
 
 METHOD=${1}
 source activate env_${METHOD}
-echo python test_preprocessing_${METHOD}.py
-python test_preprocessing_${METHOD}.py
+echo python test_train_${METHOD}.py
+python test_train_${METHOD}.py

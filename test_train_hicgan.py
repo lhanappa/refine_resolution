@@ -47,4 +47,4 @@ if not os.path.exists(saved_cpt_dir):
     os.makedirs(saved_cpt_dir)
 
 train(train_dir=train_path, valid_dir=valid_path, model_dir=saved_cpt_dir, lr=40000, hr=10000, chunk=40,
-      stride=40, bound=201, num_epochs=5, cwd_dir=script_work_dir)
+      stride=40, bound=201, num_epochs=800, cwd_dir=script_work_dir)
