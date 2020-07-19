@@ -74,8 +74,13 @@ def save_samples(configure=None, chromosome=None):
     # the input should not be type of np.matrix!
     Ml = np.asarray(Ml)
     Mh = np.asarray(Mh)
-    Ml,_ = operations.scn_normalization(Ml, max_iter=1000)
-    Mh,_ = operations.scn_normalization(Mh, max_iter=1000)
+    norm_Ml,Dl = operations.scn_normalization(Ml, max_iter=1000)
+    norm_Mh,Dh = operations.scn_normalization(Mh, max_iter=1000)
+    operations.check_scn(Ml, norm_Ml,Dl)
+    operations.check_scn(Mh, norm_Mh,Dh)
+    Ml = norm_Ml
+    Mh = norm_Mh
+
     # min-max norm
     # Ml = np.divide((Ml-Ml.min()), (Ml.max()-Ml.min()), dtype=float, out=np.zeros_like(Ml), where=(Ml.max()-Ml.min()) != 0)
     # Mh = np.divide((Mh-Mh.min()), (Mh.max()-Mh.min()), dtype=float, out=np.zeros_like(Mh), where=(Mh.max()-Mh.min()) != 0)

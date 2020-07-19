@@ -26,7 +26,7 @@ def scn_normalization(X, max_iter=1000, eps=1e-6, copy=True):
         # D*X*D
         #next_X = np.diag(sss_row)@X@np.diag(sss_col)
         next_X = sss_row*(sss_row*X.T).T
-        D = sss_row* D
+        D = sss_row * D
 
         if np.abs(X - next_X).sum() < eps:
             print("break at iteration %d" % (it,))
@@ -40,6 +40,13 @@ def scn_recover(normX, D):
     # normX, D = scn_normalization(X, max_iter=1000, eps=1e-10, copy=True)
     # X = scn_recover(normX, D)
     return np.diag(D**-1)@normX@np.diag(D**-1)
+
+
+def check_scn(X, normX, D):
+    recover = scn_recover(normX, D)
+    print("diff abs recover - X :", (np.abs(recover-X)).sum()/X.sum())
+    print("sum of axis0: ", (normX**2).sum(axis=0))
+    print("sum of axis1: ", (normX**2).sum(axis=1))
 
 
 def redircwd_back_projroot(project_name='refine_resolution'):
@@ -270,6 +277,7 @@ if __name__ == '__main__':
     X = np.abs(X + X.T)
     normX, D = scn_normalization(X, max_iter=1000, eps=1e-6, copy=True)
     np.set_printoptions(precision=2)
+    print(X)
     print(normX)
     print(D)
     recover = scn_recover(normX, D)
