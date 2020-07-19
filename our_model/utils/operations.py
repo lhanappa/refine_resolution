@@ -3,7 +3,7 @@ import gzip
 import os
 
 
-def scn_normalization(X, max_iter=1000, eps=1e-10, copy=True):
+def scn_normalization(X, max_iter=1000, eps=1e-6, copy=True):
     m, n = X.shape
     if m != n:
         raise ValueError
@@ -17,14 +17,16 @@ def scn_normalization(X, max_iter=1000, eps=1e-10, copy=True):
         square = np.multiply(X, X)
         # sss_row and sss_col should be equal because of sysmmetry
         sss_row = np.sqrt(np.sqrt(square.sum(axis=0)))
-        sss_col = np.sqrt(np.sqrt(square.sum(axis=1)))
+        #sss_col = np.sqrt(np.sqrt(square.sum(axis=1)))
         sss_row[sss_row == 0] = 1
-        sss_col[sss_col == 0] = 1
+        #sss_col[sss_col == 0] = 1
         sss_row = sss_row**(-1)
-        sss_col = sss_col**(-1)
+        #sss_col = sss_col**(-1)
+        sss_col = sss_row
         # D*X*D
-        next_X = np.diag(sss_row)@X@np.diag(sss_col)
-        D = np.multiply(sss_row, D)
+        #next_X = np.diag(sss_row)@X@np.diag(sss_col)
+        next_X = sss_row*(sss_row*X.T).T
+        D = sss_row* D
 
         if np.abs(X - next_X).sum() < eps:
             print("break at iteration %d" % (it,))
