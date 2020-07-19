@@ -17,12 +17,12 @@ def scn_normalization(X, max_iter=1000, eps=1e-6, copy=True):
         square = np.multiply(X, X)
         # sss_row and sss_col should be equal because of sysmmetry
         sss_row = np.sqrt(np.sqrt(square.sum(axis=0)))
-        #sss_col = np.sqrt(np.sqrt(square.sum(axis=1)))
         sss_row[sss_row == 0] = 1
-        #sss_col[sss_col == 0] = 1
         sss_row = sss_row**(-1)
-        #sss_col = sss_col**(-1)
         sss_col = sss_row
+        #sss_col = np.sqrt(np.sqrt(square.sum(axis=1)))
+        #sss_col[sss_col == 0] = 1
+        #sss_col = sss_col**(-1)
         # D*X*D
         #next_X = np.diag(sss_row)@X@np.diag(sss_col)
         next_X = sss_row*(sss_row*X.T).T
@@ -39,14 +39,17 @@ def scn_recover(normX, D):
     # recover matrix from scn_normalization
     # normX, D = scn_normalization(X, max_iter=1000, eps=1e-10, copy=True)
     # X = scn_recover(normX, D)
-    return np.diag(D**-1)@normX@np.diag(D**-1)
+    return (D**-1)*((D**-1)*normX.T).T
 
 
 def check_scn(X, normX, D):
     recover = scn_recover(normX, D)
-    print("diff abs recover - X :", (np.abs(recover-X)).sum()/X.sum())
+    print("sum of matrix: ", X.sum())
+    print("sum of recover: ", recover.sum())
+    print("diff abs ratio (recover - X)/x: {:6.4f}%".format((np.abs(recover-X)).sum()/X.sum()*100))
     print("sum of axis0: ", (normX**2).sum(axis=0))
     print("sum of axis1: ", (normX**2).sum(axis=1))
+    
 
 
 def redircwd_back_projroot(project_name='refine_resolution'):
@@ -275,13 +278,10 @@ if __name__ == '__main__':
     print(sample)"""
     X = np.random.rand(8, 8)
     X = np.abs(X + X.T)
-    normX, D = scn_normalization(X, max_iter=1000, eps=1e-6, copy=True)
-    np.set_printoptions(precision=2)
+    np.set_printoptions(precision=4)
     print(X)
+    normX, D = scn_normalization(X, max_iter=2000, eps=1e-6, copy=True)
+    np.set_printoptions(precision=4)
     print(normX)
-    print(D)
-    recover = scn_recover(normX, D)
-    print(recover)
-    print((recover-X).sum()/X.sum()*100)
-    print((normX**2).sum(axis=0))
-    print((normX**2).sum(axis=1))
+    print(scn_recover(normX, D))
+    check_scn(X, normX, D)
