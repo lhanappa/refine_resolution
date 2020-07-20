@@ -14,7 +14,7 @@ def configure_hicsr():
     raw_hic = 'Rao2014-GM12878-DpnII-allreps-filtered.10kb.cool'
     genomic_distance = 2000000
     lr_size = 40
-    hr_size = 40
+    hr_size = 28
     downsample_factor = 16
 
     methods_name = 'hicsr'
