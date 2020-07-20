@@ -37,7 +37,7 @@ valid_list = ['17', '18', '22']
 data_fp = input_path
 model_hicsr = "DAE"
 cmd = ["python", "train.py", "--data_fp", data_fp, "--model",
-       model_hicsr, "--experiment", "HiCSR"]
+       model_hicsr, "--experiment", "DAE"]
 process = subprocess.run(cmd, cwd=script_work_dir)
 
 data_fp = input_path
