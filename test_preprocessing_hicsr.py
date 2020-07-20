@@ -51,7 +51,7 @@ if os.path.exists(preprocessing_output_path):
     shutil.rmtree(preprocessing_output_path)
 script = "preprocessing.py"
 cmd = ["python", script, "--input", input_path,
-       "--output", preprocessing_output_path, "--normalize", "1", "--input_size", str(lr_size), "-- output_size", str(hr_size)]
+       "--output", preprocessing_output_path, "--normalize", "1", "--input_size", str(lr_size), "--output_size", str(hr_size)]
 print(' '.join(cmd))
 process = subprocess.run(cmd, cwd=script_work_dir)
 
