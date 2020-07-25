@@ -57,7 +57,6 @@ def hicgan_divider(n, high_file, down_file, scale=1, chunk=40, stride=40, bound=
     return n, div_dhic, div_hhic
 
 
-
 def run(raw_hic='Rao2014-GM12878-DpnII-allreps-filtered.10kb.cool',
         chromosome_list=['22'],
         genomic_distance=2000000,
@@ -87,11 +86,16 @@ def run(raw_hic='Rao2014-GM12878-DpnII-allreps-filtered.10kb.cool',
         chromosome = 'chr' + chro
         mat_hr = hic_m.matrix(balance=True).fetch(chromosome)
         [mat_hr, idx] = remove_zeros(mat_hr)
-        save_to_compressed(mat_hr, idx, output_path=os.path.join(
-            input_path, 'hr'), output_name=name_hr)
+
         # chrN_40kb.npz
         name_lr = f'chr{chro}_{low_res}.npz'
         mat_lr = sampling_hic(mat_hr, downsample_factor, fix_seed=True)
+
+        # normalization log1p
+        mat_hr = np.log1p(mat_hr)
+        mat_lr = np.log1p(mat_lr)
+        save_to_compressed(mat_hr, idx, output_path=os.path.join(
+            input_path, 'hr'), output_name=name_hr)
         save_to_compressed(mat_lr, idx, output_path=os.path.join(
             input_path, 'lr'), output_name=name_lr)
 
