@@ -442,7 +442,8 @@ def _train_step_generator(Gen, Dis, imgl, imgr, loss_filter, loss_weights, opts,
     opts[1].apply_gradients(zip(gradients_of_generator_high, gen_high_v))
 
     # log losses
-    train_logs[0] = loss_low_ssim
+    return loss_low_mse
+    #loss_low_ssim
     #train_logs[1] = loss_low_mse
     #train_logs[2] = loss_high_0
     #train_logs[3] = loss_high_1
@@ -586,15 +587,15 @@ def fit(gen, dis, dataset, epochs, len_high_size,
                 loss_weights = [0.3, 10.0, 0.0]
 
             if(epoch % 10 <= 5):
-                train_step_generator(Gen=gen, Dis=dis,
+                g_mse_l = train_step_generator(Gen=gen, Dis=dis,
                                      imgl=tf.dtypes.cast(low_m, tf.float32),
                                      imgr=tf.dtypes.cast(high_m, tf.float32),
                                      loss_filter=[loss_filter_low_x2, loss_filter_low_x4,
                                                   loss_filter_high],
                                      loss_weights=loss_weights,
                                      opts=opts, train_logs=logs)
-            g_ssim_low.append(g_ssim_l)
-            #g_mse_low.append(g_mse_l)
+            #g_ssim_low.append(g_ssim_l)
+            g_mse_low.append(g_mse_l)
             #g_ssim_high.append(g_ssim_h)
             #g_mse_high.append(g_mse_h)
             #g_bce_high.append(g_bce_h)
