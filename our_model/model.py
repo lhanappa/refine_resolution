@@ -697,12 +697,12 @@ def fit(gen, dis, dataset, epochs, len_high_size,
             image = plot_to_image(fig)
             tf.summary.image(name='dis_true', data=image, step=epoch)
         if valid_dataset is not None:
-            logging.info('Time for epoch {} is {} sec. [Training, mse: {}, dis-ssim {} ][Valid, mse: {}, dis-ssim: {}]'.format(
+            logging.info('Time for epoch {} is {} sec. [Training, mse: {:.6f}, dis-ssim {:.6f} ][Valid, mse: {:.6f}, dis-ssim: {:.6f}]'.format(
                 epoch + 1, time.time()-start,
                 generator_log_mse_high.result(), generator_log_ssim_high.result(),
                 valid_gen_log_h_mse.result(), valid_gen_log_h_ssim.result()))
         else:
-            logging.info('Time for epoch {} is {} sec. [Training, mse: {}, dis-ssim {} ]'.format(
+            logging.info('Time for epoch {} is {} sec. [Training, mse: {:.6f}, dis-ssim {:.6f} ]'.format(
                 epoch + 1, time.time()-start,
                 generator_log_mse_high.result(), generator_log_ssim_high.result()))
 
