@@ -4,6 +4,7 @@ import time
 from IPython import display
 import datetime
 import os
+import logging
 
 class Reconstruct_R1M(tf.keras.layers.Layer):
     def __init__(self, filters, name='RR'):
@@ -21,10 +22,6 @@ class Reconstruct_R1M(tf.keras.layers.Layer):
         rank1m = tf.multiply(tf.multiply(v, vt), self.w)
         return rank1m
 
-    '''def get_config(self):
-        config = super(Reconstruct_R1M, self).get_config()
-        return config'''
-
 
 class Weight_R1M(tf.keras.layers.Layer):
     def __init__(self, name='WR1M'):
@@ -38,10 +35,6 @@ class Weight_R1M(tf.keras.layers.Layer):
     def call(self, input):
         self.w.assign(tf.nn.relu(self.w))
         return tf.multiply(input, self.w)
-
-    '''def get_config(self):
-        config = super(Weight_R1M, self).get_config()
-        return config'''
 
 
 class Downpixel(tf.keras.layers.Layer):
@@ -61,16 +54,10 @@ class Downpixel(tf.keras.layers.Layer):
         conv = tf.nn.conv2d(inputs, kernel, padding='SAME', strides=(1, 1))
         return self._phase_shift(conv)
 
-    '''def get_config(self):
-        config = super(Downpixel, self).get_config()
-        return config'''
-
 
 class Subpixel(tf.keras.layers.Conv2D):
     def __init__(self,
-                 filters,
-                 kernel_size,
-                 r,
+                 filters, kernel_size, r,
                  padding='valid',
                  data_format=None,
                  strides=(1, 1),
@@ -115,12 +102,6 @@ class Subpixel(tf.keras.layers.Conv2D):
         unshifted = super(Subpixel, self).compute_output_shape(input_shape)
         return (unshifted[0], self.r*unshifted[1], self.r*unshifted[2], unshifted[3]/(self.r*self.r))
 
-    '''def get_config(self):
-        config = super(tf.keras.layers.Conv2D, self).get_config()
-        config['filters'] /= self.r*self.r
-        config['r'] = self.r
-        return config'''
-
 
 class Sum_R1M(tf.keras.layers.Layer):
     def __init__(self, name=None):
@@ -128,10 +109,6 @@ class Sum_R1M(tf.keras.layers.Layer):
 
     def call(self, input):
         return tf.reduce_sum(input, axis=-1, keepdims=True)
-
-    '''def get_config(self):
-        config = super(Sum_R1M, self).get_config()
-        return config'''
 
 
 class Symmetry_R1M(tf.keras.layers.Layer):
@@ -151,10 +128,6 @@ class Symmetry_R1M(tf.keras.layers.Layer):
         up = tf.multiply(input, self.w)
         low = tf.transpose(up, perm=[0, 2, 1, 3])
         return up + low
-
-    '''def get_config(self):
-        config = super(Symmetry_R1M, self).get_config()
-        return config'''
 
 
 class Normal(tf.keras.layers.Layer):
@@ -178,10 +151,6 @@ class Normal(tf.keras.layers.Layer):
         WT = tf.transpose(self.w, perm=[0, 2, 1, 3])
         M = tf.multiply(self.w, WT)
         return tf.multiply(Div, M)
-
-    '''def get_config(self):
-        config = super(Normal, self).get_config()
-        return config'''
 
 
 def block_downsample_decomposition(len_size, channels_decompose, input_len_size, input_channels, downsample_ratio, name=None):
@@ -234,7 +203,8 @@ def block_rank1_estimation(dims, input_len_size, input_channels, name=None):
 def block_channel_combination(channels, name=None):
     result = tf.keras.Sequential(name=name)
     result.add(tf.keras.layers.Conv2D(channels, [1, 1], strides=1, padding='same', data_format="channels_last",
-                                      kernel_initializer=tf.keras.initializers.RandomUniform(minval=0., maxval=1./channels),
+                                      kernel_initializer=tf.keras.initializers.RandomUniform(
+                                          minval=0., maxval=1./channels),
                                       kernel_constraint=tf.keras.constraints.NonNeg(),
                                       activation='relu', use_bias=False))
     return result
@@ -322,7 +292,8 @@ def block_down_convolution(channels, input_len_size, input_channels, name=None):
 
 def make_discriminator_model(len_high_size=128, scale=4):
     '''PatchGAN 1 pixel of output represents X pixels of input: https://github.com/junyanz/pytorch-CycleGAN-and-pix2pix/issues/39
-    The "70" is implicit, it's not written anywhere in the code but instead emerges as a mathematical consequence of the network architecture.
+    The "70" is implicit, it's not written anywhere in the code 
+    but instead emerges as a mathematical consequence of the network architecture.
     The math is here: https://github.com/phillipi/pix2pix/blob/master/scripts/receptive_field_sizes.m
     compute input size from a given output size:
     f = @(output_size, ksize, stride) (output_size - 1) * stride + ksize; fix output_size as 1 '''
@@ -330,23 +301,22 @@ def make_discriminator_model(len_high_size=128, scale=4):
     len_x2 = int(len_high_size/(scale/2))
     len_x4 = int(len_high_size/scale)
     len_x8 = int(len_high_size/(scale*2))
-    inp = tf.keras.layers.Input(
-        shape=(len_high_size, len_high_size, 1), name='in', dtype=tf.float32)
+    inp = tf.keras.layers.Input(shape=(len_high_size, len_high_size, 1), name='in', dtype=tf.float32)
 
-    b_r1dr = block_rank1_decompose_reconstruct(
-        len_size=len_x1, channels_decompose=512, input_len_size=len_x1, input_channels=1, name='r1dr_x1')
+    b_r1dr = block_rank1_decompose_reconstruct(len_size=len_x1, 
+                                            channels_decompose=512, input_len_size=len_x1, 
+                                            input_channels=1, name='r1dr_x1')
     r1dr_x1 = b_r1dr(inp)
-    b_dc = block_down_convolution(
-        channels=80, input_len_size=len_x1, input_channels=512, name='dc_x1')
+    b_dc = block_down_convolution(channels=80, input_len_size=len_x1, input_channels=512, name='dc_x1')
     dc_x1 = b_dc(r1dr_x1)
 
     ratio = 2
     dp_x2 = Downpixel(r=ratio, name='dp_x2')(inp)
-    b_r1dr = block_rank1_decompose_reconstruct(
-        len_size=len_x2, channels_decompose=512, input_len_size=len_x2, input_channels=ratio**2, name='r1dr_x2')
+    b_r1dr = block_rank1_decompose_reconstruct(len_size=len_x2, 
+                                            channels_decompose=512, input_len_size=len_x2, 
+                                            input_channels=ratio**2, name='r1dr_x2')
     r1dr_x2 = b_r1dr(dp_x2)
-    b_r1c = block_rank1channels_convolution(
-        channels=40, input_len_size=len_x2, input_channels=512, name='r1c_x2')
+    b_r1c = block_rank1channels_convolution(channels=40, input_len_size=len_x2, input_channels=512, name='r1c_x2')
     r1c_x2 = b_r1c(r1dr_x2)
 
     concat_x1_x2 = tf.keras.layers.Concatenate()([r1c_x2, dc_x1])
@@ -404,15 +374,13 @@ def generator_bce_loss(d_pred):
 
 
 def generator_ssim_loss(y_pred, y_true):  # , m_filter):
-    return (1 - tf.image.ssim(y_pred, y_true, max_val=1.0, filter_size=11))/2.0
+    return tf.reduce_mean((1 - tf.image.ssim(y_pred, y_true, max_val=1.0, filter_size=11))/2.0)
 
 
 def generator_mse_loss(y_pred, y_true):  # , m_filter):
-    diff = tf.math.squared_difference(y_pred, y_true)
-    s = tf.reduce_sum(diff, axis=-1)
-    s = tf.reduce_sum(s, axis=-1)
-    s = tf.reduce_sum(s, axis=-1)
-    return s
+    mse = tf.keras.losses.MeanSquaredError(reduction=tf.keras.losses.Reduction.AUTO)
+    diff = mse(y_pred, y_true)
+    return diff
 
 
 # @tf.function
@@ -475,9 +443,6 @@ def _train_step_generator(Gen, Dis, imgl, imgr, loss_filter, loss_weights, opts,
     gen_low_v += Gen.get_layer('dsd_x4').trainable_variables
     gen_low_v += Gen.get_layer('r1e_x4').trainable_variables
     gradients_of_generator_low = x.gradient(gen_loss_low, gen_low_v)
-    opts[0].apply_gradients(zip(gradients_of_generator_low, gen_low_v))
-    train_logs[0](gen_loss_low_ssim)
-    train_logs[1](gen_loss_low_mse)
 
     gen_high_v = []
     gen_high_v += Gen.get_layer('r1c_x2').trainable_variables
@@ -489,10 +454,17 @@ def _train_step_generator(Gen, Dis, imgl, imgr, loss_filter, loss_weights, opts,
     gen_high_v += Gen.get_layer('out_high').trainable_variables
     gradients_of_generator_high = gen_tape_high.gradient(
         gen_loss_high, gen_high_v)
+
+    # apply gradients
+    opts[0].apply_gradients(zip(gradients_of_generator_low, gen_low_v))
     opts[1].apply_gradients(zip(gradients_of_generator_high, gen_high_v))
-    train_logs[2](gen_loss_high_0)
-    train_logs[3](gen_loss_high_1)
-    train_logs[4](gen_loss_high_2)
+
+    # log losses
+    train_logs[0].append(gen_loss_low_ssim)
+    train_logs[1].append(gen_loss_low_mse)
+    train_logs[2].append(gen_loss_high_0)
+    train_logs[3].append(gen_loss_high_1)
+    train_logs[4].append(gen_loss_high_2)
 
 
 # @tf.function
@@ -515,9 +487,8 @@ def _train_step_discriminator(Gen, Dis, imgl, imgr, loss_filter, opts, train_log
             disc_real_output, disc_generated_output)
     discriminator_gradients = disc_tape.gradient(
         disc_loss, Dis.trainable_variables)
-    opts[0].apply_gradients(
-        zip(discriminator_gradients, Dis.trainable_variables))
-    train_logs[0](disc_loss)
+    opts[0].apply_gradients(zip(discriminator_gradients, Dis.trainable_variables))
+    train_logs[0].append(disc_loss)
 
 
 @tf.function
@@ -525,9 +496,10 @@ def tracegraph(x, model):
     return model(x)
 
 
-def train(gen, dis, dataset, epochs, len_high_size, scale, test_dataset=None, log_dir=None, saved_model_dir=None):
+def train(gen, dis, dataset, epochs, len_high_size, scale, valid_dataset=None, log_dir=None, saved_model_dir=None):
     if log_dir is None:
         log_dir = './logs/model'
+    logging.basicConfig(filename=os.path.join(log_dir, 'training.log'), level=logging.INFO)
     if saved_model_dir is None:
         saved_model_dir = './saved_model'
     generator_optimizer_low = tf.keras.optimizers.Adam()
@@ -536,28 +508,21 @@ def train(gen, dis, dataset, epochs, len_high_size, scale, test_dataset=None, lo
     opts = [generator_optimizer_low, generator_optimizer_high]
 
     # for generator#, discriminator_optimizer]
-    generator_log_ssim_low = tf.keras.metrics.Mean(
-        'train_gen_low_ssim_loss', dtype=tf.float32)
-    generator_log_mse_low = tf.keras.metrics.Mean(
-        'train_gen_low_mse_loss', dtype=tf.float32)
-    generator_log_mse_high = tf.keras.metrics.Mean(
-        'train_gen_high_mse_loss', dtype=tf.float32)
-    generator_log_bce_high = tf.keras.metrics.Mean(
-        'train_gen_high_bce_loss', dtype=tf.float32)
-    generator_log_ssim_high = tf.keras.metrics.Mean(
-        'train_gen_high_ssim_loss', dtype=tf.float32)
-    discriminator_log = tf.keras.metrics.Mean(
-        'train_discriminator_loss', dtype=tf.float32)
-    logs = [generator_log_ssim_low, generator_log_mse_low, generator_log_bce_high,
-            generator_log_mse_high, generator_log_ssim_high]  # for generator, discriminator_log]
+    generator_log_ssim_low = tf.keras.metrics.Mean('train_gen_low_ssim_loss', dtype=tf.float32)
+    generator_log_mse_low = tf.keras.metrics.Mean('train_gen_low_mse_loss', dtype=tf.float32)
+    generator_log_mse_high = tf.keras.metrics.Mean('train_gen_high_mse_loss', dtype=tf.float32)
+    generator_log_bce_high = tf.keras.metrics.Mean('train_gen_high_bce_loss', dtype=tf.float32)
+    generator_log_ssim_high = tf.keras.metrics.Mean('train_gen_high_ssim_loss', dtype=tf.float32)
+    discriminator_log = tf.keras.metrics.Mean('train_discriminator_loss', dtype=tf.float32)
+
     current_time = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
 
     train_log_dir = os.path.join(log_dir, current_time, 'generator')
     train_summary_G_writer = tf.summary.create_file_writer(train_log_dir)
     train_log_dir = os.path.join(log_dir, current_time, 'discriminator')
     train_summary_D_writer = tf.summary.create_file_writer(train_log_dir)
-    test_log_dir = os.path.join(log_dir, current_time, 'test')
-    test_writer = tf.summary.create_file_writer(test_log_dir)
+    valid_log_dir = os.path.join(log_dir, current_time, 'valid')
+    valid_writer = tf.summary.create_file_writer(valid_log_dir)
 
     train_log_dir = os.path.join(log_dir, current_time, 'model')
     writer = tf.summary.create_file_writer(train_log_dir)
@@ -565,30 +530,25 @@ def train(gen, dis, dataset, epochs, len_high_size, scale, test_dataset=None, lo
     # Forward pass
     tracegraph(tf.zeros((1, len_high_size, len_high_size, 1)), gen)
     with writer.as_default():
-        tf.summary.trace_export(name="model_gen_trace",
-                                step=0, profiler_outdir=train_log_dir)
+        tf.summary.trace_export(name="model_gen_trace", step=0, profiler_outdir=train_log_dir)
     tf.summary.trace_on(graph=True, profiler=False)
 
     tracegraph(tf.zeros((1, len_high_size, len_high_size, 1)), dis)
     with writer.as_default():
-        tf.summary.trace_export(name="model_dis_trace",
-                                step=0, profiler_outdir=train_log_dir)
+        tf.summary.trace_export(name="model_dis_trace", step=0, profiler_outdir=train_log_dir)
 
-    with test_writer.as_default():
-        [_, (test_input_low, test_input_high)] = next(
-            enumerate(test_dataset.take(1)))
-        mpy = test_input_low.numpy()
+    with valid_writer.as_default():
+        [_, (valid_input_low, valid_input_high)] = next(enumerate(valid_dataset.take(1)))
+        mpy = valid_input_low.numpy()
         m = np.log1p(1000*np.squeeze(mpy[:, :, :, 0]))
         fig = plot_matrix(m)
         images = plot_to_image(fig)
-        tf.summary.image("test data low examples",
-                         images, max_outputs=16, step=0)
-        mpy = test_input_high.numpy()
+        tf.summary.image("valid data low examples", images, max_outputs=16, step=0)
+        mpy = valid_input_high.numpy()
         m = np.log1p(1000*np.squeeze(mpy[:, :, :, 0]))
         fig = plot_matrix(m)
         images = plot_to_image(fig)
-        tf.summary.image("test data high examples",
-                         images, max_outputs=16, step=0)
+        tf.summary.image("valid data high examples", images, max_outputs=16, step=0)
 
     len_x2 = int(len_high_size/2)
     len_x4 = int(len_high_size/4)
@@ -610,13 +570,19 @@ def train(gen, dis, dataset, epochs, len_high_size, scale, test_dataset=None, lo
         np.diag(np.ones(shape=(len_high_size-1,)), k=-1) - \
         np.diag(np.ones(shape=(len_high_size-1,)), k=1)
 
-    [_, (demo_input_low, demo_input_high)] = next(
-        enumerate(test_dataset.take(1)))
+    [_, (demo_input_low, demo_input_high)] = next(enumerate(valid_dataset.take(1)))
 
     train_step_generator = tf.function(_train_step_generator)
     train_step_discriminator = tf.function(_train_step_discriminator)
     for epoch in range(epochs):
         start = time.time()
+        g_ssim_low = []
+        g_mse_low = []
+        g_bce_high = []
+        g_mse_high = []
+        g_ssim_high = []
+        d_loss = []
+        logs = [g_ssim_low, g_mse_low, g_bce_high, g_mse_high, g_ssim_high]
         for i, (low_m, high_m) in enumerate(dataset):
             # if(generator_log_ssim_high.result().numpy() >= 0.016 or generator_log_mse_high.result().numpy() >= 0.016):
             if(epoch <= int(epochs/10.0)):
@@ -626,8 +592,7 @@ def train(gen, dis, dataset, epochs, len_high_size, scale, test_dataset=None, lo
 
             if(epoch % 10 <= 5):
                 train_step_generator(gen, dis,
-                                     tf.dtypes.cast(low_m, tf.float32), tf.dtypes.cast(
-                                         high_m, tf.float32),
+                                     tf.dtypes.cast(low_m, tf.float32), tf.dtypes.cast(high_m, tf.float32),
                                      [loss_filter_low_x2, loss_filter_low_x4,
                                          loss_filter_low_x8, loss_filter_high], loss_weights,
                                      opts, logs)
@@ -635,68 +600,93 @@ def train(gen, dis, dataset, epochs, len_high_size, scale, test_dataset=None, lo
             if(epoch % 10 > 5):
                 #Gen, Dis, imgl, imgr, loss_filter, opts, train_logs
                 train_step_discriminator(Gen=gen, Dis=dis, imgl=tf.dtypes.cast(low_m, tf.float32),
-                                         imgr=tf.dtypes.cast(
-                                             high_m, tf.float32),
+                                         imgr=tf.dtypes.cast(high_m, tf.float32),
                                          loss_filter=[loss_filter_high],
-                                         opts=[discriminator_optimizer], train_logs=[discriminator_log])
+                                         opts=[discriminator_optimizer], train_logs=[d_loss])
+
         # log the model epochs
-        if (epoch+10) % 20 == 0:
+        if (epoch+10) % 50 == 0:
             gen.save_weights(os.path.join(saved_model_dir, current_time, 'gen_weights_'+str(len_high_size)))
             dis.save_weights(os.path.join(saved_model_dir, current_time, 'dis_weights_'+str(len_high_size)))
 
-        if (epoch) % 10 == 0 or True:
-            [dpl_x2, dpl_x4, dph, _, _] = gen(
-                demo_input_low, training=False)
-            #[dpl_x2, dpl_x4, dpl_x8, dph, _, _, _] = gen(demo_input_low, training=False)
-            #demo_disc_generated = dis([demo_pred_high, demo_up], training=False)
-            #demo_disc_true = dis([demo_input_high, demo_up], training=False)
-            demo_disc_generated = dis(dph, training=False)
-            demo_disc_true = dis(demo_input_high, training=False)
-            with train_summary_G_writer.as_default():
-                tf.summary.scalar('loss_gen_low_disssim',
-                                  generator_log_ssim_low.result(), step=epoch)
-                tf.summary.scalar('loss_gen_low_mse',
-                                  generator_log_mse_low.result(), step=epoch)
-                tf.summary.scalar('loss_gen_high_mse',
-                                  generator_log_mse_high.result(), step=epoch)
-                tf.summary.scalar('loss_gen_high_disssim',
-                                  generator_log_ssim_high.result(), step=epoch)
-                tf.summary.scalar('loss_gen_high_bce',
-                                  generator_log_bce_high.result(), step=epoch)
-                mpy = dpl_x2.numpy()
-                m = np.log1p(1000*np.squeeze(mpy[:, :, :, 0]))
-                fig = plot_matrix(m)
-                image = plot_to_image(fig)
-                tf.summary.image(name='gen_low_x2', data=image, step=epoch)
-                mpy = dpl_x4.numpy()
-                m = np.log1p(1000*np.squeeze(mpy[:, :, :, 0]))
-                fig = plot_matrix(m)
-                image = plot_to_image(fig)
-                tf.summary.image(name='gen_low_x4', data=image, step=epoch)
+        # log the metrics and plots
+        valid_log_mse_high = tf.keras.metrics.Mean('valid_gen_high_mse_loss', dtype=tf.float32)
+        valid_log_ssim_high = tf.keras.metrics.Mean('valid_gen_high_ssim_loss', dtype=tf.float32)
+        gen_loss_h_bce = []
+        gen_loss_h_mse = []
+        gen_loss_h_ssim = []
+        for i, (low_m, high_m) in enumerate(valid_dataset):
+            [dpl_x2, dpl_x4, dph, _, _] = gen(low_m, training=False)
+            mfilter_high = tf.expand_dims(loss_filter_high, axis=0)
+            mfilter_high = tf.expand_dims(mfilter_high, axis=-1)
+            mfilter_high = tf.cast(mfilter_high, tf.float32)
+            fake_hic_h = tf.multiply(dph, mfilter_high)
+            imgr_filter = tf.multiply(high_m, mfilter_high)
+            disc_generated_output = Dis(fake_hic_h, training=False)
+            gen_loss_h_bce.append(generator_bce_loss(disc_generated_output))
+            gen_loss_h_mse.append(generator_mse_loss(fake_hic_h, imgr_filter))
+            gen_loss_h_ssim.append(generator_ssim_loss(fake_hic_h, imgr_filter))
 
-                mpy = dph.numpy()
-                m = np.log1p(1000*np.squeeze(mpy[:, :, :, 0]))
-                fig = plot_matrix(m)
-                image = plot_to_image(fig)
-                tf.summary.image(name='gen_high', data=image, step=epoch)
-            with train_summary_D_writer.as_default():
-                tf.summary.scalar(
-                    'loss_dis', discriminator_log.result(), step=epoch)
-                mpy = demo_disc_generated.numpy()
-                #m = np.squeeze(mpy[:,:,:,0])
-                m = np.squeeze(mpy).reshape((3, 3))
-                fig = plot_prob_matrix(m)
-                image = plot_to_image(fig)
-                tf.summary.image(name='dis_gen', data=image, step=epoch)
-                mpy = demo_disc_true.numpy()
-                #m = np.squeeze(mpy[:,:,:,0])
-                m = np.squeeze(mpy).reshape((3, 3))
-                fig = plot_prob_matrix(m)
-                image = plot_to_image(fig)
-                tf.summary.image(name='dis_true', data=image, step=epoch)
-        print('Time for epoch {} is {} sec.'.format(
-            epoch + 1, time.time()-start))
-    # tf.keras.backend.clear_session()
+        valid_gen_h_bce = tf.keras.metrics.Mean('valid_gen_high_bce_loss', dtype=tf.float32)
+        valid_gen_h_mse = tf.keras.metrics.Mean('valid_gen_high_mse_loss', dtype=tf.float32)
+        valid_gen_h_ssim = tf.keras.metrics.Mean('valid_gen_high_ssim_loss', dtype=tf.float32)
+
+        generator_log_ssim_low.update_state(g_ssim_low)
+        generator_log_mse_low.update_state(g_mse_low)
+        generator_log_ssim_high.update_state(g_ssim_high)
+        generator_log_mse_high.update_state(g_mse_high)
+        generator_log_bce_high.update_state(g_bce_high)
+        discriminator_log.update_state(d_loss)
+        valid_gen_h_bce.update_state(np.asarray(gen_loss_h_bce))
+        valid_gen_h_mse.update_state(np.asarray(gen_loss_h_mse))
+        valid_gen_h_ssim.update_state(np.asarray(gen_loss_h_ssim))
+
+        [dpl_x2, dpl_x4, dph, _, _] = gen(demo_input_low, training=False)
+        demo_disc_generated = dis(dph, training=False)
+        demo_disc_true = dis(demo_input_high, training=False)
+
+        with train_summary_G_writer.as_default():
+            tf.summary.scalar('loss_gen_low_disssim', generator_log_ssim_low.result(), step=epoch)
+            tf.summary.scalar('loss_gen_low_mse', generator_log_mse_low.result(), step=epoch)
+            tf.summary.scalar('loss_gen_high_mse', generator_log_mse_high.result(), step=epoch)
+            tf.summary.scalar('loss_gen_high_disssim', generator_log_ssim_high.result(), step=epoch)
+            tf.summary.scalar('loss_gen_high_bce', generator_log_bce_high.result(), step=epoch)
+            tf.summary.scalar('valid_gen_high_bce_loss', valid_gen_h_bce.result(), step=epoch)
+            tf.summary.scalar('valid_gen_high_mse_loss', valid_gen_h_mse.result(), step=epoch)
+            tf.summary.scalar('valid_gen_high_disssim_loss', valid_gen_h_ssim.result(), step=epoch)
+            mpy = dpl_x2.numpy()
+            m = np.log1p(1000*np.squeeze(mpy[:, :, :, 0]))
+            fig = plot_matrix(m)
+            image = plot_to_image(fig)
+            tf.summary.image(name='gen_low_x2', data=image, step=epoch)
+            mpy = dpl_x4.numpy()
+            m = np.log1p(1000*np.squeeze(mpy[:, :, :, 0]))
+            fig = plot_matrix(m)
+            image = plot_to_image(fig)
+            tf.summary.image(name='gen_low_x4', data=image, step=epoch)
+            mpy = dph.numpy()
+            m = np.log1p(1000*np.squeeze(mpy[:, :, :, 0]))
+            fig = plot_matrix(m)
+            image = plot_to_image(fig)
+            tf.summary.image(name='gen_high', data=image, step=epoch)
+
+        with train_summary_D_writer.as_default():
+            tf.summary.scalar('loss_dis', discriminator_log.result(), step=epoch)
+            mpy = demo_disc_generated.numpy()
+            m = np.squeeze(mpy).reshape((3, 3))
+            fig = plot_prob_matrix(m)
+            image = plot_to_image(fig)
+            tf.summary.image(name='dis_gen', data=image, step=epoch)
+            mpy = demo_disc_true.numpy()
+            m = np.squeeze(mpy).reshape((3, 3))
+            fig = plot_prob_matrix(m)
+            image = plot_to_image(fig)
+            tf.summary.image(name='dis_true', data=image, step=epoch)
+
+        logging.info('Time for epoch {} is {} sec. [Training, mse: {}, dis-ssim {} ][Valid, mse: {}, dis-ssim: {}]'.format(
+            epoch + 1, time.time()-start, 
+            generator_log_mse_high.result(), generator_log_ssim_high.result(),
+            valid_gen_h_mse.result(), valid_gen_h_ssim.result()))
 
 
 def plot_matrix(m):
