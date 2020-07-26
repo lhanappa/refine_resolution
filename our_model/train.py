@@ -50,7 +50,7 @@ def run(train_data, valid_data, len_size, scale, EPOCHS, root_path='./', load_mo
         log_dir = os.path.join(root_path, 'our_model', 'logs', 'model')
     if saved_model_dir is None:
         saved_model_dir = os.path.join(root_path, 'our_model', 'saved_model')
-    model.train(Gen, Dis, train_data, EPOCHS, len_size, scale,
+    model.fit(Gen, Dis, train_data, EPOCHS, len_size, scale,
                 valid_data, log_dir=log_dir, saved_model_dir=saved_model_dir)
 
     file_path = os.path.join(
