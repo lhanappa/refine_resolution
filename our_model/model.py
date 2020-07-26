@@ -273,7 +273,7 @@ def block_down_convolution(channels, input_len_size, input_channels, name=None):
 
 def make_discriminator_model(len_high_size=128, scale=4):
     '''PatchGAN 1 pixel of output represents X pixels of input: https://github.com/junyanz/pytorch-CycleGAN-and-pix2pix/issues/39
-    The "70" is implicit, it's not written anywhere in the code 
+    The "70" is implicit, it's not written anywhere in the code
     but instead emerges as a mathematical consequence of the network architecture.
     The math is here: https://github.com/phillipi/pix2pix/blob/master/scripts/receptive_field_sizes.m
     compute input size from a given output size:
@@ -374,7 +374,7 @@ def _train_step_generator(Gen, Dis, imgl, imgr, loss_filter, loss_weights, opts)
     with tf.GradientTape() as x, tf.GradientTape() as gen_tape_high:
         fake_hic = Gen(imgl, training=True)
         fake_hic_l_x2 = fake_hic[0]
-        #imgl_x2 = fake_hic[4]
+        # imgl_x2 = fake_hic[4]
         imgl_x2 = fake_hic[3]
         mfilter_low = tf.expand_dims(loss_filter[0], axis=0)
         mfilter_low = tf.expand_dims(mfilter_low, axis=-1)
@@ -383,7 +383,7 @@ def _train_step_generator(Gen, Dis, imgl, imgr, loss_filter, loss_weights, opts)
         imgl_x2_filter = tf.multiply(imgl_x2, mfilter_low)
 
         fake_hic_l_x4 = fake_hic[1]
-        #imgl_x4 = fake_hic[5]
+        # imgl_x4 = fake_hic[5]
         imgl_x4 = fake_hic[4]
         mfilter_low = tf.expand_dims(loss_filter[1], axis=0)
         mfilter_low = tf.expand_dims(mfilter_low, axis=-1)
@@ -449,7 +449,7 @@ def _train_step_generator(Gen, Dis, imgl, imgr, loss_filter, loss_weights, opts)
 def _train_step_discriminator(Gen, Dis, imgl, imgr, loss_filter, opts):
     with tf.GradientTape() as disc_tape:
         fake_hic = Gen(imgl, training=False)
-        #fake_hic_h = fake_hic[3]
+        # fake_hic_h = fake_hic[3]
         fake_hic_h = fake_hic[2]
 
         mfilter_high = tf.expand_dims(loss_filter[0], axis=0)
@@ -499,12 +499,13 @@ def fit(gen, dis, dataset, epochs, len_high_size,
         'train_gen_high_ssim_loss', dtype=tf.float32)
     discriminator_log = tf.keras.metrics.Mean(
         'train_discriminator_loss', dtype=tf.float32)
-    valid_gen_log_h_bce = tf.keras.metrics.Mean(
-        'valid_gen_high_bce_loss', dtype=tf.float32)
-    valid_gen_log_h_mse = tf.keras.metrics.Mean(
-        'valid_gen_high_mse_loss', dtype=tf.float32)
-    valid_gen_log_h_ssim = tf.keras.metrics.Mean(
-        'valid_gen_high_ssim_loss', dtype=tf.float32)
+    if valid_dataset is not None:
+        valid_gen_log_h_bce = tf.keras.metrics.Mean(
+            'valid_gen_high_bce_loss', dtype=tf.float32)
+        valid_gen_log_h_mse = tf.keras.metrics.Mean(
+            'valid_gen_high_mse_loss', dtype=tf.float32)
+        valid_gen_log_h_ssim = tf.keras.metrics.Mean(
+            'valid_gen_high_ssim_loss', dtype=tf.float32)
 
     current_time = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
 
@@ -512,9 +513,10 @@ def fit(gen, dis, dataset, epochs, len_high_size,
     train_summary_G_writer = tf.summary.create_file_writer(train_log_dir)
     train_log_dir = os.path.join(log_dir, current_time, 'discriminator')
     train_summary_D_writer = tf.summary.create_file_writer(train_log_dir)
-    valid_log_dir = os.path.join(log_dir, current_time, 'valid')
-    valid_writer = tf.summary.create_file_writer(valid_log_dir)
-
+    """if valid_dataset is not None:
+        valid_log_dir = os.path.join(log_dir, current_time, 'valid')
+        valid_writer = tf.summary.create_file_writer(valid_log_dir)
+    """
     train_log_dir = os.path.join(log_dir, current_time, 'model')
     writer = tf.summary.create_file_writer(train_log_dir)
     tf.summary.trace_on(graph=True, profiler=False)
@@ -530,7 +532,7 @@ def fit(gen, dis, dataset, epochs, len_high_size,
         tf.summary.trace_export(name="model_dis_trace",
                                 step=0, profiler_outdir=train_log_dir)
 
-    with valid_writer.as_default():
+    """with valid_writer.as_default():
         [_, (valid_input_low, valid_input_high)] = next(
             enumerate(valid_dataset.take(1)))
         mpy = valid_input_low.numpy()
@@ -544,7 +546,7 @@ def fit(gen, dis, dataset, epochs, len_high_size,
         fig = plot_matrix(m)
         images = plot_to_image(fig)
         tf.summary.image("valid data high examples",
-                         images, max_outputs=16, step=0)
+                         images, max_outputs=16, step=0)"""
 
     len_x2 = int(len_high_size/2)
     len_x4 = int(len_high_size/4)
@@ -562,7 +564,7 @@ def fit(gen, dis, dataset, epochs, len_high_size,
         np.diag(np.ones(shape=(len_high_size-1,)), k=1)
 
     [_, (demo_input_low, demo_input_high)] = next(
-        enumerate(valid_dataset.take(1)))
+        enumerate(dataset.take(1)))
 
     train_step_generator = tf.function(_train_step_generator)
     train_step_discriminator = tf.function(_train_step_discriminator)
@@ -597,14 +599,15 @@ def fit(gen, dis, dataset, epochs, len_high_size,
             g_mse_high.append(g_mse_h)
             g_bce_high.append(g_bce_h)
             if(epoch % 10 > 5):
-                #Gen, Dis, imgl, imgr, loss_filter, opts, train_logs
+                # Gen, Dis, imgl, imgr, loss_filter, opts, train_logs
                 d_loss = train_step_discriminator(Gen=gen, Dis=dis,
-                                         imgl=tf.dtypes.cast(
-                                             low_m, tf.float32),
-                                         imgr=tf.dtypes.cast(
-                                             high_m, tf.float32),
-                                         loss_filter=[loss_filter_high],
-                                         opts=[discriminator_optimizer])
+                                                  imgl=tf.dtypes.cast(
+                                                      low_m, tf.float32),
+                                                  imgr=tf.dtypes.cast(
+                                                      high_m, tf.float32),
+                                                  loss_filter=[
+                                                      loss_filter_high],
+                                                  opts=[discriminator_optimizer])
             d_bce.append(d_loss)
         # save model weights as checkpoints
         if (epoch+10) % 50 == 0:
@@ -614,20 +617,21 @@ def fit(gen, dis, dataset, epochs, len_high_size,
                 saved_model_dir, current_time, 'dis_weights_'+str(len_high_size)))
 
         # valid dataset
-        gen_h_bce = []
-        gen_h_mse = []
-        gen_h_ssim = []
-        for i, (low_m, high_m) in enumerate(valid_dataset):
-            [dpl_x2, dpl_x4, dph, _, _] = gen(low_m, training=False)
-            mfilter_high = tf.expand_dims(loss_filter_high, axis=0)
-            mfilter_high = tf.expand_dims(mfilter_high, axis=-1)
-            mfilter_high = tf.cast(mfilter_high, tf.float32)
-            fake_hic_h = tf.multiply(dph, mfilter_high)
-            imgr_filter = tf.multiply(high_m, mfilter_high)
-            disc_generated_output = dis(fake_hic_h, training=False)
-            gen_h_bce.append(generator_bce_loss(disc_generated_output))
-            gen_h_mse.append(generator_mse_loss(fake_hic_h, imgr_filter))
-            gen_h_ssim.append(generator_ssim_loss(fake_hic_h, imgr_filter))
+        if valid_dataset is not None:
+            gen_h_bce = []
+            gen_h_mse = []
+            gen_h_ssim = []
+            for i, (low_m, high_m) in enumerate(valid_dataset):
+                [dpl_x2, dpl_x4, dph, _, _] = gen(low_m, training=False)
+                mfilter_high = tf.expand_dims(loss_filter_high, axis=0)
+                mfilter_high = tf.expand_dims(mfilter_high, axis=-1)
+                mfilter_high = tf.cast(mfilter_high, tf.float32)
+                fake_hic_h = tf.multiply(dph, mfilter_high)
+                imgr_filter = tf.multiply(high_m, mfilter_high)
+                disc_generated_output = dis(fake_hic_h, training=False)
+                gen_h_bce.append(generator_bce_loss(disc_generated_output))
+                gen_h_mse.append(generator_mse_loss(fake_hic_h, imgr_filter))
+                gen_h_ssim.append(generator_ssim_loss(fake_hic_h, imgr_filter))
 
         # log the loss and metrics
         generator_log_ssim_low.update_state(g_ssim_low)
@@ -636,9 +640,10 @@ def fit(gen, dis, dataset, epochs, len_high_size,
         generator_log_mse_high.update_state(g_mse_high)
         generator_log_bce_high.update_state(g_bce_high)
         discriminator_log.update_state(d_bce)
-        valid_gen_log_h_bce.update_state(np.asarray(gen_h_bce))
-        valid_gen_log_h_mse.update_state(np.asarray(gen_h_mse))
-        valid_gen_log_h_ssim.update_state(np.asarray(gen_h_ssim))
+        if valid_dataset is not None:
+            valid_gen_log_h_bce.update_state(np.asarray(gen_h_bce))
+            valid_gen_log_h_mse.update_state(np.asarray(gen_h_mse))
+            valid_gen_log_h_ssim.update_state(np.asarray(gen_h_ssim))
 
         [dpl_x2, dpl_x4, dph, _, _] = gen(demo_input_low, training=False)
         demo_disc_generated = dis(dph, training=False)
@@ -655,12 +660,13 @@ def fit(gen, dis, dataset, epochs, len_high_size,
                               generator_log_ssim_high.result(), step=epoch)
             tf.summary.scalar('loss_gen_high_bce',
                               generator_log_bce_high.result(), step=epoch)
-            tf.summary.scalar('valid_gen_high_bce_loss',
-                              valid_gen_log_h_bce.result(), step=epoch)
-            tf.summary.scalar('valid_gen_high_mse_loss',
-                              valid_gen_log_h_mse.result(), step=epoch)
-            tf.summary.scalar('valid_gen_high_disssim_loss',
-                              valid_gen_log_h_ssim.result(), step=epoch)
+            if valid_dataset is not None:
+                tf.summary.scalar('valid_gen_high_bce_loss',
+                                  valid_gen_log_h_bce.result(), step=epoch)
+                tf.summary.scalar('valid_gen_high_mse_loss',
+                                  valid_gen_log_h_mse.result(), step=epoch)
+                tf.summary.scalar('valid_gen_high_disssim_loss',
+                                  valid_gen_log_h_ssim.result(), step=epoch)
             mpy = dpl_x2.numpy()
             m = np.log1p(1000*np.squeeze(mpy[:, :, :, 0]))
             fig = plot_matrix(m)
@@ -690,11 +696,15 @@ def fit(gen, dis, dataset, epochs, len_high_size,
             fig = plot_prob_matrix(m)
             image = plot_to_image(fig)
             tf.summary.image(name='dis_true', data=image, step=epoch)
-
-        logging.info('Time for epoch {} is {} sec. [Training, mse: {}, dis-ssim {} ][Valid, mse: {}, dis-ssim: {}]'.format(
-            epoch + 1, time.time()-start,
-            generator_log_mse_high.result(), generator_log_ssim_high.result(),
-            valid_gen_log_h_mse.result(), valid_gen_log_h_ssim.result()))
+        if valid_dataset is not None:
+            logging.info('Time for epoch {} is {} sec. [Training, mse: {}, dis-ssim {} ][Valid, mse: {}, dis-ssim: {}]'.format(
+                epoch + 1, time.time()-start,
+                generator_log_mse_high.result(), generator_log_ssim_high.result(),
+                valid_gen_log_h_mse.result(), valid_gen_log_h_ssim.result()))
+        else:
+            logging.info('Time for epoch {} is {} sec. [Training, mse: {}, dis-ssim {} ]'.format(
+                epoch + 1, time.time()-start,
+                generator_log_mse_high.result(), generator_log_ssim_high.result()))
 
 
 def plot_matrix(m):
