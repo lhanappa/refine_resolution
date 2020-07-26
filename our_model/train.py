@@ -137,7 +137,8 @@ if __name__ == '__main__':
         (hic_lr[..., np.newaxis], hic_hr[..., np.newaxis])).batch(BATCH_SIZE)
 
     #load_model_dir = os.path.join(root_path, 'our_model', 'saved_model')
+    saved_model_dir = os.path.join(root_path, 'our_model', 'saved_model')
     run(train_data=train_data, valid_data=valid_data, len_size=len_size, scale=scale,
         EPOCHS=EPOCHS, root_path=root_path,
-        load_model_dir=None, saved_model_dir=load_model_dir, log_dir=None,
+        load_model_dir=None, saved_model_dir=saved_model_dir, log_dir=None,
         summary=False)
