@@ -370,7 +370,7 @@ def generator_mse_loss(y_pred, y_true):  # , m_filter):
 
 # @tf.function
 # solution: https://github.com/tensorflow/tensorflow/issues/27120#issuecomment-615870307
-def _train_step_generator(Gen, Dis, imgl, imgr, loss_filter, loss_weights, opts, train_logs):
+def _train_step_generator(Gen, Dis, imgl, imgr, loss_filter, loss_weights, opts):
     with tf.GradientTape() as x, tf.GradientTape() as gen_tape_high:
         fake_hic = Gen(imgl, training=True)
         fake_hic_l_x2 = fake_hic[0]
@@ -442,16 +442,11 @@ def _train_step_generator(Gen, Dis, imgl, imgr, loss_filter, loss_weights, opts,
     opts[1].apply_gradients(zip(gradients_of_generator_high, gen_high_v))
 
     # log losses
-    return loss_low_mse
-    #loss_low_ssim
-    #train_logs[1] = loss_low_mse
-    #train_logs[2] = loss_high_0
-    #train_logs[3] = loss_high_1
-    #train_logs[4] = loss_high_2
+    return loss_low_ssim, loss_low_mse, loss_high_0, loss_high_1, loss_high_2
 
 
 # @tf.function
-def _train_step_discriminator(Gen, Dis, imgl, imgr, loss_filter, opts, train_logs):
+def _train_step_discriminator(Gen, Dis, imgl, imgr, loss_filter, opts):
     with tf.GradientTape() as disc_tape:
         fake_hic = Gen(imgl, training=False)
         #fake_hic_h = fake_hic[3]
@@ -470,7 +465,7 @@ def _train_step_discriminator(Gen, Dis, imgl, imgr, loss_filter, opts, train_log
     discriminator_gradients = disc_tape.gradient(loss, Dis.trainable_variables)
     opts[0].apply_gradients(
         zip(discriminator_gradients, Dis.trainable_variables))
-    train_logs[0] = loss
+    return loss
 
 
 @tf.function
@@ -479,7 +474,7 @@ def tracegraph(x, model):
 
 
 def fit(gen, dis, dataset, epochs, len_high_size,
-          scale, valid_dataset=None, log_dir=None, saved_model_dir=None):
+        scale, valid_dataset=None, log_dir=None, saved_model_dir=None):
     if log_dir is None:
         log_dir = './logs/model'
     logging.basicConfig(filename=os.path.join(
@@ -574,10 +569,10 @@ def fit(gen, dis, dataset, epochs, len_high_size,
     for epoch in range(epochs):
         start = time.time()
         # train
-        g_ssim_low, g_mse_low = [[],[]]
-        g_bce_high, g_mse_high, g_ssim_high = [[],[],[]]
+        g_ssim_low, g_mse_low = [[], []]
+        g_bce_high, g_mse_high, g_ssim_high = [[], [], []]
         d_bce = []
-        g_ssim_l, g_mse_l, g_bce_h, g_mse_h, g_ssim_h = 0,0,0,0,0
+        g_ssim_l, g_mse_l, g_bce_h, g_mse_h, g_ssim_h = 0, 0, 0, 0, 0
         d_loss = 0
         logs = [g_ssim_l, g_mse_l, g_bce_h, g_mse_h, g_ssim_h]
         for i, (low_m, high_m) in enumerate(dataset):
@@ -587,28 +582,30 @@ def fit(gen, dis, dataset, epochs, len_high_size,
                 loss_weights = [0.3, 10.0, 0.0]
 
             if(epoch % 10 <= 5):
-                g_mse_l = train_step_generator(Gen=gen, Dis=dis,
-                                     imgl=tf.dtypes.cast(low_m, tf.float32),
-                                     imgr=tf.dtypes.cast(high_m, tf.float32),
-                                     loss_filter=[loss_filter_low_x2, loss_filter_low_x4,
-                                                  loss_filter_high],
-                                     loss_weights=loss_weights,
-                                     opts=opts, train_logs=logs)
-            #g_ssim_low.append(g_ssim_l)
+                g_ssim_l, g_mse_l, g_bce_h, g_mse_h, g_ssim_h = train_step_generator(Gen=gen, Dis=dis,
+                                                                                     imgl=tf.dtypes.cast(
+                                                                                         low_m, tf.float32),
+                                                                                     imgr=tf.dtypes.cast(
+                                                                                         high_m, tf.float32),
+                                                                                     loss_filter=[loss_filter_low_x2, loss_filter_low_x4,
+                                                                                                  loss_filter_high],
+                                                                                     loss_weights=loss_weights,
+                                                                                     opts=opts)
+            g_ssim_low.append(g_ssim_l)
             g_mse_low.append(g_mse_l)
-            #g_ssim_high.append(g_ssim_h)
-            #g_mse_high.append(g_mse_h)
-            #g_bce_high.append(g_bce_h)
+            g_ssim_high.append(g_ssim_h)
+            g_mse_high.append(g_mse_h)
+            g_bce_high.append(g_bce_h)
             if(epoch % 10 > 5):
                 #Gen, Dis, imgl, imgr, loss_filter, opts, train_logs
-                train_step_discriminator(Gen=gen, Dis=dis,
+                d_loss = train_step_discriminator(Gen=gen, Dis=dis,
                                          imgl=tf.dtypes.cast(
                                              low_m, tf.float32),
                                          imgr=tf.dtypes.cast(
                                              high_m, tf.float32),
                                          loss_filter=[loss_filter_high],
-                                         opts=[discriminator_optimizer], train_logs=[d_loss])
-            #d_bce.append(d_loss)
+                                         opts=[discriminator_optimizer])
+            d_bce.append(d_loss)
         # save model weights as checkpoints
         if (epoch+10) % 50 == 0:
             gen.save_weights(os.path.join(
