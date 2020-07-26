@@ -26,6 +26,8 @@ def run(train_data, valid_data, len_size, scale, EPOCHS, root_path='./', load_mo
     if log_dir is None:
         log_dir = os.path.join(root_path, 'our_model', 'logs', 'model')
     logging.basicConfig(filename=os.path.join(log_dir, 'training.log'), level=logging.INFO)
+    logging.info(train_data)
+    logging.info(valid_data)
     # get generator model and discriminator model
     Gen = model.make_generator_model(len_high_size=len_size, scale=scale)
     Dis = model.make_discriminator_model(len_high_size=len_size, scale=scale)
