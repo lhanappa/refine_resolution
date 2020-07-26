@@ -573,8 +573,11 @@ def fit(gen, dis, dataset, epochs, len_high_size,
     for epoch in range(epochs):
         start = time.time()
         # train
-        g_ssim_low = [], g_mse_low = []
-        g_bce_high = [], g_mse_high = [], g_ssim_high = []
+        g_ssim_low = []
+        g_mse_low = []
+        g_bce_high = []
+        g_mse_high = []
+        g_ssim_high = []
         d_loss = []
         logs = [g_ssim_low, g_mse_low, g_bce_high, g_mse_high, g_ssim_high]
         for i, (low_m, high_m) in enumerate(dataset):
