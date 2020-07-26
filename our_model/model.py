@@ -513,10 +513,10 @@ def fit(gen, dis, dataset, epochs, len_high_size,
     train_summary_G_writer = tf.summary.create_file_writer(train_log_dir)
     train_log_dir = os.path.join(log_dir, current_time, 'discriminator')
     train_summary_D_writer = tf.summary.create_file_writer(train_log_dir)
-    """if valid_dataset is not None:
-        valid_log_dir = os.path.join(log_dir, current_time, 'valid')
-        valid_writer = tf.summary.create_file_writer(valid_log_dir)
-    """
+
+    demo_log_dir = os.path.join(log_dir, current_time, 'valid')
+    demo_writer = tf.summary.create_file_writer(demo_log_dir)
+
     train_log_dir = os.path.join(log_dir, current_time, 'model')
     writer = tf.summary.create_file_writer(train_log_dir)
     tf.summary.trace_on(graph=True, profiler=False)
@@ -532,21 +532,20 @@ def fit(gen, dis, dataset, epochs, len_high_size,
         tf.summary.trace_export(name="model_dis_trace",
                                 step=0, profiler_outdir=train_log_dir)
 
-    """with valid_writer.as_default():
-        [_, (valid_input_low, valid_input_high)] = next(
-            enumerate(valid_dataset.take(1)))
-        mpy = valid_input_low.numpy()
+    with demo_writer.as_default():
+        [_, (demo_input_low, demo_input_high)] = next(enumerate(dataset.take(1)))
+        mpy = demo_input_low.numpy()
         m = np.log1p(1000*np.squeeze(mpy[:, :, :, 0]))
         fig = plot_matrix(m)
         images = plot_to_image(fig)
         tf.summary.image("valid data low examples",
                          images, max_outputs=16, step=0)
-        mpy = valid_input_high.numpy()
+        mpy = demo_input_high.numpy()
         m = np.log1p(1000*np.squeeze(mpy[:, :, :, 0]))
         fig = plot_matrix(m)
         images = plot_to_image(fig)
         tf.summary.image("valid data high examples",
-                         images, max_outputs=16, step=0)"""
+                         images, max_outputs=16, step=0)
 
     len_x2 = int(len_high_size/2)
     len_x4 = int(len_high_size/4)
@@ -563,8 +562,7 @@ def fit(gen, dis, dataset, epochs, len_high_size,
         np.diag(np.ones(shape=(len_high_size-1,)), k=-1) - \
         np.diag(np.ones(shape=(len_high_size-1,)), k=1)
 
-    [_, (demo_input_low, demo_input_high)] = next(
-        enumerate(dataset.take(1)))
+    [_, (demo_input_low, demo_input_high)] = next(enumerate(dataset.take(1)))
 
     train_step_generator = tf.function(_train_step_generator)
     train_step_discriminator = tf.function(_train_step_discriminator)
