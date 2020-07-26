@@ -538,13 +538,13 @@ def fit(gen, dis, dataset, epochs, len_high_size,
         m = np.log1p(1000*np.squeeze(mpy[:, :, :, 0]))
         fig = plot_matrix(m)
         images = plot_to_image(fig)
-        tf.summary.image("valid data low examples",
+        tf.summary.image("demo data low examples",
                          images, max_outputs=16, step=0)
         mpy = demo_input_high.numpy()
         m = np.log1p(1000*np.squeeze(mpy[:, :, :, 0]))
         fig = plot_matrix(m)
         images = plot_to_image(fig)
-        tf.summary.image("valid data high examples",
+        tf.summary.image("demo data high examples",
                          images, max_outputs=16, step=0)
 
     len_x2 = int(len_high_size/2)
@@ -591,11 +591,11 @@ def fit(gen, dis, dataset, epochs, len_high_size,
                                                                                                   loss_filter_high],
                                                                                      loss_weights=loss_weights,
                                                                                      opts=opts)
-            g_ssim_low.append(g_ssim_l)
-            g_mse_low.append(g_mse_l)
-            g_ssim_high.append(g_ssim_h)
-            g_mse_high.append(g_mse_h)
-            g_bce_high.append(g_bce_h)
+                g_ssim_low.append(g_ssim_l)
+                g_mse_low.append(g_mse_l)
+                g_ssim_high.append(g_ssim_h)
+                g_mse_high.append(g_mse_h)
+                g_bce_high.append(g_bce_h)
             if(epoch % 10 > 5):
                 # Gen, Dis, imgl, imgr, loss_filter, opts, train_logs
                 d_loss = train_step_discriminator(Gen=gen, Dis=dis,
@@ -606,7 +606,7 @@ def fit(gen, dis, dataset, epochs, len_high_size,
                                                   loss_filter=[
                                                       loss_filter_high],
                                                   opts=[discriminator_optimizer])
-            d_bce.append(d_loss)
+                d_bce.append(d_loss)
         # save model weights as checkpoints
         if (epoch+10) % 50 == 0:
             gen.save_weights(os.path.join(
