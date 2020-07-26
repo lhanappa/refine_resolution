@@ -576,7 +576,7 @@ def fit(gen, dis, dataset, epochs, len_high_size,
         g_ssim_low, g_mse_low = [[],[]]
         g_bce_high, g_mse_high, g_ssim_high = [[],[],[]]
         d_bce = []
-        g_ssim_l, g_mse_l, g_bce_h, g_mse_h, g_ssim_h = [0,0,0,0,0]
+        g_ssim_l, g_mse_l, g_bce_h, g_mse_h, g_ssim_h = 0,0,0,0,0
         d_loss = 0
         logs = [g_ssim_l, g_mse_l, g_bce_h, g_mse_h, g_ssim_h]
         for i, (low_m, high_m) in enumerate(dataset):
