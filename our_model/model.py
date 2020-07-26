@@ -358,12 +358,11 @@ def generator_bce_loss(d_pred):
 
 
 def generator_ssim_loss(y_pred, y_true):  # , m_filter):
-    return tf.reduce_mean((1 - tf.image.ssim(y_pred, y_true, max_val=1.0, filter_size=11))/2.0)
+    return tf.reduce_sum((1 - tf.image.ssim(y_pred, y_true, max_val=1.0, filter_size=11))/2.0)
 
 
 def generator_mse_loss(y_pred, y_true):  # , m_filter):
-    mse = tf.keras.losses.MeanSquaredError(
-        reduction=tf.keras.losses.Reduction.AUTO)
+    mse = tf.keras.losses.MeanSquaredError(reduction=tf.keras.losses.Reduction.SUM)
     diff = mse(y_pred, y_true)
     return diff
 
