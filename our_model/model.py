@@ -573,15 +573,13 @@ def fit(gen, dis, dataset, epochs, len_high_size,
     for epoch in range(epochs):
         start = time.time()
         # train
-        g_ssim_low = []
-        g_mse_low = []
-        g_bce_high = []
-        g_mse_high = []
-        g_ssim_high = []
-        d_loss = []
-        logs = [g_ssim_low, g_mse_low, g_bce_high, g_mse_high, g_ssim_high]
+        g_ssim_low, g_mse_low = [[],[]]
+        g_bce_high, g_mse_high, g_ssim_high = [[],[],[]]
+        d_bce = []
+        g_ssim_l, g_mse_l, g_bce_h, g_mse_h, g_ssim_h = [0,0,0,0,0]
+        d_loss = 0
+        logs = [g_ssim_l, g_mse_l, g_bce_h, g_mse_h, g_ssim_h]
         for i, (low_m, high_m) in enumerate(dataset):
-            # if(generator_log_ssim_high.result().numpy() >= 0.016 or generator_log_mse_high.result().numpy() >= 0.016):
             if(epoch <= int(epochs/10.0)):
                 loss_weights = [0.0, 10.0, 0.0]
             else:
@@ -595,7 +593,11 @@ def fit(gen, dis, dataset, epochs, len_high_size,
                                                   loss_filter_high],
                                      loss_weights=loss_weights,
                                      opts=opts, train_logs=logs)
-
+            g_ssim_low.append(g_ssim_l)
+            g_mse_low.append(g_mse_l)
+            g_ssim_high.append(g_ssim_h)
+            g_mse_high.append(g_mse_h)
+            g_bce_high.append(g_bce_h)
             if(epoch % 10 > 5):
                 #Gen, Dis, imgl, imgr, loss_filter, opts, train_logs
                 train_step_discriminator(Gen=gen, Dis=dis,
@@ -605,7 +607,7 @@ def fit(gen, dis, dataset, epochs, len_high_size,
                                              high_m, tf.float32),
                                          loss_filter=[loss_filter_high],
                                          opts=[discriminator_optimizer], train_logs=[d_loss])
-
+            d_bce.append(d_loss)
         # save model weights as checkpoints
         if (epoch+10) % 50 == 0:
             gen.save_weights(os.path.join(
@@ -635,7 +637,7 @@ def fit(gen, dis, dataset, epochs, len_high_size,
         generator_log_ssim_high.update_state(g_ssim_high)
         generator_log_mse_high.update_state(g_mse_high)
         generator_log_bce_high.update_state(g_bce_high)
-        discriminator_log.update_state(d_loss)
+        discriminator_log.update_state(d_bce)
         valid_gen_log_h_bce.update_state(np.asarray(gen_h_bce))
         valid_gen_log_h_mse.update_state(np.asarray(gen_h_mse))
         valid_gen_log_h_ssim.update_state(np.asarray(gen_h_ssim))
