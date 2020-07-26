@@ -591,7 +591,7 @@ def fit(gen, dis, dataset, epochs, len_high_size,
                 train_step_generator(Gen=gen, Dis=dis,
                                      imgl=tf.dtypes.cast(low_m, tf.float32),
                                      imgr=tf.dtypes.cast(high_m, tf.float32),
-                                     loss_fitler=[loss_filter_low_x2, loss_filter_low_x4,
+                                     loss_filter=[loss_filter_low_x2, loss_filter_low_x4,
                                                   loss_filter_high],
                                      loss_weights=loss_weights,
                                      opts=opts, train_logs=logs)
