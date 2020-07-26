@@ -442,7 +442,7 @@ def _train_step_generator(Gen, Dis, imgl, imgr, loss_filter, loss_weights, opts,
     opts[1].apply_gradients(zip(gradients_of_generator_high, gen_high_v))
 
     # log losses
-    #train_logs[0] = loss_low_ssim
+    train_logs[0] = loss_low_ssim
     #train_logs[1] = loss_low_mse
     #train_logs[2] = loss_high_0
     #train_logs[3] = loss_high_1
@@ -593,7 +593,7 @@ def fit(gen, dis, dataset, epochs, len_high_size,
                                                   loss_filter_high],
                                      loss_weights=loss_weights,
                                      opts=opts, train_logs=logs)
-            #g_ssim_low.append(g_ssim_l)
+            g_ssim_low.append(g_ssim_l)
             #g_mse_low.append(g_mse_l)
             #g_ssim_high.append(g_ssim_h)
             #g_mse_high.append(g_mse_h)
@@ -626,7 +626,7 @@ def fit(gen, dis, dataset, epochs, len_high_size,
             mfilter_high = tf.cast(mfilter_high, tf.float32)
             fake_hic_h = tf.multiply(dph, mfilter_high)
             imgr_filter = tf.multiply(high_m, mfilter_high)
-            disc_generated_output = Dis(fake_hic_h, training=False)
+            disc_generated_output = dis(fake_hic_h, training=False)
             gen_h_bce.append(generator_bce_loss(disc_generated_output))
             gen_h_mse.append(generator_mse_loss(fake_hic_h, imgr_filter))
             gen_h_ssim.append(generator_ssim_loss(fake_hic_h, imgr_filter))
