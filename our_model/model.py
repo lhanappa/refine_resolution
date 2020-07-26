@@ -579,7 +579,7 @@ def fit(gen, dis, dataset, epochs, len_high_size,
                 loss_weights = [0.0, 10.0, 0.0]
             else:
                 loss_weights = [0.3, 10.0, 0.0]
-
+            n_batch = low_m.numpy().shape[0]
             if(epoch % 10 <= 5):
                 g_ssim_l, g_mse_l, g_bce_h, g_mse_h, g_ssim_h = train_step_generator(Gen=gen, Dis=dis,
                                                                                      imgl=tf.dtypes.cast(
@@ -590,11 +590,11 @@ def fit(gen, dis, dataset, epochs, len_high_size,
                                                                                                   loss_filter_high],
                                                                                      loss_weights=loss_weights,
                                                                                      opts=opts)
-                g_ssim_low.append(g_ssim_l)
-                g_mse_low.append(g_mse_l)
-                g_ssim_high.append(g_ssim_h)
-                g_mse_high.append(g_mse_h)
-                g_bce_high.append(g_bce_h)
+                g_ssim_low.append(g_ssim_l/n_batch)
+                g_mse_low.append(g_mse_l/n_batch)
+                g_ssim_high.append(g_ssim_h/n_batch)
+                g_mse_high.append(g_mse_h/n_batch)
+                g_bce_high.append(g_bce_h/n_batch)
             if(epoch % 10 > 5):
                 # Gen, Dis, imgl, imgr, loss_filter, opts, train_logs
                 d_loss = train_step_discriminator(Gen=gen, Dis=dis,
@@ -605,7 +605,7 @@ def fit(gen, dis, dataset, epochs, len_high_size,
                                                   loss_filter=[
                                                       loss_filter_high],
                                                   opts=[discriminator_optimizer])
-                d_bce.append(d_loss)
+                d_bce.append(d_loss/n_batch)
         # save model weights as checkpoints
         if (epoch+10) % 50 == 0:
             gen.save_weights(os.path.join(
@@ -619,6 +619,7 @@ def fit(gen, dis, dataset, epochs, len_high_size,
             gen_h_mse = []
             gen_h_ssim = []
             for i, (low_m, high_m) in enumerate(valid_dataset):
+                n_batch = low_m.numpy().shape[0]
                 [dpl_x2, dpl_x4, dph, _, _] = gen(low_m, training=False)
                 mfilter_high = tf.expand_dims(loss_filter_high, axis=0)
                 mfilter_high = tf.expand_dims(mfilter_high, axis=-1)
@@ -626,9 +627,10 @@ def fit(gen, dis, dataset, epochs, len_high_size,
                 fake_hic_h = tf.multiply(dph, mfilter_high)
                 imgr_filter = tf.multiply(high_m, mfilter_high)
                 disc_generated_output = dis(fake_hic_h, training=False)
-                gen_h_bce.append(generator_bce_loss(disc_generated_output))
-                gen_h_mse.append(generator_mse_loss(fake_hic_h, imgr_filter))
-                gen_h_ssim.append(generator_ssim_loss(fake_hic_h, imgr_filter))
+
+                gen_h_bce.append(generator_bce_loss(disc_generated_output)/n_batch)
+                gen_h_mse.append(generator_mse_loss(fake_hic_h, imgr_filter)/n_batch)
+                gen_h_ssim.append(generator_ssim_loss(fake_hic_h, imgr_filter)/n_batch)
 
         # log the loss and metrics
         generator_log_ssim_low.update_state(g_ssim_low)
