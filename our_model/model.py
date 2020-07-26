@@ -442,11 +442,11 @@ def _train_step_generator(Gen, Dis, imgl, imgr, loss_filter, loss_weights, opts,
     opts[1].apply_gradients(zip(gradients_of_generator_high, gen_high_v))
 
     # log losses
-    train_logs[0].append(loss_low_ssim)
-    train_logs[1].append(loss_low_mse)
-    train_logs[2].append(loss_high_0)
-    train_logs[3].append(loss_high_1)
-    train_logs[4].append(loss_high_2)
+    train_logs[0] = loss_low_ssim
+    train_logs[1] = loss_low_mse
+    train_logs[2] = loss_high_0
+    train_logs[3] = loss_high_1
+    train_logs[4] = loss_high_2
 
 
 # @tf.function
@@ -469,7 +469,7 @@ def _train_step_discriminator(Gen, Dis, imgl, imgr, loss_filter, opts, train_log
     discriminator_gradients = disc_tape.gradient(loss, Dis.trainable_variables)
     opts[0].apply_gradients(
         zip(discriminator_gradients, Dis.trainable_variables))
-    train_logs[0].append(loss)
+    train_logs[0] = loss
 
 
 @tf.function
