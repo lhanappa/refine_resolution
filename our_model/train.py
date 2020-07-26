@@ -23,6 +23,8 @@ tf.keras.backend.set_floatx('float32')
 # data from ftp://cooler.csail.mit.edu/coolers/hg19/
 
 def run(train_data, valid_data, len_size, scale, EPOCHS, root_path='./', load_model_dir=None, saved_model_dir=None, log_dir=None, summary=False):
+    if log_dir is None:
+        log_dir = os.path.join(root_path, 'our_model', 'logs', 'model')
     logging.basicConfig(filename=os.path.join(log_dir, 'training.log'), level=logging.INFO)
     # get generator model and discriminator model
     Gen = model.make_generator_model(len_high_size=len_size, scale=scale)
@@ -46,8 +48,6 @@ def run(train_data, valid_data, len_size, scale, EPOCHS, root_path='./', load_mo
         logging.info(Dis.summary())
         tf.keras.utils.plot_model(Dis, to_file='D.png', show_shapes=True)
 
-    if log_dir is None:
-        log_dir = os.path.join(root_path, 'our_model', 'logs', 'model')
     if saved_model_dir is None:
         saved_model_dir = os.path.join(root_path, 'our_model', 'saved_model')
     model.fit(Gen, Dis, train_data, EPOCHS, len_size, scale,
