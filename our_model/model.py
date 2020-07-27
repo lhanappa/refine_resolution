@@ -358,14 +358,14 @@ def generator_bce_loss(d_pred):
 
 
 def generator_ssim_loss(y_pred, y_true):  # , m_filter):
-    return tf.reduce_sum((1 - tf.image.ssim(y_pred, y_true, max_val=1.0, filter_size=11))/2.0)
+    return tf.reduce_mean((1 - tf.image.ssim(y_pred, y_true, max_val=1.0, filter_size=11))/2.0)
 
 
 def generator_mse_loss(y_pred, y_true):  # , m_filter):
     mse = tf.keras.losses.MeanSquaredError(reduction=tf.keras.losses.Reduction.NONE)
     diff = mse(y_pred, y_true)
-    diff = tf.reduce_mean(diff, [1,2])
-    diff = tf.reduce_sum(diff)
+    diff = tf.reduce_sum(diff, [1,2])
+    diff = tf.reduce_mean(diff)
     return diff
 
 
@@ -571,12 +571,14 @@ def fit(gen, dis, dataset, epochs, len_high_size,
     for epoch in range(epochs):
         start = time.time()
         # train
-        generator_log_ssim_low.reset_states()
-        generator_log_mse_low.reset_states()
-        generator_log_ssim_high.reset_states()
-        generator_log_mse_high.reset_states()
-        generator_log_bce_high.reset_states()
-        discriminator_log.reset_states()
+        if(epoch % 10 <= 5):
+            generator_log_ssim_low.reset_states()
+            generator_log_mse_low.reset_states()
+            generator_log_ssim_high.reset_states()
+            generator_log_mse_high.reset_states()
+            generator_log_bce_high.reset_states()
+        if(epoch % 10 > 5):
+            discriminator_log.reset_states()
         for i, (low_m, high_m) in enumerate(dataset):
             if(epoch <= int(epochs/10.0)):
                 loss_weights = [0.0, 10.0, 0.0]
@@ -594,11 +596,11 @@ def fit(gen, dis, dataset, epochs, len_high_size,
                                                       loss_filter_high],
                                          loss_weights=loss_weights,
                                          opts=opts)
-                generator_log_ssim_low.update_state(g_ssim_l/n_batch)
-                generator_log_mse_low.update_state(g_mse_l/n_batch)
-                generator_log_ssim_high.update_state(g_ssim_h/n_batch)
-                generator_log_mse_high.update_state(g_mse_h/n_batch)
-                generator_log_bce_high.update_state(g_bce_h/n_batch)
+                generator_log_ssim_low.update_state(g_ssim_l)
+                generator_log_mse_low.update_state(g_mse_l)
+                generator_log_ssim_high.update_state(g_ssim_h)
+                generator_log_mse_high.update_state(g_mse_h)
+                generator_log_bce_high.update_state(g_bce_h)
             if(epoch % 10 > 5):
                 # Gen, Dis, imgl, imgr, loss_filter, opts, train_logs
                 d_loss = train_step_discriminator(Gen=gen, Dis=dis,
@@ -609,7 +611,7 @@ def fit(gen, dis, dataset, epochs, len_high_size,
                                                   loss_filter=[
                                                       loss_filter_high],
                                                   opts=[discriminator_optimizer])
-                discriminator_log.update_state(d_loss/n_batch)
+                discriminator_log.update_state(d_loss)
 
         # save model weights as checkpoints
         if (epoch+10) % 50 == 0:
