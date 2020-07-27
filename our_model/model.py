@@ -362,8 +362,10 @@ def generator_ssim_loss(y_pred, y_true):  # , m_filter):
 
 
 def generator_mse_loss(y_pred, y_true):  # , m_filter):
-    mse = tf.keras.losses.MeanSquaredError(reduction=tf.keras.losses.Reduction.SUM)
+    mse = tf.keras.losses.MeanSquaredError(reduction=tf.keras.losses.Reduction.NONE)
     diff = mse(y_pred, y_true)
+    diff = tf.reduce_mean(diff, [1,2,3])
+    diff = tf.reduce_sum(diff)
     return diff
 
 
@@ -532,7 +534,8 @@ def fit(gen, dis, dataset, epochs, len_high_size,
                                 step=0, profiler_outdir=train_log_dir)
 
     with demo_writer.as_default():
-        [_, (demo_input_low, demo_input_high)] = next(enumerate(dataset.take(1)))
+        [_, (demo_input_low, demo_input_high)] = next(
+            enumerate(dataset.take(1)))
         mpy = demo_input_low.numpy()
         m = np.log1p(1000*np.squeeze(mpy[:, :, :, 0]))
         fig = plot_matrix(m)
@@ -568,12 +571,12 @@ def fit(gen, dis, dataset, epochs, len_high_size,
     for epoch in range(epochs):
         start = time.time()
         # train
-        g_ssim_low, g_mse_low = [[], []]
-        g_bce_high, g_mse_high, g_ssim_high = [[], [], []]
-        d_bce = []
-        g_ssim_l, g_mse_l, g_bce_h, g_mse_h, g_ssim_h = 0, 0, 0, 0, 0
-        d_loss = 0
-        logs = [g_ssim_l, g_mse_l, g_bce_h, g_mse_h, g_ssim_h]
+        generator_log_ssim_low.reset_states()
+        generator_log_mse_low.reset_states()
+        generator_log_ssim_high.reset_states()
+        generator_log_mse_high.reset_states()
+        generator_log_bce_high.reset_states()
+        discriminator_log.reset_states()
         for i, (low_m, high_m) in enumerate(dataset):
             if(epoch <= int(epochs/10.0)):
                 loss_weights = [0.0, 10.0, 0.0]
@@ -581,20 +584,21 @@ def fit(gen, dis, dataset, epochs, len_high_size,
                 loss_weights = [0.3, 10.0, 0.0]
             n_batch = low_m.numpy().shape[0]
             if(epoch % 10 <= 5):
-                g_ssim_l, g_mse_l, g_bce_h, g_mse_h, g_ssim_h = train_step_generator(Gen=gen, Dis=dis,
-                                                                                     imgl=tf.dtypes.cast(
-                                                                                         low_m, tf.float32),
-                                                                                     imgr=tf.dtypes.cast(
-                                                                                         high_m, tf.float32),
-                                                                                     loss_filter=[loss_filter_low_x2, loss_filter_low_x4,
-                                                                                                  loss_filter_high],
-                                                                                     loss_weights=loss_weights,
-                                                                                     opts=opts)
-                g_ssim_low.append(g_ssim_l/n_batch)
-                g_mse_low.append(g_mse_l/n_batch)
-                g_ssim_high.append(g_ssim_h/n_batch)
-                g_mse_high.append(g_mse_h/n_batch)
-                g_bce_high.append(g_bce_h/n_batch)
+                g_ssim_l, g_mse_l, g_bce_h, g_mse_h, g_ssim_h = \
+                    train_step_generator(Gen=gen, Dis=dis,
+                                         imgl=tf.dtypes.cast(
+                                             low_m, tf.float32),
+                                         imgr=tf.dtypes.cast(
+                                             high_m, tf.float32),
+                                         loss_filter=[loss_filter_low_x2, loss_filter_low_x4,
+                                                      loss_filter_high],
+                                         loss_weights=loss_weights,
+                                         opts=opts)
+                generator_log_ssim_low.update_state(g_ssim_l/n_batch)
+                generator_log_mse_low.update_state(g_mse_l/n_batch)
+                generator_log_ssim_high.update_state(g_ssim_h/n_batch)
+                generator_log_mse_high.update_state(g_mse_h/n_batch)
+                generator_log_bce_high.update_state(g_bce_h/n_batch)
             if(epoch % 10 > 5):
                 # Gen, Dis, imgl, imgr, loss_filter, opts, train_logs
                 d_loss = train_step_discriminator(Gen=gen, Dis=dis,
@@ -605,7 +609,8 @@ def fit(gen, dis, dataset, epochs, len_high_size,
                                                   loss_filter=[
                                                       loss_filter_high],
                                                   opts=[discriminator_optimizer])
-                d_bce.append(d_loss/n_batch)
+                discriminator_log.update_state(d_loss/n_batch)
+
         # save model weights as checkpoints
         if (epoch+10) % 50 == 0:
             gen.save_weights(os.path.join(
@@ -615,9 +620,9 @@ def fit(gen, dis, dataset, epochs, len_high_size,
 
         # valid dataset
         if valid_dataset is not None:
-            gen_h_bce = []
-            gen_h_mse = []
-            gen_h_ssim = []
+            valid_gen_log_h_bce.reset_states()
+            valid_gen_log_h_mse.reset_states()
+            valid_gen_log_h_ssim.reset_states()
             for i, (low_m, high_m) in enumerate(valid_dataset):
                 n_batch = low_m.numpy().shape[0]
                 [dpl_x2, dpl_x4, dph, _, _] = gen(low_m, training=False)
@@ -628,21 +633,10 @@ def fit(gen, dis, dataset, epochs, len_high_size,
                 imgr_filter = tf.multiply(high_m, mfilter_high)
                 disc_generated_output = dis(fake_hic_h, training=False)
 
-                gen_h_bce.append(generator_bce_loss(disc_generated_output)/n_batch)
-                gen_h_mse.append(generator_mse_loss(fake_hic_h, imgr_filter)/n_batch)
-                gen_h_ssim.append(generator_ssim_loss(fake_hic_h, imgr_filter)/n_batch)
+                valid_gen_log_h_bce.update_state(generator_bce_loss(disc_generated_output)/n_batch)
+                valid_gen_log_h_mse.update_state(generator_mse_loss(fake_hic_h, imgr_filter)/n_batch)
+                valid_gen_log_h_ssim.update_state(generator_ssim_loss(fake_hic_h, imgr_filter)/n_batch)
 
-        # log the loss and metrics
-        generator_log_ssim_low.update_state(g_ssim_low)
-        generator_log_mse_low.update_state(g_mse_low)
-        generator_log_ssim_high.update_state(g_ssim_high)
-        generator_log_mse_high.update_state(g_mse_high)
-        generator_log_bce_high.update_state(g_bce_high)
-        discriminator_log.update_state(d_bce)
-        if valid_dataset is not None:
-            valid_gen_log_h_bce.update_state(np.asarray(gen_h_bce))
-            valid_gen_log_h_mse.update_state(np.asarray(gen_h_mse))
-            valid_gen_log_h_ssim.update_state(np.asarray(gen_h_ssim))
 
         [dpl_x2, dpl_x4, dph, _, _] = gen(demo_input_low, training=False)
         demo_disc_generated = dis(dph, training=False)
