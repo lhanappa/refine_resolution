@@ -80,7 +80,8 @@ def gethic_data(chr_list, data_path, input_path, input_file):
     hic_lr = None
     for hr_file in hr_file_list:
         lr_file = hr_file.replace('HR', 'LR')
-        print(hr_file, lr_file)
+        logging.info(hr_file)
+        logging.info(lr_file)
         if (not os.path.exists(hr_file)) or (not os.path.exists(lr_file)):
             continue
         with np.load(hr_file, allow_pickle=True) as data:
