@@ -125,8 +125,8 @@ if __name__ == '__main__':
         train_chr_list, data_path, input_path, input_file)
     hic_lr = np.asarray(hic_lr).astype(np.float32)
     hic_hr = np.asarray(hic_hr).astype(np.float32)
-    logging.info("train hic_lr shape: ", hic_lr.shape)
-    logging.info("train hic_hr shape: ", hic_hr.shape)
+    logging.info("train hic_lr shape: {}".format(hic_lr.shape))
+    logging.info("train hic_hr shape: {}".format(hic_hr.shape))
     train_data = tf.data.Dataset.from_tensor_slices(
         (hic_lr[..., np.newaxis], hic_hr[..., np.newaxis])).batch(BATCH_SIZE)
 
@@ -134,8 +134,8 @@ if __name__ == '__main__':
         valid_chr_list, data_path, input_path, input_file)
     hic_lr = np.asarray(hic_lr).astype(np.float32)
     hic_hr = np.asarray(hic_hr).astype(np.float32)
-    logging.info("valid hic_lr shape: ", hic_lr.shape)
-    logging.info("valid hic_hr shape: ", hic_hr.shape)
+    logging.info("valid hic_lr shape: {}".format(hic_lr.shape))
+    logging.info("valid hic_hr shape: {}".format(hic_hr.shape))
     valid_data = tf.data.Dataset.from_tensor_slices(
         (hic_lr[..., np.newaxis], hic_hr[..., np.newaxis])).batch(BATCH_SIZE)
 
