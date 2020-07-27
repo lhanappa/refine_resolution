@@ -75,7 +75,8 @@ def gethic_data(chr_list, data_path, input_path, input_file):
                 pathfile = os.path.join(path, file)
                 hr_file_list.append(pathfile)
     hr_file_list.sort()
-
+    logging.info("chromosomes list: {}".format(chr_list))
+    logging.info("files list: {}".format(hr_file_list))
     hic_hr = None
     hic_lr = None
     for hr_file in hr_file_list:
