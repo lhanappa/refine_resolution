@@ -64,12 +64,12 @@ def run(train_data, valid_data, len_size, scale, EPOCHS, root_path='./', load_mo
 
 
 def gethic_data(chr_list, data_path, input_path, input_file):
+    hr_file_list = []
     for chri in chr_list:
         path = os.path.join(data_path, input_path,
                             input_file, 'HR', 'chr'+chri)
         if not os.path.exists(path):
             continue
-        hr_file_list = []
         for file in os.listdir(path):
             if file.endswith(".npz"):
                 pathfile = os.path.join(path, file)
@@ -120,7 +120,7 @@ if __name__ == '__main__':
     # ['1', '2', '3', '4', '5','6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16']
     # ['17', '18']
     # ['19', '20', '21', '22', 'X']
-    train_chr_list = ['15', '16']#['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16']
+    train_chr_list = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16']
     valid_chr_list = ['17', '18']
 
     hic_hr, hic_lr = gethic_data(
