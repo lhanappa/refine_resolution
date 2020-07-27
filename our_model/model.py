@@ -583,7 +583,7 @@ def fit(gen, dis, dataset, epochs, len_high_size,
             if(epoch <= int(epochs/10.0)):
                 loss_weights = [0.0, 10.0, 0.0]
             else:
-                loss_weights = [0.3, 10.0, 0.0]
+                loss_weights = [1.0, 10.0, 0.0]
             n_batch = low_m.numpy().shape[0]
             if(epoch % 10 <= 5):
                 g_ssim_l, g_mse_l, g_bce_h, g_mse_h, g_ssim_h = \
@@ -635,9 +635,9 @@ def fit(gen, dis, dataset, epochs, len_high_size,
                 imgr_filter = tf.multiply(high_m, mfilter_high)
                 disc_generated_output = dis(fake_hic_h, training=False)
 
-                valid_gen_log_h_bce.update_state(generator_bce_loss(disc_generated_output)/n_batch)
-                valid_gen_log_h_mse.update_state(generator_mse_loss(fake_hic_h, imgr_filter)/n_batch)
-                valid_gen_log_h_ssim.update_state(generator_ssim_loss(fake_hic_h, imgr_filter)/n_batch)
+                valid_gen_log_h_bce.update_state(generator_bce_loss(disc_generated_output))
+                valid_gen_log_h_mse.update_state(generator_mse_loss(fake_hic_h, imgr_filter))
+                valid_gen_log_h_ssim.update_state(generator_ssim_loss(fake_hic_h, imgr_filter))
 
 
         [dpl_x2, dpl_x4, dph, _, _] = gen(demo_input_low, training=False)
