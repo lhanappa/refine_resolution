@@ -25,7 +25,6 @@ tf.keras.backend.set_floatx('float32')
 def run(train_data, valid_data, len_size, scale, EPOCHS, root_path='./', load_model_dir=None, saved_model_dir=None, log_dir=None, summary=False):
     if log_dir is None:
         log_dir = os.path.join(root_path, 'our_model', 'logs', 'model')
-    logging.basicConfig(filename=os.path.join(log_dir, 'training.log'), level=logging.INFO)
     logging.info(train_data)
     logging.info(valid_data)
     # get generator model and discriminator model
@@ -107,14 +106,14 @@ if __name__ == '__main__':
     BATCH_SIZE = 9
     root_path = redircwd_back_projroot(project_name='refine_resolution')
     data_path = os.path.join(root_path, 'data')
-    #raw_path = 'raw'
     raw_hic = 'Rao2014-GM12878-DpnII-allreps-filtered.10kb.cool'
     input_path = '_'.join(
         ['input', 'ours', str(genomic_distance), str(len_size)])
     input_file = raw_hic.split(
         '-')[0] + '_' + raw_hic.split('-')[1] + '_' + raw_hic.split('.')[1]
-    #output_path = 'output'
-    #output_file = input_file
+
+    log_dir = os.path.join(root_path, 'our_model', 'logs', 'model')
+    logging.basicConfig(filename=os.path.join(log_dir, 'training.log'), level=logging.INFO)
 
     # ['1', '2', '3', '4', '5','6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16']
     # ['17', '18']
@@ -126,7 +125,8 @@ if __name__ == '__main__':
         train_chr_list, data_path, input_path, input_file)
     hic_lr = np.asarray(hic_lr).astype(np.float32)
     hic_hr = np.asarray(hic_hr).astype(np.float32)
-
+    logging.info("train hic_lr shape: ", hic_lr.shape)
+    logging.info("train hic_hr shape: ", hic_hr.shape)
     train_data = tf.data.Dataset.from_tensor_slices(
         (hic_lr[..., np.newaxis], hic_hr[..., np.newaxis])).batch(BATCH_SIZE)
 
@@ -134,7 +134,8 @@ if __name__ == '__main__':
         valid_chr_list, data_path, input_path, input_file)
     hic_lr = np.asarray(hic_lr).astype(np.float32)
     hic_hr = np.asarray(hic_hr).astype(np.float32)
-
+    logging.info("valid hic_lr shape: ", hic_lr.shape)
+    logging.info("valid hic_hr shape: ", hic_hr.shape)
     valid_data = tf.data.Dataset.from_tensor_slices(
         (hic_lr[..., np.newaxis], hic_hr[..., np.newaxis])).batch(BATCH_SIZE)
 
