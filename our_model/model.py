@@ -364,7 +364,7 @@ def generator_ssim_loss(y_pred, y_true):  # , m_filter):
 def generator_mse_loss(y_pred, y_true):  # , m_filter):
     mse = tf.keras.losses.MeanSquaredError(reduction=tf.keras.losses.Reduction.NONE)
     diff = mse(y_pred, y_true)
-    diff = tf.reduce_mean(diff, [1,2,3])
+    diff = tf.reduce_mean(diff, [1,2])
     diff = tf.reduce_sum(diff)
     return diff
 
