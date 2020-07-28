@@ -571,47 +571,46 @@ def fit(gen, dis, dataset, epochs, len_high_size,
     for epoch in range(epochs):
         start = time.time()
         # train
-        if(epoch % 10 <= 5):
-            generator_log_ssim_low.reset_states()
-            generator_log_mse_low.reset_states()
-            generator_log_ssim_high.reset_states()
-            generator_log_mse_high.reset_states()
-            generator_log_bce_high.reset_states()
-        if(epoch % 10 > 5):
-            discriminator_log.reset_states()
+
+        generator_log_ssim_low.reset_states()
+        generator_log_mse_low.reset_states()
+        generator_log_ssim_high.reset_states()
+        generator_log_mse_high.reset_states()
+        generator_log_bce_high.reset_states()
+
+        discriminator_log.reset_states()
         for i, (low_m, high_m) in enumerate(dataset):
-            if(epoch <= int(epochs/10.0)):
+            if(epoch <= int(40)):
                 loss_weights = [0.0, 10.0, 0.0]
             else:
                 loss_weights = [1.0, 10.0, 0.0]
-            n_batch = low_m.numpy().shape[0]
-            if(epoch % 10 <= 5):
-                g_ssim_l, g_mse_l, g_bce_h, g_mse_h, g_ssim_h = \
-                    train_step_generator(Gen=gen, Dis=dis,
-                                         imgl=tf.dtypes.cast(
-                                             low_m, tf.float32),
-                                         imgr=tf.dtypes.cast(
-                                             high_m, tf.float32),
-                                         loss_filter=[loss_filter_low_x2, loss_filter_low_x4,
-                                                      loss_filter_high],
-                                         loss_weights=loss_weights,
-                                         opts=opts)
-                generator_log_ssim_low.update_state(g_ssim_l)
-                generator_log_mse_low.update_state(g_mse_l)
-                generator_log_ssim_high.update_state(g_ssim_h)
-                generator_log_mse_high.update_state(g_mse_h)
-                generator_log_bce_high.update_state(g_bce_h)
-            if(epoch % 10 > 5):
-                # Gen, Dis, imgl, imgr, loss_filter, opts, train_logs
-                d_loss = train_step_discriminator(Gen=gen, Dis=dis,
-                                                  imgl=tf.dtypes.cast(
-                                                      low_m, tf.float32),
-                                                  imgr=tf.dtypes.cast(
-                                                      high_m, tf.float32),
-                                                  loss_filter=[
-                                                      loss_filter_high],
-                                                  opts=[discriminator_optimizer])
-                discriminator_log.update_state(d_loss)
+
+            g_ssim_l, g_mse_l, g_bce_h, g_mse_h, g_ssim_h = \
+                train_step_generator(Gen=gen, Dis=dis,
+                                        imgl=tf.dtypes.cast(
+                                            low_m, tf.float32),
+                                        imgr=tf.dtypes.cast(
+                                            high_m, tf.float32),
+                                        loss_filter=[loss_filter_low_x2, loss_filter_low_x4,
+                                                    loss_filter_high],
+                                        loss_weights=loss_weights,
+                                        opts=opts)
+            generator_log_ssim_low.update_state(g_ssim_l)
+            generator_log_mse_low.update_state(g_mse_l)
+            generator_log_ssim_high.update_state(g_ssim_h)
+            generator_log_mse_high.update_state(g_mse_h)
+            generator_log_bce_high.update_state(g_bce_h)
+
+            # Gen, Dis, imgl, imgr, loss_filter, opts, train_logs
+            d_loss = train_step_discriminator(Gen=gen, Dis=dis,
+                                                imgl=tf.dtypes.cast(
+                                                    low_m, tf.float32),
+                                                imgr=tf.dtypes.cast(
+                                                    high_m, tf.float32),
+                                                loss_filter=[
+                                                    loss_filter_high],
+                                                opts=[discriminator_optimizer])
+            discriminator_log.update_state(d_loss)
 
         # save model weights as checkpoints
         if (epoch+10) % 50 == 0:
@@ -626,7 +625,6 @@ def fit(gen, dis, dataset, epochs, len_high_size,
             valid_gen_log_h_mse.reset_states()
             valid_gen_log_h_ssim.reset_states()
             for i, (low_m, high_m) in enumerate(valid_dataset):
-                n_batch = low_m.numpy().shape[0]
                 [dpl_x2, dpl_x4, dph, _, _] = gen(low_m, training=False)
                 mfilter_high = tf.expand_dims(loss_filter_high, axis=0)
                 mfilter_high = tf.expand_dims(mfilter_high, axis=-1)
@@ -692,13 +690,13 @@ def fit(gen, dis, dataset, epochs, len_high_size,
             image = plot_to_image(fig)
             tf.summary.image(name='dis_true', data=image, step=epoch)
         if valid_dataset is not None:
-            logging.info('Time for epoch {} is {} sec. [Training, mse: {:.6f}, dis-ssim {:.6f} ][Valid, mse: {:.6f}, dis-ssim: {:.6f}]'.format(
-                epoch + 1, time.time()-start,
+            logging.info('Time for epoch [{}/{}] is {:.2f} sec. [Training, mse: {:.6f}, dis-ssim {:.6f} ][Valid, mse: {:.6f}, dis-ssim: {:.6f}]'.format(
+                epoch + 1, epochs, time.time()-start,
                 generator_log_mse_high.result(), generator_log_ssim_high.result(),
                 valid_gen_log_h_mse.result(), valid_gen_log_h_ssim.result()))
         else:
-            logging.info('Time for epoch {} is {} sec. [Training, mse: {:.6f}, dis-ssim {:.6f} ]'.format(
-                epoch + 1, time.time()-start,
+            logging.info('Time for epoch [{}/{}] is {:.2f} sec. [Training, mse: {:.6f}, dis-ssim {:.6f} ]'.format(
+                epoch + 1, epochs, time.time()-start,
                 generator_log_mse_high.result(), generator_log_ssim_high.result()))
 
 
