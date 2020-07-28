@@ -583,7 +583,7 @@ def fit(gen, dis, dataset, epochs, len_high_size,
             if(epoch <= int(40)):
                 loss_weights = [0.0, 10.0, 0.0]
             else:
-                loss_weights = [1.0, 10.0, 0.0]
+                loss_weights = [0.3, 10.0, 0.0]
 
             g_ssim_l, g_mse_l, g_bce_h, g_mse_h, g_ssim_h = \
                 train_step_generator(Gen=gen, Dis=dis,
