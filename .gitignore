@@ -15,3 +15,6 @@ data/*
 .Rhistory
 draft.drawio
 try.py
+software/__pycache__/prepare_hicsr.cpython-37.pyc
+software/__pycache__/wrapper_hicsr.cpython-37.pyc
+software/__pycache__/utils.cpython-37.pyc

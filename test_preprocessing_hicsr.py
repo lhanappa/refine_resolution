@@ -33,13 +33,13 @@ valid_list = ['17', '18', '22']
  script_work_dir, train_path, train_list, valid_path, valid_list, predict_path, predict_list] = configure_hicsr()
 
 
-prepare_hicsr.run(raw_hic=raw_hic,
+"""prepare_hicsr.run(raw_hic=raw_hic,
                   chromosome_list=chr_list,
                   genomic_distance=genomic_distance,
                   lr_size=lr_size,
                   hr_size=hr_size,
                   downsample_factor=downsample_factor
-                  )
+                  )"""
 
 # python preprocessing.py --input input_samples/ --output preprocessing_output/ --normalize 1
 # input_samples/ --> input_hicsr_2000000_200/Rao2014_GM12878_10kb/
