@@ -44,7 +44,12 @@ def configure_hicsr():
         os.makedirs(valid_path, exist_ok=True)
     valid_list = ['17', '18']
 
+    predict_path = os.path.join(input_path, 'predict')
+    if not os.path.exists(predict_path):
+        os.makedirs(predict_path, exist_ok=True)
+    predict_list = ['19', '20', '21', '22', 'X']
+
     return raw_hic, genomic_distance, lr_size, hr_size, downsample_factor, \
         root_dir, experiment_name, preprocessing_chr_list, input_path, \
         preprocessing_output_path, script_work_dir, train_path, train_list, \
-        valid_path, valid_list
+        valid_path, valid_list, predict_path, predict_list

@@ -30,7 +30,7 @@ valid_list = ['17', '18', '22']
 
 [raw_hic, genomic_distance, lr_size, hr_size, downsample_factor,
  root_dir, experiment_name, chr_list, input_path, preprocessing_output_path,
- script_work_dir, train_path, train_list, valid_path, valid_list] = configure_hicsr()
+ script_work_dir, train_path, train_list, valid_path, valid_list, predict_path, predict_list] = configure_hicsr()
 
 # training model
 # python train.py --data_fp preprocessing_output/HiCSR_dataset/samples/ --model HiCSR --experiment test_HiCSR
@@ -46,6 +46,9 @@ cmd = ["python", "train.py", "--data_fp", data_fp, "--model",
        model_hicsr, "--experiment", "HiCSR"]
 process = subprocess.run(cmd, cwd=script_work_dir)
 
-# model saved in: software/HiCSR/experiments/[test_HiCSR/]
-# predict data
-# python predict.py --input preprocessing_output/normalized/lr/ --output HiCSR_predictions/ --model_type HiCSR --model_fp pretrained_models/HiCSR.pth
+# model saved in: software/HiCSR/experiments/[HiCSR/]
+# move to '[dir]/software/HiCSR/experiments/*'
+cmd = ["cp", "-r", "./experiments/*", os.path.join(input_path, 'model')]
+process = subprocess.run(cmd, cwd=script_work_dir)
+
+

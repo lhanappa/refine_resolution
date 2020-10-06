@@ -30,7 +30,7 @@ valid_list = ['17', '18', '22']
 """
 [raw_hic, genomic_distance, lr_size, hr_size, downsample_factor,
  root_dir, experiment_name, chr_list, input_path, preprocessing_output_path,
- script_work_dir, train_path, train_list, valid_path, valid_list] = configure_hicsr()
+ script_work_dir, train_path, train_list, valid_path, valid_list, predict_path, predict_list] = configure_hicsr()
 
 
 prepare_hicsr.run(raw_hic=raw_hic,
@@ -47,22 +47,30 @@ prepare_hicsr.run(raw_hic=raw_hic,
 # These sample matrices are stored in the input_samples directory, where each sample has the following naming convention
 # <chromosome>-<cell_type>-<downsample_factor>-<file_tag>.txt.gz
 
-if os.path.exists(preprocessing_output_path):
+"""if os.path.exists(preprocessing_output_path):
     shutil.rmtree(preprocessing_output_path)
 script = "preprocessing.py"
 cmd = ["python", script, "--input", input_path,
        "--output", preprocessing_output_path, "--normalize", "1", "--input_size", str(lr_size), "--output_size", str(hr_size)]
 print(' '.join(cmd))
-process = subprocess.run(cmd, cwd=script_work_dir)
+process = subprocess.run(cmd, cwd=script_work_dir)"""
 
 
 # move train and valid data to cp_path
 cp_path = os.path.join(preprocessing_output_path, 'HiCSR_dataset', 'samples')
 for chro in chr_list:
-    file = 'chr'+chro+'-GM12878-HiCSR-dataset-normalized-samples.npz'
+    file = 'chr' + chro + '-GM12878-HiCSR-dataset-normalized-samples.npz'
     if chro in train_list:
         subprocess.run(["cp", os.path.join(cp_path, file),
                         os.path.join(train_path, file)])
     if chro in valid_list:
         subprocess.run(["cp", os.path.join(cp_path, file),
                         os.path.join(valid_path, file)])
+
+# move predict 'txt' file to cp_path
+cp_path = os.path.join(preprocessing_output_path, 'normalized')
+for chro in chr_list:
+    file = 'chr' + chro + '-GM12878-16-norm.txt.gz'
+    if chro in predict_list:
+        subprocess.run(["cp", os.path.join(cp_path, file),
+                        os.path.join(predict_path, file)])
