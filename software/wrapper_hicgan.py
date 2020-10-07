@@ -48,10 +48,15 @@ def configure_hicgan():
         os.makedirs(valid_path, exist_ok=True)
     valid_list = ['17', '18']
 
+    predict_path = os.path.join(input_path, 'predict')
+    if not os.path.exists(predict_path):
+        os.makedirs(predict_path, exist_ok=True)
+    predict_list = ['19', '20', '21', '22', 'X']
+
     return raw_hic, genomic_distance, lr_size, hr_size, downsample_factor, \
         root_dir, experiment_name, preprocessing_chr_list, input_path, \
         preprocessing_output_path, script_work_dir, train_path, train_list, \
-        valid_path, valid_list
+        valid_path, valid_list, predict_path, predict_list
 
 
 # python data_generate.py -hr 10kb -lr 40kb -s all -chunk 40 -stride 40 -bound 201 -scale 1 -c GM12878
@@ -98,9 +103,14 @@ def generate(input_lr_dir, input_hr_dir, output_dir,
     data = np.transpose(data, axes=(0,2,3,1))
     target = np.concatenate([r.get()[2] for r in results])
     target = np.transpose(target, axes=(0,2,3,1))
+    inds = np.concatenate([r.get()[3] for r in results])
+    sizes = {r.get()[0]: r.get()[4] for r in results}
+    compacts = {r.get()[0]: np.arange(r.get()[4]) for r in results}
+
     filename = f'hicgan_{high_res}{low_res}_c{chunk}_s{stride}_b{bound}_{postfix}.npz'
     hicgan_file = os.path.join(out_dir, filename)
-    np.savez_compressed(hicgan_file, lr_data=data, hr_data=target)
+    np.savez_compressed(hicgan_file, lr_data=data, hr_data=target,
+                        inds=inds, compacts=compacts, sizes=sizes)
     print('Saving file:', hicgan_file)
 
 
@@ -116,3 +126,14 @@ def train(train_dir, valid_dir, model_dir, lr, hr, chunk, stride, bound, num_epo
     train_dir = os.path.join(train_dir, f'hicgan_{resos}_c{chunk}_s{stride}_b{bound}_train.npz')
     valid_dir = os.path.join(valid_dir, f'hicgan_{resos}_c{chunk}_s{stride}_b{bound}_valid.npz')
     train_hicgan.train(train_dir, valid_dir, model_dir, num_epochs=num_epochs)
+
+
+def predict(data_dir, out_dir, ckpt_file, lr=40000, cwd_dir=None):
+    if cwd_dir is not None:
+        os.chdir(cwd_dir)
+    print("cwd: ", os.getcwd())
+    print("data_dir: ", data_dir)
+    print("out_dir: ", out_dir)
+    print('ckpt_file: ', ckpt_file)
+    print("predict hicGAN start")
+    predict_hicgan.predict(data_dir, ckpt_file, out_dir, lr=lr)

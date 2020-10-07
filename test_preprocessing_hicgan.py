@@ -29,19 +29,19 @@ valid_path = ‘pathto/refine_resolution/data/input_hicgan_2000000_40_28/valid'
 valid_list = ['17', '18', '22']
 """
 
-raw_hic, genomic_distance, lr_size, hr_size, downsample_factor, \
-    root_dir, experiment_name, preprocessing_chr_list, input_path, \
-    preprocessing_output_path, script_work_dir, train_path, train_list, \
-    valid_path, valid_list = configure_hicgan()
+[raw_hic, genomic_distance, lr_size, hr_size, downsample_factor,
+ root_dir, experiment_name, preprocessing_chr_list, input_path,
+ preprocessing_output_path, script_work_dir, train_path, train_list,
+ valid_path, valid_list, predict_path, predict_list] = configure_hicgan()
 
 
 prepare_hicgan.run(raw_hic=raw_hic,
-                    chromosome_list=preprocessing_chr_list,
-                    genomic_distance=genomic_distance,
-                    lr_size=lr_size,
-                    hr_size=hr_size,
-                    downsample_factor=downsample_factor
-                    )
+                   chromosome_list=preprocessing_chr_list,
+                   genomic_distance=genomic_distance,
+                   lr_size=lr_size,
+                   hr_size=hr_size,
+                   downsample_factor=downsample_factor
+                   )
 
 chr_t_list = []
 chr_v_list = []
@@ -53,5 +53,9 @@ for c in preprocessing_chr_list:
     if c in valid_list:
         chr_v_list.append(c)
 
-generate(input_lr_dir=lr_dir, input_hr_dir=hr_dir, output_dir=train_path, postfix='train', chr_list=chr_t_list)
-generate(input_lr_dir=lr_dir, input_hr_dir=hr_dir, output_dir=valid_path, postfix='valid', chr_list=chr_v_list)
+generate(input_lr_dir=lr_dir, input_hr_dir=hr_dir,
+         output_dir=train_path, postfix='train', chr_list=chr_t_list)
+generate(input_lr_dir=lr_dir, input_hr_dir=hr_dir,
+         output_dir=valid_path, postfix='valid', chr_list=chr_v_list)
+generate(input_lr_dir=lr_dir, input_hr_dir=hr_dir,
+         output_dir=predict_path, postfix='predict', chr_list=chr_p_list)

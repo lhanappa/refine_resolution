@@ -21,6 +21,7 @@ def save_to_compressed(hic, idx, output_path, output_name):
 def divide(mat, chr_num, chunk_size=40, stride=28, bound=201, padding=True, verbose=False):
     chr_str = str(chr_num)
     result = []
+    index = []
     size = mat.shape[0]
     if (stride < chunk_size and padding):
         pad_len = (chunk_size - stride) // 2
@@ -33,17 +34,18 @@ def divide(mat, chr_num, chunk_size=40, stride=28, bound=201, padding=True, verb
             if abs(i-j) <= bound and i+chunk_size < height and j+chunk_size < width:
                 subImage = mat[i:i+chunk_size, j:j+chunk_size]
                 result.append([subImage])
+                index.append((chr_num, size, i, j))
     result = np.array(result)
     if verbose:
         print(f'[Chr{chr_str}] Deviding HiC matrix ({size}x{size}) into {len(result)} samples with chunk={chunk_size}, stride={stride}, bound={bound}')
-
-    return result
+    index = np.array(index)
+    return result, index
 
 
 def hicgan_divider(n, high_file, down_file, scale=1, chunk=40, stride=40, bound=201):
     hic_data = np.load(high_file)
     down_data = np.load(down_file)
-
+    full_size = hic_data['hic'].shape[0]
     # Compacting
     #hic = compactM(hic_data['hic'], compact_idx)
     #down_hic = compactM(down_data['hic'], compact_idx)
@@ -51,10 +53,10 @@ def hicgan_divider(n, high_file, down_file, scale=1, chunk=40, stride=40, bound=
     down_hic = down_data['hic']
 
     # Deviding and Pooling (pooling is not performed actually)
-    div_dhic = divide(down_hic, n, chunk, stride, bound)
+    div_dhic, div_inds = divide(down_hic, n, chunk, stride, bound)
     #div_dhic = pooling(div_dhic, scale, pool_type=pool_type, verbose=False).numpy()
-    div_hhic = divide(hic, n, chunk, stride, bound, verbose=True)
-    return n, div_dhic, div_hhic
+    div_hhic, _ = divide(hic, n, chunk, stride, bound, verbose=True)
+    return n, div_dhic, div_hhic, div_inds, full_size
 
 
 def run(raw_hic='Rao2014-GM12878-DpnII-allreps-filtered.10kb.cool',
