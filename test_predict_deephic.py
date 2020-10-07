@@ -49,7 +49,8 @@ output_path = os.path.join(root_dir, 'data', 'output_'+experiment_name, data_cat
 
 saved_cpt_dir = os.path.join(preprocessing_output_path, 'model')
 if not os.path.exists(saved_cpt_dir):
-    os.makedirs(saved_cpt_dir)
+    print('Can\'t find model! Please check directory')
+files = [f for f in os.listdir(saved_cpt_dir)]
 cpt_name = [f for f in files if f.find('finalg') >= 0][0]
 predict(data_dir=predict_path, out_dir=output_path,
         ckpt_file=os.path.join(saved_cpt_dir, cpt_name),
