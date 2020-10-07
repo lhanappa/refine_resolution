@@ -37,7 +37,7 @@ valid_list = ['17', '18', '22']
 # predict data
 # python predict.py --input preprocessing_output/normalized/lr/ --output HiCSR_predictions/ --model_type HiCSR --model_fp pretrained_models/HiCSR.pth
 data_fp = predict_path
-model_fp = os.path.join(input_path, 'model', 'HiCSR.pth')
+model_fp = os.path.join(input_path, 'model', 'HiCSR', 'HiCSR.pth')
 model_hicsr = "HiCSR"
 
 data_cat = raw_hic.split('-')[0] + '_' + raw_hic.split('-')[1] + '_' + raw_hic.split('.')[1]
