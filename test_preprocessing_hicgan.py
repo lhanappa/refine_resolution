@@ -35,16 +35,17 @@ valid_list = ['17', '18', '22']
  valid_path, valid_list, predict_path, predict_list] = configure_hicgan()
 
 
-prepare_hicgan.run(raw_hic=raw_hic,
+"""prepare_hicgan.run(raw_hic=raw_hic,
                    chromosome_list=preprocessing_chr_list,
                    genomic_distance=genomic_distance,
                    lr_size=lr_size,
                    hr_size=hr_size,
                    downsample_factor=downsample_factor
-                   )
+                   )"""
 
 chr_t_list = []
 chr_v_list = []
+chr_p_list = []
 lr_dir = os.path.join(preprocessing_output_path, 'lr')
 hr_dir = os.path.join(preprocessing_output_path, 'hr')
 for c in preprocessing_chr_list:
@@ -52,6 +53,8 @@ for c in preprocessing_chr_list:
         chr_t_list.append(c)
     if c in valid_list:
         chr_v_list.append(c)
+    if c in predict_list:
+        chr_p_list.append(c)
 
 generate(input_lr_dir=lr_dir, input_hr_dir=hr_dir,
          output_dir=train_path, postfix='train', chr_list=chr_t_list)
