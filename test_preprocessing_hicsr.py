@@ -68,7 +68,7 @@ for chro in chr_list:
                         os.path.join(valid_path, file)])
 
 # move predict 'txt' file to cp_path
-cp_path = os.path.join(preprocessing_output_path, 'normalized')
+cp_path = os.path.join(preprocessing_output_path, 'normalized','lr')
 for chro in chr_list:
     file = 'chr' + chro + '-GM12878-16-norm.txt.gz'
     if chro in predict_list:
