@@ -25,7 +25,9 @@ preprocessing_output_path = ‘pathto/refine_resolution/data/input_hicsr_2000000
 train_path = ‘pathto/refine_resolution/data/input_hicsr_2000000_40_28/train'
 train_list = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16']
 valid_path = ‘pathto/refine_resolution/data/input_hicsr_2000000_40_28/valid'
-valid_list = ['17', '18', '22']
+valid_list = ['17', '18']
+valid_path = ‘pathto/refine_resolution/data/input_hicsr_2000000_40_28/predict'
+predict_lsit = ['19', '20', '21', '22', 'X']
 """
 
 [raw_hic, genomic_distance, lr_size, hr_size, downsample_factor,

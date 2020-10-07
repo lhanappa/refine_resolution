@@ -12,7 +12,7 @@ from . import prepare_deephic
 from .utils import redircwd_back_projroot, configure
 
 from software.DeepHiC.utils.io import compactM, divide, pooling
-from software.DeepHiC import data_generate, train_deephic
+from software.DeepHiC import data_generate, train_deephic, predict_deephic
 """test deephic"""
 
 
@@ -131,3 +131,13 @@ def train(data_dir, out_dir, lr=40000, hr=10000,
     train_deephic.train(data_dir, out_dir, lr=lr, hr=hr,
           chunk=chunk, stride=stride, bound=bound, pool=pool,
           upscale=upscale, num_epochs=num_epochs, batch_size=batch_size)
+
+def predict(data_dir, out_dir, ckpt_file, lr=40000, cwd_dir=None):
+    if cwd_dir is not None:
+        os.chdir(cwd_dir)
+    print("cwd: ", os.getcwd())
+    print("data_dir: ", data_dir)
+    print("out_dir: ", out_dir)
+    print('ckpt_file: ', ckpt_file)
+    print("predict deephic start")
+    predict_deephic.predict(data_dir, out_dir, lr=lr, ckpt_file=ckpt_file)
