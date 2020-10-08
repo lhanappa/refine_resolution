@@ -35,13 +35,13 @@ valid_list = ['17', '18', '22']
  valid_path, valid_list, predict_path, predict_list] = configure_hicgan()
 
 
-"""prepare_hicgan.run(raw_hic=raw_hic,
+prepare_hicgan.run(raw_hic=raw_hic,
                    chromosome_list=preprocessing_chr_list,
                    genomic_distance=genomic_distance,
                    lr_size=lr_size,
                    hr_size=hr_size,
                    downsample_factor=downsample_factor
-                   )"""
+                   )
 
 chr_t_list = []
 chr_v_list = []

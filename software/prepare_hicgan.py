@@ -20,6 +20,9 @@ def save_to_compressed(hic, idx, output_path, output_name):
 
 def divide(mat, chr_num, chunk_size=40, stride=28, bound=201, padding=True, verbose=False):
     chr_str = str(chr_num)
+    if chr_num.isnumeric():
+        chr_num = int(chr_num)
+
     result = []
     index = []
     size = mat.shape[0]
@@ -34,7 +37,7 @@ def divide(mat, chr_num, chunk_size=40, stride=28, bound=201, padding=True, verb
             if abs(i-j) <= bound and i+chunk_size < height and j+chunk_size < width:
                 subImage = mat[i:i+chunk_size, j:j+chunk_size]
                 result.append([subImage])
-                index.append((chr_num, size, i, j))
+                index.append((chr_num, size.astype(np.int), i.astype(np.int), j.astype(np.int)))
     result = np.array(result)
     if verbose:
         print(f'[Chr{chr_str}] Deviding HiC matrix ({size}x{size}) into {len(result)} samples with chunk={chunk_size}, stride={stride}, bound={bound}')

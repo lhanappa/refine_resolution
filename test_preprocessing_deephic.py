@@ -56,7 +56,7 @@ for c in preprocessing_chr_list:
     if c in predict_list:
         chr_p_list.append(c)
 
-#generate(input_lr_dir=lr_dir, input_hr_dir=hr_dir, output_dir=train_path, postfix='train', chr_list=chr_t_list)
-#generate(input_lr_dir=lr_dir, input_hr_dir=hr_dir, output_dir=valid_path, postfix='valid', chr_list=chr_v_list)
+generate(input_lr_dir=lr_dir, input_hr_dir=hr_dir, output_dir=train_path, postfix='train', chr_list=chr_t_list)
+generate(input_lr_dir=lr_dir, input_hr_dir=hr_dir, output_dir=valid_path, postfix='valid', chr_list=chr_v_list)
 generate(input_lr_dir=lr_dir, input_hr_dir=hr_dir,
          output_dir=predict_path, postfix='predict', chr_list=chr_p_list)
