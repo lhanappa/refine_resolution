@@ -20,8 +20,8 @@ def save_to_compressed(hic, idx, output_path, output_name):
 
 def divide(mat, chr_num, chunk_size=40, stride=28, bound=201, padding=True, verbose=False):
     chr_str = str(chr_num)
-    if chr_num.isnumeric():
-        chr_num = int(chr_num)
+    if isinstance(chr_num, str) and chr_num.isnumeric():
+        chr_num = chr_num.astype(np.int)
 
     result = []
     index = []
