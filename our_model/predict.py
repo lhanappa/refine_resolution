@@ -115,7 +115,7 @@ def predict(path='./data',
         Mh = Mh[0:-residual, 0:-residual]
 
     # recover M from scn to origin
-    Mh = operations.scn_recover(Mh, Dh)
+    Mh = operations.scn_recover(Mh, Dh[0:-residual])
     predict_hic_hr_merge = operations.scn_recover(predict_hic_hr_merge, Dh)
 
     # remove diag and off diag
