@@ -110,12 +110,14 @@ def configure_model(
         true_path = 'output_ours_2000000_200'
     true_path = os.path.join(path, true_path, sr_file, 'SR', 'chr{}'.format(chromosome))
     true_file = 'true_chr'+chromosome+'_10000.npz'
-    true_hic = np.load(os.path.join(true_path, true_file), allow_pickle=True)
+    true_data = np.load(os.path.join(true_path, true_file), allow_pickle=True)
+    true_hic = true_data['hic']
     print('shape of merge predict hic hr', predict_hic.shape)
 
     k = np.ceil(genomic_distance/resolution).astype(int)
     true_hic = operations.filter_diag_boundary(true_hic, diag_k=2, boundary_k=k)
     predict_hic = operations.filter_diag_boundary(predict_hic, diag_k=2, boundary_k=k)
+    predict_hic = predict_hic[np.arange(true_hic.shape[0]), np.arange(true_hic.shape[1])]
 
     print('sum true:', np.sum(np.abs(true_hic)))
     print('sum predict:', np.sum(np.abs(predict_hic)))
