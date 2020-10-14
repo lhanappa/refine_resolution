@@ -1,8 +1,8 @@
-from .predict import predict
+from predict import predict
 import sys
 import os
-from . import qualify
-from .utils import operations
+import qualify
+from utils import operations
 chromosome = str(sys.argv[1])
 
 root_dir = operations.redircwd_back_projroot(project_name='refine_resolution')
