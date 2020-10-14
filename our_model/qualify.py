@@ -6,7 +6,7 @@ import os
 import sys
 import matplotlib.pyplot as plt
 
-from utils import operations, quality_hic
+from .utils import operations, quality_hic
 # 'Dixon2012-H1hESC-HindIII-allreps-filtered.10kb.cool'
 
 
