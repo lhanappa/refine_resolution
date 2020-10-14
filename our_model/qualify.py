@@ -118,7 +118,8 @@ def configure_model(
     k = np.ceil(genomic_distance/resolution).astype(int)
     true_hic = operations.filter_diag_boundary(true_hic, diag_k=2, boundary_k=k)
     predict_hic = operations.filter_diag_boundary(predict_hic, diag_k=2, boundary_k=k)
-    predict_hic = predict_hic[np.arange(true_hic.shape[0]), np.arange(true_hic.shape[1])]
+    predict_hic = predict_hic[np.arange(true_hic.shape[0]), :]
+    predict_hic = predict_hic[:, np.arange(true_hic.shape[1])]
 
     print('shape of predict hic', predict_hic.shape)
     print('shape of true hic', true_hic.shape)
