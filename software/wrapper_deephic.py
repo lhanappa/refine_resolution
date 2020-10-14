@@ -132,7 +132,7 @@ def train(data_dir, out_dir, lr=40000, hr=10000,
           chunk=chunk, stride=stride, bound=bound, pool=pool,
           upscale=upscale, num_epochs=num_epochs, batch_size=batch_size)
 
-def predict(data_dir, out_dir, ckpt_file, lr=40000, cwd_dir=None):
+def predict(data_dir, out_dir, ckpt_file, lr=40000, hr=10000, cwd_dir=None):
     if cwd_dir is not None:
         os.chdir(cwd_dir)
     print("cwd: ", os.getcwd())
@@ -140,4 +140,4 @@ def predict(data_dir, out_dir, ckpt_file, lr=40000, cwd_dir=None):
     print("out_dir: ", out_dir)
     print('ckpt_file: ', ckpt_file)
     print("predict deephic start")
-    predict_deephic.predict(data_dir, out_dir, lr=lr, ckpt_file=ckpt_file)
+    predict_deephic.predict(data_dir, out_dir, lr=lr, hr=hr, ckpt_file=ckpt_file)
