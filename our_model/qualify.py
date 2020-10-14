@@ -86,13 +86,12 @@ def configure_model(
         sr_path = 'output',
         chromosome='22',
         genomic_distance=2000000,
-        resolution=10000):
+        resolution=10000,
+        true_path=None):
 
     sr_file = raw_file.split('-')[0] + '_' + raw_file.split('-')[1] + '_' + raw_file.split('.')[1]
-    directory_sr = os.path.join(path, sr_path, sr_file, 'SR')
-
-    input_path = directory_sr
-    input_file = 'predict_chr'+chromosome+'_40000.npz'
+    input_path = os.path.join(path, sr_path, sr_file, 'SR')
+    input_file = 'predict_chr'+chromosome+'_{resolution}.npz'
 
     if not os.path.exists(os.path.join(input_path, input_file)):
         print('not input file')
@@ -107,17 +106,19 @@ def configure_model(
     else:
         max_boundary = np.ceil(genomic_distance/(resolution))
 
-    true_hic_hr_merge = None
-    predict_hic_hr_merge = predict_hic
-    print('shape of merge predict hic hr', predict_hic_hr_merge.shape)
+    if true_path is None:
+        true_path = os.path.join(path, 'output_ours_2000000_200', sr_file, 'SR', 'chr{chromosome}')
+    true_file = 'true_chr'+chromosome+'_10000.npz'
+    true_hic = np.load(os.path.join(true_path, true_file), allow_pickle=True)
+    print('shape of merge predict hic hr', predict_hic.shape)
 
     k = np.ceil(genomic_distance/resolution).astype(int)
-    true_hic_hr_merge = operations.filter_diag_boundary(true_hic_hr_merge, diag_k=2, boundary_k=k)
-    predict_hic_hr_merge = operations.filter_diag_boundary(predict_hic_hr_merge, diag_k=2, boundary_k=k)
+    true_hic = operations.filter_diag_boundary(true_hic, diag_k=2, boundary_k=k)
+    predict_hic = operations.filter_diag_boundary(predict_hic, diag_k=2, boundary_k=k)
 
-    print('sum true:', np.sum(np.abs(true_hic_hr_merge)))
-    print('sum predict:', np.sum(np.abs(predict_hic_hr_merge)))
-    diff = np.abs(true_hic_hr_merge-predict_hic_hr_merge)
+    print('sum true:', np.sum(np.abs(true_hic)))
+    print('sum predict:', np.sum(np.abs(predict_hic)))
+    diff = np.abs(true_hic - predict_hic)
     print('sum diff: {:.5}'.format(np.sum(diff**2)))
 
     '''fig, axs = plt.subplots(1, 2, figsize=(8, 15))
@@ -128,12 +129,14 @@ def configure_model(
     plt.tight_layout()
     plt.show()'''
 
-    operations.format_bin(true_hic_hr_merge, coordinate=(
-        0, 1), resolution=10000, chrm=chromosome, save_file=True, filename=input_path+'/'+ sr_file+'.bed.gz')
-    operations.format_contact(true_hic_hr_merge, coordinate=(
-        0, 1), resolution=10000, chrm=chromosome, save_file=True, filename=input_path+'/'+ sr_file+'_contact_true.gz')
-    operations.format_contact(predict_hic_hr_merge, coordinate=(
-        0, 1), resolution=10000, chrm=chromosome, save_file=True, filename=input_path+'/'+ sr_file+'_contact_predict.gz')
+    input_path = os.path.join(input_path, 'chr{chromosome}')
+    os.makedirs(input_path)
+    operations.format_bin(true_hic, coordinate=(
+        0, 1), resolution=10000, chrm=chromosome, save_file=True, filename=os.path.join(input_path, sr_file+'.bed.gz'))
+    operations.format_contact(true_hic, coordinate=(
+        0, 1), resolution=10000, chrm=chromosome, save_file=True, filename=os.path.join(input_path, sr_file+'_contact_true.gz'))
+    operations.format_contact(predict_hic, coordinate=(
+        0, 1), resolution=10000, chrm=chromosome, save_file=True, filename=os.path.join(input_path,  sr_file+'_contact_predict.gz'))
 
     return input_path, sr_file
 
