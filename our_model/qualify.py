@@ -91,7 +91,7 @@ def configure_model(
 
     sr_file = raw_file.split('-')[0] + '_' + raw_file.split('-')[1] + '_' + raw_file.split('.')[1]
     input_path = os.path.join(path, sr_path, sr_file, 'SR')
-    input_file = 'predict_chr'+chromosome+'_{resolution}.npz'
+    input_file = 'predict_chr'+chromosome+'_{}.npz'.format(resolution)
 
     if not os.path.exists(os.path.join(input_path, input_file)):
         print('not input file')
@@ -107,7 +107,7 @@ def configure_model(
         max_boundary = np.ceil(genomic_distance/(resolution))
 
     if true_path is None:
-        true_path = os.path.join(path, 'output_ours_2000000_200', sr_file, 'SR', 'chr{chromosome}')
+        true_path = os.path.join(path, 'output_ours_2000000_200', sr_file, 'SR', 'chr{}'.format(chromosome))
     true_file = 'true_chr'+chromosome+'_10000.npz'
     true_hic = np.load(os.path.join(true_path, true_file), allow_pickle=True)
     print('shape of merge predict hic hr', predict_hic.shape)
@@ -129,7 +129,7 @@ def configure_model(
     plt.tight_layout()
     plt.show()'''
 
-    input_path = os.path.join(input_path, 'chr{chromosome}')
+    input_path = os.path.join(input_path, 'chr{}'.format(chromosome))
     os.makedirs(input_path)
     operations.format_bin(true_hic, coordinate=(
         0, 1), resolution=10000, chrm=chromosome, save_file=True, filename=os.path.join(input_path, sr_file+'.bed.gz'))
