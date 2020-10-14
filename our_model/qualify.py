@@ -100,6 +100,8 @@ def configure_model(
     with np.load(os.path.join(input_path, input_file), allow_pickle=True) as data:
         predict_hic = data['hic']
 
+    if model == 'hicgan':
+        predict_hic = np.exp(predict_hic)-1
 
     if genomic_distance is None:
         max_boundary = None
@@ -112,12 +114,14 @@ def configure_model(
     true_file = 'true_chr'+chromosome+'_10000.npz'
     true_data = np.load(os.path.join(true_path, true_file), allow_pickle=True)
     true_hic = true_data['hic']
-    print('shape of merge predict hic hr', predict_hic.shape)
 
     k = np.ceil(genomic_distance/resolution).astype(int)
     true_hic = operations.filter_diag_boundary(true_hic, diag_k=2, boundary_k=k)
     predict_hic = operations.filter_diag_boundary(predict_hic, diag_k=2, boundary_k=k)
     predict_hic = predict_hic[np.arange(true_hic.shape[0]), np.arange(true_hic.shape[1])]
+
+    print('shape of predict hic', predict_hic.shape)
+    print('shape of true hic', true_hic.shape)
 
     print('sum true:', np.sum(np.abs(true_hic)))
     print('sum predict:', np.sum(np.abs(predict_hic)))

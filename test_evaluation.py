@@ -12,7 +12,7 @@ len_size = 200
 max_dis = 2000000
 lr_size = 40
 hr_size = 40
-model = 'deephic'
+model = 'hicgan'
 
 input_path,sr_file = qualify.configure_model(model=model, path=os.path.join(root_dir, 'data'),
                                raw_file='Rao2014-GM12878-DpnII-allreps-filtered.10kb.cool',
@@ -25,6 +25,7 @@ file1 = os.path.join(input_path, sr_file+'_contact_true.gz')
 file2 = os.path.join(input_path, sr_file+'_contact_predict.gz')
 output_path = os.path.join(input_path, sr_file+'_scores')
 bedfile = os.path.join(input_path, sr_file+'.bed.gz')
+
 """script = os.path.join(root_dir, 'our_model', 'utils','hicrep_wrapper.R')
 h_list = [20]#, 40, 60, 80]
 for h in h_list:
