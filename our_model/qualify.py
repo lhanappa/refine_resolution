@@ -107,7 +107,8 @@ def configure_model(
         max_boundary = np.ceil(genomic_distance/(resolution))
 
     if true_path is None:
-        true_path = os.path.join(path, 'output_ours_2000000_200', sr_file, 'SR', 'chr{}'.format(chromosome))
+        true_path = 'output_ours_2000000_200'
+    true_path = os.path.join(path, true_path, sr_file, 'SR', 'chr{}'.format(chromosome))
     true_file = 'true_chr'+chromosome+'_10000.npz'
     true_hic = np.load(os.path.join(true_path, true_file), allow_pickle=True)
     print('shape of merge predict hic hr', predict_hic.shape)
