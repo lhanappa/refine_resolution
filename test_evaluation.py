@@ -16,7 +16,7 @@ model = 'deephic'
 
 input_path,sr_file = qualify.configure_model(model=model, path=os.path.join(root_dir, 'data'),
                                raw_file='Rao2014-GM12878-DpnII-allreps-filtered.10kb.cool',
-                               sr_path = '_'.join(['output', model,str(lr_size), str(hr_size)]),
+                               sr_path = '_'.join(['output', model, str(max_dis), str(lr_size), str(hr_size)]),
                                chromosome=chromosome,
                                genomic_distance=2000000,
                                resolution=10000, 
