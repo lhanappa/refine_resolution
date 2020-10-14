@@ -55,4 +55,5 @@ cpt_name = [f for f in files if f.find('finalg') >= 0][0]
 predict(data_dir=predict_path, out_dir=output_path,
         ckpt_file=os.path.join(saved_cpt_dir, cpt_name),
         lr=40000, 
+        hr=10000,
         cwd_dir=script_work_dir)

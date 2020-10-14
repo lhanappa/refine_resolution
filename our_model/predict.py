@@ -7,7 +7,7 @@ import copy
 import os
 
 import model
-from utils import operations
+from .utils import operations
 import tensorflow as tf
 tf.keras.backend.set_floatx('float32')
 
@@ -45,7 +45,7 @@ def predict(path='./data',
     resolution = c.binsize
     mat = c.matrix(balance=True).fetch('chr'+chromosome)
 
-    [Mh, _] = operations.remove_zeros(mat)
+    [Mh, idx] = operations.remove_zeros(mat)
     print('shape HR: ', Mh.shape)
 
     if start is None:
@@ -64,6 +64,7 @@ def predict(path='./data',
     Ml = np.asarray(Ml)
     Mh = np.asarray(Mh)
     Ml, Dh = operations.scn_normalization(Ml, max_iter=3000)
+    print('Dh shape:{}'.format(Dh.shape))
     Mh, Dl = operations.scn_normalization(Mh, max_iter=3000)
     #Ml = np.divide((Ml-Ml.min()), (Ml.max()-Ml.min()), dtype=float, out=np.zeros_like(Ml), where=(Ml.max()-Ml.min()) != 0)
     #Mh = np.divide((Mh-Mh.min()), (Mh.max()-Mh.min()), dtype=float, out=np.zeros_like(Mh), where=(Mh.max()-Mh.min()) != 0)
@@ -111,12 +112,14 @@ def predict(path='./data',
 
     # chrop Mh
     residual = Mh.shape[0] % int(len_size/2)
+    print('residual: {}'.format(residual))
     if residual > 0:
         Mh = Mh[0:-residual, 0:-residual]
+        Dh = Dh[0:-residual]
 
     # recover M from scn to origin
-    Mh = operations.scn_recover(Mh, Dh[0:-residual])
-    predict_hic_hr_merge = operations.scn_recover(predict_hic_hr_merge, Dh[0:-residual])
+    Mh = operations.scn_recover(Mh, Dh)
+    predict_hic_hr_merge = operations.scn_recover(predict_hic_hr_merge, Dh)
 
     # remove diag and off diag
     k = max_boundary.astype(int)
@@ -129,12 +132,22 @@ def predict(path='./data',
     diff = np.abs(Mh-predict_hic_hr_merge)
     print('sum diff: {:.5}'.format(np.sum(diff**2)))
 
+    compact = idx[0:-residual]
+    file = 'predict_chr{}_{}.npz'.format(chromosome, resolution)
+    np.savez_compressed(os.path.join(file_path, file), hic=predict_hic_hr_merge, compact=compact)
+    print('Saving file:', file)
+    file = 'true_chr{}_{}.npz'.format(chromosome, resolution)
+    np.savez_compressed(os.path.join(file_path, file), hic=Mh, compact=compact)
+    print('Saving file:', file)
+
     if draw_out:
+        predict_hic_hr_merge = predict_hic_hr_merge[::10, ::10]
+        Mh = Mh[::10, ::10]
         fig, axs = plt.subplots(1, 2, figsize=(8, 15))
         # , cmap='RdBu_r'
-        ax = axs[0].imshow(np.log1p(1000*predict_hic_hr_merge))
+        ax = axs[0].imshow(np.log1p(predict_hic_hr_merge), cmap='RdBu')
         axs[0].set_title('predict')
-        ax = axs[1].imshow(np.log1p(1000*Mh))  # , cmap='RdBu_r'
+        ax = axs[1].imshow(np.log1p(Mh), cmap='RdBu')  # , cmap='RdBu_r'
         axs[1].set_title('true')
         plt.tight_layout()
         plt.show()
@@ -143,6 +156,8 @@ def predict(path='./data',
 if __name__ == '__main__':
     root = operations.redircwd_back_projroot(project_name='refine_resolution')
     data_path = os.path.join(root, 'data')
+    max_dis = 2000000
+    len_size = 200
     predict(path=data_path,
             raw_path='raw',
             raw_file='Rao2014-GM12878-DpnII-allreps-filtered.10kb.cool',
@@ -150,4 +165,4 @@ if __name__ == '__main__':
             scale=4,
             len_size=200,
             sr_path='_'.join(['output', 'ours', str(max_dis), str(len_size)]),
-            genomic_distance=2000000, start=0, end=600, draw_out=True)
+            genomic_distance=2000000, start=0, end=None, draw_out=True)
