@@ -27,10 +27,10 @@ file2 = os.path.join(input_path, sr_file+'_contact_predict.gz')
 output_path = os.path.join(input_path, sr_file+'_scores')
 bedfile = os.path.join(input_path, sr_file+'.bed.gz')
 
-"""script = os.path.join(root_dir, 'our_model', 'utils','hicrep_wrapper.R')
+script = os.path.join(root_dir, 'our_model', 'utils','hicrep_wrapper.R')
 h_list = [20]#, 40, 60, 80]
 for h in h_list:
     print('h: ', h)
     output = output_path+ str(h)+'.txt'
     qualify.score_hicrep(file1=file1, file2=file2,
-                     bedfile=bedfile, output_path=output, script=script, h=h)"""
+                     bedfile=bedfile, output_path=output, script=script, h=h)
