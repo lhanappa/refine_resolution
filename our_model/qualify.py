@@ -117,11 +117,11 @@ def configure_model(
     elif model == 'deephic':
         minv = true_hic.min()
         maxv = true_hic.max()
-        true_hic = tnp.divide((true_hic-minv), (maxv-minv), dtype=float,out=np.zeros_like(true_hic), where=(maxv-minv) != 0)
+        true_hic = np.divide((true_hic-minv), (maxv-minv), dtype=float,out=np.zeros_like(true_hic), where=(maxv-minv) != 0)
     elif model == 'hicsr':
         log_mat = np.log2(true_hic+1)
         ture_hic = 2*(log_mat/np.max(log_mat)) - 1
-        
+
     k = np.ceil(genomic_distance/resolution).astype(int)
     true_hic = operations.filter_diag_boundary(true_hic, diag_k=2, boundary_k=k)
     predict_hic = operations.filter_diag_boundary(predict_hic, diag_k=2, boundary_k=k)
