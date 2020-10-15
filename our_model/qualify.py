@@ -100,9 +100,6 @@ def configure_model(
     with np.load(os.path.join(input_path, input_file), allow_pickle=True) as data:
         predict_hic = data['hic']
 
-    if model == 'hicgan':
-        predict_hic = np.exp(predict_hic)-1
-
     if genomic_distance is None:
         max_boundary = None
     else:
@@ -114,6 +111,13 @@ def configure_model(
     true_file = 'true_chr'+chromosome+'_10000.npz'
     true_data = np.load(os.path.join(true_path, true_file), allow_pickle=True)
     true_hic = true_data['hic']
+
+    if model == 'hicgan':
+        predict_hic = np.exp(predict_hic)-1
+    elif model == 'deephic':
+        minv = true_hic.min()
+        maxv = true_hic.max()
+        predict_hic = predict_hic*(maxv - minv) + minv
 
     k = np.ceil(genomic_distance/resolution).astype(int)
     true_hic = operations.filter_diag_boundary(true_hic, diag_k=2, boundary_k=k)
@@ -138,7 +142,7 @@ def configure_model(
     plt.show()'''
 
     input_path = os.path.join(input_path, 'chr{}'.format(chromosome))
-    os.makedirs(input_path)
+    os.makedirs(input_path, exist_ok=True)
     operations.format_bin(true_hic, coordinate=(
         0, 1), resolution=10000, chrm=chromosome, save_file=True, filename=os.path.join(input_path, sr_file+'.bed.gz'))
     operations.format_contact(true_hic, coordinate=(
