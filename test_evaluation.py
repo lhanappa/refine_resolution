@@ -4,16 +4,14 @@ from our_model import qualify
 from our_model.predict import predict
 from our_model.utils import operations
 
-chromosome = str(sys.argv[1])
-
 root_dir = operations.redircwd_back_projroot(project_name='refine_resolution')
 raw_file='Rao2014-GM12878-DpnII-allreps-filtered.10kb.cool'
 len_size = 200
 max_dis = 2000000
 lr_size = 40
 hr_size = 40
-model = 'hicgan'
-
+model = str(sys.argv[1]) # deephic, hicgan, hicsr
+chromosome = str(sys.argv[2])
 input_path,sr_file = qualify.configure_model(model=model, path=os.path.join(root_dir, 'data'),
                                raw_file='Rao2014-GM12878-DpnII-allreps-filtered.10kb.cool',
                                sr_path = '_'.join(['output', model, str(max_dis), str(lr_size), str(hr_size)]),
