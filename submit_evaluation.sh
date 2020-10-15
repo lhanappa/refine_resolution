@@ -16,6 +16,6 @@ hostname
 
 METHOD=${1}
 CHR=${2}
-source activate ipykernel_py3
+source activate tf_base
 echo python test_evaluation.py ${METHOD} ${CHR}
 python test_evaluation.py ${METHOD} ${CHR}
