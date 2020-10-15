@@ -12,6 +12,9 @@ lr_size = 40
 hr_size = 40
 model = str(sys.argv[1]) # deephic, hicgan, hicsr
 chromosome = str(sys.argv[2])
+if model == 'hicsr':
+    hr_size = 28
+
 input_path,sr_file = qualify.configure_model(model=model, path=os.path.join(root_dir, 'data'),
                                raw_file='Rao2014-GM12878-DpnII-allreps-filtered.10kb.cool',
                                sr_path = '_'.join(['output', model, str(max_dis), str(lr_size), str(hr_size)]),
