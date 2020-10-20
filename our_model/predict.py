@@ -63,9 +63,9 @@ def predict(path='./data',
     # the input should not be type of np.matrix!
     Ml = np.asarray(Ml)
     Mh = np.asarray(Mh)
-    Ml, Dh = operations.scn_normalization(Ml, max_iter=3000)
+    Ml, Dl = operations.scn_normalization(Ml, max_iter=3000)
     print('Dh shape:{}'.format(Dh.shape))
-    Mh, Dl = operations.scn_normalization(Mh, max_iter=3000)
+    Mh, Dh = operations.scn_normalization(Mh, max_iter=3000)
     #Ml = np.divide((Ml-Ml.min()), (Ml.max()-Ml.min()), dtype=float, out=np.zeros_like(Ml), where=(Ml.max()-Ml.min()) != 0)
     #Mh = np.divide((Mh-Mh.min()), (Mh.max()-Mh.min()), dtype=float, out=np.zeros_like(Mh), where=(Mh.max()-Mh.min()) != 0)
 
