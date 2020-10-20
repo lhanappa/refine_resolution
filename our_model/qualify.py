@@ -5,6 +5,7 @@ import numpy as np
 import os
 import sys
 import matplotlib.pyplot as plt
+import cooler
 
 from .utils import operations, quality_hic
 # 'Dixon2012-H1hESC-HindIII-allreps-filtered.10kb.cool'
@@ -105,22 +106,39 @@ def configure_model(
     else:
         max_boundary = np.ceil(genomic_distance/(resolution))
 
-    if true_path is None:
+    '''if true_path is None:
         true_path = 'output_ours_2000000_200'
     true_path = os.path.join(path, true_path, sr_file, 'SR', 'chr{}'.format(chromosome))
     true_file = 'true_chr'+chromosome+'_10000.npz'
     true_data = np.load(os.path.join(true_path, true_file), allow_pickle=True)
-    true_hic = true_data['hic']
+    true_hic = true_data['hic']'''
+
+    raw_path = os.path.join(path, 'raw')
+    file = os.path.join(raw_path, raw_hic)
+    print('raw hic data: ', file)
+    cool_hic = cooler.Cooler(file)
+    # resolution = cool_hic.binsize
+    chromosome = 'chr' + chromosome
+    mat = cool_hic.matrix(balance=True).fetch(chromosome)
+    true_hic, _ = operations.remove_zeros(mat)
+    residue = true_hic.shape[0]%100
+    true_hic = true_hic[0:-residue,0:-residue]
+
 
     if model == 'hicgan':
-        true_hic = np.log1p(true_hic)
+        # true_hic = np.log1p(true_hic)
+        predict_hic = np.expm1(predict_hic)
     elif model == 'deephic':
         minv = true_hic.min()
         maxv = true_hic.max()
-        true_hic = np.divide((true_hic-minv), (maxv-minv), dtype=float,out=np.zeros_like(true_hic), where=(maxv-minv) != 0)
+        # true_hic = np.divide((true_hic-minv), (maxv-minv), dtype=float,out=np.zeros_like(true_hic), where=(maxv-minv) != 0)
+        predict_hic = predict_hic*(maxv-minv)+minv
     elif model == 'hicsr':
         log_mat = np.log2(true_hic+1)
-        ture_hic = 2*(log_mat/np.max(log_mat)) - 1
+        # ture_hic = 2*(log_mat/np.max(log_mat)) - 1
+        maxv = np.max(log_mat)
+        log_predict_hic = (predict_hic+1)/2*maxv
+        predict_hic = np.expm1(log_predict_hic)
 
     k = np.ceil(genomic_distance/resolution).astype(int)
     true_hic = operations.filter_diag_boundary(true_hic, diag_k=2, boundary_k=k)
