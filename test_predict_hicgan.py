@@ -53,7 +53,6 @@ if not os.path.exists(saved_cpt_dir):
 files = [f for f in os.listdir(saved_cpt_dir)]
 # cpt_name = [f for f in files if f.find('g_hicgan_GM12878_weights.npz') >= 0][0]
 cpt_name = [f for f in files if f.find('g_hicgan_best.npz') >= 0][0]
-g_hicgan_best.npz
 print('cpt {}'.format(cpt_name))
 predict(data_dir=predict_path, out_dir=output_path,
         ckpt_file=os.path.join(saved_cpt_dir, cpt_name),
