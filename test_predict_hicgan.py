@@ -52,6 +52,7 @@ if not os.path.exists(saved_cpt_dir):
     print('Can\'t find model! Please check directory')
 files = [f for f in os.listdir(saved_cpt_dir)]
 cpt_name = [f for f in files if f.find('g_hicgan_GM12878_weights.npz') >= 0][0]
+print('cpt" {}'.format(cpt_name))
 predict(data_dir=predict_path, out_dir=output_path,
         ckpt_file=os.path.join(saved_cpt_dir, cpt_name),
         lr=40000, 

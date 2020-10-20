@@ -118,8 +118,7 @@ def configure_model(
     print('raw hic data: ', file)
     cool_hic = cooler.Cooler(file)
     # resolution = cool_hic.binsize
-    chromosome = 'chr' + chromosome
-    mat = cool_hic.matrix(balance=True).fetch(chromosome)
+    mat = cool_hic.matrix(balance=True).fetch('chr' + chromosome)
     true_hic, _ = operations.remove_zeros(mat)
     residue = true_hic.shape[0]%100
     true_hic = true_hic[0:-residue,0:-residue]

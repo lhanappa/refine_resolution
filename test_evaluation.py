@@ -22,10 +22,14 @@ input_path,sr_file = qualify.configure_model(model=model, path=os.path.join(root
                                genomic_distance=2000000,
                                resolution=10000, 
                                true_path='_'.join(['output', 'ours',str(max_dis), str(len_size)]))
+
 file1 = os.path.join(input_path, sr_file+'_contact_true.gz')
 file2 = os.path.join(input_path, sr_file+'_contact_predict.gz')
+m1name = 'true_{}'.format(chromosome)
+m2name = 'predict_{}'.format(chromosome)
 output_path = os.path.join(input_path, sr_file+'_scores')
 bedfile = os.path.join(input_path, sr_file+'.bed.gz')
+
 
 script = os.path.join(root_dir, 'our_model', 'utils','hicrep_wrapper.R')
 h_list = [20]#, 40, 60, 80]
@@ -33,4 +37,5 @@ for h in h_list:
     print('h: ', h)
     output = output_path+ str(h)+'.txt'
     qualify.score_hicrep(file1=file1, file2=file2,
-                     bedfile=bedfile, output_path=output, script=script, h=h)
+                     bedfile=bedfile, output_path=output, script=script, h=h,
+                     m1name=m1name, m2name=m2name)
