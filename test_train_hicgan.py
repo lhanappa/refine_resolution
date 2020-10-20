@@ -29,10 +29,10 @@ valid_path = ‘pathto/refine_resolution/data/input_hicgan_2000000_40_28/valid'
 valid_list = ['17', '18', '22']
 """
 
-raw_hic, genomic_distance, lr_size, hr_size, downsample_factor, \
+[raw_hic, genomic_distance, lr_size, hr_size, downsample_factor, \
     root_dir, experiment_name, preprocessing_chr_list, input_path, \
     preprocessing_output_path, script_work_dir, train_path, train_list, \
-    valid_path, valid_list = configure_hicgan()
+    valid_path, valid_list, predict_path, predict_list] = configure_hicgan()
 
 chr_list = []
 lr_dir = os.path.join(preprocessing_output_path, 'lr')
