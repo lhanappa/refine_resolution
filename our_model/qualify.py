@@ -114,7 +114,7 @@ def configure_model(
     true_hic = true_data['hic']'''
 
     raw_path = os.path.join(path, 'raw')
-    file = os.path.join(raw_path, raw_hic)
+    file = os.path.join(raw_path, raw_file)
     print('raw hic data: ', file)
     cool_hic = cooler.Cooler(file)
     # resolution = cool_hic.binsize
