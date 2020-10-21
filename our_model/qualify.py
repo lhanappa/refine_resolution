@@ -7,7 +7,9 @@ import sys
 import matplotlib.pyplot as plt
 import cooler
 
-from utils import operations, quality_hic
+from .utils.operations import redircwd_back_projroot
+from .utils.operations import remove_zeros, merge_hic, filter_diag_boundary, format_bin, format_contact
+from .utils.quality_hic import run_hicrep
 # 'Dixon2012-H1hESC-HindIII-allreps-filtered.10kb.cool'
 
 
@@ -44,18 +46,18 @@ def configure_our_model(
     else:
         max_boundary = np.ceil(genomic_distance/(resolution))
 
-    predict_hic_hr_merge = operations.merge_hic(
+    predict_hic_hr_merge = merge_hic(
         predict_hic, index_1D_2D=idx_1d_2d, max_distance=max_boundary)
     print('shape of merge predict hic hr', predict_hic_hr_merge.shape)
 
-    true_hic_hr_merge = operations.merge_hic(
+    true_hic_hr_merge = merge_hic(
         true_hic, index_1D_2D=idx_1d_2d, max_distance=max_boundary)
     print('shape of merge predict hic hr', predict_hic_hr_merge.shape)
 
     k = np.ceil(genomic_distance/resolution).astype(int)
-    true_hic_hr_merge = operations.filter_diag_boundary(
+    true_hic_hr_merge = filter_diag_boundary(
         true_hic_hr_merge, diag_k=2, boundary_k=k)
-    predict_hic_hr_merge = operations.filter_diag_boundary(
+    predict_hic_hr_merge = filter_diag_boundary(
         predict_hic_hr_merge, diag_k=2, boundary_k=k)
 
     print('sum true:', np.sum(np.abs(true_hic_hr_merge)))
@@ -71,11 +73,11 @@ def configure_our_model(
     plt.tight_layout()
     plt.show()'''
 
-    operations.format_bin(true_hic_hr_merge, coordinate=(
+    format_bin(true_hic_hr_merge, coordinate=(
         0, 1), resolution=10000, chrm=chromosome, save_file=True, filename=input_path+'/'+ sr_file+'.bed.gz')
-    operations.format_contact(true_hic_hr_merge, coordinate=(
+    format_contact(true_hic_hr_merge, coordinate=(
         0, 1), resolution=10000, chrm=chromosome, save_file=True, filename=input_path+'/'+ sr_file+'_contact_true.gz')
-    operations.format_contact(predict_hic_hr_merge, coordinate=(
+    format_contact(predict_hic_hr_merge, coordinate=(
         0, 1), resolution=10000, chrm=chromosome, save_file=True, filename=input_path+'/'+ sr_file+'_contact_predict.gz')
 
     return input_path, sr_file
@@ -119,7 +121,7 @@ def configure_model(
     cool_hic = cooler.Cooler(file)
     # resolution = cool_hic.binsize
     mat = cool_hic.matrix(balance=True).fetch('chr' + chromosome)
-    true_hic, _ = operations.remove_zeros(mat)
+    true_hic, _ = remove_zeros(mat)
     residue = true_hic.shape[0]%100
     true_hic = true_hic[0:-residue,0:-residue]
 
@@ -140,8 +142,8 @@ def configure_model(
         predict_hic = np.expm1(log_predict_hic)
 
     k = np.ceil(genomic_distance/resolution).astype(int)
-    true_hic = operations.filter_diag_boundary(true_hic, diag_k=2, boundary_k=k)
-    predict_hic = operations.filter_diag_boundary(predict_hic, diag_k=2, boundary_k=k)
+    true_hic = filter_diag_boundary(true_hic, diag_k=2, boundary_k=k)
+    predict_hic = filter_diag_boundary(predict_hic, diag_k=2, boundary_k=k)
     predict_hic = predict_hic[np.arange(true_hic.shape[0]), :]
     predict_hic = predict_hic[:, np.arange(true_hic.shape[1])]
 
@@ -163,11 +165,11 @@ def configure_model(
 
     input_path = os.path.join(input_path, 'chr{}'.format(chromosome))
     os.makedirs(input_path, exist_ok=True)
-    operations.format_bin(true_hic, coordinate=(
+    format_bin(true_hic, coordinate=(
         0, 1), resolution=10000, chrm=chromosome, save_file=True, filename=os.path.join(input_path, sr_file+'.bed.gz'))
-    operations.format_contact(true_hic, coordinate=(
+    format_contact(true_hic, coordinate=(
         0, 1), resolution=10000, chrm=chromosome, save_file=True, filename=os.path.join(input_path, sr_file+'_contact_true.gz'))
-    operations.format_contact(predict_hic, coordinate=(
+    format_contact(predict_hic, coordinate=(
         0, 1), resolution=10000, chrm=chromosome, save_file=True, filename=os.path.join(input_path,  sr_file+'_contact_predict.gz'))
 
     return input_path, sr_file
@@ -182,7 +184,7 @@ def score_hicrep(file1,
                  h=int(20),
                  m1name='m1',
                  m2name='m2'):
-    quality_hic.run_hicrep(script=script, f1=file1, f2=file2,
+    run_hicrep(script=script, f1=file1, f2=file2,
                            bedfile=bedfile, output_path=output_path, maxdist=maxdist,
                            resolution=resolution,
                            h=h,
@@ -191,7 +193,7 @@ def score_hicrep(file1,
 
 
 if __name__ == '__main__':
-    root = operations.redircwd_back_projroot(project_name='refine_resolution')
+    root = redircwd_back_projroot(project_name='refine_resolution')
     [input_path, hicfile] = configure_our_model(path = os.path.join(root, 'data'))
     file1 = '"' + input_path+'/' + hicfile + '_contact_true.gz' + '"'
     file2 = '"' +input_path+'/' + hicfile + '_contact_predict.gz'+ '"'
