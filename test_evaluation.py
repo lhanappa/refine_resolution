@@ -1,7 +1,6 @@
 import sys
 import os
 from our_model import qualify
-from our_model.predict import predict
 from our_model.utils import operations
 
 root_dir = operations.redircwd_back_projroot(project_name='refine_resolution')

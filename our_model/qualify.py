@@ -7,9 +7,9 @@ import sys
 import matplotlib.pyplot as plt
 import cooler
 
-from .utils.operations import redircwd_back_projroot
-from .utils.operations import remove_zeros, merge_hic, filter_diag_boundary, format_bin, format_contact
-from .utils.quality_hic import run_hicrep
+from utils.operations import redircwd_back_projroot
+from utils.operations import remove_zeros, merge_hic, filter_diag_boundary, format_bin, format_contact
+from utils.quality_hic import run_hicrep
 # 'Dixon2012-H1hESC-HindIII-allreps-filtered.10kb.cool'
 
 
