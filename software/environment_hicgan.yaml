@@ -14,5 +14,5 @@ dependencies:
     - pip
     - pip:
         - TensorLayer==1.11.0
-        - TensorFlow==1.15.0
+        - tensorflow-gpu==1.15
     - hickle
