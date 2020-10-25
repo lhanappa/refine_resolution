@@ -11,8 +11,8 @@ dependencies:
     - matplotlib=3.1.3
     - cooler
     - scikit-image
+    - tensorflow-gpu
     - pip
     - pip:
         - TensorLayer==1.11.0
-        - tensorflow-gpu==1.15
     - hickle
