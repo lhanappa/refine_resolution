@@ -99,8 +99,7 @@ def predict(path='./data',
     predict_hic_hr = np.squeeze(predict_hic_hr, axis=3)
     print('shape of prediction: ', predict_hic_hr.shape)
 
-    sr_file += '_chr'+chromosome
-    file_path = os.path.join(directory_sr, sr_file)
+    file_path = os.path.join(directory_sr, sr_file+'_chr'+chromosome)
     np.savez_compressed(file_path+'.npz', predict_hic=predict_hic_hr, true_hic=true_hic_hr,
                         index_1D_2D=index_1d_2d, index_2D_1D=index_2d_1d,
                         start_id=start, end_id=end)
