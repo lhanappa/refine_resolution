@@ -8,7 +8,7 @@ from our_model.utils.operations import remove_zeros, merge_hic, filter_diag_boun
 
 def gather(source=None, destination='./experiment/evaluation/', method='ours', chromosomes=['19', '20','21', '22', 'X']):
     if(source is None):
-        source = os.path.join('.', 'data', 'output_{}_2000000_200', 'Rao2014_GM12878_10kb','SR'.format(method))
+        source = os.path.join('.', 'data', 'output_{}_2000000_200'.format(method), 'Rao2014_GM12878_10kb','SR')
     os.makedirs(destination, exist_ok=True)
 
     for ch in chromosomes:
@@ -16,7 +16,7 @@ def gather(source=None, destination='./experiment/evaluation/', method='ours', c
         outfile = '{}_predict_chr{}_10000.npz'.format(method, ch)
         inpath = os.path.join(source, infile)
         if os.path.exists(inpath):
-            print('copying form {} to {}'.format(inpath, os.path.join(destination, outfile)))
+            print('copying {} from {} to {}'.format(infile, inpath, os.path.join(destination, outfile)))
             shutil.copyfile(inpath, os.path.join(destination, outfile))
 
 
