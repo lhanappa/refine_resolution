@@ -136,6 +136,7 @@ def predict(path='./data',
     file = 'predict_chr{}_{}.npz'.format(chromosome, resolution)
     np.savez_compressed(os.path.join(directory_sr, file), hic=predict_hic_hr_merge, compact=compact)
     print('Saving file:', file)
+    directory_sr = os.path.join(path, sr_path, sr_file, 'SR', 'chr'+chromosome)
     file = 'true_chr{}_{}.npz'.format(chromosome, resolution)
     np.savez_compressed(os.path.join(directory_sr, file), hic=Mh, compact=compact)
     print('Saving file:', file)
