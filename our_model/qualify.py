@@ -65,14 +65,6 @@ def configure_our_model(
     diff = np.abs(true_hic_hr_merge-predict_hic_hr_merge)
     print('sum diff: {:.5}'.format(np.sum(diff**2)))
 
-    '''fig, axs = plt.subplots(1, 2, figsize=(8, 15))
-    ax = axs[0].imshow(np.log1p(1000*predict_hic_hr_merge), cmap='RdBu_r')
-    axs[0].set_title('predict')
-    ax = axs[1].imshow(np.log1p(1000*true_hic_hr_merge), cmap='RdBu_r')
-    axs[1].set_title('true')
-    plt.tight_layout()
-    plt.show()'''
-
     format_bin(true_hic_hr_merge, coordinate=(
         0, 1), resolution=10000, chrm=chromosome, save_file=True, filename=input_path+'/'+ sr_file+'.bed.gz')
     format_contact(true_hic_hr_merge, coordinate=(
@@ -107,13 +99,6 @@ def configure_model(
         max_boundary = None
     else:
         max_boundary = np.ceil(genomic_distance/(resolution))
-
-    '''if true_path is None:
-        true_path = 'output_ours_2000000_200'
-    true_path = os.path.join(path, true_path, sr_file, 'SR', 'chr{}'.format(chromosome))
-    true_file = 'true_chr'+chromosome+'_10000.npz'
-    true_data = np.load(os.path.join(true_path, true_file), allow_pickle=True)
-    true_hic = true_data['hic']'''
 
     raw_path = os.path.join(path, 'raw')
     file = os.path.join(raw_path, raw_file)
@@ -154,14 +139,6 @@ def configure_model(
     print('sum predict:', np.sum(np.abs(predict_hic)))
     diff = np.abs(true_hic - predict_hic)
     print('sum diff: {:.5}'.format(np.sum(diff**2)))
-
-    '''fig, axs = plt.subplots(1, 2, figsize=(8, 15))
-    ax = axs[0].imshow(np.log1p(1000*predict_hic_hr_merge), cmap='RdBu_r')
-    axs[0].set_title('predict')
-    ax = axs[1].imshow(np.log1p(1000*true_hic_hr_merge), cmap='RdBu_r')
-    axs[1].set_title('true')
-    plt.tight_layout()
-    plt.show()'''
 
     input_path = os.path.join(input_path, 'chr{}'.format(chromosome))
     os.makedirs(input_path, exist_ok=True)

@@ -175,7 +175,7 @@ def merge_hic(hic_lists, index_1D_2D, max_distance=None):
     return matrix
 
 
-def filter_diag_boundary(hic, diag_k=0, boundary_k=None):
+def filter_diag_boundary(hic, diag_k=1, boundary_k=None):
     if boundary_k is None:
         boundary_k = hic.shape[0]-1
     filter_m = np.tri(N=hic.shape[0], k=boundary_k)
