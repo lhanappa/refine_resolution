@@ -77,7 +77,7 @@ def generate_prefile(input_path='./experiment/evaluation', chromosomes = ['22','
                 mat = filter_diag_boundary(mat, diag_k=2, boundary_k=k)
                 name = 'high'
                 print('mat shape: {}'.format(mat.shape))
-                generate_coo(mat, chromosome=chro, output_path=path, filename=name, genomic_distance=genomic_distance)
+                generate_coo(mat, chromosome=chro, output_path=path, filename=name)
                 generate_bin(mat, chromosome=chro, output_path=path)
                 high_mat = mat
 
