@@ -55,9 +55,7 @@ def generate_bin(mat, chromosome, output_path, filename='bins', resolution=10000
                )
 
 
-def generate_coo(mat, chromosome, output_path, filename, genomic_distance, resolution=10000):
-    k = np.ceil(genomic_distance/resolution).astype(int)
-    filt_mat = filter_diag_boundary(mat, diag_k=2, boundary_k=k)
+def generate_coo(mat, chromosome, output_path, filename, resolution=10000):
     format_contact(filt_mat, 
                     coordinate=(0, 1), 
                     resolution=resolution, 
@@ -67,6 +65,7 @@ def generate_coo(mat, chromosome, output_path, filename, genomic_distance, resol
                )
 
 def generate_prefile(input_path='./experiment/evaluation', chromosomes = ['22','21','20','19','X'], genomic_distance=2000000):
+    k = np.ceil(genomic_distance/resolution).astype(int)
     for chro in chromosomes:
         path = os.path.join(input_path, 'chr{}'.format(chro))
         files = [f for  f in os.listdir(path) if '.npz' in f]
@@ -75,6 +74,7 @@ def generate_prefile(input_path='./experiment/evaluation', chromosomes = ['22','
                 print(file)
                 data = np.load(os.path.join(path, file), allow_pickle=True)
                 mat = data['hic']
+                mat = filter_diag_boundary(mat, diag_k=2, boundary_k=k)
                 name = 'high'
                 print('mat shape: {}'.format(mat.shape))
                 generate_coo(mat, chromosome=chro, output_path=path, filename=name, genomic_distance=genomic_distance)
@@ -105,7 +105,8 @@ def generate_prefile(input_path='./experiment/evaluation', chromosomes = ['22','
                     log_predict_hic = (mat+1)/2*maxv
                     mat = np.expm1(log_predict_hic)
                 name = namelist[1]
+            mat = filter_diag_boundary(mat, diag_k=2, boundary_k=k)
             print('mat shape: {}'.format(mat.shape))
-            generate_coo(mat, chromosome=chro, output_path=path, filename=name, genomic_distance=genomic_distance)
+            generate_coo(mat, chromosome=chro, output_path=path, filename=name)
             if 'high' in file:
                 generate_bin(mat, chromosome=chro, output_path=path)
