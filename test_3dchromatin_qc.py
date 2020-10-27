@@ -7,8 +7,7 @@ import os, io
 import subprocess
 
 
-parameters = '''
-GenomeDISCO|subsampling	lowest
+parameters = '''GenomeDISCO|subsampling	lowest
 GenomeDISCO|tmin	3
 GenomeDISCO|tmax	3
 GenomeDISCO|norm	sqrtvc
@@ -30,7 +29,7 @@ def generate_parameters(chromosome, path='./experiment/evaluation'):
 def generate_metadata_samples(methods, chromosome, path='./experiment/evaluation'):
     path = os.path.join(path, 'chr{}'.format(chromosome))
     files = [f for  f in os.listdir(path) if 'contact.gz' in f]
-    fin = open(os.path.join(path, 'metadata_samples.txt', 'w+'))
+    fin = open(os.path.join(path, 'metadata_samples.txt'), 'w+')
     for file in files:
         f = os.path.join(path, file)
         absolute_path = os.path.abspath(f)
