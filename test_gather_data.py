@@ -6,18 +6,18 @@ import cooler
 
 from our_model.utils.operations import remove_zeros, merge_hic, filter_diag_boundary, format_bin, format_contact, sampling_hic
 
-def gather(source=None, destination='./experiment/evaluation/', method='ours', chromosomes=['19', '20','21', '22', 'X']):
+def gather(source=None, destination='./experiment/evaluation/', method='output_ours_2000000_200', chromosomes=['19', '20','21', '22', 'X']):
     if(source is None):
-        source = os.path.join('.', 'data', 'output_{}_2000000_200'.format(method), 'Rao2014_GM12878_10kb','SR')
-    os.makedirs(destination, exist_ok=True)
+        source = os.path.join('.', 'data', method, 'Rao2014_GM12878_10kb','SR')
 
     for ch in chromosomes:
         infile = 'predict_chr{}_10000.npz'.format(ch)
         outfile = '{}_predict_chr{}_10000.npz'.format(method, ch)
         inpath = os.path.join(source, infile)
         if os.path.exists(inpath):
-            print('copying {} from {} to {}'.format(infile, inpath, os.path.join(destination, outfile)))
-            shutil.copyfile(inpath, os.path.join(destination, outfile))
+            print('copying {} from {} to {}'.format(infile, inpath, os.path.join(destination, 'chr{}'.format(ch), outfile)))
+            os.makedirs(os.path.join(destination, 'chr{}'.format(ch)), exist_ok=True)
+            shutil.copyfile(inpath, os.path.join(destination, 'chr{}'.format(ch), outfile))
 
 
 def gather_high_low_mat(cooler_file, path, chromosome, scale=4, output_path = './experiment/evaluation/'):
