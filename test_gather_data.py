@@ -3,6 +3,7 @@
 import os, sys
 import shutil
 import cooler
+import numpy as np
 
 from our_model.utils.operations import remove_zeros, merge_hic, filter_diag_boundary, format_bin, format_contact, sampling_hic
 
@@ -30,8 +31,10 @@ def gather_high_low_mat(cooler_file='Rao2014-GM12878-DpnII-allreps-filtered.10kb
 
     output_path = os.path.join(output_path, 'chr{}'.format(chromosome))
     os.makedirs(output_path, exist_ok=True)
-    
+
     outfile = 'high_chr{}_10000.npz'.format(chromosome)
+    print('saving file {}'.format(os.path.join(output_path, outfile)))
     np.savez_compressed(os.path.join(output_path, outfile), hic=high_hic, compact=idx)
     outfile = 'low_chr{}_{}0000.npz'.format(chromosome, scale)
+    print('saving file {}'.format(os.path.join(output_path, outfile)))
     np.savez_compressed(os.path.join(output_path, outfile), hic=low_hic, compact=idx)
