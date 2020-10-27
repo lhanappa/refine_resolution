@@ -71,6 +71,17 @@ def generate_prefile(input_path='./experiment/evaluation', chromosomes = ['22','
         path = os.path.join(input_path, 'chr{}'.format(chro))
         files = [f for  f in os.listdir(path) if '.npz' in f]
         for file in files:
+            if 'high' in file:
+                print(file)
+                data = np.load(os.path.join(path, file), allow_pickle=True)
+                mat = data['hic']
+                name = 'high'
+                print('mat shape: {}'.format(mat.shape))
+                generate_coo(mat, chromosome=chro, output_path=path, filename=name, genomic_distance=genomic_distance)
+                generate_bin(mat, chromosome=chro, output_path=path)
+                high_mat = mat
+
+        for file in files:
             print(file)
             data = np.load(os.path.join(path, file), allow_pickle=True)
             mat = data['hic']
@@ -78,7 +89,23 @@ def generate_prefile(input_path='./experiment/evaluation', chromosomes = ['22','
             if len(namelist) == 3:
                 name = namelist[0]
             else:
+                model = namelist[1]
+                if model == 'hicgan':
+                    # true_hic = np.log1p(true_hic)
+                    mat = np.expm1(mat)
+                elif model == 'deephic':
+                    minv = high_mat.min()
+                    maxv = high_mat.max()
+                    # true_hic = np.divide((true_hic-minv), (maxv-minv), dtype=float,out=np.zeros_like(true_hic), where=(maxv-minv) != 0)
+                    mat = mat*(maxv-minv)+minv
+                elif model == 'hicsr':
+                    log_mat = np.log2(high_mat+1)
+                    # ture_hic = 2*(log_mat/np.max(log_mat)) - 1
+                    maxv = np.max(log_mat)
+                    log_predict_hic = (mat+1)/2*maxv
+                    mat = np.expm1(log_predict_hic)
                 name = namelist[1]
+            print('mat shape: {}'.format(mat.shape))
             generate_coo(mat, chromosome=chro, output_path=path, filename=name, genomic_distance=genomic_distance)
             if 'high' in file:
                 generate_bin(mat, chromosome=chro, output_path=path)
