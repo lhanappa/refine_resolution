@@ -6,39 +6,51 @@ import gzip
 import os, io
 import subprocess
 
-def merge_contact(files = [], method='', outdir='./'):
-    outfile = '{}.txt.gz'.format(method)
-    with gzip.open(os.path.join(outdir, outfile), 'w') as fout:
-        for file in files:
-            with gzip.open(file, 'rb') as gz:
-                f = io.BufferedReader(gz)
-                flines = f.readlines()
-                fout.writelines(flines)
-            gz.close()
+
+parameters = '''
+GenomeDISCO|subsampling	lowest
+GenomeDISCO|tmin	3
+GenomeDISCO|tmax	3
+GenomeDISCO|norm	sqrtvc
+GenomeDISCO|scoresByStep	no
+GenomeDISCO|removeDiag	yes
+GenomeDISCO|transition	yes
+HiCRep|h	20
+HiCRep|maxdist	2000000
+HiC-Spector|n	20
+QuASAR|rebinning	resolution
+'''
+
+def generate_parameters(chromosome, path='./experiment/evaluation'):
+    path = os.path.join(path, 'chr{}'.format(chromosome))
+    fout = open(os.path.join(path, 'qc_parameters.txt'))
+    fout.write(parameters)
     fout.close()
 
+def generate_metadata_samples(methods, chromosome, path='./experiment/evaluation'):
+    path = os.path.join(path, 'chr{}'.format(chromosome))
+    files = [f for  f in os.listdir(path) if 'contact.gz' in f]
+    fin = open(os.path.join(path, 'metadata_samples.txt', 'w+'))
+    for file in files:
+        f = os.path.join(path, file)
+        absolute_path = os.path.abspath(f)
+        method = file.split('_')[0]
+        if method in methods:
+            line = '{}\t{}\n'.format(method, absolute_path)
+            fin.write(line)
+    fin.close()
 
-def merge_bins(file, outdir='./', outfile = 'Bins.bed.gz'):
-    with gzip.open(os.path.join(outdir, outfile), 'w') as fout:
-        with gzip.open(file, 'rb') as gz:
-            f = io.BufferedReader(gz)
-            for line in f.readline():
-                l = line
-                fout.write(l)
-        gz.close()
-    fout.close()
 
-def generate_paramters():
-    pass
-
-def generate_metadata_samples(samples):
-    pass
-
-def generate_pairs(file_list1, file_list2):
-    pass
-
-def get_high_low_resolution():
-    pass
+def generate_pairs(file_list1, file_list2, chromosome, path='./experiment/evaluation'):
+    path = os.path.join(path, 'chr{}'.format(chromosome))
+    os.makedirs(path, exist_ok=True)
+    with open(os.path.join(path, 'metadata_pairs.txt'), 'w+') as fin:
+        for f1 in file_list1:
+            for f2 in file_list2:
+                l = [f1, f2]
+                line = '\t'.join(l)+ '\n'
+                fin.write(line)
+    fin.close()
 
 """
 3DChromatin_ReplicateQC preprocess --running_mode sge --metadata_samples examples/metadata.samples --bins examples/Bins.w50000.bed.gz --outdir examples/output --parameters_file examples/example_parameters.txt
@@ -50,58 +62,52 @@ def get_high_low_resolution():
 
 def run():
     methods = ['hicgan', 'deephic', 'hicsr', 'ours', 'high', 'low']
-    bin_file = ''
-    output_dir = ''
-    merge_bins(bin_file, output_dir)
-    samples = dict()
-    for i, m in enumerate(methods):
-        contact_files = []
-        [path, file] = merge_contact(contact_files, m, output_dir)
-        samples[m] = os.path.join(path, file)
+    list1 = ['hicgan', 'deephic', 'hicsr', 'ours', 'low']
+    list2 = ['high']
+    chromosomes = ['22', '21', '20', '19', 'X']
+    for chro in chromosomes:
+        generate_parameters(chro)
+        generate_metadata_samples(methods, chro)
+        generate_pairs(list1, list2, chro)
 
-    generate_paramters()
-    generate_metadata_samples(samples)
+        # 3DChromatin_ReplicateQC preprocess 
+        # --running_mode sge 
+        # --metadata_samples examples/metadata.samples 
+        # --bins examples/Bins.w50000.bed.gz 
+        # --outdir examples/output 
+        # --parameters_file examples/example_parameters.txt
+        script_work_dir = './experiment/evaluation/chr{}'.format(chro)
+        cmd = ["3DChromatin_ReplicateQC", "preprocess", 
+            "--running_mode", 'NA', 
+            "--metadata_samples",  'metadata_samples.txt', 
+            "--bins", 'bins_chr{}.bed.gz'.format(chro), 
+            "--outdir", './',
+            "--parameters_file", './qc_parameters.txt']
+        process = subprocess.run(cmd, cwd=script_work_dir)
 
-# 3DChromatin_ReplicateQC preprocess 
-# --running_mode sge 
-# --metadata_samples examples/metadata.samples 
-# --bins examples/Bins.w50000.bed.gz 
-# --outdir examples/output 
-# --parameters_file examples/example_parameters.txt
-    script_work_dir = './'
-    cmd = ["3DChromatin_ReplicateQC", "preprocess", 
-        "--running_mode", data_fp, 
-        "--metadata_samples", output_path, 
-        "--bins", "HiCSR", 
-        "--outdir", model_fp,
-        "--parameters_file", str(resolution)]
-    process = subprocess.run(cmd, cwd=script_work_dir)
+        # 3DChromatin_ReplicateQC concordance 
+        # --running_mode sge 
+        # --metadata_pairs examples/metadata.pairs 
+        # --outdir examples/output 
+        # --methods GenomeDISCO,HiCRep,HiC-Spector,QuASAR-Rep
+        cmd = ["3DChromatin_ReplicateQC", "concordance", 
+            "--running_mode", 'NA', 
+            "--metadata_pairs", 'metadata_pairs.txt',
+            "--outdir", './',
+            "--methods", "GenomeDISCO,HiCRep,HiC-Spector,QuASAR-Rep"]
+        process = subprocess.run(cmd, cwd=script_work_dir)
 
-# 3DChromatin_ReplicateQC concordance 
-# --running_mode sge 
-# --metadata_pairs examples/metadata.pairs 
-# --outdir examples/output 
-# --methods GenomeDISCO,HiCRep,HiC-Spector,QuASAR-Rep
-    script_work_dir = './'
-    cmd = ["3DChromatin_ReplicateQC", "preprocess", 
-        "--running_mode", data_fp, 
-        "--metadata_samples", output_path, 
-        "--bins", "HiCSR", 
-        "--outdir", model_fp,
-        "--parameters_file", str(resolution)]
-    process = subprocess.run(cmd, cwd=script_work_dir)
-
-# 3DChromatin_ReplicateQC summary 
-# --running_mode sge 
-# --metadata_samples examples/metadata.samples 
-# --metadata_pairs examples/metadata.pairs 
-# --bins examples/Bins.w50000.bed.gz 
-# --outdir examples/output 
-# --methods GenomeDISCO,HiCRep,HiC-Spector,QuASAR-Rep    script_work_dir = './'
-    cmd = ["3DChromatin_ReplicateQC", "preprocess", 
-        "--running_mode", data_fp, 
-        "--metadata_samples", output_path, 
-        "--bins", "HiCSR", 
-        "--outdir", model_fp,
-        "--parameters_file", str(resolution)]
-    process = subprocess.run(cmd, cwd=script_work_dir)
+        # 3DChromatin_ReplicateQC summary 
+        # --running_mode sge 
+        # --metadata_samples examples/metadata.samples 
+        # --metadata_pairs examples/metadata.pairs 
+        # --bins examples/Bins.w50000.bed.gz 
+        # --outdir examples/output 
+        # --methods GenomeDISCO,HiCRep,HiC-Spector,QuASAR-Rep    script_work_dir = './'
+        '''cmd = ["3DChromatin_ReplicateQC", "summary", 
+            "--running_mode", data_fp, 
+            "--metadata_samples", output_path, 
+            "--bins", "HiCSR", 
+            "--outdir", model_fp,
+            "--parameters_file", str(resolution)]
+        process = subprocess.run(cmd, cwd=script_work_dir)'''

@@ -80,6 +80,8 @@ def generate_prefile(input_path='./experiment/evaluation', chromosomes = ['22','
                 high_mat = mat
 
         for file in files:
+            if 'true' in file:
+                continue
             print(file)
             data = np.load(os.path.join(path, file), allow_pickle=True)
             mat = data['hic']
