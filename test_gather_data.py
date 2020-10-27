@@ -20,7 +20,7 @@ def gather(source=None, destination='./experiment/evaluation/', method='output_o
             shutil.copyfile(inpath, os.path.join(destination, 'chr{}'.format(ch), outfile))
 
 
-def gather_high_low_mat(cooler_file, path, chromosome, scale=4, output_path = './experiment/evaluation/'):
+def gather_high_low_mat(cooler_file='Rao2014-GM12878-DpnII-allreps-filtered.10kb.cool', path='./data/raw/', chromosome='22', scale=4, output_path = './experiment/evaluation/'):
     file = os.path.join(path, cooler_file)
     cool_hic = cooler.Cooler(file)
     # resolution = cool_hic.binsize
@@ -28,6 +28,9 @@ def gather_high_low_mat(cooler_file, path, chromosome, scale=4, output_path = '.
     high_hic, idx = remove_zeros(mat)
     low_hic = sampling_hic(high_hic, scale**2, fix_seed=True)
 
+    output_path = os.path.join(output_path, 'chr{}'.format(chromosome))
+    os.makedirs(output_path, exist_ok=True)
+    
     outfile = 'high_chr{}_10000.npz'.format(chromosome)
     np.savez_compressed(os.path.join(output_path, outfile), hic=high_hic, compact=idx)
     outfile = 'low_chr{}_{}0000.npz'.format(chromosome, scale)
