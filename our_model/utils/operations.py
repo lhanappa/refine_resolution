@@ -211,7 +211,7 @@ def tag2dense(tag_mat, mat_length):
 def format_contact(matrix, coordinate=(0, 1), resolution=10000, chrm='1', save_file=True, filename=None):
     """chr1 bin1 chr2 bin2 value"""
     n = len(matrix)
-    nhf = int(len(matrix)/2)
+    nhf = np.floor(n/2)
     contact = list()
     for i in np.arange(n):
         for j in np.arange(i+1, n):
