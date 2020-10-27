@@ -220,6 +220,7 @@ def format_contact(matrix, coordinate=(0, 1), resolution=10000, chrm='1', save_f
                 continue
             chr1 = chrm
             chr2 = chrm
+            print('i: {}, j: {}, nhf: {}, int(i/nhf): {}, int(j/nhf): {}'.format(i, j, nhf, int(i/nhf), int(j/nhf)))
             bin1 = (i - int(i/nhf)*nhf + coordinate[int(i/nhf)]*nhf)*resolution
             bin2 = (j - int(j/nhf)*nhf + coordinate[int(j/nhf)]*nhf)*resolution
             entry = [chr1, str(bin1), chr2, str(bin2), str(value)]
