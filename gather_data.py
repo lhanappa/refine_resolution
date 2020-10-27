@@ -47,7 +47,6 @@ def gather_high_low_mat(cooler_file='Rao2014-GM12878-DpnII-allreps-filtered.10kb
 
 def generate_bin(mat, chromosome, output_path, filename='bins', resolution=10000):
     format_bin(mat,
-               coordinate=(0, 1),
                resolution=resolution,
                chrm=chromosome,
                save_file=True,
@@ -57,7 +56,6 @@ def generate_bin(mat, chromosome, output_path, filename='bins', resolution=10000
 
 def generate_coo(mat, chromosome, output_path, filename, resolution=10000):
     format_contact(mat, 
-                    coordinate=(0, 1), 
                     resolution=resolution, 
                     chrm=chromosome, 
                     save_file=True, 
