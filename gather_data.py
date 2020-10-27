@@ -68,7 +68,7 @@ def generate_coo(mat, chromosome, output_path, filename, genomic_distance, resol
 
 def generate_prefile(input_path='./experiment/evaluation', chromosomes = ['22','21','20','19','X'], genomic_distance=2000000):
     for chro in chromosomes:
-        path = os.path.join(input_path, 'chr{}'.format(chromosomes))
+        path = os.path.join(input_path, 'chr{}'.format(chro))
         files = [f for  f in os.listdir(path) if '.npz' in f]
         for file in files:
             print(file)
