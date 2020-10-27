@@ -23,7 +23,7 @@ QuASAR|rebinning	resolution
 
 def generate_parameters(chromosome, path='./experiment/evaluation'):
     path = os.path.join(path, 'chr{}'.format(chromosome))
-    fout = open(os.path.join(path, 'qc_parameters.txt'))
+    fout = open(os.path.join(path, 'qc_parameters.txt'), 'w+')
     fout.write(parameters)
     fout.close()
 
@@ -60,11 +60,11 @@ def generate_pairs(file_list1, file_list2, chromosome, path='./experiment/evalua
 3DChromatin_ReplicateQC cleanup --running_mode sge --outdir examples/output
 """
 
-def run():
-    methods = ['hicgan', 'deephic', 'hicsr', 'ours', 'high', 'low']
-    list1 = ['hicgan', 'deephic', 'hicsr', 'ours', 'low']
-    list2 = ['high']
-    chromosomes = ['22', '21', '20', '19', 'X']
+def run(
+    methods = ['hicgan', 'deephic', 'hicsr', 'ours', 'high', 'low'],
+    list1 = ['hicgan', 'deephic', 'hicsr', 'ours', 'low'],
+    list2 = ['high'],
+    chromosomes = ['22', '21', '20', '19', 'X']):
     for chro in chromosomes:
         generate_parameters(chro)
         generate_metadata_samples(methods, chro)
@@ -113,4 +113,4 @@ def run():
         process = subprocess.run(cmd, cwd=script_work_dir)'''
 
 if __name__ == '__main__':
-    run()
+    run(chromosomes = ['22'])
