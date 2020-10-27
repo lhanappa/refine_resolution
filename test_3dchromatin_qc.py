@@ -49,7 +49,7 @@ def get_high_low_resolution():
 """
 
 def run():
-    methods = ['hicgan', 'deephic', 'hicsr', 'ours', 'high-resolution', 'low-resolution']
+    methods = ['hicgan', 'deephic', 'hicsr', 'ours', 'high', 'low']
     bin_file = ''
     output_dir = ''
     merge_bins(bin_file, output_dir)

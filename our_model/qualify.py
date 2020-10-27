@@ -95,10 +95,10 @@ def configure_model(
     with np.load(os.path.join(input_path, input_file), allow_pickle=True) as data:
         predict_hic = data['hic']
 
-    if genomic_distance is None:
+    '''if genomic_distance is None:
         max_boundary = None
     else:
-        max_boundary = np.ceil(genomic_distance/(resolution))
+        max_boundary = np.ceil(genomic_distance/(resolution))'''
 
     raw_path = os.path.join(path, 'raw')
     file = os.path.join(raw_path, raw_file)
