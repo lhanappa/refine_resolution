@@ -42,7 +42,6 @@ def generate_metadata_samples(methods, chromosome, path='./experiment/evaluation
 
 def generate_pairs(file_list1, file_list2, chromosome, path='./experiment/evaluation'):
     path = os.path.join(path, 'chr{}'.format(chromosome))
-    os.makedirs(path, exist_ok=True)
     with open(os.path.join(path, 'metadata_pairs.txt'), 'w+') as fin:
         for f1 in file_list1:
             for f2 in file_list2:
