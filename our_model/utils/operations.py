@@ -247,7 +247,7 @@ def format_bin(matrix, resolution=10000, chrm='1', save_file=True, filename=None
     bins = list()
 
     for i in np.arange(n):
-        chr1 = chrm
+        chr1 = 'chr' + chrm
         start = int(i*resolution)
         # start = int((i - int(i/nhf)*nhf + coordinate[int(i/nhf)]*nhf)*resolution)
         end = int(start + resolution)
