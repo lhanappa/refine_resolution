@@ -56,7 +56,7 @@ def generate_bin(mat, chromosome, output_path, filename='bins', resolution=10000
 
 
 def generate_coo(mat, chromosome, output_path, filename, resolution=10000):
-    format_contact(filt_mat, 
+    format_contact(mat, 
                     coordinate=(0, 1), 
                     resolution=resolution, 
                     chrm=chromosome, 
