@@ -81,7 +81,7 @@ def run(
             "--bins", 'bins_chr{}.bed.gz'.format(chro), 
             "--outdir", './',
             "--parameters_file", './qc_parameters.txt']
-        process = subprocess.run(cmd, cwd=script_work_dir)
+        process = subprocess.Popen(cmd, cwd=script_work_dir)
 
         # 3DChromatin_ReplicateQC concordance 
         # --running_mode sge 
@@ -93,7 +93,7 @@ def run(
             "--metadata_pairs", 'metadata_pairs.txt',
             "--outdir", './',
             "--methods", "GenomeDISCO,HiCRep,HiC-Spector,QuASAR-Rep"]
-        process = subprocess.run(cmd, cwd=script_work_dir)
+        process = subprocess.Popen(cmd, cwd=script_work_dir)
 
         # 3DChromatin_ReplicateQC summary 
         # --running_mode sge 
