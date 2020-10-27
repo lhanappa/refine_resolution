@@ -63,6 +63,7 @@ def run(
     list1 = ['hicgan', 'deephic', 'hicsr', 'ours', 'low'],
     list2 = ['high'],
     chromosomes = ['22', '21', '20', '19', 'X']):
+    print(chromosomes)
     for chro in chromosomes:
         generate_parameters(chro)
         generate_metadata_samples(methods, chro)
