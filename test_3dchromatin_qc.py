@@ -10,8 +10,8 @@ import subprocess
 parameters = '''GenomeDISCO|subsampling	lowest
 GenomeDISCO|tmin	3
 GenomeDISCO|tmax	3
-GenomeDISCO|norm	sqrtvc
-GenomeDISCO|scoresByStep	no
+GenomeDISCO|norm	uniform
+GenomeDISCO|scoresByStep	yes
 GenomeDISCO|removeDiag	yes
 GenomeDISCO|transition	yes
 HiCRep|h	20
@@ -77,10 +77,10 @@ def run(
         # --parameters_file examples/example_parameters.txt
         script_work_dir = './experiment/evaluation/chr{}'.format(chro)
         cmd = ["3DChromatin_ReplicateQC", "preprocess", 
-            "--running_mode", 'NA', 
             "--metadata_samples",  'metadata_samples.txt', 
             "--bins", 'bins_chr{}.bed.gz'.format(chro), 
             "--outdir", './',
+            "--methods", "GenomeDISCO,HiCRep,HiC-Spector",
             "--parameters_file", './qc_parameters.txt']
         process = subprocess.Popen(cmd, cwd=script_work_dir)
 
@@ -90,10 +90,9 @@ def run(
         # --outdir examples/output 
         # --methods GenomeDISCO,HiCRep,HiC-Spector,QuASAR-Rep
         cmd = ["3DChromatin_ReplicateQC", "concordance", 
-            "--running_mode", 'NA', 
             "--metadata_pairs", 'metadata_pairs.txt',
             "--outdir", './',
-            "--methods", "GenomeDISCO,HiCRep,HiC-Spector,QuASAR-Rep"]
+            "--methods", "GenomeDISCO,HiCRep,HiC-Spector"] # ,QuASAR-Rep
         process = subprocess.Popen(cmd, cwd=script_work_dir)
 
         # 3DChromatin_ReplicateQC summary 
