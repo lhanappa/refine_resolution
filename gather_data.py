@@ -8,7 +8,6 @@ import numpy as np
 
 from our_model.utils.operations import remove_zeros, merge_hic, filter_diag_boundary, format_bin, format_contact, sampling_hic
 
-
 def gather(source=None, destination='./experiment/evaluation/', method='output_ours_2000000_200', chromosomes=['19', '20', '21', '22', 'X']):
     if(source is None):
         source = os.path.join('.', 'data', method,
@@ -19,9 +18,12 @@ def gather(source=None, destination='./experiment/evaluation/', method='output_o
         outfile = '{}_predict_chr{}_10000.npz'.format(method, ch)
         inpath = os.path.join(source, infile)
         if os.path.exists(inpath):
-            print('copying {} from {} to {}'.format(infile, inpath, os.path.join(destination, 'chr{}'.format(ch), outfile)))
-            os.makedirs(os.path.join( destination, 'chr{}'.format(ch)), exist_ok=True)
-            shutil.copyfile(inpath, os.path.join( destination, 'chr{}'.format(ch), outfile))
+            print('copying {} from {} to {}'.format(infile, inpath,
+                                                    os.path.join(destination, 'chr{}'.format(ch), outfile)))
+            os.makedirs(os.path.join(
+                destination, 'chr{}'.format(ch)), exist_ok=True)
+            shutil.copyfile(inpath, os.path.join(
+                destination, 'chr{}'.format(ch), outfile))
 
 
 def gather_high_low_mat(cooler_file='Rao2014-GM12878-DpnII-allreps-filtered.10kb.cool', path='./data/raw/', chromosome='22', scale=4, output_path='./experiment/evaluation/'):
@@ -50,23 +52,26 @@ def generate_bin(mat, chromosome, output_path, filename='bins', resolution=10000
                resolution=resolution,
                chrm=chromosome,
                save_file=True,
-               filename=os.path.join(output_path, '{}_chr{}.bed.gz'.format(filename, chromosome))
+               filename=os.path.join(
+                   output_path, '{}_chr{}.bed.gz'.format(filename, chromosome))
                )
 
 
 def generate_coo(mat, chromosome, output_path, filename, resolution=10000):
-    format_contact(mat, 
-                    resolution=resolution, 
-                    chrm=chromosome, 
-                    save_file=True, 
-                    filename=os.path.join(output_path, '{}_chr{}_contact.gz'.format(filename, chromosome))
-               )
+    format_contact(mat,
+                   resolution=resolution,
+                   chrm=chromosome,
+                   save_file=True,
+                   filename=os.path.join(
+                       output_path, '{}_chr{}_contact.gz'.format(filename, chromosome))
+                   )
 
-def generate_prefile(input_path='./experiment/evaluation', chromosomes = ['22','21','20','19','X'], resolution=10000, genomic_distance=2000000):
+
+def generate_prefile(input_path='./experiment/evaluation', chromosomes=['22', '21', '20', '19', 'X'], resolution=10000, genomic_distance=2000000):
     k = np.ceil(genomic_distance/resolution).astype(int)
     for chro in chromosomes:
         path = os.path.join(input_path, 'chr{}'.format(chro))
-        files = [f for  f in os.listdir(path) if '.npz' in f]
+        files = [f for f in os.listdir(path) if '.npz' in f]
         for file in files:
             if 'high' in file:
                 print(file)
@@ -75,7 +80,8 @@ def generate_prefile(input_path='./experiment/evaluation', chromosomes = ['22','
                 mat = filter_diag_boundary(mat, diag_k=2, boundary_k=k)
                 name = 'high'
                 print('mat shape: {}'.format(mat.shape))
-                generate_coo(mat, chromosome=chro, output_path=path, filename=name)
+                generate_coo(mat, chromosome=chro,
+                             output_path=path, filename=name)
                 generate_bin(mat, chromosome=chro, output_path=path)
                 high_mat = mat
 
@@ -110,3 +116,10 @@ def generate_prefile(input_path='./experiment/evaluation', chromosomes = ['22','
             generate_coo(mat, chromosome=chro, output_path=path, filename=name)
             if 'high' in file:
                 generate_bin(mat, chromosome=chro, output_path=path)
+
+
+if __name__ == '__main__':
+    generate_prefile(input_path='./experiment/evaluation',
+                     chromosomes=['22', '21', '20', '19', 'X'],
+                     resolution=10000, 
+                     genomic_distance=2000000)

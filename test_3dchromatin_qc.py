@@ -111,3 +111,6 @@ def run():
             "--outdir", model_fp,
             "--parameters_file", str(resolution)]
         process = subprocess.run(cmd, cwd=script_work_dir)'''
+
+if __name__ == '__main__':
+    run()
