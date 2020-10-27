@@ -64,7 +64,7 @@ def generate_coo(mat, chromosome, output_path, filename, resolution=10000):
                     filename=os.path.join(output_path, '{}_chr{}_contact.gz'.format(filename, chromosome))
                )
 
-def generate_prefile(input_path='./experiment/evaluation', chromosomes = ['22','21','20','19','X'], genomic_distance=2000000):
+def generate_prefile(input_path='./experiment/evaluation', chromosomes = ['22','21','20','19','X'], resolution=10000, genomic_distance=2000000):
     k = np.ceil(genomic_distance/resolution).astype(int)
     for chro in chromosomes:
         path = os.path.join(input_path, 'chr{}'.format(chro))
