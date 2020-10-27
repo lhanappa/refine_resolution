@@ -86,7 +86,7 @@ def generate_prefile(input_path='./experiment/evaluation', chromosomes=['22', '2
                 high_mat = mat
 
         for file in files:
-            if 'true' in file:
+            if 'high' in file:
                 continue
             print(file)
             data = np.load(os.path.join(path, file), allow_pickle=True)
