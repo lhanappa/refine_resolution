@@ -79,6 +79,6 @@ def generate_prefile(input_path='./experiment/evaluation', chromosomes = ['22','
                 name = namelist[0]
             else:
                 name = namelist[1]
-            generate_coo(mat, chromosome=chro, output_path=path, filename=name)
+            generate_coo(mat, chromosome=chro, output_path=path, filename=name, genomic_distance=genomic_distance)
             if 'high' in file:
                 generate_bin(mat, chromosome=chro, output_path=path)
