@@ -119,7 +119,7 @@ def predict(path='./data',
     print('residual: {}'.format(residual))
     if residual > 0:
         Mh = Mh[0:-residual, 0:-residual]
-        true_hic_hr_merge = true_hic_hr_merge[0:-residual, 0:-residual]
+        # true_hic_hr_merge = true_hic_hr_merge[0:-residual, 0:-residual]
         Dh = Dh[0:-residual]
         Dl = Dl[0:-residual]
 
