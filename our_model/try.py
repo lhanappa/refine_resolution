@@ -30,36 +30,19 @@ def predict(path='./data',
     if not os.path.exists(directory_sr):
         os.makedirs(directory_sr)
 
-
     name = os.path.join(path, raw_path, raw_file)
     c = cooler.Cooler(name)
     resolution = c.binsize
     mat = c.matrix(balance=True).fetch('chr'+chromosome)
     [Mh, idx] = operations.remove_zeros(mat)
-    print('shape HR: ', Mh.shape)
-
-    if start is None:
-        start = 0
-    if end is None:
-        end = Mh.shape[0]
-
-    Mh = Mh[start:end, start:end]
     print('MH: ', Mh.shape)
-
-    # Normalization
-    # the input should not be type of np.matrix!
-    Mh = np.asarray(Mh)
-    # Mh, Dh = operations.scn_normalization(Mh, max_iter=3000)
-
 
     if genomic_distance is None:
         max_boundary = None
     else:
         max_boundary = np.ceil(genomic_distance/(resolution))
     hic_hr, index_1d_2d, index_2d_1d = operations.divide_pieces_hic( Mh, block_size=len_size, max_distance=max_boundary, save_file=False)
-    # hic_hr = np.asarray(hic_hr, dtype=np.float32)
-    true_hic_hr = hic_hr
-    true_hic_hr_merge = operations.merge_hic( true_hic_hr, index_1D_2D=index_1d_2d, max_distance=max_boundary)
+    true_hic_hr_merge = operations.merge_hic( hic_hr, index_1D_2D=index_1d_2d, max_distance=max_boundary)
     print('shape of merge true hic hr', true_hic_hr_merge.shape)
 
     # chrop Mh
@@ -67,16 +50,6 @@ def predict(path='./data',
     print('residual: {}'.format(residual))
     if residual > 0:
         Mh = Mh[0:-residual, 0:-residual]
-        # Dh = Dh[0:-residual]
-
-    # recover M from scn to origin
-    # Mh = operations.scn_recover(Mh, Dh)
-    # true_hic_hr_merge = operations.scn_recover(true_hic_hr_merge, Dh)
-
-    # remove diag and off diag
-    # k = max_boundary.astype(int)
-    # Mh = operations.filter_diag_boundary(Mh, diag_k=2, boundary_k=k)
-    # true_hic_hr_merge = operations.filter_diag_boundary(true_hic_hr_merge, diag_k=2, boundary_k=k)
 
     print('sum Mh:', np.sum(np.abs(Mh)))
     print('sum merge:', np.sum(np.abs(true_hic_hr_merge)))
