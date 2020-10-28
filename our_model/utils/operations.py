@@ -101,8 +101,7 @@ def divide_pieces_hic(hic_matrix, block_size=128, max_distance=None, save_file=F
     block_height = int(IMG_HEIGHT/2)
     block_width = int(IMG_WIDTH/2)
     M_d0 = np.split(M, np.arange(block_height, M_h, block_height), axis=0)
-    M_d1 = list(map(lambda x: np.split(x, np.arange(
-        block_width, M_w, block_width), axis=1), M_d0))
+    M_d1 = list(map(lambda x: np.split(x, np.arange(block_width, M_w, block_width), axis=1), M_d0))
     hic_half_h = np.array(M_d1)
     if M_h % block_height != 0 or M_w % block_width != 0:
         hic_half_h = hic_half_h[0:-1, 0:-1]
@@ -113,9 +112,9 @@ def divide_pieces_hic(hic_matrix, block_size=128, max_distance=None, save_file=F
     hic_index_rev = dict()
     count = 0
     for dis in np.arange(1, hic_half_h.shape[0]):
+        if (max_distance is not None) and (dis > max_distance):
+            break
         for i in np.arange(0, hic_half_h.shape[1]-dis):
-            if (max_distance is not None) and (dis > max_distance):
-                continue
             hic_m.append(np.block([[hic_half_h[i, i], hic_half_h[i, i+dis]],
                                    [hic_half_h[i+dis, i], hic_half_h[i+dis, i+dis]]]))
             hic_index[count] = (i, i+dis)
@@ -158,21 +157,24 @@ def merge_hic(hic_lists, index_1D_2D, max_distance=None):
         n = int((lensize+(1+k)*k/2)/k)
 
     matrix = np.zeros(shape=(n*Height_hf, n*Width_hf))
+    dig = np.zeros(shape=(n,))
     for i in np.arange(lenindex):
         h, w = index_1D_2D[i]
-        if max_distance is not None and np.abs(h-w) > np.ceil(max_distance/Height_hf):
-            continue
+        dig[h] += 1
+        dig[w] += 1
+        '''if (max_distance is not None) and (np.abs(h-w) > np.ceil(max_distance/Height_hf)):
+            continue'''
         x = h*Height_hf
         y = w*Width_hf
-        matrix[x:x+Height_hf, y:y+Width_hf] += hic_m[i,
-                                                     0:Height_hf, 0+Width_hf:Width]
-
-        matrix[x:x+Height_hf, x:x+Height_hf] += hic_m[i,
-                                                      0:Height_hf, 0:Width_hf]/(2.0*(n-1))
-        matrix[y:y+Width_hf, y:y+Width_hf] += hic_m[i, 0 +
-                                                    Height_hf:Height, 0+Width_hf:Width]/(2.0*(n-1))
-
+        matrix[x:x+Height_hf, y:y+Width_hf] += hic_m[i, 0:Height_hf, 0+Width_hf:Width]
+        matrix[x:x+Height_hf, x:x+Height_hf] += hic_m[i, 0:Height_hf, 0:Width_hf]
+        matrix[y:y+Width_hf, y:y+Width_hf] += hic_m[i, 0+Height_hf:Height, 0+Width_hf:Width]
+    
     matrix = matrix + np.transpose(matrix)
+
+    for i in np.arange(0,n):
+        matrix[i*Height_hf:(i+1)*Height_hf, i*Height_hf:(i+1)*Height_hf] /= (2.0*dig[i])
+
     return matrix
 
 
