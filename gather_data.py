@@ -79,6 +79,9 @@ def generate_prefile(input_path='./experiment/evaluation', chromosomes=['22', '2
                 mat = data['hic']
                 mat = filter_diag_boundary(mat, diag_k=2, boundary_k=k)
                 name = 'high'
+                n = int(mat.shape[0])
+                mat = mat[0:-(n%100), :]
+                mat = mat[:, 0:-(n%100)]
                 print('mat shape: {}'.format(mat.shape))
                 generate_coo(mat, chromosome=chro,
                              output_path=path, filename=name)
@@ -112,6 +115,8 @@ def generate_prefile(input_path='./experiment/evaluation', chromosomes=['22', '2
                     mat = np.expm1(log_predict_hic)
                 name = namelist[1]
             mat = filter_diag_boundary(mat, diag_k=2, boundary_k=k)
+            mat = mat[0:-(n%100), :]
+            mat = mat[:, 0:-(n%100)]
             print('mat shape: {}'.format(mat.shape))
             generate_coo(mat, chromosome=chro, output_path=path, filename=name)
             if 'high' in file:

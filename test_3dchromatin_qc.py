@@ -60,8 +60,8 @@ def generate_pairs(file_list1, file_list2, chromosome, path='./experiment/evalua
 
 def run(
     methods = ['hicgan', 'deephic', 'hicsr', 'ours', 'high', 'low'],
-    list1 = ['hicgan', 'deephic', 'hicsr', 'ours', 'low'],
-    list2 = ['high'],
+    list1 = ['high'],
+    list2 = ['hicgan', 'deephic', 'hicsr', 'ours', 'low'],
     chromosomes = ['22', '21', '20', '19', 'X']):
     print(chromosomes)
     for chro in chromosomes:
@@ -79,7 +79,7 @@ def run(
         cmd = ["3DChromatin_ReplicateQC", "preprocess", 
             "--metadata_samples",  'metadata_samples.txt', 
             "--bins", 'bins_chr{}.bed.gz'.format(chro), 
-            "--outdir", './',
+            "--outdir", './output',
             "--methods", "GenomeDISCO,HiCRep,HiC-Spector",
             "--parameters_file", './qc_parameters.txt']
         process = subprocess.Popen(cmd, cwd=script_work_dir)
