@@ -64,6 +64,7 @@ def run(
     list2 = ['hicgan', 'deephic', 'hicsr', 'ours', 'low'],
     chromosomes = ['22', '21', '20', '19', 'X']):
     print(chromosomes)
+    process = []
     for chro in chromosomes:
         generate_parameters(chro)
         generate_metadata_samples(methods, chro)
@@ -79,11 +80,13 @@ def run(
         cmd = ["3DChromatin_ReplicateQC", "preprocess", 
             "--metadata_samples",  'metadata_samples.txt', 
             "--bins", 'bins_chr{}.bed.gz'.format(chro), 
-            "--outdir", '.',
+            "--outdir", './output/',
             "--methods", "GenomeDISCO,HiCRep,HiC-Spector",
             "--parameters_file", './qc_parameters.txt']
-        process = subprocess.Popen(cmd, cwd=script_work_dir)
-
+        process.append(subprocess.Popen(cmd, cwd=script_work_dir))
+    for p in process:
+        p.wait()
+    for chro in chromosomes:
         # 3DChromatin_ReplicateQC concordance 
         # --running_mode sge 
         # --metadata_pairs examples/metadata.pairs 
@@ -91,9 +94,9 @@ def run(
         # --methods GenomeDISCO,HiCRep,HiC-Spector,QuASAR-Rep
         cmd = ["3DChromatin_ReplicateQC", "concordance", 
             "--metadata_pairs", 'metadata_pairs.txt',
-            "--outdir", '.',
+            "--outdir", './output/',
             "--methods", "GenomeDISCO,HiCRep,HiC-Spector"] # ,QuASAR-Rep
-        process = subprocess.Popen(cmd, cwd=script_work_dir)
+        process.append(subprocess.Popen(cmd, cwd=script_work_dir))
 
         # 3DChromatin_ReplicateQC summary 
         # --running_mode sge 
