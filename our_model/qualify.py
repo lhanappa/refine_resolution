@@ -9,6 +9,7 @@ import cooler
 
 from utils.operations import redircwd_back_projroot
 from utils.operations import remove_zeros, merge_hic, filter_diag_boundary, format_bin, format_contact
+from utils.operations import scn_normalization, scn_recover
 from utils.quality_hic import run_hicrep
 # 'Dixon2012-H1hESC-HindIII-allreps-filtered.10kb.cool'
 
@@ -53,6 +54,24 @@ def configure_our_model(
     true_hic_hr_merge = merge_hic(
         true_hic, index_1D_2D=idx_1d_2d, max_distance=max_boundary)
     print('shape of merge predict hic hr', predict_hic_hr_merge.shape)
+
+    name = os.path.join(path, 'raw', raw_file)
+    c = cooler.Cooler(name)
+    resolution = c.binsize
+    mat = c.matrix(balance=True).fetch('chr'+chromosome)
+    [Mh, idx] = remove_zeros(mat)
+    print('shape HR: ', Mh.shape)
+    if start is None:
+        start = 0
+    if end is None:
+        end = Mh.shape[0]
+    Mh = Mh[start:end, start:end]
+    print('MH: ', Mh.shape)
+    # recover M from scn to origin
+    Mh, Dh = scn_normalization(Mh, max_iter=3000)
+    true_hic_hr_merge = scn_recover(true_hic_hr_merge, Dh)
+    predict_hic_hr_merge = scn_recover(predict_hic_hr_merge, Dh)
+
 
     k = np.ceil(genomic_distance/resolution).astype(int)
     true_hic_hr_merge = filter_diag_boundary(

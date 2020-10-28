@@ -117,7 +117,6 @@ def predict(path='./data',
         Dh = Dh[0:-residual]
 
     # recover M from scn to origin
-    back = predict_hic_hr_merge
     Mh = operations.scn_recover(Mh, Dh)
     predict_hic_hr_merge = operations.scn_recover(predict_hic_hr_merge, Dh)
 
@@ -135,7 +134,7 @@ def predict(path='./data',
     directory_sr = os.path.join(path, sr_path, sr_file, 'SR')
     compact = idx[0:-residual]
     file = 'predict_chr{}_{}.npz'.format(chromosome, resolution)
-    np.savez_compressed(os.path.join(directory_sr, file), hic=predict_hic_hr_merge, compact=compact, D=Dh, ori=back)
+    np.savez_compressed(os.path.join(directory_sr, file), hic=predict_hic_hr_merge, compact=compact)
     print('Saving file:', file)
     directory_sr = os.path.join(path, sr_path, sr_file, 'SR', 'chr'+chromosome)
     file = 'true_chr{}_{}.npz'.format(chromosome, resolution)
