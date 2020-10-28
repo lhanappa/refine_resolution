@@ -66,6 +66,7 @@ def predict(path='./data',
     Ml, Dl = operations.scn_normalization(Ml, max_iter=3000)
     print('Dl shape:{}'.format(Dl.shape))
     Mh, Dh = operations.scn_normalization(Mh, max_iter=3000)
+    print('Dl shape:{}'.format(Dl.shape))
     #Ml = np.divide((Ml-Ml.min()), (Ml.max()-Ml.min()), dtype=float, out=np.zeros_like(Ml), where=(Ml.max()-Ml.min()) != 0)
     #Mh = np.divide((Mh-Mh.min()), (Mh.max()-Mh.min()), dtype=float, out=np.zeros_like(Mh), where=(Mh.max()-Mh.min()) != 0)
 
@@ -118,7 +119,7 @@ def predict(path='./data',
 
     # recover M from scn to origin
     Mh = operations.scn_recover(Mh, Dh)
-    predict_hic_hr_merge = operations.scn_recover(predict_hic_hr_merge, Dh)
+    predict_hic_hr_merge = operations.scn_recover(predict_hic_hr_merge, Dl)
 
     # remove diag and off diag
     k = max_boundary.astype(int)
