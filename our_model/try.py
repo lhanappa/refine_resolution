@@ -67,7 +67,7 @@ def predict(path='./data',
     print('residual: {}'.format(residual))
     if residual > 0:
         Mh = Mh[0:-residual, 0:-residual]
-        Dh = Dh[0:-residual]
+        # Dh = Dh[0:-residual]
 
     # recover M from scn to origin
     # Mh = operations.scn_recover(Mh, Dh)
