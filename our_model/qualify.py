@@ -58,6 +58,9 @@ def configure_our_model(
     k = np.ceil(genomic_distance/resolution).astype(int)
     true_hic_hr_merge = filter_diag_boundary(
         true_hic_hr_merge, diag_k=2, boundary_k=k)
+
+    H = np.load(os.path.join(input_path, 'true_chr22_10000.npz'), allow_pickle=True)
+    true_hic_hr_merge =  H['hic']
     predict_hic_hr_merge = filter_diag_boundary(
         predict_hic_hr_merge, diag_k=2, boundary_k=k)
 
