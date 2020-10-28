@@ -61,6 +61,7 @@ def configure_our_model(
     mat = c.matrix(balance=True).fetch('chr'+chromosome)
     [Mh, idx] = remove_zeros(mat)
     print('shape HR: ', Mh.shape)
+    Mh, Dh = scn_normalization(Mh, max_iter=3000)
     # chrop Mh
     residual = Mh.shape[0] % int(200/2)
     print('residual: {}'.format(residual))
@@ -69,7 +70,6 @@ def configure_our_model(
         Dh = Dh[0:-residual]
     print('MH: ', Mh.shape)
     # recover M from scn to origin
-    Mh, Dh = scn_normalization(Mh, max_iter=3000)
     true_hic_hr_merge = scn_recover(true_hic_hr_merge, Dh)
     predict_hic_hr_merge = scn_recover(predict_hic_hr_merge, Dh)
 
