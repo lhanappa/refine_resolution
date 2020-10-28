@@ -65,12 +65,16 @@ def configure_our_model(
     diff = np.abs(true_hic_hr_merge-predict_hic_hr_merge)
     print('sum diff: {:.5}'.format(np.sum(diff**2)))
 
-    format_bin(true_hic_hr_merge, coordinate=(
+    '''format_bin(true_hic_hr_merge, coordinate=(
         0, 1), resolution=10000, chrm=chromosome, save_file=True, filename=input_path+'/'+ sr_file+'.bed.gz')
     format_contact(true_hic_hr_merge, coordinate=(
         0, 1), resolution=10000, chrm=chromosome, save_file=True, filename=input_path+'/'+ sr_file+'_contact_true.gz')
     format_contact(predict_hic_hr_merge, coordinate=(
         0, 1), resolution=10000, chrm=chromosome, save_file=True, filename=input_path+'/'+ sr_file+'_contact_predict.gz')
+    '''
+    format_bin(true_hic_hr_merge, resolution=10000, chrm=chromosome, save_file=True, filename=input_path+'/'+ sr_file+'.bed.gz')
+    format_contact(true_hic_hr_merge, resolution=10000, chrm=chromosome, save_file=True, filename=input_path+'/'+ sr_file+'_contact_true.gz')
+    format_contact(predict_hic_hr_merge, resolution=10000, chrm=chromosome, save_file=True, filename=input_path+'/'+ sr_file+'_contact_predict.gz')
 
     return input_path, sr_file
 
