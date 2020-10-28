@@ -35,7 +35,6 @@ def predict(path='./data',
     c = cooler.Cooler(name)
     resolution = c.binsize
     mat = c.matrix(balance=True).fetch('chr'+chromosome)
-
     [Mh, idx] = operations.remove_zeros(mat)
     print('shape HR: ', Mh.shape)
 
@@ -50,7 +49,7 @@ def predict(path='./data',
     # Normalization
     # the input should not be type of np.matrix!
     Mh = np.asarray(Mh)
-    Mh, Dh = operations.scn_normalization(Mh, max_iter=3000)
+    # Mh, Dh = operations.scn_normalization(Mh, max_iter=3000)
 
 
     if genomic_distance is None:
@@ -109,4 +108,4 @@ if __name__ == '__main__':
             scale=4,
             len_size=200,
             sr_path='_'.join(['output', 'ours', str(max_dis), str(len_size)]),
-            genomic_distance=2000000, start=0, end=None, draw_out=True)
+            genomic_distance=max_dis, start=0, end=None, draw_out=True)
