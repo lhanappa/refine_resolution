@@ -16,7 +16,7 @@ from utils.quality_hic import run_hicrep
 def configure_our_model(
         path='./data',
         raw_file='Rao2014-GM12878-DpnII-allreps-filtered.10kb.cool',
-        sr_path = 'output',
+        sr_path = 'output_ours_2000000_200',
         chromosome='22',
         genomic_distance=2000000,
         resolution=10000):
@@ -171,7 +171,7 @@ def score_hicrep(file1,
 
 if __name__ == '__main__':
     root = redircwd_back_projroot(project_name='refine_resolution')
-    [input_path, hicfile] = configure_our_model(path = os.path.join(root, 'data'))
+    [input_path, hicfile] = configure_our_model(path = os.path.join(root, 'data'), sr_path = 'output_ours_2000000_200')
     file1 = '"' + input_path+'/' + hicfile + '_contact_true.gz' + '"'
     file2 = '"' +input_path+'/' + hicfile + '_contact_predict.gz'+ '"'
     output = '"' +input_path+'/'+ hicfile + '_scores.txt'+ '"'
