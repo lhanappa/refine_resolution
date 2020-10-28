@@ -61,19 +61,30 @@ def configure_our_model(
     mat = c.matrix(balance=True).fetch('chr'+chromosome)
     [Mh, idx] = remove_zeros(mat)
     print('shape HR: ', Mh.shape)
-    print(Mh[0,2])
-    Mhscn, Dh = scn_normalization(Mh, max_iter=3000)
+    Ml = operations.sampling_hic(Mh, scale**2, fix_seed=True)
+    print('ML: ', Ml.shape)
+
+    # Normalization
+    # the input should not be type of np.matrix!
+    Ml = np.asarray(Ml)
+    Mh = np.asarray(Mh)
+    Ml, Dl = operations.scn_normalization(Ml, max_iter=3000)
+    print('Dl shape:{}'.format(Dl.shape))
+    Mhscn, Dh = operations.scn_normalization(Mh, max_iter=3000)
+    print('Dl shape:{}'.format(Dl.shape))
+
     # chrop Mh
     residual = Mh.shape[0] % int(200/2)
     print('residual: {}'.format(residual))
     if residual > 0:
         Mhscn = Mhscn[0:-residual, 0:-residual]
         Dh = Dh[0:-residual]
+        Dl = Dl[0:-residual]
     print('MH: ', Mhscn.shape)
     # recover M from scn to origin
     true_hic_hr_merge = scn_recover(Mhscn, Dh)
     print(true_hic_hr_merge[0,2])
-    predict_hic_hr_merge = scn_recover(predict_hic_hr_merge, Dh)
+    predict_hic_hr_merge = scn_recover(predict_hic_hr_merge, Dl)
 
 
     k = np.ceil(genomic_distance/resolution).astype(int)
