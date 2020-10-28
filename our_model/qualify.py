@@ -59,10 +59,10 @@ def configure_our_model(
     c = cooler.Cooler(name)
     resolution = c.binsize
     mat = c.matrix(balance=True).fetch('chr'+chromosome)
-    [Mh, idx] = operations.remove_zeros(mat)
+    [Mh, idx] = remove_zeros(mat)
     print('shape HR: ', Mh.shape)
     Mh = np.asarray(Mh)
-    Mh, Dl = operations.scn_normalization(Mh, max_iter=3000)
+    Mh, Dl = scn_normalization(Mh, max_iter=3000)
     # chrop Mh
     residual = Mh.shape[0] % int(len_size/2)
     print('residual: {}'.format(residual))
