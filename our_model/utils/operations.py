@@ -91,7 +91,8 @@ def sampling_hic(hic_matrix, sampling_ratio, fix_seed=False):
 
 def divide_pieces_hic(hic_matrix, block_size=128, max_distance=None, save_file=False, pathfile=None):
     # max_boundary
-    max_distance = int(max_distance/(block_size/2.0))
+    if max_distance is not None:
+        max_distance = int(max_distance/(block_size/2.0))
     M = hic_matrix
 
     IMG_HEIGHT, IMG_WIDTH = int(block_size), int(block_size)

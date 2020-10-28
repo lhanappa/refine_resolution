@@ -64,7 +64,7 @@ def configure_our_model(
     Mh = np.asarray(Mh)
     Mh, Dl = scn_normalization(Mh, max_iter=3000)
     # chrop Mh
-    residual = Mh.shape[0] % int(len_size/2)
+    residual = Mh.shape[0] % int(200/2)
     print('residual: {}'.format(residual))
     if residual > 0:
         Mh = Mh[0:-residual, 0:-residual]

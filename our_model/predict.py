@@ -78,6 +78,7 @@ def predict(path='./data',
         Mh, block_size=len_size, max_distance=max_boundary, save_file=False)
     hic_hr = np.asarray(hic_hr, dtype=np.float32)
     print('shape hic_hr: ', hic_hr.shape)
+
     hic_lr, _, _ = operations.divide_pieces_hic(
         Ml, block_size=len_size, max_distance=max_boundary, save_file=False)
     hic_lr = np.asarray(hic_lr, dtype=np.float32)
@@ -107,7 +108,10 @@ def predict(path='./data',
 
     predict_hic_hr_merge = operations.merge_hic(
         predict_hic_hr, index_1D_2D=index_1d_2d, max_distance=max_boundary)
+    print('shape of merge predict hic hr', predict_hic_hr_merge.shape)
 
+    true_hic_hr_merge = operations.merge_hic(
+        true_hic_hr, index_1D_2D=index_1d_2d, max_distance=max_boundary)
     print('shape of merge predict hic hr', predict_hic_hr_merge.shape)
 
     # chrop Mh
@@ -115,6 +119,7 @@ def predict(path='./data',
     print('residual: {}'.format(residual))
     if residual > 0:
         Mh = Mh[0:-residual, 0:-residual]
+        true_hic_hr_merge = true_hic_hr_merge[0:-residual, 0:-residual]
         Dh = Dh[0:-residual]
         Dl = Dl[0:-residual]
 
@@ -125,8 +130,8 @@ def predict(path='./data',
     # remove diag and off diag
     k = max_boundary.astype(int)
     Mh = operations.filter_diag_boundary(Mh, diag_k=2, boundary_k=k)
-    predict_hic_hr_merge = operations.filter_diag_boundary(
-        predict_hic_hr_merge, diag_k=2, boundary_k=k)
+    true_hic_hr_merge = operations.filter_diag_boundary(true_hic_hr_merge, diag_k=2, boundary_k=k)
+    predict_hic_hr_merge = operations.filter_diag_boundary(predict_hic_hr_merge, diag_k=2, boundary_k=k)
 
     print('sum Mh:', np.sum(np.abs(Mh)))
     print('sum merge:', np.sum(np.abs(predict_hic_hr_merge)))
@@ -141,6 +146,9 @@ def predict(path='./data',
     directory_sr = os.path.join(path, sr_path, sr_file, 'SR', 'chr'+chromosome)
     file = 'true_chr{}_{}.npz'.format(chromosome, resolution)
     np.savez_compressed(os.path.join(directory_sr, file), hic=Mh, compact=compact)
+    print('Saving file:', file)
+    file = 'truemerge_chr{}_{}.npz'.format(chromosome, resolution)
+    np.savez_compressed(os.path.join(directory_sr, file), hic=true_hic_hr_merge, compact=compact)
     print('Saving file:', file)
 
     if draw_out:
