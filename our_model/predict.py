@@ -74,21 +74,18 @@ def predict(path='./data',
         max_boundary = None
     else:
         max_boundary = np.ceil(genomic_distance/(resolution))
-    hic_hr, index_1d_2d, index_2d_1d = operations.divide_pieces_hic(
-        Mh, block_size=len_size, max_distance=max_boundary, save_file=False)
+    hic_hr, index_1d_2d, index_2d_1d = operations.divide_pieces_hic( Mh, block_size=len_size, max_distance=max_boundary, save_file=False)
     hic_hr = np.asarray(hic_hr, dtype=np.float32)
     print('shape hic_hr: ', hic_hr.shape)
 
-    hic_lr, _, _ = operations.divide_pieces_hic(
-        Ml, block_size=len_size, max_distance=max_boundary, save_file=False)
+    hic_lr, _, _ = operations.divide_pieces_hic( Ml, block_size=len_size, max_distance=max_boundary, save_file=False)
     hic_lr = np.asarray(hic_lr, dtype=np.float32)
     print('shape hic_lr: ', hic_lr.shape)
 
     true_hic_hr = hic_hr
     print('shape true hic_hr: ', true_hic_hr.shape)
 
-    hic_lr_ds = tf.data.Dataset.from_tensor_slices(
-        hic_lr[..., np.newaxis]).batch(9)
+    hic_lr_ds = tf.data.Dataset.from_tensor_slices( hic_lr[..., np.newaxis]).batch(9)
     predict_hic_hr = None
     for i, input_data in enumerate(hic_lr_ds):
         [_, _, tmp, _, _] = Generator(input_data, training=False)
@@ -110,8 +107,7 @@ def predict(path='./data',
         predict_hic_hr, index_1D_2D=index_1d_2d, max_distance=max_boundary)
     print('shape of merge predict hic hr', predict_hic_hr_merge.shape)
 
-    true_hic_hr_merge = operations.merge_hic(
-        true_hic_hr, index_1D_2D=index_1d_2d, max_distance=max_boundary)
+    true_hic_hr_merge = operations.merge_hic( true_hic_hr, index_1D_2D=index_1d_2d, max_distance=max_boundary)
     print('shape of merge predict hic hr', predict_hic_hr_merge.shape)
 
     # chrop Mh
@@ -124,8 +120,8 @@ def predict(path='./data',
         Dl = Dl[0:-residual]
 
     # recover M from scn to origin
-    Mh = operations.scn_recover(Mh, Dh)
-    true_hic_hr_merge = operations.scn_recover(true_hic_hr_merge, Dh)
+    # Mh = operations.scn_recover(Mh, Dh)
+    # true_hic_hr_merge = operations.scn_recover(true_hic_hr_merge, Dh)
     predict_hic_hr_merge = operations.scn_recover(predict_hic_hr_merge, Dl)
 
     # remove diag and off diag
