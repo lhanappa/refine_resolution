@@ -3,7 +3,28 @@ import os
 from our_model import qualify
 from our_model.utils import operations
 
-root_dir = operations.redircwd_back_projroot(project_name='refine_resolution')
+def evaluate_hicrep(chromosomes, methods, input_path='./experiment/evaluation/'):
+    root_dir = operations.redircwd_back_projroot(project_name='refine_resolution')
+    for chro in chromosomes:
+        for method in methods:
+            file1 = os.path.join(input_path, 'chr{}'.format(chro), 'high_chr{}_contact.gz'.format(chro))
+            file2 = os.path.join(input_path, 'chr{}'.format(chro), '{}_chr{}_contact.gz'.format(method, chro))
+            m1name = 'true_{}'.format(chromosome)
+            m2name = '{}_{}'.format(method, chromosome)
+            bedfile = os.path.join(input_path, 'chr{}'.format(chro), 'bins_chr{}.bed.gz'.format(chro))
+            script = os.path.join(root_dir, 'our_model', 'utils','hicrep_wrapper.R')
+            h_list = [20]#, 40, 60, 80]
+            for h in h_list:
+                print('h: ', h)
+                output = os.path.join(input_path, 'chr{}'.format(chro), '{}_chr{}_hicrep_{}.txt'.format(method, chro, h))
+                qualify.score_hicrep(file1=file1, file2=file2,
+                                bedfile=bedfile, output_path=output, script=script, h=h,
+                                m1name=m1name, m2name=m2name)
+
+if __name__ == '__main__':
+    evaluate_hicrep(['22'], ['ours'])
+
+"""root_dir = operations.redircwd_back_projroot(project_name='refine_resolution')
 raw_file='Rao2014-GM12878-DpnII-allreps-filtered.10kb.cool'
 len_size = 200
 max_dis = 2000000
@@ -37,4 +58,4 @@ for h in h_list:
     output = output_path+ str(h)+'.txt'
     qualify.score_hicrep(file1=file1, file2=file2,
                      bedfile=bedfile, output_path=output, script=script, h=h,
-                     m1name=m1name, m2name=m2name)
+                     m1name=m1name, m2name=m2name)"""

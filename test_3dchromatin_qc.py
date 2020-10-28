@@ -80,12 +80,13 @@ def run(
         cmd = ["3DChromatin_ReplicateQC", "preprocess", 
             "--metadata_samples",  'metadata_samples.txt', 
             "--bins", 'bins_chr{}.bed.gz'.format(chro), 
-            "--outdir", './output/',
+            "--outdir", './chromatin_qc/',
             "--methods", "GenomeDISCO,HiCRep,HiC-Spector",
             "--parameters_file", './qc_parameters.txt']
         process.append(subprocess.Popen(cmd, cwd=script_work_dir))
     for p in process:
         p.wait()
+
     for chro in chromosomes:
         # 3DChromatin_ReplicateQC concordance 
         # --running_mode sge 
@@ -94,7 +95,7 @@ def run(
         # --methods GenomeDISCO,HiCRep,HiC-Spector,QuASAR-Rep
         cmd = ["3DChromatin_ReplicateQC", "concordance", 
             "--metadata_pairs", 'metadata_pairs.txt',
-            "--outdir", './output/',
+            "--outdir", './chromatin_qc/',
             "--methods", "GenomeDISCO,HiCRep,HiC-Spector"] # ,QuASAR-Rep
         process.append(subprocess.Popen(cmd, cwd=script_work_dir))
 
@@ -112,6 +113,8 @@ def run(
             "--outdir", model_fp,
             "--parameters_file", str(resolution)]
         process = subprocess.run(cmd, cwd=script_work_dir)'''
+    for p in process:
+        p.wait()
 
 if __name__ == '__main__':
     run(chromosomes = ['22'])
