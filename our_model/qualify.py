@@ -61,11 +61,12 @@ def configure_our_model(
     mat = c.matrix(balance=True).fetch('chr'+chromosome)
     [Mh, idx] = remove_zeros(mat)
     print('shape HR: ', Mh.shape)
-    if start is None:
-        start = 0
-    if end is None:
-        end = Mh.shape[0]
-    Mh = Mh[start:end, start:end]
+    # chrop Mh
+    residual = Mh.shape[0] % int(200/2)
+    print('residual: {}'.format(residual))
+    if residual > 0:
+        Mh = Mh[0:-residual, 0:-residual]
+        Dh = Dh[0:-residual]
     print('MH: ', Mh.shape)
     # recover M from scn to origin
     Mh, Dh = scn_normalization(Mh, max_iter=3000)
