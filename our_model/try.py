@@ -51,7 +51,7 @@ def predict(path='./data',
     if residual > 0:
         Mh = Mh[0:-residual, 0:-residual]
 
-    k = max_boundary.astype(int)
+    k = (max_boundary/2).astype(int)
     true_hic_hr_merge = operations.filter_diag_boundary(true_hic_hr_merge, diag_k=2, boundary_k=k)
     Mh = operations.filter_diag_boundary(Mh, diag_k=2, boundary_k=k)
 
