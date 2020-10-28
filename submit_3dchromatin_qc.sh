@@ -16,5 +16,5 @@ hostname
 source activate tf_base
 python gather_data.py
 
-#s ource activate 3dchromatin_replicate_qc
-# python test_3dchromatin_qc.py
+source activate 3dchromatin_replicate_qc
+python test_3dchromatin_qc.py

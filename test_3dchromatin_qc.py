@@ -79,7 +79,7 @@ def run(
         cmd = ["3DChromatin_ReplicateQC", "preprocess", 
             "--metadata_samples",  'metadata_samples.txt', 
             "--bins", 'bins_chr{}.bed.gz'.format(chro), 
-            "--outdir", './output',
+            "--outdir", '.',
             "--methods", "GenomeDISCO,HiCRep,HiC-Spector",
             "--parameters_file", './qc_parameters.txt']
         process = subprocess.Popen(cmd, cwd=script_work_dir)
@@ -91,7 +91,7 @@ def run(
         # --methods GenomeDISCO,HiCRep,HiC-Spector,QuASAR-Rep
         cmd = ["3DChromatin_ReplicateQC", "concordance", 
             "--metadata_pairs", 'metadata_pairs.txt',
-            "--outdir", './',
+            "--outdir", '.',
             "--methods", "GenomeDISCO,HiCRep,HiC-Spector"] # ,QuASAR-Rep
         process = subprocess.Popen(cmd, cwd=script_work_dir)
 
