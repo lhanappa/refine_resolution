@@ -9,8 +9,8 @@ def evaluate_hicrep(chromosomes, methods, input_path='./experiment/evaluation/')
         for method in methods:
             file1 = os.path.join(input_path, 'chr{}'.format(chro), 'high_chr{}_contact.gz'.format(chro))
             file2 = os.path.join(input_path, 'chr{}'.format(chro), '{}_chr{}_contact.gz'.format(method, chro))
-            m1name = 'true_{}'.format(chromosome)
-            m2name = '{}_{}'.format(method, chromosome)
+            m1name = 'true_{}'.format(chro)
+            m2name = '{}_{}'.format(method, chro)
             bedfile = os.path.join(input_path, 'chr{}'.format(chro), 'bins_chr{}.bed.gz'.format(chro))
             script = os.path.join(root_dir, 'our_model', 'utils','hicrep_wrapper.R')
             h_list = [20]#, 40, 60, 80]
