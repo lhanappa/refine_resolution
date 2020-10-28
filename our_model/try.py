@@ -74,25 +74,15 @@ def predict(path='./data',
     # true_hic_hr_merge = operations.scn_recover(true_hic_hr_merge, Dh)
 
     # remove diag and off diag
-    k = max_boundary.astype(int)
-    Mh = operations.filter_diag_boundary(Mh, diag_k=2, boundary_k=k)
-    true_hic_hr_merge = operations.filter_diag_boundary(true_hic_hr_merge, diag_k=2, boundary_k=k)
+    # k = max_boundary.astype(int)
+    # Mh = operations.filter_diag_boundary(Mh, diag_k=2, boundary_k=k)
+    # true_hic_hr_merge = operations.filter_diag_boundary(true_hic_hr_merge, diag_k=2, boundary_k=k)
 
     print('sum Mh:', np.sum(np.abs(Mh)))
     print('sum merge:', np.sum(np.abs(true_hic_hr_merge)))
     diff = np.abs(Mh-true_hic_hr_merge)
     print('sum diff: {:.5}'.format(np.sum(diff**2)))
 
-    directory_sr = os.path.join(path, sr_path, sr_file, 'SR')
-    compact = idx[0:-residual]
-
-    directory_sr = os.path.join(path, sr_path, sr_file, 'SR', 'chr'+chromosome)
-    file = 'true_chr{}_{}.npz'.format(chromosome, resolution)
-    np.savez_compressed(os.path.join(directory_sr, file), hic=Mh, compact=compact)
-    print('Saving file:', file)
-    file = 'truemerge_chr{}_{}.npz'.format(chromosome, resolution)
-    np.savez_compressed(os.path.join(directory_sr, file), hic=true_hic_hr_merge, compact=compact)
-    print('Saving file:', file)
 
 
 
