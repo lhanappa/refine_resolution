@@ -9,7 +9,7 @@ import cooler
 
 from utils.operations import redircwd_back_projroot
 from utils.operations import remove_zeros, merge_hic, filter_diag_boundary, format_bin, format_contact
-from utils.operations import scn_normalization, scn_recover
+from utils.operations import scn_normalization, scn_recover, sampling_hic
 from utils.quality_hic import run_hicrep
 # 'Dixon2012-H1hESC-HindIII-allreps-filtered.10kb.cool'
 
@@ -61,16 +61,16 @@ def configure_our_model(
     mat = c.matrix(balance=True).fetch('chr'+chromosome)
     [Mh, idx] = remove_zeros(mat)
     print('shape HR: ', Mh.shape)
-    Ml = operations.sampling_hic(Mh, scale**2, fix_seed=True)
+    Ml = sampling_hic(Mh, scale**2, fix_seed=True)
     print('ML: ', Ml.shape)
 
     # Normalization
     # the input should not be type of np.matrix!
     Ml = np.asarray(Ml)
     Mh = np.asarray(Mh)
-    Ml, Dl = operations.scn_normalization(Ml, max_iter=3000)
+    Ml, Dl = scn_normalization(Ml, max_iter=3000)
     print('Dl shape:{}'.format(Dl.shape))
-    Mhscn, Dh = operations.scn_normalization(Mh, max_iter=3000)
+    Mhscn, Dh = scn_normalization(Mh, max_iter=3000)
     print('Dl shape:{}'.format(Dl.shape))
 
     # chrop Mh
