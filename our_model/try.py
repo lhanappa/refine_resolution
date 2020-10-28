@@ -8,8 +8,8 @@ import os
 
 import model
 from utils import operations
-import tensorflow as tf
-tf.keras.backend.set_floatx('float32')
+# import tensorflow as tf
+# tf.keras.backend.set_floatx('float32')
 
 # 'Dixon2012-H1hESC-HindIII-allreps-filtered.10kb.cool'
 # data from ftp://cooler.csail.mit.edu/coolers/hg19/
@@ -77,7 +77,7 @@ def predict(path='./data',
 
 
     true_hic_hr_merge = operations.merge_hic( true_hic_hr, index_1D_2D=index_1d_2d, max_distance=max_boundary)
-    print('shape of merge predict hic hr', predict_hic_hr_merge.shape)
+    print('shape of merge true hic hr', true_hic_hr_merge.shape)
 
     # chrop Mh
     residual = Mh.shape[0] % int(len_size/2)
