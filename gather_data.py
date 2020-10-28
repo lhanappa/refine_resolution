@@ -125,6 +125,6 @@ def generate_prefile(input_path='./experiment/evaluation', chromosomes=['22', '2
 
 if __name__ == '__main__':
     generate_prefile(input_path='./experiment/evaluation',
-                     chromosomes=['22'], #, '21', '20', '19', 'X'],
+                     chromosomes=['22', '21', '20', '19', 'X'],
                      resolution=10000, 
                      genomic_distance=2000000)
