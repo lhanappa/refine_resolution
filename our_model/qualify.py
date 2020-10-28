@@ -55,13 +55,25 @@ def configure_our_model(
         true_hic, index_1D_2D=idx_1d_2d, max_distance=max_boundary)
     print('shape of merge predict hic hr', predict_hic_hr_merge.shape)
 
+    name = os.path.join(path, 'raw', raw_file)
+    c = cooler.Cooler(name)
+    resolution = c.binsize
+    mat = c.matrix(balance=True).fetch('chr'+chromosome)
+    [Mh, idx] = operations.remove_zeros(mat)
+    print('shape HR: ', Mh.shape)
+    Mh = np.asarray(Mh)
+    Mh, Dl = operations.scn_normalization(Mh, max_iter=3000)
+    # chrop Mh
+    residual = Mh.shape[0] % int(len_size/2)
+    print('residual: {}'.format(residual))
+    if residual > 0:
+        Mh = Mh[0:-residual, 0:-residual]
+    true_hic_hr_merge = Mh
+    
     k = np.ceil(genomic_distance/resolution).astype(int)
     true_hic_hr_merge = filter_diag_boundary(
         true_hic_hr_merge, diag_k=2, boundary_k=k)
 
-    H = np.load(os.path.join(input_path, 'true_chr22_10000.npz'), allow_pickle=True)
-    true_hic_hr_merge =  H['hic']
-    true_hic_hr_merge = scn_normalization(H['hic'], max_iter=3000)
     predict_hic_hr_merge = filter_diag_boundary(
         predict_hic_hr_merge, diag_k=2, boundary_k=k)
 
