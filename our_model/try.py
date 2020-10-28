@@ -41,8 +41,8 @@ def predict(path='./data',
         max_boundary = None
     else:
         max_boundary = np.ceil(genomic_distance/(resolution))
-    hic_hr, index_1d_2d, index_2d_1d = operations.divide_pieces_hic( Mh, block_size=len_size, max_distance=max_boundary, save_file=False)
-    true_hic_hr_merge = operations.merge_hic( hic_hr, index_1D_2D=index_1d_2d, max_distance=max_boundary)
+    hic_hr, index_1d_2d, index_2d_1d = operations.divide_pieces_hic( Mh, block_size=len_size, max_distance=None, save_file=False)
+    true_hic_hr_merge = operations.merge_hic( hic_hr, index_1D_2D=index_1d_2d, max_distance=None)
     print('shape of merge true hic hr', true_hic_hr_merge.shape)
 
     # chrop Mh
