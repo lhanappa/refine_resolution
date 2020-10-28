@@ -47,17 +47,10 @@ def predict(path='./data',
     Mh = Mh[start:end, start:end]
     print('MH: ', Mh.shape)
 
-    Ml = operations.sampling_hic(Mh, scale**2, fix_seed=True)
-    print('ML: ', Ml.shape)
-
     # Normalization
     # the input should not be type of np.matrix!
-    Ml = np.asarray(Ml)
     Mh = np.asarray(Mh)
-    Ml, Dl = operations.scn_normalization(Ml, max_iter=3000)
-    print('Dl shape:{}'.format(Dl.shape))
     Mh, Dh = operations.scn_normalization(Mh, max_iter=3000)
-    print('Dl shape:{}'.format(Dl.shape))
 
 
     if genomic_distance is None:
@@ -65,17 +58,8 @@ def predict(path='./data',
     else:
         max_boundary = np.ceil(genomic_distance/(resolution))
     hic_hr, index_1d_2d, index_2d_1d = operations.divide_pieces_hic( Mh, block_size=len_size, max_distance=max_boundary, save_file=False)
-    hic_hr = np.asarray(hic_hr, dtype=np.float32)
-    print('shape hic_hr: ', hic_hr.shape)
-
-    hic_lr, _, _ = operations.divide_pieces_hic( Ml, block_size=len_size, max_distance=max_boundary, save_file=False)
-    hic_lr = np.asarray(hic_lr, dtype=np.float32)
-    print('shape hic_lr: ', hic_lr.shape)
-
+    # hic_hr = np.asarray(hic_hr, dtype=np.float32)
     true_hic_hr = hic_hr
-    print('shape true hic_hr: ', true_hic_hr.shape)
-
-
     true_hic_hr_merge = operations.merge_hic( true_hic_hr, index_1D_2D=index_1d_2d, max_distance=max_boundary)
     print('shape of merge true hic hr', true_hic_hr_merge.shape)
 
@@ -84,9 +68,7 @@ def predict(path='./data',
     print('residual: {}'.format(residual))
     if residual > 0:
         Mh = Mh[0:-residual, 0:-residual]
-        # true_hic_hr_merge = true_hic_hr_merge[0:-residual, 0:-residual]
         Dh = Dh[0:-residual]
-        Dl = Dl[0:-residual]
 
     # recover M from scn to origin
     # Mh = operations.scn_recover(Mh, Dh)
