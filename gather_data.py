@@ -7,6 +7,7 @@ import cooler
 import numpy as np
 
 from our_model.utils.operations import remove_zeros, merge_hic, filter_diag_boundary, format_bin, format_contact, sampling_hic
+from our_model.utils.operations import scn_normalization, scn_recover
 
 def gather(source=None, destination='./experiment/evaluation/', method='output_ours_2000000_200', chromosomes=['19', '20', '21', '22', 'X']):
     if(source is None):
@@ -113,6 +114,9 @@ def generate_prefile(input_path='./experiment/evaluation', chromosomes=['22', '2
                     maxv = np.max(log_mat)
                     log_predict_hic = (mat+1)/2*maxv
                     mat = np.expm1(log_predict_hic)
+                '''elif model == 'ours':
+                    scn, dh = scn_normalization(high_mat, max_iter=3000)
+                    mat = scn_recover(mat, dh)'''
                 name = namelist[1]
             mat = filter_diag_boundary(mat, diag_k=2, boundary_k=k)
             mat = mat[0:n-(n%100), :]
