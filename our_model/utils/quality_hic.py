@@ -41,6 +41,8 @@ def run_hicrep(script,
 def run_mae(mat1, mat2):
     m1 = np.array(mat1)
     m2 = np.array(mat2)
+    print(m1.shape)
+    print(m2.shape)
     mae  = np.abs(m1 - m2).mean()
     return mae
 
