@@ -64,11 +64,13 @@ def evaluate_mse(chromosomes, methods, input_path='./experiment/evaluation/', ma
                             m1name=m1name, m2name=m2name, max_boundary=max_boundary, diag_k=diag_k)
 
 if __name__ == '__main__':
-    model = str(sys.argv[1]) # deephic, hicgan, hicsr, ours
-    chromosome = str(sys.argv[2]) # 22, 21, 20, 19, X
+    # model = str(sys.argv[1]) # deephic, hicgan, hicsr, ours
+    # chromosome = str(sys.argv[2]) # 22, 21, 20, 19, X
     # evaluate_hicrep([chromosome], [model])
-    evaluate_mae([chromosome], [model])
-    evaluate_mse([chromosome], [model])
+    chromosomes = ['22', '21', '20', '19', 'X']
+    models = ['deephic', 'hicgan', 'hicsr', 'ours']
+    evaluate_mae(chromosomes, models)
+    evaluate_mse(chromosomes, models)
 
 """root_dir = operations.redircwd_back_projroot(project_name='refine_resolution')
 raw_file='Rao2014-GM12878-DpnII-allreps-filtered.10kb.cool'
