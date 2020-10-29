@@ -41,6 +41,7 @@ def gather_high_low_mat(cooler_file='Rao2014-GM12878-DpnII-allreps-filtered.10kb
     print('saving file {}'.format(os.path.join(output_path, outfile)))
     np.savez_compressed(os.path.join(output_path, outfile),
                         hic=high_hic, compact=idx)
+
     outfile = 'low_chr{}_{}0000.npz'.format(chromosome, scale)
     print('saving file {}'.format(os.path.join(output_path, outfile)))
     np.savez_compressed(os.path.join(output_path, outfile),

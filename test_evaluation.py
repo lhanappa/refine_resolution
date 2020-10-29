@@ -23,7 +23,7 @@ def evaluate_hicrep(chromosomes, methods, input_path='./experiment/evaluation/')
                                 bedfile=bedfile, output_path=output, script=script, h=h,
                                 m1name=m1name, m2name=m2name)
 
-def evaluate_mae(chromosomes, methods, input_path='./experiment/evaluation/'):
+def evaluate_mae(chromosomes, methods, input_path='./experiment/evaluation/', max_boundary=200, diag_k=2):
     # root_dir = operations.redircwd_back_projroot(project_name='refine_resolution')
     for chro in chromosomes:
         for method in methods:
@@ -40,9 +40,9 @@ def evaluate_mae(chromosomes, methods, input_path='./experiment/evaluation/'):
             os.makedirs(output_path, exist_ok=True)
             output = os.path.join(output_path, '{}_chr{}_mae.txt'.format(method, chro))
             qualify.metric_mae(file1=file1, file2=file2, output_path=output,
-                            m1name=m1name, m2name=m2name)
+                            m1name=m1name, m2name=m2name, max_boundary=max_boundary, diag_k=diag_k)
 
-def evaluate_mse(chromosomes, methods, input_path='./experiment/evaluation/'):
+def evaluate_mse(chromosomes, methods, input_path='./experiment/evaluation/', max_boundary=200, diag_k=2):
     # root_dir = operations.redircwd_back_projroot(project_name='refine_resolution')
     for chro in chromosomes:
         for method in methods:
@@ -59,7 +59,7 @@ def evaluate_mse(chromosomes, methods, input_path='./experiment/evaluation/'):
             os.makedirs(output_path, exist_ok=True)
             output = os.path.join(output_path, '{}_chr{}_mse.txt'.format(method, chro))
             qualify.metric_mse(file1=file1, file2=file2, output_path=output,
-                            m1name=m1name, m2name=m2name)
+                            m1name=m1name, m2name=m2name, max_boundary=max_boundary, diag_k=diag_k)
 
 if __name__ == '__main__':
     model = str(sys.argv[1]) # deephic, hicgan, hicsr, ours

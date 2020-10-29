@@ -181,12 +181,13 @@ def score_hicrep(file1,
 
 def metric_mae(file1, file2, output_path,
                 m1name='m1',
-                m2name='m2'):
+                m2name='m2', max_boundary=200, diag_k=2):
     data1 = np.load(file1, allow_pickle=True)
     hic1 = data1['hic']
     data2 = np.load(file2, allow_pickle=True)
     hic2 = data2['hic']
-
+    hic1 = filter_diag_boundary(hic1, diag_k=diag_k, boundary_k=max_boundary)
+    hic2 = filter_diag_boundary(hic2, diag_k=diag_k, boundary_k=max_boundary)
     mae = run_mae(mat1=hic1, mat2=hic2)
 
     header = 'method1 \t method2 \t mae\n'
@@ -198,12 +199,13 @@ def metric_mae(file1, file2, output_path,
 
 def metric_mse(file1, file2, output_path,
                 m1name='m1',
-                m2name='m2'):
+                m2name='m2', max_boundary=200, diag_k=2):
     data1 = np.load(file1, allow_pickle=True)
     hic1 = data1['hic']
     data2 = np.load(file2, allow_pickle=True)
     hic2 = data2['hic']
-
+    hic1 = filter_diag_boundary(hic1, diag_k=diag_k, boundary_k=max_boundary)
+    hic2 = filter_diag_boundary(hic2, diag_k=diag_k, boundary_k=max_boundary)
     mse = run_mse(mat1=hic1, mat2=hic2)
 
     header = 'method1 \t method2 \t mae\n'
