@@ -3,7 +3,7 @@
 # in Python 2.7
 import numpy as np
 import gzip
-import os, io
+import os, sys
 import subprocess
 
 
@@ -94,6 +94,7 @@ def run(
         # --metadata_pairs examples/metadata.pairs 
         # --outdir examples/output 
         # --methods GenomeDISCO,HiCRep,HiC-Spector,QuASAR-Rep
+        script_work_dir = './experiment/evaluation/chr{}'.format(chro)
         cmd = ["3DChromatin_ReplicateQC", "concordance", 
             "--metadata_pairs", 'metadata_pairs.txt',
             "--outdir", './chromatin_qc/',
@@ -119,4 +120,4 @@ def run(
 
 if __name__ == '__main__':
     chro = str(sys.args[1])
-    run(chromosomes = chro)
+    run(chromosomes = [chro])
