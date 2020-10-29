@@ -13,8 +13,9 @@ date
 # Print name of node
 hostname
 
-source activate tf_base
-python gather_data.py
+#source activate tf_base
+#python gather_data.py
 
+CHROMOSOME=$1
 source activate 3dchromatin_replicate_qc
-python test_3dchromatin_qc.py
+python test_3dchromatin_qc.py ${CHROMOSOME}

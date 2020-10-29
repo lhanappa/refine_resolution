@@ -63,6 +63,7 @@ def run(
     list1 = ['high'],
     list2 = ['hicgan', 'deephic', 'hicsr', 'ours', 'low'],
     chromosomes = ['22', '21', '20', '19', 'X']):
+
     print(chromosomes)
     process = []
     for chro in chromosomes:
@@ -117,4 +118,5 @@ def run(
         p.wait()
 
 if __name__ == '__main__':
-    run(chromosomes = ['22', '21', '20', '19', 'X'])
+    chro = str(sys.args[1])
+    run(chromosomes = chro)
