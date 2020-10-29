@@ -183,11 +183,27 @@ def metric_mae(file1, file2, output_path,
                 m1name='m1',
                 m2name='m2', max_boundary=200, diag_k=2):
     data1 = np.load(file1, allow_pickle=True)
-    hic1 = data1['hic']
+    high_mat = data1['hic']
     data2 = np.load(file2, allow_pickle=True)
-    hic2 = data2['hic']
-    hic1 = filter_diag_boundary(hic1, diag_k=diag_k, boundary_k=max_boundary)
-    hic2 = filter_diag_boundary(hic2, diag_k=diag_k, boundary_k=max_boundary)
+    mat = data2['hic']
+    if model == 'hicgan':
+        # true_hic = np.log1p(true_hic)
+        mat = np.expm1(mat)
+    elif model == 'deephic':
+        minv = high_mat.min()
+        maxv = high_mat.max()
+        # true_hic = np.divide((true_hic-minv), (maxv-minv), dtype=float,out=np.zeros_like(true_hic), where=(maxv-minv) != 0)
+        mat = mat*(maxv-minv)+minv
+    elif model == 'hicsr':
+        log_mat = np.log2(high_mat+1)
+        # ture_hic = 2*(log_mat/np.max(log_mat)) - 1
+        maxv = np.max(log_mat)
+        log_predict_hic = (mat+1)/2*maxv
+        mat = np.expm1(log_predict_hic)
+
+    hic1 = filter_diag_boundary(high_mat, diag_k=diag_k, boundary_k=max_boundary)
+    hic2 = filter_diag_boundary(mat, diag_k=diag_k, boundary_k=max_boundary)
+
     mae = run_mae(mat1=hic1, mat2=hic2)
 
     header = 'method1 \t method2 \t mae\n'
@@ -201,11 +217,26 @@ def metric_mse(file1, file2, output_path,
                 m1name='m1',
                 m2name='m2', max_boundary=200, diag_k=2):
     data1 = np.load(file1, allow_pickle=True)
-    hic1 = data1['hic']
+    high_mat = data1['hic']
     data2 = np.load(file2, allow_pickle=True)
-    hic2 = data2['hic']
-    hic1 = filter_diag_boundary(hic1, diag_k=diag_k, boundary_k=max_boundary)
-    hic2 = filter_diag_boundary(hic2, diag_k=diag_k, boundary_k=max_boundary)
+    mat = data2['hic']
+    if model == 'hicgan':
+        # true_hic = np.log1p(true_hic)
+        mat = np.expm1(mat)
+    elif model == 'deephic':
+        minv = high_mat.min()
+        maxv = high_mat.max()
+        # true_hic = np.divide((true_hic-minv), (maxv-minv), dtype=float,out=np.zeros_like(true_hic), where=(maxv-minv) != 0)
+        mat = mat*(maxv-minv)+minv
+    elif model == 'hicsr':
+        log_mat = np.log2(high_mat+1)
+        # ture_hic = 2*(log_mat/np.max(log_mat)) - 1
+        maxv = np.max(log_mat)
+        log_predict_hic = (mat+1)/2*maxv
+        mat = np.expm1(log_predict_hic)
+
+    hic1 = filter_diag_boundary(high_mat, diag_k=diag_k, boundary_k=max_boundary)
+    hic2 = filter_diag_boundary(mat, diag_k=diag_k, boundary_k=max_boundary)
     mse = run_mse(mat1=hic1, mat2=hic2)
 
     header = 'method1 \t method2 \t mse\n'
