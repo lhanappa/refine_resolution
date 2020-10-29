@@ -119,5 +119,5 @@ def run(
         p.wait()
 
 if __name__ == '__main__':
-    chro = str(sys.args[1])
+    chro = str(sys.argv[1])
     run(chromosomes = [chro])
