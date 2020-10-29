@@ -40,7 +40,7 @@ def evaluate_mae(chromosomes, methods, input_path='./experiment/evaluation/', ma
             output_path = os.path.join(input_path, 'chr{}'.format(chro), 'metrics')
             os.makedirs(output_path, exist_ok=True)
             output = os.path.join(output_path, '{}_chr{}_mae.txt'.format(method, chro))
-            qualify.metric_mae(file1=file1, file2=file2, output_path=output,
+            qualify.metric_mae(file1=file1, file2=file2, model=method, output_path=output,
                             m1name=m1name, m2name=m2name, max_boundary=max_boundary, diag_k=diag_k)
 
 def evaluate_mse(chromosomes, methods, input_path='./experiment/evaluation/', max_boundary=200, diag_k=2):
@@ -60,7 +60,7 @@ def evaluate_mse(chromosomes, methods, input_path='./experiment/evaluation/', ma
             output_path = os.path.join(input_path, 'chr{}'.format(chro), 'metrics')
             os.makedirs(output_path, exist_ok=True)
             output = os.path.join(output_path, '{}_chr{}_mse.txt'.format(method, chro))
-            qualify.metric_mse(file1=file1, file2=file2, output_path=output,
+            qualify.metric_mse(file1=file1, file2=file2, model = method, output_path=output,
                             m1name=m1name, m2name=m2name, max_boundary=max_boundary, diag_k=diag_k)
 
 if __name__ == '__main__':

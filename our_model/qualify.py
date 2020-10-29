@@ -179,7 +179,7 @@ def score_hicrep(file1,
                            m1name=m1name,
                            m2name=m2name)
 
-def metric_mae(file1, file2, output_path,
+def metric_mae(file1, file2, output_path, model,
                 m1name='m1',
                 m2name='m2', max_boundary=200, diag_k=2):
     data1 = np.load(file1, allow_pickle=True)
@@ -213,7 +213,7 @@ def metric_mae(file1, file2, output_path,
     fout.write(line)
     fout.close()
 
-def metric_mse(file1, file2, output_path,
+def metric_mse(file1, file2, output_path, model,
                 m1name='m1',
                 m2name='m2', max_boundary=200, diag_k=2):
     data1 = np.load(file1, allow_pickle=True)
