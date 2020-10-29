@@ -38,16 +38,24 @@ def run_hicrep(script,
     #proc = subprocess.call([str(' '.join(cmd))],stdout=subprocess.PIPE)
     #stdout_value = proc.wait()
 
+def fit_shape(m1, m2):
+    if(m1.shape[0]!=m2.shape[0]):
+        mlen = min(m1.shape[0], m2.shape[0])
+        m1 = m1[0:mlen, 0:mlen]
+        m2 = m2[0:mlen, 0:mlen]
+    return m1, m2
 def run_mae(mat1, mat2):
     m1 = np.array(mat1)
     m2 = np.array(mat2)
-    print(m1.shape)
-    print(m2.shape)
-    mae  = np.abs(m1 - m2).mean()
+    m1, m2 = fit_shape(m1, m2)
+    mae  = np.abs(m1 - m2).mean(axis=None)
+    print('mae: {}'.format(mae))
     return mae
 
 def run_mse(mat1, mat2):
     m1 = np.array(mat1)
     m2 = np.array(mat2)
+    m1, m2 = fit_shape(m1, m2)
     mse  =((m1 - m2)**2).mean(axis=None)
+    print('mse: {}'.format(mse))
     return mse
