@@ -49,7 +49,7 @@ def run_mae(mat1, mat2):
     m2 = np.array(mat2)
     m1, m2 = fit_shape(m1, m2)
     mae  = np.abs(m1 - m2).mean(axis=None)
-    print('mae: {}'.format(mae))
+    print('m1 sum: {}, m2 sum: {},mae: {}'.format(m1.sum(), m2.sum(), mae))
     return mae
 
 def run_mse(mat1, mat2):
@@ -57,5 +57,5 @@ def run_mse(mat1, mat2):
     m2 = np.array(mat2)
     m1, m2 = fit_shape(m1, m2)
     mse  =((m1 - m2)**2).mean(axis=None)
-    print('mse: {}'.format(mse))
+    print('m1 sum: {}, m2 sum: {}, mse: {}'.format(m1.sum(), m2.sum(), mse))
     return mse
