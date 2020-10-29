@@ -120,7 +120,7 @@ def predict(path='./data',
         Dl = Dl[0:-residual]
 
     # recover M from scn to origin
-    # Mh = operations.scn_recover(Mh, Dh)
+    Mh = operations.scn_recover(Mh, Dh)
     true_hic_hr_merge = operations.scn_recover(true_hic_hr_merge, Dh)
     predict_hic_hr_merge = operations.scn_recover(predict_hic_hr_merge, Dh)
 
@@ -131,9 +131,14 @@ def predict(path='./data',
     predict_hic_hr_merge = operations.filter_diag_boundary(predict_hic_hr_merge, diag_k=2, boundary_k=k)
 
     print('sum Mh:', np.sum(np.abs(Mh)))
-    print('sum merge:', np.sum(np.abs(predict_hic_hr_merge)))
+    print('sum true merge:', np.sum(np.abs(true_hic_hr_merge)))
+    print('sum pred merge:', np.sum(np.abs(predict_hic_hr_merge)))
     diff = np.abs(Mh-predict_hic_hr_merge)
-    print('sum diff: {:.5}'.format(np.sum(diff**2)))
+    print('sum Mh - pred diff: {:.5}'.format(np.sum(diff**2)))
+    diff = np.abs(true_hic_hr_merge-predict_hic_hr_merge)
+    print('sum true merge - pred diff: {:.5}'.format(np.sum(diff**2)))
+    diff = np.abs(Mh-true_hic_hr_merge)
+    print('sum Mh - true merge diff: {:.5}'.format(np.sum(diff**2)))
 
     directory_sr = os.path.join(path, sr_path, sr_file, 'SR')
     compact = idx[0:-residual]
