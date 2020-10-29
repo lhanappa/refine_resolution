@@ -37,3 +37,15 @@ def run_hicrep(script,
     os.system(' '.join(cmd))
     #proc = subprocess.call([str(' '.join(cmd))],stdout=subprocess.PIPE)
     #stdout_value = proc.wait()
+
+def run_mae(mat1, mat2):
+    m1 = np.array(mat1)
+    m2 = np.array(mat2)
+    mae  = np.abs(m1 - m2).mean()
+    return mae
+
+def run_mse(mat1, mat2):
+    m1 = np.array(mat1)
+    m2 = np.array(mat2)
+    mse  =((m1 - m2)**2).mean(axis=None)
+    return mse

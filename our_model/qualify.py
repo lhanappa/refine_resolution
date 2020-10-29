@@ -10,7 +10,7 @@ import cooler
 from utils.operations import redircwd_back_projroot
 from utils.operations import remove_zeros, merge_hic, filter_diag_boundary, format_bin, format_contact
 from utils.operations import scn_normalization, scn_recover, sampling_hic
-from utils.quality_hic import run_hicrep
+from utils.quality_hic import run_hicrep, run_mae, run_mse
 # 'Dixon2012-H1hESC-HindIII-allreps-filtered.10kb.cool'
 
 
@@ -179,6 +179,39 @@ def score_hicrep(file1,
                            m1name=m1name,
                            m2name=m2name)
 
+def metric_mae(file1, file2, output_path,
+                m1name='m1',
+                m2name='m2'):
+    data1 = np.load(file1, allow_pickle=True)
+    hic1 = data1['hic']
+    data2 = np.load(file2, allow_pickle=True)
+    hic2 = data2['hic']
+
+    mae = run_mae(mat1=data1, mat2=data2)
+
+    header = 'method1 \t method2 \t mae\n'
+    line = '{} \t {} \t {}\n'.format(m1name, m2name, mae)
+    fout = open(output_path, 'w+')
+    fout.write(header)
+    fout.write(line)
+    fout.close()
+
+def metric_mse(file1, file2, output_path,
+                m1name='m1',
+                m2name='m2'):
+    data1 = np.load(file1, allow_pickle=True)
+    hic1 = data1['hic']
+    data2 = np.load(file2, allow_pickle=True)
+    hic2 = data2['hic']
+
+    mse = run_mse(mat1=data1, mat2=data2)
+
+    header = 'method1 \t method2 \t mae\n'
+    line = '{} \t {} \t {}\n'.format(m1name, m2name, mse)
+    fout = open(output_path, 'w+')
+    fout.write(header)
+    fout.write(line)
+    fout.close()
 
 if __name__ == '__main__':
     root = redircwd_back_projroot(project_name='refine_resolution')

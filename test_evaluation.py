@@ -14,17 +14,58 @@ def evaluate_hicrep(chromosomes, methods, input_path='./experiment/evaluation/')
             bedfile = os.path.join(input_path, 'chr{}'.format(chro), 'bins_chr{}.bed.gz'.format(chro))
             script = os.path.join(root_dir, 'our_model', 'utils','hicrep_wrapper.R')
             h_list = [20]#, 40, 60, 80]
+            output_path = os.path.join(input_path, 'chr{}'.format(chro), 'metrics')
+            os.makedirs(output_path, exist_ok=True)
             for h in h_list:
                 print('h: ', h)
-                output = os.path.join(input_path, 'chr{}'.format(chro), '{}_chr{}_hicrep_{}.txt'.format(method, chro, h))
+                output = os.path.join(output_path,'{}_chr{}_hicrep_{}.txt'.format(method, chro, h))
                 qualify.score_hicrep(file1=file1, file2=file2,
                                 bedfile=bedfile, output_path=output, script=script, h=h,
                                 m1name=m1name, m2name=m2name)
 
+def evaluate_mae(chromosomes, methods, input_path='./experiment/evaluation/'):
+    # root_dir = operations.redircwd_back_projroot(project_name='refine_resolution')
+    for chro in chromosomes:
+        for method in methods:
+            path = os.path.join(input_path, 'chr{}'.format(chro))
+            files = [f for f in os.listdir(path) if (chro in f and '.npz' in f)]
+            file1 = [f for f in files if 'high' in f][0]
+            file1 = os.path.join(path, file1)
+            file2 = [f for f in files if model in f][0]
+            file2 = os.path.join(path, file2)
+            m1name = 'high_{}'.format(chro)
+            m2name = '{}_{}'.format(method, chro)
+
+            output_path = os.path.join(input_path, 'chr{}'.format(chro), 'metrics')
+            os.makedirs(output_path, exist_ok=True)
+            output = os.path.join(output_path, '{}_chr{}_mae.txt'.format(method, chro))
+            qualify.metric_mae(file1=file1, file2=file2, output_path=output,
+                            m1name=m1name, m2name=m2name)
+
+def evaluate_mse(chromosomes, methods, input_path='./experiment/evaluation/'):
+    # root_dir = operations.redircwd_back_projroot(project_name='refine_resolution')
+    for chro in chromosomes:
+        for method in methods:
+            path = os.path.join(input_path, 'chr{}'.format(chro))
+            files = [f for f in os.listdir(path) if (chro in f and '.npz' in f)]
+            file1 = [f for f in files if 'high' in f][0]
+            file1 = os.path.join(path, file1)
+            file2 = [f for f in files if model in f][0]
+            file2 = os.path.join(path, file2)
+            m1name = 'high_{}'.format(chro)
+            m2name = '{}_{}'.format(method, chro)
+
+            output_path = os.path.join(input_path, 'chr{}'.format(chro), 'metrics')
+            os.makedirs(output_path, exist_ok=True)
+            output = os.path.join(output_path, '{}_chr{}_mse.txt'.format(method, chro))
+            qualify.metric_mse(file1=file1, file2=file2, output_path=output,
+                            m1name=m1name, m2name=m2name)
+
 if __name__ == '__main__':
     model = str(sys.argv[1]) # deephic, hicgan, hicsr, ours
     chromosome = str(sys.argv[2]) # 22, 21, 20, 19, X
-    evaluate_hicrep([chromosome], [model])
+    # evaluate_hicrep([chromosome], [model])
+    evaluate_mae([chromosome], [model])
 
 """root_dir = operations.redircwd_back_projroot(project_name='refine_resolution')
 raw_file='Rao2014-GM12878-DpnII-allreps-filtered.10kb.cool'
