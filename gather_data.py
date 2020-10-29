@@ -11,8 +11,7 @@ from our_model.utils.operations import scn_normalization, scn_recover
 
 def gather(source=None, destination='./experiment/evaluation/', method='output_ours_2000000_200', chromosomes=['19', '20', '21', '22', 'X']):
     if(source is None):
-        source = os.path.join('.', 'data', method,
-                              'Rao2014_GM12878_10kb', 'SR')
+        source = os.path.join('.', 'data', method, 'Rao2014_GM12878_10kb', 'SR')
 
     for ch in chromosomes:
         infile = 'predict_chr{}_10000.npz'.format(ch)
@@ -128,6 +127,18 @@ def generate_prefile(input_path='./experiment/evaluation', chromosomes=['22', '2
 
 
 if __name__ == '__main__':
+    methods = ['output_ours_2000000_200', 'output_hicsr_2000000_40_28', 'output_hicgan_2000000_40_40', 'output_deephic_2000000_40_40']
+    for m in methods:
+        gather(method=m)
+
+    chromosomes = ['22', '21', '20', '19', 'X']
+    for chro in chromosomes:
+        gather_high_low_mat(cooler_file='Rao2014-GM12878-DpnII-allreps-filtered.10kb.cool', 
+                            path='./data/raw/', 
+                            chromosome=chro, 
+                            scale=4, 
+                            output_path='./experiment/evaluation/')
+
     generate_prefile(input_path='./experiment/evaluation',
                      chromosomes=['22', '21', '20', '19', 'X'],
                      resolution=10000, 
