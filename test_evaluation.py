@@ -66,6 +66,7 @@ if __name__ == '__main__':
     chromosome = str(sys.argv[2]) # 22, 21, 20, 19, X
     # evaluate_hicrep([chromosome], [model])
     evaluate_mae([chromosome], [model])
+    evaluate_mse([chromosome], [model])
 
 """root_dir = operations.redircwd_back_projroot(project_name='refine_resolution')
 raw_file='Rao2014-GM12878-DpnII-allreps-filtered.10kb.cool'
