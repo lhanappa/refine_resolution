@@ -63,6 +63,10 @@ def configure_our_model(
     predict_hic_hr_merge = filter_diag_boundary(
         predict_hic_hr_merge, diag_k=2, boundary_k=k)
 
+    true_hic_hr_merge, Dh = scn_normalization(true_hic_hr_merge)
+    true_hic_hr_merge = scn_recover(true_hic_hr_merge, Dh)
+    predict_hic_hr_merge = scn_recover(predict_hic_hr_merge, Dh)
+
     print('sum true:', np.sum(np.abs(true_hic_hr_merge)))
     print('sum predict:', np.sum(np.abs(predict_hic_hr_merge)))
     diff = np.abs(true_hic_hr_merge-predict_hic_hr_merge)
