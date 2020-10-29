@@ -117,4 +117,4 @@ def run(
         p.wait()
 
 if __name__ == '__main__':
-    run(chromosomes = ['22'])
+    run(chromosomes = ['22', '21', '20', '19', 'X'])
