@@ -35,7 +35,8 @@ def evaluate_mae(chromosomes, methods, input_path='./experiment/evaluation/', ma
             file2 = os.path.join(path, file2)
             m1name = 'high_{}'.format(chro)
             m2name = '{}_{}'.format(method, chro)
-
+            print(file1)
+            print(file2)
             output_path = os.path.join(input_path, 'chr{}'.format(chro), 'metrics')
             os.makedirs(output_path, exist_ok=True)
             output = os.path.join(output_path, '{}_chr{}_mae.txt'.format(method, chro))
@@ -54,7 +55,8 @@ def evaluate_mse(chromosomes, methods, input_path='./experiment/evaluation/', ma
             file2 = os.path.join(path, file2)
             m1name = 'high_{}'.format(chro)
             m2name = '{}_{}'.format(method, chro)
-
+            print(file1)
+            print(file2)
             output_path = os.path.join(input_path, 'chr{}'.format(chro), 'metrics')
             os.makedirs(output_path, exist_ok=True)
             output = os.path.join(output_path, '{}_chr{}_mse.txt'.format(method, chro))
