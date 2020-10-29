@@ -204,7 +204,7 @@ def metric_mse(file1, file2, output_path,
     data2 = np.load(file2, allow_pickle=True)
     hic2 = data2['hic']
 
-    mse = run_mse(mat1=data1, mat2=data2)
+    mse = run_mse(mat1=hic1, mat2=hic2)
 
     header = 'method1 \t method2 \t mae\n'
     line = '{} \t {} \t {}\n'.format(m1name, m2name, mse)
