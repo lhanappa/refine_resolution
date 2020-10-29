@@ -239,10 +239,10 @@ def metric_mse(file1, file2, output_path, model,
     hic2 = filter_diag_boundary(mat, diag_k=diag_k, boundary_k=max_boundary)
     mse = run_mse(mat1=hic1, mat2=hic2)
 
-    header = 'method1 \t method2 \t mse\n'
+    # header = 'method1 \t method2 \t mse\n'
     line = '{} \t {} \t {}\n'.format(m1name, m2name, mse)
     fout = open(output_path, 'w+')
-    fout.write(header)
+    # fout.write(header)
     fout.write(line)
     fout.close()
 

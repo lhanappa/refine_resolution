@@ -68,7 +68,7 @@ if __name__ == '__main__':
     # chromosome = str(sys.argv[2]) # 22, 21, 20, 19, X
     # evaluate_hicrep([chromosome], [model])
     chromosomes = ['22', '21', '20', '19', 'X']
-    models = ['deephic', 'hicgan', 'hicsr', 'ours']
+    models = ['deephic', 'hicgan', 'hicsr', 'ours', 'low']
     evaluate_mae(chromosomes, models)
     evaluate_mse(chromosomes, models)
 
