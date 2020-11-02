@@ -14,7 +14,7 @@ def evaluate_hicrep(chromosomes, methods, input_path='./experiment/evaluation/')
             m2name = '{}_{}'.format(method, chro)
             bedfile = os.path.join(input_path, 'chr{}'.format(chro), 'bins_chr{}.bed.gz'.format(chro))
             script = os.path.join(root_dir, 'our_model', 'utils','hicrep_wrapper.R')
-            h_list = np.arange(3,15)
+            h_list = np.arange(5,12)
             output_path = os.path.join(input_path, 'chr{}'.format(chro), 'metrics')
             os.makedirs(output_path, exist_ok=True)
             summary_file = os.path.join(output_path,'{}_chr{}_hicrep.txt'.format(method, chro))
@@ -88,17 +88,18 @@ def evaluate_mse(chromosomes, methods, input_path='./experiment/evaluation/', ma
                             m1name=m1name, m2name=m2name, max_boundary=max_boundary, diag_k=diag_k)
 
 if __name__ == '__main__':
-    # model = str(sys.argv[1]) # deephic, hicgan, hicsr, ours
-    # chromosome = str(sys.argv[2]) # 22, 21, 20, 19, X
+    models = [str(sys.argv[1])] # deephic, hicgan, hicsr, ours
+    chromosomes = [str(sys.argv[2])] # 22, 21, 20, 19, X
+
     # evaluate_hicrep([chromosome], [model])
     # chromosomes = ['22', '21', '20', '19', 'X']
     chromosomes = ['22']
-    models = ['deephic', 'hicgan', 'hicsr', 'ours']
+    # models = ['deephic', 'hicgan', 'hicsr', 'ours']
     evaluate_hicrep(chromosomes, models)
     
     # chromosomes = ['22', '21', '20', '19', 'X']
     chromosomes = ['22']
-    models = ['deephic', 'hicgan', 'hicsr', 'ours', 'low']
+    # models = ['deephic', 'hicgan', 'hicsr', 'ours', 'low']
     evaluate_mae(chromosomes, models)
     evaluate_mse(chromosomes, models)
 """root_dir = operations.redircwd_back_projroot(project_name='refine_resolution')
