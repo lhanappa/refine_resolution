@@ -2,6 +2,7 @@ import sys
 import os
 from our_model import qualify
 from our_model.utils import operations
+import numpy as np
 
 def evaluate_hicrep(chromosomes, methods, input_path='./experiment/evaluation/'):
     root_dir = operations.redircwd_back_projroot(project_name='refine_resolution')
@@ -13,7 +14,7 @@ def evaluate_hicrep(chromosomes, methods, input_path='./experiment/evaluation/')
             m2name = '{}_{}'.format(method, chro)
             bedfile = os.path.join(input_path, 'chr{}'.format(chro), 'bins_chr{}.bed.gz'.format(chro))
             script = os.path.join(root_dir, 'our_model', 'utils','hicrep_wrapper.R')
-            h_list = [0, 1, 3, 5, 7, 11, 15, 17, 20, 25]
+            h_list = np.arange(20)
             output_path = os.path.join(input_path, 'chr{}'.format(chro), 'metrics')
             os.makedirs(output_path, exist_ok=True)
             for h in h_list:

@@ -79,7 +79,7 @@ run <- function(){
   SCC.out = get.scc(processed, resol, maxdist)
 
   # write score
-  scores=data.frame(M1=m1name,M2=m2name,score=round(SCC.out[['scc']],3),sd=SCC.out[['std']])
+  scores=data.frame(M1=m1name,M2=m2name,score=round(SCC.out[['scc']],5),sd=SCC.out[['std']])
   print(h, sep=',')
   print(scores)
   write.table(scores,file=out,quote=FALSE,row.names=FALSE,col.names=FALSE,sep='\t')
