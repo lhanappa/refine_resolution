@@ -17,12 +17,35 @@ def evaluate_hicrep(chromosomes, methods, input_path='./experiment/evaluation/')
             h_list = np.arange(20)
             output_path = os.path.join(input_path, 'chr{}'.format(chro), 'metrics')
             os.makedirs(output_path, exist_ok=True)
+            summary_file = os.path.join(output_path,'{}_chr{}_hicrep.txt'.format(method, chro))
             for h in h_list:
                 print('h: ', h)
+                lines = list()
                 output = os.path.join(output_path,'{}_chr{}_hicrep_{}.txt'.format(method, chro, h))
                 qualify.score_hicrep(file1=file1, file2=file2,
                                 bedfile=bedfile, output_path=output, script=script, h=h,
                                 m1name=m1name, m2name=m2name)
+                with open(output, 'r') as fin:
+                    for line in fin:
+                        lines.append(line)
+                    fin.close()
+
+                with open(summary_file, 'a') as fout:
+                    for line in lines:
+                        l = line.split()
+                        m0 = l[0].split('_')[0]
+                        m1 = l[1].split('_')[0]
+                        chro = l[0].split('_')[1]
+                        score = l[2]
+                        sd = l[3]
+                        line = 'chr{}\t{}\t{}\t'.format(chro, h, m0, m1, score, sd)
+                        fout.write(line)
+                    fout.close()
+            for h in h_list:
+                output = os.path.join(output_path,'{}_chr{}_hicrep_{}.txt'.format(method, chro, h))
+                if os.path.exists(output):
+                    os.remove(output)
+                
 
 def evaluate_mae(chromosomes, methods, input_path='./experiment/evaluation/', max_boundary=200, diag_k=2):
     # root_dir = operations.redircwd_back_projroot(project_name='refine_resolution')

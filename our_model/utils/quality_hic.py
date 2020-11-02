@@ -45,6 +45,7 @@ def fit_shape(m1, m2):
         m1 = m1[0:mlen, 0:mlen]
         m2 = m2[0:mlen, 0:mlen]
     return m1, m2
+
 def run_mae(mat1, mat2):
     m1 = np.array(mat1)
     m2 = np.array(mat2)
