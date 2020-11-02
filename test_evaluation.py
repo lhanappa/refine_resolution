@@ -13,7 +13,7 @@ def evaluate_hicrep(chromosomes, methods, input_path='./experiment/evaluation/')
             m2name = '{}_{}'.format(method, chro)
             bedfile = os.path.join(input_path, 'chr{}'.format(chro), 'bins_chr{}.bed.gz'.format(chro))
             script = os.path.join(root_dir, 'our_model', 'utils','hicrep_wrapper.R')
-            h_list = [20]#, 40, 60, 80]
+            h_list = [0, 1, 3, 5, 7, 11, 15, 17, 20, 25]
             output_path = os.path.join(input_path, 'chr{}'.format(chro), 'metrics')
             os.makedirs(output_path, exist_ok=True)
             for h in h_list:
@@ -67,11 +67,14 @@ if __name__ == '__main__':
     # model = str(sys.argv[1]) # deephic, hicgan, hicsr, ours
     # chromosome = str(sys.argv[2]) # 22, 21, 20, 19, X
     # evaluate_hicrep([chromosome], [model])
+    # chromosomes = ['22', '21', '20', '19', 'X']
+    # models = ['deephic', 'hicgan', 'hicsr', 'ours', 'low']
+    # evaluate_mae(chromosomes, models)
+    # evaluate_mse(chromosomes, models)
     chromosomes = ['22', '21', '20', '19', 'X']
-    models = ['deephic', 'hicgan', 'hicsr', 'ours', 'low']
-    evaluate_mae(chromosomes, models)
-    evaluate_mse(chromosomes, models)
-
+    models = ['deephic', 'hicgan', 'hicsr', 'ours']
+    evaluate_hicrep(chromosomes, models)
+    # evaluate_mse(chromosomes, models)
 """root_dir = operations.redircwd_back_projroot(project_name='refine_resolution')
 raw_file='Rao2014-GM12878-DpnII-allreps-filtered.10kb.cool'
 len_size = 200
