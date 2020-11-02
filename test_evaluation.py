@@ -92,13 +92,15 @@ if __name__ == '__main__':
     # chromosome = str(sys.argv[2]) # 22, 21, 20, 19, X
     # evaluate_hicrep([chromosome], [model])
     # chromosomes = ['22', '21', '20', '19', 'X']
-    # models = ['deephic', 'hicgan', 'hicsr', 'ours', 'low']
-    # evaluate_mae(chromosomes, models)
-    # evaluate_mse(chromosomes, models)
-    chromosomes = ['22', '21', '20', '19', 'X']
+    chromosomes = ['22']
     models = ['deephic', 'hicgan', 'hicsr', 'ours']
     evaluate_hicrep(chromosomes, models)
-    # evaluate_mse(chromosomes, models)
+    
+    # chromosomes = ['22', '21', '20', '19', 'X']
+    chromosomes = ['22']
+    models = ['deephic', 'hicgan', 'hicsr', 'ours', 'low']
+    evaluate_mae(chromosomes, models)
+    evaluate_mse(chromosomes, models)
 """root_dir = operations.redircwd_back_projroot(project_name='refine_resolution')
 raw_file='Rao2014-GM12878-DpnII-allreps-filtered.10kb.cool'
 len_size = 200
