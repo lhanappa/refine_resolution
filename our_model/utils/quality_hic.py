@@ -31,11 +31,14 @@ def run_hicrep(script,
                m1name='m1',
                m2name='m2'):
 
-    cmd = ['Rscript --vanilla', script, f1, f2, output_path, str(maxdist), str(resolution), bedfile, str(h), m1name, m2name]
+    cmd = ["Rscript", "--vanilla", script, f1, f2, output_path, str(maxdist), str(resolution), bedfile, str(h), m1name, m2name]
     print(' '.join(cmd))
-    os.system(' '.join(cmd))
-    #proc = subprocess.call([str(' '.join(cmd))],stdout=subprocess.PIPE)
-    #stdout_value = proc.wait()
+    process = subprocess.run(cmd)
+    process.wait()
+
+    # os.system(' '.join(cmd))
+    # proc = subprocess.call([str(' '.join(cmd))],stdout=subprocess.PIPE)
+    # stdout_value = proc.wait()
 
 def fit_shape(m1, m2):
     if(m1.shape[0]!=m2.shape[0]):
