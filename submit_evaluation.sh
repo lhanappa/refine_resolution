@@ -14,8 +14,8 @@ date
 # Print name of node
 hostname
 
-METHOD=${1}
-CHR=${2}
+# METHOD=${1}
+CHR=${1}
 source activate tf_base
-echo python test_evaluation.py ${METHOD} ${CHR}
-python test_evaluation.py ${METHOD} ${CHR}
+echo python test_evaluation.py ${CHR}
+python test_evaluation.py ${CHR}
