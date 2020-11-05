@@ -206,7 +206,7 @@ def metric_mae(file1, file2, output_path, model,
 
     mae = run_mae(mat1=hic1, mat2=hic2)
 
-    header = 'method1 \t method2 \t mae\n'
+    # header = 'method1 \t method2 \t mae\n'
     line = '{} \t {} \t {}\n'.format(m1name, m2name, mae)
     fout = open(output_path, 'w+')
     fout.write(header)

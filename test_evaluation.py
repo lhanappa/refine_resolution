@@ -88,18 +88,18 @@ def evaluate_mse(chromosomes, methods, input_path='./experiment/evaluation/', ma
                             m1name=m1name, m2name=m2name, max_boundary=max_boundary, diag_k=diag_k)
 
 if __name__ == '__main__':
-    models = [str(sys.argv[1])] # deephic, hicgan, hicsr, ours
-    chromosomes = [str(sys.argv[2])] # 22, 21, 20, 19, X
+    # models = [str(sys.argv[1])] # deephic, hicgan, hicsr, ours
+    chromosomes = [str(sys.argv[1])] # 22, 21, 20, 19, X
 
     # evaluate_hicrep([chromosome], [model])
     # chromosomes = ['22', '21', '20', '19', 'X']
-    chromosomes = ['22']
-    # models = ['deephic', 'hicgan', 'hicsr', 'ours']
+    # chromosomes = ['22']
+    models = ['deephic', 'hicgan', 'hicsr', 'ours']
     evaluate_hicrep(chromosomes, models)
     
     # chromosomes = ['22', '21', '20', '19', 'X']
-    chromosomes = ['22']
-    # models = ['deephic', 'hicgan', 'hicsr', 'ours', 'low']
+    # chromosomes = ['22']
+    models = ['deephic', 'hicgan', 'hicsr', 'ours', 'low']
     evaluate_mae(chromosomes, models)
     evaluate_mse(chromosomes, models)
 """root_dir = operations.redircwd_back_projroot(project_name='refine_resolution')
