@@ -209,7 +209,7 @@ def metric_mae(file1, file2, output_path, model,
     # header = 'method1 \t method2 \t mae\n'
     line = '{} \t {} \t {}\n'.format(m1name, m2name, mae)
     fout = open(output_path, 'w+')
-    fout.write(header)
+    # fout.write(header)
     fout.write(line)
     fout.close()
 

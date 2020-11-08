@@ -160,15 +160,16 @@ def merge_hic(hic_lists, index_1D_2D, max_distance=None):
     dig = np.zeros(shape=(n,))
     for i in np.arange(lenindex):
         h, w = index_1D_2D[i]
-        dig[h] += 1
-        dig[w] += 1
         '''if (max_distance is not None) and (np.abs(h-w) > np.ceil(max_distance/Height_hf)):
             continue'''
         x = h*Height_hf
         y = w*Width_hf
         matrix[x:x+Height_hf, y:y+Width_hf] += hic_m[i, 0:Height_hf, 0+Width_hf:Width]
-        matrix[x:x+Height_hf, x:x+Height_hf] += hic_m[i, 0:Height_hf, 0:Width_hf]
-        matrix[y:y+Width_hf, y:y+Width_hf] += hic_m[i, 0+Height_hf:Height, 0+Width_hf:Width]
+        if abs(h-w)==1:
+            dig[h] += 1
+            dig[w] += 1
+            matrix[x:x+Height_hf, x:x+Height_hf] += hic_m[i, 0:Height_hf, 0:Width_hf]
+            matrix[y:y+Width_hf, y:y+Width_hf] += hic_m[i, 0+Height_hf:Height, 0+Width_hf:Width]
     
     matrix = matrix + np.transpose(matrix)
 
