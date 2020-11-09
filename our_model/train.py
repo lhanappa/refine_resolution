@@ -51,6 +51,7 @@ def run(train_data, valid_data, len_size, scale, EPOCHS, root_path='./', load_mo
 
     if saved_model_dir is None:
         saved_model_dir = os.path.join(root_path, 'our_model', 'saved_model')
+
     model.fit(Gen, Dis, train_data, EPOCHS, len_size, scale,
                 valid_data, log_dir=log_dir, saved_model_dir=saved_model_dir)
 
@@ -103,7 +104,7 @@ if __name__ == '__main__':
     scale = 4
     # genomic_disstance is used for input path, nothing to do with model
     genomic_distance = int(sys.argv[2])  # 2000000, 2560000
-    EPOCHS = 200
+    EPOCHS = 400
     BATCH_SIZE = 9
     root_path = redircwd_back_projroot(project_name='refine_resolution')
     data_path = os.path.join(root_path, 'data')
