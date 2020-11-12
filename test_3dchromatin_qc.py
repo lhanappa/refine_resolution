@@ -63,13 +63,16 @@ def run(
     list1 = ['high'],
     list2 = ['hicgan', 'deephic', 'hicsr', 'ours', 'low'],
     chromosomes = ['22', '21', '20', '19', 'X']):
+    cool_file = 'Rao2014-GM12878-MboI-allreps-filtered.10kb.cool'
+    cell_type = cool_file.split('_')[0] + '_' + cool_file.split('_')[1] + '_' + cool_file.split('_')[2] + '_' + cool_file.split('.')[1]
+    destination_path = os.path.join('./experiment/evaluation/', cell_type)
 
     print(chromosomes)
     process = []
     for chro in chromosomes:
-        generate_parameters(chro)
-        generate_metadata_samples(methods, chro)
-        generate_pairs(list1, list2, chro)
+        generate_parameters(chro, path=destination_path)
+        generate_metadata_samples(methods, chro, path=destination_path)
+        generate_pairs(list1, list2, chro, path=destination_path)
 
         # 3DChromatin_ReplicateQC preprocess 
         # --running_mode sge 
@@ -77,7 +80,7 @@ def run(
         # --bins examples/Bins.w50000.bed.gz 
         # --outdir examples/output 
         # --parameters_file examples/example_parameters.txt
-        script_work_dir = './experiment/evaluation/chr{}'.format(chro)
+        script_work_dir = os.path.join(destination_path, 'chr{}'.format(chro))
         cmd = ["3DChromatin_ReplicateQC", "preprocess", 
             "--metadata_samples",  'metadata_samples.txt', 
             "--bins", 'bins_chr{}.bed.gz'.format(chro), 
@@ -94,7 +97,7 @@ def run(
         # --metadata_pairs examples/metadata.pairs 
         # --outdir examples/output 
         # --methods GenomeDISCO,HiCRep,HiC-Spector,QuASAR-Rep
-        script_work_dir = './experiment/evaluation/chr{}'.format(chro)
+        script_work_dir = os.path.join(destination_path, 'chr{}'.format(chro))
         cmd = ["3DChromatin_ReplicateQC", "concordance", 
             "--metadata_pairs", 'metadata_pairs.txt',
             "--outdir", './chromatin_qc/',
