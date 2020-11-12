@@ -44,8 +44,7 @@ def configure(raw_hic='Rao2014-GM12878-DpnII-allreps-filtered.10kb.cool',
     experiment_name = '_'.join(
         [methods_name, str(genomic_distance), str(lr_size), str(hr_size)])
 
-    data_cat = raw_hic.split(
-        '-')[0] + '_' + raw_hic.split('-')[1] + '_' + raw_hic.split('.')[1]
+    data_cat = raw_hic.split('-')[0] + '_' + raw_hic.split('-')[1] + '_' + raw_hic.split('-')[2] + '_' + raw_hic.split('.')[1]
     input_path = os.path.join(
         root_dir, 'data', 'input_'+experiment_name, data_cat)+'/'
     if methods_name == 'hicsr':

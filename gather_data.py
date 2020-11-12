@@ -129,16 +129,19 @@ def generate_prefile(input_path='./experiment/evaluation', chromosomes=['22', '2
 
 if __name__ == '__main__':
     methods = ['output_ours_2000000_200', 'output_hicsr_2000000_40_28', 'output_hicgan_2000000_40_40', 'output_deephic_2000000_40_40']
+    cool_file = 'Rao2014-GM12878-DpnII-allreps-filtered.10kb.cool'
+    cell_type = cool_file.split('_')[0] + '_' + cool_file.split('_')[1] + '_' + cool_file.split('_')[2] + '_' + cool_file.split('.')[1]
+    destination_path = os.path.join('./experiment/evaluation/', cell_type)
     for m in methods:
-        gather(method=m)
+        gather(destination=destination_path, method=m)
 
     chromosomes = ['22', '21', '20', '19', 'X']
     for chro in chromosomes:
-        gather_high_low_mat(cooler_file='Rao2014-GM12878-DpnII-allreps-filtered.10kb.cool', 
+        gather_high_low_mat(cooler_file=cool_file, 
                             path='./data/raw/', 
                             chromosome=chro, 
                             scale=4, 
-                            output_path='./experiment/evaluation/')
+                            output_path=destination_path)
 
     generate_prefile(input_path='./experiment/evaluation',
                      chromosomes=['22', '21', '20', '19', 'X'],

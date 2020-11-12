@@ -32,8 +32,7 @@ def configure(len_size=None, genomic_distance=None, methods_name='ours',
             project_name='refine_resolution'), 'data')
 
     print('data path: ', dataset_path)
-    input_file = raw_hic.split(
-        '-')[0] + '_' + raw_hic.split('-')[1] + '_' + raw_hic.split('.')[1]
+    input_file = raw_hic.split( '-')[0] + '_' + raw_hic.split('-')[1] + '_' + raw_hic.split('-')[2] + '_' + raw_hic.split('.')[1]
     input_path = '_'.join(
         [input_path, methods_name, str(genomic_distance), str(len_size)])
     output_file = input_file

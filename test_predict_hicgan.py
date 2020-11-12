@@ -44,7 +44,7 @@ for c in preprocessing_chr_list:
         chr_list.append(c)
 generate(input_lr_dir=lr_dir, input_hr_dir=hr_dir, output_dir=train_path, chr_list=chr_list)"""
 
-data_cat = raw_hic.split('-')[0] + '_' + raw_hic.split('-')[1] + '_' + raw_hic.split('.')[1]
+data_cat = raw_hic.split('-')[0] + '_' + raw_hic.split('-')[1]+ '_' + raw_hic.split('-')[2] + '_' + raw_hic.split('.')[1]
 output_path = os.path.join(root_dir, 'data', 'output_'+experiment_name, data_cat, 'SR')+'/'
 
 saved_cpt_dir = os.path.join(preprocessing_output_path, 'model', 'ckpt')

@@ -22,7 +22,7 @@ def configure_our_model(
         genomic_distance=2000000,
         resolution=10000):
 
-    sr_file = raw_file.split('-')[0] + '_' + raw_file.split('-')[1] + '_' + raw_file.split('.')[1]
+    sr_file = raw_file.split('-')[0] + '_' + raw_file.split('-')[1] + + '_' + raw_file.split('-')[2] + '_' + raw_file.split('.')[1]
     directory_sr = os.path.join(path, sr_path, sr_file, 'SR', 'chr'+chromosome)
 
     input_path = directory_sr
@@ -95,7 +95,7 @@ def configure_model(
         resolution=10000,
         true_path=None):
 
-    sr_file = raw_file.split('-')[0] + '_' + raw_file.split('-')[1] + '_' + raw_file.split('.')[1]
+    sr_file = raw_file.split('-')[0] + '_' + raw_file.split('-')[1] + '_' + raw_file.split('-')[2] + '_' + raw_file.split('.')[1]
     input_path = os.path.join(path, sr_path, sr_file, 'SR')
     input_file = 'predict_chr'+chromosome+'_{}.npz'.format(resolution)
 

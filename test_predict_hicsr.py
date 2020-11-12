@@ -40,7 +40,7 @@ data_fp = predict_path
 model_fp = os.path.join(input_path, 'model', 'HiCSR', 'HiCSR.pth')
 model_hicsr = "HiCSR"
 
-data_cat = raw_hic.split('-')[0] + '_' + raw_hic.split('-')[1] + '_' + raw_hic.split('.')[1]
+data_cat = raw_hic.split('-')[0] + '_' + raw_hic.split('-')[1] + '_' + raw_hic.split('-')[2] + '_' + raw_hic.split('.')[1]
 output_path = os.path.join(root_dir, 'data', 'output_'+experiment_name, data_cat, 'SR')+'/'
 resolution = 10000
 cmd = ["python", "predict_hicsr.py", 
