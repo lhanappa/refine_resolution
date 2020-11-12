@@ -105,7 +105,7 @@ if __name__ == '__main__':
     # genomic_disstance is used for input path, nothing to do with model
     genomic_distance = int(sys.argv[2])  # 2000000, 2560000
     EPOCHS = 400
-    BATCH_SIZE = 3
+    BATCH_SIZE = 4
     root_path = redircwd_back_projroot(project_name='refine_resolution')
     data_path = os.path.join(root_path, 'data')
     # raw_hic = 'Rao2014-GM12878-DpnII-allreps-filtered.10kb.cool'
