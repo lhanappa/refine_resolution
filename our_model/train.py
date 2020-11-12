@@ -108,9 +108,9 @@ if __name__ == '__main__':
     BATCH_SIZE = 3
     root_path = redircwd_back_projroot(project_name='refine_resolution')
     data_path = os.path.join(root_path, 'data')
-    raw_hic = 'Rao2014-GM12878-DpnII-allreps-filtered.10kb.cool'
-    input_path = '_'.join(
-        ['input', 'ours', str(genomic_distance), str(len_size)])
+    # raw_hic = 'Rao2014-GM12878-DpnII-allreps-filtered.10kb.cool'
+    raw_hic = 'Rao2014-GM12878-MboI-allreps-filtered.10kb.cool'
+    input_path = '_'.join(['input', 'ours', str(genomic_distance), str(len_size)])
     input_file = raw_hic.split('-')[0] + '_' + raw_hic.split('-')[1] + '_' + raw_hic.split('-')[2] + '_' + raw_hic.split('.')[1]
 
     log_dir = os.path.join(root_path, 'our_model', 'logs', 'model')

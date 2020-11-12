@@ -144,8 +144,9 @@ dataset_path-raw
 
 if __name__ == '__main__':
     root = operations.redircwd_back_projroot(project_name='refine_resolution')
-    config = configure(len_size=int(
-        sys.argv[2]), genomic_distance=int(sys.argv[3]))
+    raw_hic = 'Rao2014-GM12878-MboI-allreps-filtered.10kb.cool'
+    # raw_hic='Rao2014-GM12878-DpnII-allreps-filtered.10kb.cool'
+    config = configure(raw_hic=raw_hic, len_size=int(sys.argv[2]), genomic_distance=int(sys.argv[3]))
     chromosome_list = [str(sys.argv[1])]
     for chri in chromosome_list:
         save_samples(config, chromosome=chri)

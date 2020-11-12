@@ -5,12 +5,13 @@ from utils import operations
 chromosome = str(sys.argv[1])
 
 root_dir = operations.redircwd_back_projroot(project_name='refine_resolution')
-raw_file='Rao2014-GM12878-DpnII-allreps-filtered.10kb.cool'
+# raw_file='Rao2014-GM12878-DpnII-allreps-filtered.10kb.cool'
+raw_file = 'Rao2014-GM12878-MboI-allreps-filtered.10kb.cool'
 len_size = 200
 max_dis = 2000000
 
 input_path,sr_file = qualify.configure_our_model(path=os.path.join(root_dir, 'data'),
-                               raw_file='Rao2014-GM12878-DpnII-allreps-filtered.10kb.cool',
+                               raw_file=raw_file,
                                sr_path = '_'.join(['output','ours',str(max_dis), str(len_size)]),
                                chromosome=chromosome,
                                genomic_distance=2000000,
