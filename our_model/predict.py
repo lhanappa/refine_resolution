@@ -171,9 +171,11 @@ if __name__ == '__main__':
     data_path = os.path.join(root, 'data')
     max_dis = 2000000
     len_size = 200
+    # raw_hic = 'Rao2014-GM12878-DpnII-allreps-filtered.10kb.cool'
+    raw_hic = 'Rao2014-GM12878-MboI-allreps-filtered.10kb.cool'
     predict(path=data_path,
             raw_path='raw',
-            raw_file='Rao2014-GM12878-DpnII-allreps-filtered.10kb.cool',
+            raw_file=raw_hic,
             chromosome='22',
             scale=4,
             len_size=200,

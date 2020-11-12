@@ -16,7 +16,8 @@ from software.hicGAN import train_hicgan, predict_hicgan
 
 
 def configure_hicgan():
-    raw_hic = 'Rao2014-GM12878-DpnII-allreps-filtered.10kb.cool'
+    raw_hic = 'Rao2014-GM12878-MboI-allreps-filtered.10kb.cool'
+    # raw_hic = 'Rao2014-GM12878-DpnII-allreps-filtered.10kb.cool'
     genomic_distance = 2000000
     lr_size = 40
     hr_size = 40
