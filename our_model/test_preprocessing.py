@@ -1,4 +1,4 @@
-from . import prepare_data
+import prepare_data
 import sys
 from utils import operations
 import os
