@@ -89,7 +89,8 @@ def evaluate_mse(chromosomes, methods, input_path='./experiment/evaluation/', ma
                             m1name=m1name, m2name=m2name, max_boundary=max_boundary, diag_k=diag_k)
 
 if __name__ == '__main__':
-    cool_file = 'Rao2014-GM12878-MboI-allreps-filtered.10kb.cool'
+    #cool_file = 'Rao2014-GM12878-MboI-allreps-filtered.10kb.cool'
+    cool_file = 'Rao2014-GM12878-DpnII-allreps-filtered.10kb.cool'
     cell_type = cool_file.split('_')[0] + '_' + cool_file.split('_')[1] + '_' + cool_file.split('_')[2] + '_' + cool_file.split('.')[1]
     destination_path = os.path.join('./experiment/evaluation/', cell_type)
 
@@ -104,9 +105,9 @@ if __name__ == '__main__':
     
     # chromosomes = ['22', '21', '20', '19', 'X']
     # chromosomes = ['22']
-    models = ['deephic', 'hicgan', 'hicsr', 'ours', 'low']
-    evaluate_mae(chromosomes, models, input_path=destination_path)
-    evaluate_mse(chromosomes, models, input_path=destination_path)
+    # models = ['deephic', 'hicgan', 'hicsr', 'ours', 'low']
+    # evaluate_mae(chromosomes, models, input_path=destination_path)
+    # evaluate_mse(chromosomes, models, input_path=destination_path)
     
 """root_dir = operations.redircwd_back_projroot(project_name='refine_resolution')
 raw_file='Rao2014-GM12878-DpnII-allreps-filtered.10kb.cool'
