@@ -91,7 +91,7 @@ def evaluate_mse(chromosomes, methods, input_path='./experiment/evaluation/', ma
 if __name__ == '__main__':
     #cool_file = 'Rao2014-GM12878-MboI-allreps-filtered.10kb.cool'
     cool_file = 'Rao2014-GM12878-DpnII-allreps-filtered.10kb.cool'
-    cell_type = cool_file.split('_')[0] + '_' + cool_file.split('_')[1] + '_' + cool_file.split('_')[2] + '_' + cool_file.split('.')[1]
+    cell_type = cool_file.split('-')[0] + '_' + cool_file.split('-')[1] + '_' + cool_file.split('_')[2] + '-' + cool_file.split('.')[1]
     destination_path = os.path.join('./experiment/evaluation/', cell_type)
 
     # models = [str(sys.argv[1])] # deephic, hicgan, hicsr, ours

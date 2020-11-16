@@ -64,7 +64,7 @@ def run(
     list2 = ['hicgan', 'deephic', 'hicsr', 'ours', 'low'],
     chromosomes = ['22', '21', '20', '19', 'X']):
     cool_file = 'Rao2014-GM12878-MboI-allreps-filtered.10kb.cool'
-    cell_type = cool_file.split('_')[0] + '_' + cool_file.split('_')[1] + '_' + cool_file.split('_')[2] + '_' + cool_file.split('.')[1]
+    cell_type = cool_file.split('-')[0] + '_' + cool_file.split('-')[1] + '_' + cool_file.split('-')[2] + '_' + cool_file.split('.')[1]
     destination_path = os.path.join('./experiment/evaluation/', cell_type)
 
     print(chromosomes)
