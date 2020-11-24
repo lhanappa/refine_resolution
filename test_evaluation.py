@@ -32,15 +32,22 @@ def evaluate_hicrep(chromosomes, methods, input_path='./experiment/evaluation/')
                     fin.close()
 
                 with open(summary_file, 'a') as fout:
+                    line = lines[0]
+                    l = line.split()
+                    m0 = l[0].split('_')[0]
+                    m1 = l[1].split('_')[0]
+                    chro = l[0].split('_')[1]
+                    score = l[2]
+                    sd = l[3]
+                    v, w = [], []
                     for line in lines:
                         l = line.split()
-                        m0 = l[0].split('_')[0]
-                        m1 = l[1].split('_')[0]
-                        chro = l[0].split('_')[1]
-                        score = l[2]
-                        sd = l[3]
-                        line = 'chr{}\t{}\t{}\t{}\t{}\t{}\n'.format(chro, h, m0, m1, score, sd)
-                        fout.write(line)
+                        v.append(l[4])
+                        w.append(l[5])
+                    wline = 'chr{}\t{}\t{}\t{}\t{}\t{}\n'.format(chro, h, m0, m1, score, sd)
+                    wline = wline + ' '.join(v) + '\n'
+                    wline = wline + ' '.join(w) + '\n'
+                    fout.write(wline)
                     fout.close()
             for h in h_list:
                 output = os.path.join(output_path,'{}_chr{}_hicrep_{}.txt'.format(method, chro, h))
@@ -89,8 +96,8 @@ def evaluate_mse(chromosomes, methods, input_path='./experiment/evaluation/', ma
                             m1name=m1name, m2name=m2name, max_boundary=max_boundary, diag_k=diag_k)
 
 if __name__ == '__main__':
-    #cool_file = 'Rao2014-GM12878-MboI-allreps-filtered.10kb.cool'
-    cool_file = 'Rao2014-GM12878-DpnII-allreps-filtered.10kb.cool'
+    cool_file = 'Rao2014-GM12878-MboI-allreps-filtered.10kb.cool'
+    # cool_file = 'Rao2014-GM12878-DpnII-allreps-filtered.10kb.cool'
     cell_type = cool_file.split('-')[0] + '_' + cool_file.split('-')[1] + '_' + cool_file.split('-')[2] + '_' + cool_file.split('.')[1]
     destination_path = os.path.join('./experiment/evaluation/', cell_type)
 

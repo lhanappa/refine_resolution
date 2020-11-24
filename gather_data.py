@@ -128,11 +128,12 @@ def generate_prefile(input_path='./experiment/evaluation', chromosomes=['22', '2
 
 
 if __name__ == '__main__':
-    methods = ['output_ours_2000000_200', 'output_hicsr_2000000_40_28', 'output_hicgan_2000000_40_40', 'output_deephic_2000000_40_40']
+    # methods = ['output_ours_2000000_200', 'output_hicsr_2000000_40_28', 'output_hicgan_2000000_40_40', 'output_deephic_2000000_40_40']
+    methods = ['output_ours_2000000_200', 'output_hicsr_2000000_40_28', 'output_deephic_2000000_40_40']
     # cool_file = 'Rao2014-GM12878-DpnII-allreps-filtered.10kb.cool'
     cool_file = 'Rao2014-GM12878-MboI-allreps-filtered.10kb.cool'
     cell_type = cool_file.split('-')[0] + '_' + cool_file.split('-')[1] + '_' + cool_file.split('-')[2] + '_' + cool_file.split('.')[1]
-    destination_path = os.path.join('./experiment/evaluation/', cell_type)
+    destination_path = os.path.join('./experiment', 'evaluation', cell_type)
     for m in methods:
         gather(destination=destination_path, method=m)
 
