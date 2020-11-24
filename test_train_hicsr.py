@@ -42,15 +42,16 @@ cmd = ["python", "train.py", "--data_fp", data_fp, "--model",
        model_hicsr, "--experiment", "DAE"]
 process = subprocess.run(cmd, cwd=script_work_dir)"""
 
-'''data_fp = input_path
+data_fp = input_path
 model_hicsr = "HiCSR"
 cmd = ["python", "train.py", "--data_fp", data_fp, "--model",
        model_hicsr, "--experiment", "HiCSR"]
-process = subprocess.run(cmd, cwd=script_work_dir)'''
+process = subprocess.run(cmd, cwd=script_work_dir)
 
 # model saved in: software/HiCSR/experiments/[HiCSR/]
 # move to '[dir]/software/HiCSR/experiments/*'
 print('cwd{}'.format(script_work_dir))
+os.makedirs(os.path.join(input_path, 'model'), exist_ok=True)
 cmd = ["cp", "-r", "./experiments/HiCSR", os.path.join(input_path, 'model', 'HiCSR')]
 process = subprocess.run(cmd, cwd=script_work_dir)
 cmd = ["cp", "-r", "./experiments/DAE", os.path.join(input_path, 'model', 'DAE')]
