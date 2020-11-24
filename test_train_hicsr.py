@@ -51,7 +51,9 @@ process = subprocess.run(cmd, cwd=script_work_dir)'''
 # model saved in: software/HiCSR/experiments/[HiCSR/]
 # move to '[dir]/software/HiCSR/experiments/*'
 print('cwd{}'.format(script_work_dir))
-cmd = ["cp", "-r", "./experiments/*", os.path.join(input_path, 'model')]
+cmd = ["cp", "-r", "./experiments/HiCSR", os.path.join(input_path, 'model', 'HiCSR')]
+process = subprocess.run(cmd, cwd=script_work_dir)
+cmd = ["cp", "-r", "./experiments/DAE", os.path.join(input_path, 'model', 'DAE')]
 process = subprocess.run(cmd, cwd=script_work_dir)
 
 
