@@ -14,7 +14,8 @@ def evaluate_hicrep(chromosomes, methods, input_path='./experiment/evaluation/')
             m2name = '{}_{}'.format(method, chro)
             bedfile = os.path.join(input_path, 'chr{}'.format(chro), 'bins_chr{}.bed.gz'.format(chro))
             script = os.path.join(root_dir, 'our_model', 'utils','hicrep_wrapper.R')
-            h_list = np.append(np.arange(5,12), 20)
+            # h_list = np.append(np.arange(5,25), 30)
+            h_list = np.arange(5,40)
             print(h_list)
             output_path = os.path.join(input_path, 'chr{}'.format(chro), 'metrics')
             os.makedirs(output_path, exist_ok=True)
@@ -99,7 +100,7 @@ if __name__ == '__main__':
     cool_file = 'Rao2014-GM12878-MboI-allreps-filtered.10kb.cool'
     # cool_file = 'Rao2014-GM12878-DpnII-allreps-filtered.10kb.cool'
     cell_type = cool_file.split('-')[0] + '_' + cool_file.split('-')[1] + '_' + cool_file.split('-')[2] + '_' + cool_file.split('.')[1]
-    destination_path = os.path.join('./experiment/evaluation/', cell_type)
+    destination_path = os.path.join('./experiment', 'evaluation', cell_type)
 
     # models = [str(sys.argv[1])] # deephic, hicgan, hicsr, ours
     chromosomes = [str(sys.argv[1])] # 22, 21, 20, 19, X
@@ -107,14 +108,14 @@ if __name__ == '__main__':
     # evaluate_hicrep([chromosome], [model])
     # chromosomes = ['22', '21', '20', '19', 'X']
     # chromosomes = ['22']
-    models = ['deephic', 'hicgan', 'hicsr', 'ours']
+    models = ['deephic', 'hicsr', 'ours'] # 'hicgan', 
     evaluate_hicrep(chromosomes, models, input_path=destination_path)
     
     # chromosomes = ['22', '21', '20', '19', 'X']
     # chromosomes = ['22']
     # models = ['deephic', 'hicgan', 'hicsr', 'ours', 'low']
-    # evaluate_mae(chromosomes, models, input_path=destination_path)
-    # evaluate_mse(chromosomes, models, input_path=destination_path)
+    evaluate_mae(chromosomes, models, input_path=destination_path)
+    evaluate_mse(chromosomes, models, input_path=destination_path)
     
 """root_dir = operations.redircwd_back_projroot(project_name='refine_resolution')
 raw_file='Rao2014-GM12878-DpnII-allreps-filtered.10kb.cool'
