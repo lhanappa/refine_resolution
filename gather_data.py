@@ -11,7 +11,7 @@ from our_model.utils.operations import scn_normalization, scn_recover
 
 def gather(source=None, destination='./experiment/evaluation/', method='output_ours_2000000_200', chromosomes=['19', '20', '21', '22', 'X']):
     if(source is None):
-        source = os.path.join('.', 'data', method, 'Rao2014_GM12878_10kb', 'SR')
+        source = os.path.join('.', 'data', method, 'Rao2014_GM12878_MboI_10kb', 'SR')
 
     for ch in chromosomes:
         infile = 'predict_chr{}_10000.npz'.format(ch)
@@ -134,8 +134,10 @@ if __name__ == '__main__':
     cool_file = 'Rao2014-GM12878-MboI-allreps-filtered.10kb.cool'
     cell_type = cool_file.split('-')[0] + '_' + cool_file.split('-')[1] + '_' + cool_file.split('-')[2] + '_' + cool_file.split('.')[1]
     destination_path = os.path.join('./experiment', 'evaluation', cell_type)
+    
     for m in methods:
-        gather(destination=destination_path, method=m)
+        source = os.path.join('.', 'data', m, cell_type, 'SR')
+        gather(source=source, destination=destination_path, method=m)
 
     chromosomes = ['22', '21', '20', '19', 'X']
     for chro in chromosomes:
