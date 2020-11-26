@@ -6,8 +6,7 @@ import gzip
 import os, sys
 import subprocess
 
-
-parameters = '''GenomeDISCO|subsampling	lowest
+"""GenomeDISCO|subsampling	lowest
 GenomeDISCO|tmin	3
 GenomeDISCO|tmax	3
 GenomeDISCO|norm	uniform
@@ -16,6 +15,16 @@ GenomeDISCO|removeDiag	yes
 GenomeDISCO|transition	yes
 HiCRep|h	20
 HiCRep|maxdist	2000000
+HiC-Spector|n	20
+QuASAR|rebinning	resolution
+"""
+parameters = '''GenomeDISCO|subsampling	lowest
+GenomeDISCO|tmin	3
+GenomeDISCO|tmax	3
+GenomeDISCO|norm	uniform
+GenomeDISCO|scoresByStep	yes
+GenomeDISCO|removeDiag	yes
+GenomeDISCO|transition	yes
 HiC-Spector|n	20
 QuASAR|rebinning	resolution
 '''
@@ -101,7 +110,7 @@ def run(
         cmd = ["3DChromatin_ReplicateQC", "concordance", 
             "--metadata_pairs", 'metadata_pairs.txt',
             "--outdir", './chromatin_qc/',
-            "--methods", "GenomeDISCO,HiCRep,HiC-Spector"] # ,QuASAR-Rep
+            "--methods", "GenomeDISCO,HiC-Spector"] # ,QuASAR-Rep
         process.append(subprocess.Popen(cmd, cwd=script_work_dir))
 
         # 3DChromatin_ReplicateQC summary 
