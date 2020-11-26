@@ -568,6 +568,7 @@ def fit(gen, dis, dataset, epochs, len_high_size,
 
     train_step_generator = tf.function(_train_step_generator)
     train_step_discriminator = tf.function(_train_step_discriminator)
+    best_loss = None
     for epoch in range(epochs):
         start = time.time()
         # train
@@ -579,11 +580,13 @@ def fit(gen, dis, dataset, epochs, len_high_size,
         generator_log_bce_high.reset_states()
 
         discriminator_log.reset_states()
+
+        if(epoch <= int(40)):
+            loss_weights = [0.0, 10.0, 0.0]
+        else:
+            loss_weights = [0.1, 10.0, 0.0]
+
         for i, (low_m, high_m) in enumerate(dataset):
-            if(epoch <= int(40)):
-                loss_weights = [0.0, 10.0, 0.0]
-            else:
-                loss_weights = [0.1, 10.0, 0.0]
 
             g_ssim_l, g_mse_l, g_bce_h, g_mse_h, g_ssim_h = \
                 train_step_generator(Gen=gen, Dis=dis,
@@ -613,11 +616,13 @@ def fit(gen, dis, dataset, epochs, len_high_size,
             discriminator_log.update_state(d_loss)
 
         # save model weights as checkpoints
-        if (epoch+10) % 50 == 0:
+        g_loss = g_bce_h*loss_weights[0] + g_mse_h*loss_weights[1]
+        if best_lost is None or g_loss < best_loss:
             gen.save_weights(os.path.join(
                 saved_model_dir, current_time, 'gen_weights_'+str(len_high_size)))
             dis.save_weights(os.path.join(
                 saved_model_dir, current_time, 'dis_weights_'+str(len_high_size)))
+            best_loss = g_loss
 
         # valid dataset
         if valid_dataset is not None:
