@@ -617,7 +617,7 @@ def fit(gen, dis, dataset, epochs, len_high_size,
 
         # save model weights as checkpoints
         g_loss = g_bce_h*loss_weights[0] + g_mse_h*loss_weights[1]
-        if best_lost is None or g_loss < best_loss:
+        if best_loss is None or g_loss < best_loss:
             gen.save_weights(os.path.join(
                 saved_model_dir, current_time, 'gen_weights_'+str(len_high_size)))
             dis.save_weights(os.path.join(
