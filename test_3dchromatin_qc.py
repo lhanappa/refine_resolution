@@ -42,7 +42,7 @@ def generate_metadata_samples(methods, chromosome, path='./experiment/evaluation
     for file in files:
         f = os.path.join(path, file)
         absolute_path = os.path.abspath(f)
-        method = file.split('_')[0:-2]
+        method = '_'.join(file.split('_')[0:-2])
         print(method, absolute_path)
         if method in methods:
             line = '{}\t{}\n'.format(method, absolute_path)
