@@ -100,6 +100,7 @@ def generate_prefile(input_path='./experiment/evaluation', chromosomes=['22', '2
                 name = namelist[0]
             else:
                 model = namelist[1]
+                win_len = namelist[3]
                 if model == 'hicgan':
                     # true_hic = np.log1p(true_hic)
                     mat = np.expm1(mat)
@@ -117,7 +118,7 @@ def generate_prefile(input_path='./experiment/evaluation', chromosomes=['22', '2
                 '''elif model == 'ours':
                     scn, dh = scn_normalization(high_mat, max_iter=3000)
                     mat = scn_recover(mat, dh)'''
-                name = namelist[1]
+                name = '_'.join([model, win_len])
             mat = filter_diag_boundary(mat, diag_k=2, boundary_k=k)
             mat = mat[0:n-(n%100), :]
             mat = mat[:, 0:n-(n%100)]
@@ -129,7 +130,7 @@ def generate_prefile(input_path='./experiment/evaluation', chromosomes=['22', '2
 
 if __name__ == '__main__':
     # methods = ['output_ours_2000000_200', 'output_hicsr_2000000_40_28', 'output_hicgan_2000000_40_40', 'output_deephic_2000000_40_40']
-    methods = ['output_ours_2000000_200', 'output_hicsr_2000000_40_28', 'output_deephic_2000000_40_40']
+    methods = ['output_ours_2000000_80', 'output_ours_2000000_200', 'output_ours_2000000_400', 'output_hicsr_2000000_40_28', 'output_deephic_2000000_40_40']
     # cool_file = 'Rao2014-GM12878-DpnII-allreps-filtered.10kb.cool'
     cool_file = 'Rao2014-GM12878-MboI-allreps-filtered.10kb.cool'
     cell_type = cool_file.split('-')[0] + '_' + cool_file.split('-')[1] + '_' + cool_file.split('-')[2] + '_' + cool_file.split('.')[1]
