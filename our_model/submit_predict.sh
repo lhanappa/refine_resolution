@@ -15,7 +15,8 @@ date
 
 # Load samtools
 #source activate tf_base
-CHROMOSOME=${1}
+CHROMOSOME=${1} #19, 20, 21, 22, X
+WIN_LEN=${2} # 200, 400, 80
 source activate tf_gpu_base
 
-python test_predict.py ${CHROMOSOME}
+python test_predict.py ${CHROMOSOME} ${WIN_LEN}
