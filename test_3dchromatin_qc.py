@@ -39,12 +39,13 @@ def generate_metadata_samples(methods, chromosome, path='./experiment/evaluation
     path = os.path.join(path, 'chr{}'.format(chromosome))
     files = [f for  f in os.listdir(path) if 'contact.gz' in f]
     fin = open(os.path.join(path, 'metadata_samples.txt'), 'w+')
+    print(methods)
     for file in files:
         f = os.path.join(path, file)
         absolute_path = os.path.abspath(f)
         method = '_'.join(file.split('_')[0:-2])
-        print(method, absolute_path)
         if method in methods:
+            print(method, absolute_path)
             line = '{}\t{}\n'.format(method, absolute_path)
             fin.write(line)
     fin.close()
