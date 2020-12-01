@@ -20,7 +20,7 @@ QuASAR|rebinning	resolution
 """
 parameters = '''GenomeDISCO|subsampling	lowest
 GenomeDISCO|tmin	3
-GenomeDISCO|tmax	3
+GenomeDISCO|tmax	8
 GenomeDISCO|norm	uniform
 GenomeDISCO|scoresByStep	yes
 GenomeDISCO|removeDiag	yes
