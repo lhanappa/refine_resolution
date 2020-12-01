@@ -71,8 +71,9 @@ def run(
     methods = ['hicgan', 'deephic', 'hicsr', 'ours', 'high', 'low'],
     list1 = ['high'],
     list2 = ['hicgan', 'deephic', 'hicsr', 'ours', 'low'],
-    chromosomes = ['22', '21', '20', '19', 'X']):
-    cool_file = 'Rao2014-GM12878-MboI-allreps-filtered.10kb.cool'
+    chromosomes = ['22', '21', '20', '19', 'X'],
+    cool_file = 'Rao2014-GM12878-MboI-allreps-filtered.10kb.cool'):
+
     cell_type = cool_file.split('-')[0] + '_' + cool_file.split('-')[1] + '_' + cool_file.split('-')[2] + '_' + cool_file.split('.')[1]
     destination_path = os.path.join('./experiment/evaluation/', cell_type)
 
@@ -132,4 +133,9 @@ def run(
 
 if __name__ == '__main__':
     chro = str(sys.argv[1])
-    run(chromosomes = [chro])
+    methods = ['deephic_40', 'hicsr_40', 'ours_80', 'ours_200', 'ours_400', 'high', 'low'],
+    list1 = ['high']
+    list2 = ['deephic_40', 'hicsr_40', 'ours_80', 'ours_200', 'ours_400', 'low']
+    cool_file = 'Rao2014-GM12878-MboI-allreps-filtered.10kb.cool'
+
+    run(methods = methods, list1=list1, list2=list2, chromosomes = [chro], cool_file=cool_file)
