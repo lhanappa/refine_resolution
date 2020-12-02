@@ -15,7 +15,7 @@ def evaluate_hicrep(chromosomes, methods, input_path='./experiment/evaluation/')
             bedfile = os.path.join(input_path, 'chr{}'.format(chro), 'bins_chr{}.bed.gz'.format(chro))
             script = os.path.join(root_dir, 'our_model', 'utils','hicrep_wrapper.R')
             # h_list = np.append(np.arange(5,25), 30)
-            h_list = np.arange(1,2)
+            h_list = np.arange(1,12)
             print(h_list)
             output_path = os.path.join(input_path, 'chr{}'.format(chro), 'metrics')
             os.makedirs(output_path, exist_ok=True)
@@ -113,7 +113,7 @@ if __name__ == '__main__':
     # chromosomes = ['22', '21', '20', '19', 'X']
     # chromosomes = ['22']
     models = [str(sys.argv[2])] # ['deephic_40', 'hicsr_40', 'ours_80', 'ours_200', 'ours_400'] # 'hicgan', 
-    # evaluate_hicrep(chromosomes, models, input_path=destination_path)
+    evaluate_hicrep(chromosomes, models, input_path=destination_path)
     
     # chromosomes = ['22', '21', '20', '19', 'X']
     # chromosomes = ['22']
