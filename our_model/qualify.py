@@ -186,15 +186,15 @@ def metric_mae(file1, file2, output_path, model,
     high_mat = data1['hic']
     data2 = np.load(file2, allow_pickle=True)
     mat = data2['hic']
-    if model == 'hicgan':
+    if 'hicgan' in model:
         # true_hic = np.log1p(true_hic)
         mat = np.expm1(mat)
-    elif model == 'deephic':
+    elif 'deephic' in model:
         minv = high_mat.min()
         maxv = high_mat.max()
         # true_hic = np.divide((true_hic-minv), (maxv-minv), dtype=float,out=np.zeros_like(true_hic), where=(maxv-minv) != 0)
         mat = mat*(maxv-minv)+minv
-    elif model == 'hicsr':
+    elif 'hicsr' in model:
         log_mat = np.log2(high_mat+1)
         # ture_hic = 2*(log_mat/np.max(log_mat)) - 1
         maxv = np.max(log_mat)
@@ -220,16 +220,16 @@ def metric_mse(file1, file2, output_path, model,
     high_mat = data1['hic']
     data2 = np.load(file2, allow_pickle=True)
     mat = data2['hic']
-    if model == 'hicgan':
+    if 'hicgan' in model:
         # true_hic = np.log1p(true_hic)
         mat = np.expm1(mat)
-    elif model == 'deephic':
+    elif 'deephic' in model:
         minv = high_mat.min()
         maxv = high_mat.max()
         # true_hic = np.divide((true_hic-minv), (maxv-minv), dtype=float,out=np.zeros_like(true_hic), where=(maxv-minv) != 0)
         print('maxv: {}, minv: {}'.format(maxv, minv))
         mat = mat*(maxv-minv)+minv
-    elif model == 'hicsr':
+    elif 'hicsr' in model:
         log_mat = np.log2(high_mat+1)
         # ture_hic = 2*(log_mat/np.max(log_mat)) - 1
         maxv = np.max(log_mat)
