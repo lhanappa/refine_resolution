@@ -148,9 +148,9 @@ def predict(path='./data',
     predict_hic_hr_merge = addAtPos(predict_hic_hr_merge, predict_hic_hr_merge_front, (0,0))
     predict_hic_hr_merge = addAtPos(predict_hic_hr_merge, predict_hic_hr_merge_offset, (residual, residual))
 
-    ave = np.zeros_like(predict_hic_hr_merge)
-    ave = addAtPos(ave, np.ones_like(predict_hic_hr_merge_front), (0,0))
-    ave = addAtPos(ave, np.ones_like(predict_hic_hr_merge_offset), (residual,residual))
+    ave = np.ones_like(predict_hic_hr_merge)
+    twice = np.ones(shape=(Mh.shape[0]-2*residual, Mh.shape[1]-2*residual))
+    ave = addAtPos(ave, twice, (residual,residual))
     predict_hic_hr_merge = predict_hic_hr_merge/ave
 
 
