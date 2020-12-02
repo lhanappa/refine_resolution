@@ -81,8 +81,8 @@ def generate_prefile(input_path='./experiment/evaluation', chromosomes=['22', '2
                 mat = filter_diag_boundary(mat, diag_k=2, boundary_k=k)
                 name = 'high'
                 n = int(mat.shape[0])
-                mat = mat[0:-(n%200), :]
-                mat = mat[:, 0:-(n%200)]
+                # mat = mat[0:-(n%200), :]
+                # mat = mat[:, 0:-(n%200)]
                 print('mat shape: {}'.format(mat.shape))
                 generate_coo(mat, chromosome=chro,
                              output_path=path, filename=name)
@@ -120,8 +120,8 @@ def generate_prefile(input_path='./experiment/evaluation', chromosomes=['22', '2
                     mat = scn_recover(mat, dh)'''
                 name = '_'.join([model, win_len])
             mat = filter_diag_boundary(mat, diag_k=2, boundary_k=k)
-            mat = mat[0:n-(n%200), :]
-            mat = mat[:, 0:n-(n%200)]
+            # mat = mat[0:n-(n%200), :]
+            # mat = mat[:, 0:n-(n%200)]
             print('mat shape: {}'.format(mat.shape))
             generate_coo(mat, chromosome=chro, output_path=path, filename=name)
             if 'high' in file:

@@ -64,7 +64,7 @@ def predict(path='./data',
     print('MH: {}'.format(Mh.shape), end='\t')
 
     Ml = operations.sampling_hic(Mh, scale**2, fix_seed=True)
-    print('ML: {}'.format(Ml.shape), end='\t')
+    print('ML: {}'.format(Ml.shape))
 
     # Normalization
     # the input should not be type of np.matrix!
@@ -160,7 +160,7 @@ def predict(path='./data',
     true_hic_hr_merge = addAtPos(true_hic_hr_merge, true_hic_hr_merge_front, (0,0))
     true_hic_hr_merge = addAtPos(true_hic_hr_merge, true_hic_hr_merge_offset, (residual, residual))
     true_hic_hr_merge = true_hic_hr_merge/ave
-    print('Sshape of true merge hic hr: {}'.format(true_hic_hr_merge.shape))
+    print('Shape of true merge hic hr: {}'.format(true_hic_hr_merge.shape))
 
     '''# chrop Mh
     residual = Mh.shape[0] % int(len_size/2)
