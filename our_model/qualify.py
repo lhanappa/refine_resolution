@@ -227,6 +227,7 @@ def metric_mse(file1, file2, output_path, model,
         minv = high_mat.min()
         maxv = high_mat.max()
         # true_hic = np.divide((true_hic-minv), (maxv-minv), dtype=float,out=np.zeros_like(true_hic), where=(maxv-minv) != 0)
+        print('maxv: {}, minv: {}'.format(maxv, minv))
         mat = mat*(maxv-minv)+minv
     elif model == 'hicsr':
         log_mat = np.log2(high_mat+1)
