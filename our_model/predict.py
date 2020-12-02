@@ -115,10 +115,10 @@ def predict(path='./data',
 
     file_path = os.path.join(directory_sr, sr_file+'_chr'+chromosome)
     np.savez_compressed(file_path+'_front.npz', predict_hic=predict_hic_hr_front, true_hic=true_hic_hr_front,
-                        index_1D_2D=index_1d_2d, index_2D_1D=index_2d_1d,
+                        index_1D_2D=index_1d_2d_front, index_2D_1D=index_2d_1d_front,
                         start_id=start, end_id=end, residual=0)
 
-    predict_hic_hr_merge_front = operations.merge_hic(predict_hic_hr_front, index_1D_2D=index_1d_2d, max_distance=max_boundary)
+    predict_hic_hr_merge_front = operations.merge_hic(predict_hic_hr_front, index_1D_2D=index_1d_2d_front, max_distance=max_boundary)
     print('shape of merge predict hic hr front', predict_hic_hr_merge_front.shape)
 
     Ml_offset = Ml[residual:, residual:]
@@ -139,9 +139,9 @@ def predict(path='./data',
 
     file_path = os.path.join(directory_sr, sr_file+'_chr'+chromosome)
     np.savez_compressed(file_path+'_offset.npz', predict_hic=predict_hic_hr_offset, true_hic=true_hic_hr_offset,
-                        index_1D_2D=index_1d_2d, index_2D_1D=index_2d_1d,
+                        index_1D_2D=index_1d_2d_offset, index_2D_1D=index_2d_1d_offset,
                         start_id=start, end_id=end, residual=residual)
-    predict_hic_hr_merge_offset = operations.merge_hic(predict_hic_hr_offset, index_1D_2D=index_1d_2d, max_distance=max_boundary)
+    predict_hic_hr_merge_offset = operations.merge_hic(predict_hic_hr_offset, index_1D_2D=index_1d_2d_offset, max_distance=max_boundary)
     print('shape of merge predict hic hr offset', predict_hic_hr_merge_offset.shape)
 
     predict_hic_hr_merge = np.zeros(Mh.shape)
@@ -154,8 +154,8 @@ def predict(path='./data',
     predict_hic_hr_merge = predict_hic_hr_merge/ave
 
 
-    true_hic_hr_merge_front = operations.merge_hic( true_hic_hr_front, index_1D_2D=index_1d_2d, max_distance=max_boundary)
-    true_hic_hr_merge_offset = operations.merge_hic( true_hic_hr_offset, index_1D_2D=index_1d_2d, max_distance=max_boundary)
+    true_hic_hr_merge_front = operations.merge_hic( true_hic_hr_front, index_1D_2D=index_1d_2d_front, max_distance=max_boundary)
+    true_hic_hr_merge_offset = operations.merge_hic( true_hic_hr_offset, index_1D_2D=index_1d_2d_offset, max_distance=max_boundary)
     true_hic_hr_merge = np.zeros(Mh.shape)
     true_hic_hr_merge = addAtPos(true_hic_hr_merge, true_hic_hr_merge_front, (0,0))
     true_hic_hr_merge = addAtPos(true_hic_hr_merge, true_hic_hr_merge_offset, (residual, residual))
