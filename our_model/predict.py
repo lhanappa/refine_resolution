@@ -13,7 +13,14 @@ tf.keras.backend.set_floatx('float32')
 
 # 'Dixon2012-H1hESC-HindIII-allreps-filtered.10kb.cool'
 # data from ftp://cooler.csail.mit.edu/coolers/hg19/
-
+def addAtPos(mat1, mat2, xypos = (0,0)):
+    pos_v, pos_h = xypos[0], xypos[1]  # offset
+    v1 = slice(max(0, pos_v), max(min(pos_v + mat2.shape[0], mat1.shape[0]), 0))
+    h1 = slice(max(0, pos_h), max(min(pos_h + mat2.shape[1], mat1.shape[1]), 0))
+    v2 = slice(max(0, -pos_v), min(-pos_v + mat1.shape[0], mat2.shape[0]))
+    h2 = slice(max(0, -pos_h), min(-pos_h + mat1.shape[1], mat2.shape[1]))
+    mat1[v1, h1] += mat2[v2, h2]
+    return mat1
 
 def predict(path='./data',
             raw_path='raw',
@@ -74,50 +81,95 @@ def predict(path='./data',
         max_boundary = None
     else:
         max_boundary = np.ceil(genomic_distance/(resolution))
-    hic_hr, index_1d_2d, index_2d_1d = operations.divide_pieces_hic( Mh, block_size=len_size, max_distance=max_boundary, save_file=False)
-    hic_hr = np.asarray(hic_hr, dtype=np.float32)
-    print('shape hic_hr: ', hic_hr.shape)
+    residual = Mh.shape[0] % int(len_size/2)
+    print('residual: {}'.format(residual))
 
-    hic_lr, _, _ = operations.divide_pieces_hic( Ml, block_size=len_size, max_distance=max_boundary, save_file=False)
-    hic_lr = np.asarray(hic_lr, dtype=np.float32)
-    print('shape hic_lr: ', hic_lr.shape)
+    hic_hr_front, index_1d_2d_front, index_2d_1d_front = operations.divide_pieces_hic( Mh[0:-residual, 0:-residual], block_size=len_size, max_distance=max_boundary, save_file=False)
+    hic_hr_front = np.asarray(hic_hr_front, dtype=np.float32)
+    print('shape hic_hr front: ', hic_hr_front.shape)
+    true_hic_hr_front = hic_hr_front
+    print('shape true hic_hr: ', true_hic_hr_front.shape)
 
-    true_hic_hr = hic_hr
-    print('shape true hic_hr: ', true_hic_hr.shape)
+    hic_hr_offset, index_1d_2d_offset, index_2d_1d_offset = operations.divide_pieces_hic( Mh[residual:, residual:], block_size=len_size, max_distance=max_boundary, save_file=False)
+    hic_hr_offset = np.asarray(hic_hr_offset, dtype=np.float32)
+    print('shape hic_hr offset: ', hic_hr_offset.shape)
+    true_hic_hr_offset = hic_hr_offset
+    print('shape true hic_hr: ', true_hic_hr_offset.shape)
 
-    hic_lr_ds = tf.data.Dataset.from_tensor_slices( hic_lr[..., np.newaxis]).batch(9)
-    predict_hic_hr = None
+
+    Ml_front = Ml[0:-residual, 0:-residual]
+    hic_lr_front, _, _ = operations.divide_pieces_hic( Ml_front, block_size=len_size, max_distance=max_boundary, save_file=False)
+    hic_lr_front = np.asarray(hic_lr_front, dtype=np.float32)
+    print('shape hic_lr: ', hic_lr_front.shape)
+    hic_lr_ds = tf.data.Dataset.from_tensor_slices( hic_lr_front[..., np.newaxis]).batch(9)
+    predict_hic_hr_front = None
     for i, input_data in enumerate(hic_lr_ds):
         [_, _, tmp, _, _] = Generator(input_data, training=False)
-        if predict_hic_hr is None:
-            predict_hic_hr = tmp.numpy()
+        if predict_hic_hr_front is None:
+            predict_hic_hr_front = tmp.numpy()
         else:
-            predict_hic_hr = np.concatenate(
-                (predict_hic_hr, tmp.numpy()), axis=0)
+            predict_hic_hr_front = np.concatenate( (predict_hic_hr_front, tmp.numpy()), axis=0)
 
-    predict_hic_hr = np.squeeze(predict_hic_hr, axis=3)
-    print('shape of prediction: ', predict_hic_hr.shape)
+    predict_hic_hr_front = np.squeeze(predict_hic_hr_front, axis=3)
+    print('shape of prediction front: ', predict_hic_hr_front.shape)
 
     file_path = os.path.join(directory_sr, sr_file+'_chr'+chromosome)
-    np.savez_compressed(file_path+'.npz', predict_hic=predict_hic_hr, true_hic=true_hic_hr,
+    np.savez_compressed(file_path+'_front.npz', predict_hic=predict_hic_hr_front, true_hic=true_hic_hr_front,
                         index_1D_2D=index_1d_2d, index_2D_1D=index_2d_1d,
-                        start_id=start, end_id=end)
+                        start_id=start, end_id=end, residual=0)
 
-    predict_hic_hr_merge = operations.merge_hic(
-        predict_hic_hr, index_1D_2D=index_1d_2d, max_distance=max_boundary)
-    print('shape of merge predict hic hr', predict_hic_hr_merge.shape)
+    predict_hic_hr_merge_front = operations.merge_hic(predict_hic_hr_front, index_1D_2D=index_1d_2d, max_distance=max_boundary)
+    print('shape of merge predict hic hr front', predict_hic_hr_merge_front.shape)
 
-    true_hic_hr_merge = operations.merge_hic( true_hic_hr, index_1D_2D=index_1d_2d, max_distance=max_boundary)
-    print('shape of merge predict hic hr', predict_hic_hr_merge.shape)
+    Ml_offset = Ml[residual:, residual:]
+    hic_lr_offset, _, _ = operations.divide_pieces_hic( Ml_offset, block_size=len_size, max_distance=max_boundary, save_file=False)
+    hic_lr_offset = np.asarray(hic_lr_offset, dtype=np.float32)
+    print('shape hic_lr_offset: ', hic_lr_offset.shape)
+    hic_lr_ds = tf.data.Dataset.from_tensor_slices( hic_lr_offset[..., np.newaxis]).batch(9)
+    predict_hic_hr_offset = None
+    for i, input_data in enumerate(hic_lr_ds):
+        [_, _, tmp, _, _] = Generator(input_data, training=False)
+        if predict_hic_hr_offset is None:
+            predict_hic_hr_offset = tmp.numpy()
+        else:
+            predict_hic_hr_offset = np.concatenate( (predict_hic_hr_offset, tmp.numpy()), axis=0)
 
-    # chrop Mh
+    predict_hic_hr_offset = np.squeeze(predict_hic_hr_offset, axis=3)
+    print('shape of prediction offset: ', predict_hic_hr_offset.shape)
+
+    file_path = os.path.join(directory_sr, sr_file+'_chr'+chromosome)
+    np.savez_compressed(file_path+'_offset.npz', predict_hic=predict_hic_hr_offset, true_hic=true_hic_hr_offset,
+                        index_1D_2D=index_1d_2d, index_2D_1D=index_2d_1d,
+                        start_id=start, end_id=end, residual=residual)
+    predict_hic_hr_merge_offset = operations.merge_hic(predict_hic_hr_offset, index_1D_2D=index_1d_2d, max_distance=max_boundary)
+    print('shape of merge predict hic hr offset', predict_hic_hr_merge_offset.shape)
+
+    predict_hic_hr_merge = np.zeros(Mh.shape)
+    predict_hic_hr_merge = addAtPos(predict_hic_hr_merge, predict_hic_hr_merge_front, (0,0))
+    predict_hic_hr_merge = addAtPos(predict_hic_hr_merge, predict_hic_hr_merge_offset, (residual, residual))
+
+    ave = np.zeros_like(predict_hic_hr_merge)
+    ave = addAtPos(ave, np.ones_like(predict_hic_hr_merge_front), (0,0))
+    ave = addAtPos(ave, np.ones_like(predict_hic_hr_merge_offset), (residual,residual))
+    predict_hic_hr_merge = predict_hic_hr_merge/ave
+
+
+    true_hic_hr_merge_front = operations.merge_hic( true_hic_hr_front, index_1D_2D=index_1d_2d, max_distance=max_boundary)
+    true_hic_hr_merge_offset = operations.merge_hic( true_hic_hr_offset, index_1D_2D=index_1d_2d, max_distance=max_boundary)
+    true_hic_hr_merge = np.zeros(Mh.shape)
+    true_hic_hr_merge = addAtPos(true_hic_hr_merge, true_hic_hr_merge_front, (0,0))
+    true_hic_hr_merge = addAtPos(true_hic_hr_merge, true_hic_hr_merge_offset, (residual, residual))
+    true_hic_hr_merge = true_hic_hr_merge/ave
+    print('shape of true hic hr front', true_hic_hr_merge.shape)
+
+    '''# chrop Mh
     residual = Mh.shape[0] % int(len_size/2)
     print('residual: {}'.format(residual))
     if residual > 0:
         Mh = Mh[0:-residual, 0:-residual]
         # true_hic_hr_merge = true_hic_hr_merge[0:-residual, 0:-residual]
         Dh = Dh[0:-residual]
-        Dl = Dl[0:-residual]
+        Dl = Dl[0:-residual]'''
 
     # recover M from scn to origin
     Mh = operations.scn_recover(Mh, Dh)
