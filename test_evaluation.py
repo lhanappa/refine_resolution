@@ -15,7 +15,7 @@ def evaluate_hicrep(chromosomes, methods, input_path='./experiment/evaluation/')
             bedfile = os.path.join(input_path, 'chr{}'.format(chro), 'bins_chr{}.bed.gz'.format(chro))
             script = os.path.join(root_dir, 'our_model', 'utils','hicrep_wrapper.R')
             # h_list = np.append(np.arange(5,25), 30)
-            h_list = np.arange(1,14)
+            h_list = np.arange(1,2)
             print(h_list)
             output_path = os.path.join(input_path, 'chr{}'.format(chro), 'metrics')
             os.makedirs(output_path, exist_ok=True)
@@ -80,11 +80,13 @@ def evaluate_mse(chromosomes, methods, input_path='./experiment/evaluation/', ma
     # root_dir = operations.redircwd_back_projroot(project_name='refine_resolution')
     for chro in chromosomes:
         for method in methods:
+            m = method.split('_')[0]
+            wl = method.split('_')[1]
             path = os.path.join(input_path, 'chr{}'.format(chro))
             files = [f for f in os.listdir(path) if (chro in f and '.npz' in f)]
             file1 = [f for f in files if 'high' in f][0]
             file1 = os.path.join(path, file1)
-            file2 = [f for f in files if method in f][0]
+            file2 = [f for f in files if (m == f.split('_')[1] and wl == f.split('_')[3]) ][0]
             file2 = os.path.join(path, file2)
             m1name = 'high_{}'.format(chro)
             m2name = '{}_{}'.format(method, chro)
