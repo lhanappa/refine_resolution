@@ -60,11 +60,13 @@ def evaluate_mae(chromosomes, methods, input_path='./experiment/evaluation/', ma
     # root_dir = operations.redircwd_back_projroot(project_name='refine_resolution')
     for chro in chromosomes:
         for method in methods:
+            m = method.split('_')[0]
+            wl = method.split('_')[1]
             path = os.path.join(input_path, 'chr{}'.format(chro))
             files = [f for f in os.listdir(path) if (chro in f and '.npz' in f)]
             file1 = [f for f in files if 'high' in f][0]
             file1 = os.path.join(path, file1)
-            file2 = [f for f in files if method in f][0]
+            file2 = [f for f in files if (m == f.split('_')[1] and wl == f.split('_')[3]) ][0]
             file2 = os.path.join(path, file2)
             m1name = 'high_{}'.format(chro)
             m2name = '{}_{}'.format(method, chro)
@@ -111,7 +113,7 @@ if __name__ == '__main__':
     # chromosomes = ['22', '21', '20', '19', 'X']
     # chromosomes = ['22']
     models = [str(sys.argv[2])] # ['deephic_40', 'hicsr_40', 'ours_80', 'ours_200', 'ours_400'] # 'hicgan', 
-    evaluate_hicrep(chromosomes, models, input_path=destination_path)
+    # evaluate_hicrep(chromosomes, models, input_path=destination_path)
     
     # chromosomes = ['22', '21', '20', '19', 'X']
     # chromosomes = ['22']
