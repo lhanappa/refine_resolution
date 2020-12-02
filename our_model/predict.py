@@ -53,7 +53,7 @@ def predict(path='./data',
     mat = c.matrix(balance=True).fetch('chr'+chromosome)
 
     [Mh, idx] = operations.remove_zeros(mat)
-    print('shape HR: ', Mh.shape)
+    print('Shape HR: {}'.format(Mh.shape), end='\t')
 
     if start is None:
         start = 0
@@ -61,10 +61,10 @@ def predict(path='./data',
         end = Mh.shape[0]
 
     Mh = Mh[start:end, start:end]
-    print('MH: ', Mh.shape)
+    print('MH: {}'.format(Mh.shape), end='\t')
 
     Ml = operations.sampling_hic(Mh, scale**2, fix_seed=True)
-    print('ML: ', Ml.shape)
+    print('ML: {}'.format(Ml.shape), end='\t')
 
     # Normalization
     # the input should not be type of np.matrix!
@@ -73,7 +73,7 @@ def predict(path='./data',
     Ml, Dl = operations.scn_normalization(Ml, max_iter=3000)
     print('Dl shape:{}'.format(Dl.shape))
     Mh, Dh = operations.scn_normalization(Mh, max_iter=3000)
-    print('Dl shape:{}'.format(Dl.shape))
+    print('Dh shape:{}'.format(Dh.shape))
     #Ml = np.divide((Ml-Ml.min()), (Ml.max()-Ml.min()), dtype=float, out=np.zeros_like(Ml), where=(Ml.max()-Ml.min()) != 0)
     #Mh = np.divide((Mh-Mh.min()), (Mh.max()-Mh.min()), dtype=float, out=np.zeros_like(Mh), where=(Mh.max()-Mh.min()) != 0)
 
@@ -111,7 +111,7 @@ def predict(path='./data',
             predict_hic_hr_front = np.concatenate( (predict_hic_hr_front, tmp.numpy()), axis=0)
 
     predict_hic_hr_front = np.squeeze(predict_hic_hr_front, axis=3)
-    print('shape of prediction front: ', predict_hic_hr_front.shape)
+    print('Shape of prediction front: ', predict_hic_hr_front.shape)
 
     file_path = os.path.join(directory_sr, sr_file+'_chr'+chromosome)
     np.savez_compressed(file_path+'_front.npz', predict_hic=predict_hic_hr_front, true_hic=true_hic_hr_front,
@@ -119,12 +119,12 @@ def predict(path='./data',
                         start_id=start, end_id=end, residual=0)
 
     predict_hic_hr_merge_front = operations.merge_hic(predict_hic_hr_front, index_1D_2D=index_1d_2d_front, max_distance=max_boundary)
-    print('shape of merge predict hic hr front', predict_hic_hr_merge_front.shape)
+    print('Shape of merge predict hic HR front', predict_hic_hr_merge_front.shape)
 
     Ml_offset = Ml[residual:, residual:]
     hic_lr_offset, _, _ = operations.divide_pieces_hic( Ml_offset, block_size=len_size, max_distance=max_boundary, save_file=False)
     hic_lr_offset = np.asarray(hic_lr_offset, dtype=np.float32)
-    print('shape hic_lr_offset: ', hic_lr_offset.shape)
+    print('Shape hic_lr_offset: ', hic_lr_offset.shape)
     hic_lr_ds = tf.data.Dataset.from_tensor_slices( hic_lr_offset[..., np.newaxis]).batch(9)
     predict_hic_hr_offset = None
     for i, input_data in enumerate(hic_lr_ds):
@@ -135,14 +135,14 @@ def predict(path='./data',
             predict_hic_hr_offset = np.concatenate( (predict_hic_hr_offset, tmp.numpy()), axis=0)
 
     predict_hic_hr_offset = np.squeeze(predict_hic_hr_offset, axis=3)
-    print('shape of prediction offset: ', predict_hic_hr_offset.shape)
+    print('Shape of prediction offset: ', predict_hic_hr_offset.shape)
 
     file_path = os.path.join(directory_sr, sr_file+'_chr'+chromosome)
     np.savez_compressed(file_path+'_offset.npz', predict_hic=predict_hic_hr_offset, true_hic=true_hic_hr_offset,
                         index_1D_2D=index_1d_2d_offset, index_2D_1D=index_2d_1d_offset,
                         start_id=start, end_id=end, residual=residual)
     predict_hic_hr_merge_offset = operations.merge_hic(predict_hic_hr_offset, index_1D_2D=index_1d_2d_offset, max_distance=max_boundary)
-    print('shape of merge predict hic hr offset', predict_hic_hr_merge_offset.shape)
+    print('Shape of merge predict hic hr offset: ', predict_hic_hr_merge_offset.shape)
 
     predict_hic_hr_merge = np.zeros(Mh.shape)
     predict_hic_hr_merge = addAtPos(predict_hic_hr_merge, predict_hic_hr_merge_front, (0,0))
@@ -160,7 +160,7 @@ def predict(path='./data',
     true_hic_hr_merge = addAtPos(true_hic_hr_merge, true_hic_hr_merge_front, (0,0))
     true_hic_hr_merge = addAtPos(true_hic_hr_merge, true_hic_hr_merge_offset, (residual, residual))
     true_hic_hr_merge = true_hic_hr_merge/ave
-    print('shape of true hic hr front', true_hic_hr_merge.shape)
+    print('Sshape of true merge hic hr: {}'.format(true_hic_hr_merge.shape))
 
     '''# chrop Mh
     residual = Mh.shape[0] % int(len_size/2)
@@ -186,21 +186,21 @@ def predict(path='./data',
     print('sum true merge:', np.sum(np.abs(true_hic_hr_merge)))
     print('sum pred merge:', np.sum(np.abs(predict_hic_hr_merge)))
     diff = np.abs(Mh-predict_hic_hr_merge)
-    print('sum Mh - pred diff: {:.5}'.format(np.sum(diff**2)))
+    print('sum Mh - pred square error: {:.5}'.format(np.sum(diff**2)))
     diff = np.abs(true_hic_hr_merge-predict_hic_hr_merge)
-    print('sum true merge - pred diff: {:.5}'.format(np.sum(diff**2)))
+    print('sum true merge - pred square error: {:.5}'.format(np.sum(diff**2)))
     diff = np.abs(Mh-true_hic_hr_merge)
-    print('sum Mh - true merge diff: {:.5}'.format(np.sum(diff**2)))
+    print('sum Mh - true merge square error: {:.5}'.format(np.sum(diff**2)))
 
     directory_sr = os.path.join(path, sr_path, sr_file, 'SR')
     compact = idx[0:-residual]
     file = 'predict_chr{}_{}.npz'.format(chromosome, resolution)
     np.savez_compressed(os.path.join(directory_sr, file), hic=predict_hic_hr_merge, compact=compact)
-    print('Saving file:', file)
+    print('Saving file: {}, at {}'.format(file, directory_sr))
     directory_sr = os.path.join(path, sr_path, sr_file, 'SR', 'chr'+chromosome)
     file = 'true_chr{}_{}.npz'.format(chromosome, resolution)
     np.savez_compressed(os.path.join(directory_sr, file), hic=Mh, compact=compact)
-    print('Saving file:', file)
+    print('Saving file: {}, at {}'.format(file, directory_sr))
     '''file = 'truemerge_chr{}_{}.npz'.format(chromosome, resolution)
     np.savez_compressed(os.path.join(directory_sr, file), hic=true_hic_hr_merge, compact=compact)
     print('Saving file:', file)'''
