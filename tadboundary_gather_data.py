@@ -116,6 +116,7 @@ def generate_cool(input_path='./experiment/tad_boundary', chromosomes=['22', '21
             mat = triu(mat, format='coo')
             p = {'bin1_id': mat.row, 'bin2_id': mat.col, 'count': mat.data}
             pixels = pd.DataFrame(data = p)
+            print(bins)
             cooler.create_cooler(cool_uri=uri, bins=bins, pixels=pixels)
 
 
