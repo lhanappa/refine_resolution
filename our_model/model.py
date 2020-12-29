@@ -767,7 +767,7 @@ def plot_to_image(figure):
 
 
 if __name__ == '__main__':
-    len_size = 200
+    len_size = 400
     scale = 4
     Gen = make_generator_model(len_high_size=len_size, scale=scale)
     Dis = make_discriminator_model(len_high_size=len_size, scale=scale)

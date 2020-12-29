@@ -54,7 +54,6 @@ def evaluate_hicrep(chromosomes, methods, input_path='./experiment/evaluation/')
                 output = os.path.join(output_path,'{}_chr{}_hicrep_{}.txt'.format(method, chro, h))
                 if os.path.exists(output):
                     os.remove(output)
-                
 
 def evaluate_mae(chromosomes, methods, input_path='./experiment/evaluation/', max_boundary=200, diag_k=2):
     # root_dir = operations.redircwd_back_projroot(project_name='refine_resolution')
