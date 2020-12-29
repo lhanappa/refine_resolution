@@ -34,7 +34,7 @@ def gather_high_low_cool(cooler_file='Rao2014-GM12878-DpnII-allreps-filtered.10k
     resolution = cool_hic.binsize
     mat = cool_hic.matrix(balance=True).fetch('chr' + chromosome)
     high_hic, idx = remove_zeros(mat)
-    idx = np.where(idx)
+    idx = np.array(np.nonzero(idx))
     low_hic = sampling_hic(high_hic, scale**2, fix_seed=True)
     print('high hic shape: {}.'.format(high_hic.shape), end=' ')
     print('low hic shape: {}.'.format(low_hic.shape))
