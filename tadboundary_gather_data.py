@@ -143,6 +143,6 @@ if __name__ == '__main__':
                             output_path=destination_path)
 
         generate_cool(input_path=destination_path,
-                    chromosomes=chro,
+                    chromosomes=[chro],
                     resolution=10000,
                     genomic_distance=2000000)
