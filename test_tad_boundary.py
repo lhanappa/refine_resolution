@@ -61,7 +61,7 @@ for p in process:
 
 script_work_dir = os.path.join(".", "demo")
 matrix = os.path.join(".", "demo.cool")
-outPrefix = "myHiCmatrix"
+outPrefix = "./output/myHiCmatrix"
 cmd = ["hicFindTADs", 
         "-m", matrix, 
         "--minDepth", "300000",
@@ -70,7 +70,6 @@ cmd = ["hicFindTADs",
         "--thresholdComparisons", "0.05",
         "--delta", "0.05",
         "--correctForMultipleTesting", "fdr",
-        "--chromosomes", "chr10"
     ]
 process = list()
 process.append(subprocess.Popen(cmd, cwd=script_work_dir))

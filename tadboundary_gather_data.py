@@ -122,7 +122,7 @@ def generate_cool(input_path='./experiment/tad_boundary', chromosomes=['22', '21
 if __name__ == '__main__':
     # methods = ['output_ours_2000000_80', 'output_ours_2000000_200', 'output_ours_2000000_400', 'output_hicsr_2000000_40_28', 'output_deephic_2000000_40_40']
     # methods = ['output_ours_2000000_400', 'output_hicsr_2000000_40_28', 'output_deephic_2000000_40_40']
-    mathods = ['output_ours_2000000_400']
+    methods = ['output_ours_2000000_400']
     
     # cool_file = 'Rao2014-GM12878-DpnII-allreps-filtered.10kb.cool'
     cool_file = 'Rao2014-GM12878-MboI-allreps-filtered.10kb.cool'
