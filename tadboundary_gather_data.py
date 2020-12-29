@@ -37,8 +37,8 @@ def gather_high_low_cool(cooler_file='Rao2014-GM12878-DpnII-allreps-filtered.10k
     low_hic = sampling_hic(high_hic, scale**2, fix_seed=True)
     print('high hic shape: {}.'.format(high_hic.shape), end=' ')
     print('low hic shape: {}.'.format(low_hic.shape))
-
-    b = {'chrom': ['chr{}'.format(chromosome)]*mat.shape[0], 'start': resolution*idx, 'end': resolution*(idx+1), 'weight': [1.0]*mat.shape[0]}
+    print(idx)
+    b = {'chrom': ['chr{}'.format(chromosome)]*high_hic.shape[0], 'start': resolution*idx, 'end': resolution*(idx+1), 'weight': [1.0]*high_hic.shape[0]}
     bins = pd.DataFrame(data = b)
     print(bins)
 
