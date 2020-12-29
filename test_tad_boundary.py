@@ -9,7 +9,7 @@ import cooler
 from iced import filter
 from iced import normalization
 # using hicexplorer to find tad boundary by CLI
-process = list()
+
 # $ hicFindTADs -m myHiCmatrix.h5 \
 # --outPrefix myHiCmatrix_min3000_max31500_step1500_thres0.05_delta0.01_fdr \
 # --minDepth 3000 \
@@ -19,7 +19,6 @@ process = list()
 # --delta 0.01 \
 # --correctForMultipleTesting fdr \
 # -p 64
-script_work_dir = "./"
 
 name = "/Volumes/GoogleDrive/My Drive/proj/refine_resolution/data/raw/Rao2014-HMEC-MboI-allreps-filtered.100kb.cool"
 c = cooler.Cooler(name)
@@ -44,9 +43,10 @@ pixels = pd.DataFrame(data = p)
 uri = os.path.join(".", "demo", "demo.cool")
 cooler.create_cooler(cool_uri=uri, bins=bins, pixels=pixels)
 
+"""
 # hicConvertFormat -m matrix.hic --inputFormat hic --outputFormat cool -o matrix.cool --resolutions 10000
 
-"""script_work_dir = os.path.join(".", "demo")
+script_work_dir = os.path.join(".", "demo")
 matrix = os.path.join(".", "demo", "demo.cool")
 outPrefix = "myHiCmatrix"
 cmd = ["hicConvertFormat", 
@@ -72,6 +72,7 @@ cmd = ["hicFindTADs",
         "--correctForMultipleTesting", "fdr",
         "--chromosomes", "chr10"
     ]
+process = list()
 process.append(subprocess.Popen(cmd, cwd=script_work_dir))
 for p in process:
     p.wait()
@@ -84,6 +85,7 @@ cmd = ["hicPlotMatrix",
         "--matrix", matrix, 
         "--outFileName", outfile,
     ]
+process = list()
 process.append(subprocess.Popen(cmd, cwd=script_work_dir))
 for p in process:
     p.wait()
@@ -95,6 +97,7 @@ cmd = ["hicPlotTADs",
         "--region", "chr10:1500000-40000000",
         "--outFileName", outfile
     ]
+process = list()
 process.append(subprocess.Popen(cmd, cwd=script_work_dir))
 for p in process:
     p.wait()
