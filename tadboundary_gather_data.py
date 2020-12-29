@@ -76,6 +76,8 @@ def generate_cool(input_path='./experiment/tad_boundary', chromosomes=['22', '21
         mat = filter_diag_boundary(mat, diag_k=2, boundary_k=k)
 
         bins = cool_hic.bins().fetch('chr' + chro)
+        print(os.path.join(path, hicfile))
+        print(bins)
         high_mat = mat
 
         files = [f for f in os.listdir(path) if '.npz' in f]
@@ -116,7 +118,6 @@ def generate_cool(input_path='./experiment/tad_boundary', chromosomes=['22', '21
             mat = triu(mat, format='coo')
             p = {'bin1_id': mat.row, 'bin2_id': mat.col, 'count': mat.data}
             pixels = pd.DataFrame(data = p)
-            print(bins)
             cooler.create_cooler(cool_uri=uri, bins=bins, pixels=pixels)
 
 
