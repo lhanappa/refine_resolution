@@ -89,10 +89,10 @@ def estimate_tad_boundary(chromosomes, models, input_path, output_path=None):
             cmd = ["hicFindTADs", 
                     "-m", infile, 
                     "--minDepth", "30000",
-                    "--maxDepth", "200000",
+                    "--maxDepth", "100000",
                     "--outPrefix", out,
-                    "--thresholdComparisons", "0.05",
-                    "--delta", "0.05",
+                    "--thresholdComparisons", "0.1",
+                    "--delta", "0.1",
                     "--correctForMultipleTesting", "fdr",
                 ]
             process.append(subprocess.Popen(cmd, cwd=script_work_dir))
