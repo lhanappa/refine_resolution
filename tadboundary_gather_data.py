@@ -75,11 +75,12 @@ def generate_cool(input_path='./experiment/tad_boundary', chromosomes=['22', '21
         hicfile = 'high_chr{}.cool'.format(chro)
         cool_hic = cooler.Cooler(os.path.join(path, hicfile))
         mat = cool_hic.matrix(balance=True).fetch('chr' + chro)
-        high_mat, _ = remove_zeros(mat)
-        # mat = filter_diag_boundary(high_mat, diag_k=2, boundary_k=k)
-
         bins = cool_hic.bins().fetch('chr' + chro)
         num_idx = np.array(np.where(np.array(bins['weight']))).flatten()
+
+        high_mat = mat[num_idx, num_idx]
+        # mat = filter_diag_boundary(high_mat, diag_k=2, boundary_k=k)
+
         uri = os.path.join(path, hicfile)
         print(uri)
         print('mat shape: {}'.format(high_mat.shape))
