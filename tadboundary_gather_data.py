@@ -93,6 +93,7 @@ def generate_cool(input_path='./experiment/tad_boundary', chromosomes=['22', '21
         # p = {'bin1_id': num_idx[coo_mat.row], 'bin2_id': num_idx[coo_mat.col], 'count': coo_mat.data}
         p = {'bin1_id': coo_mat.row, 'bin2_id': coo_mat.col, 'count': coo_mat.data}
         pixels = pd.DataFrame(data = p)
+        print(pixels)
         cooler.create_cooler(cool_uri=uri, bins=bins, pixels=pixels)
 
         files = [f for f in os.listdir(path) if '.npz' in f]
