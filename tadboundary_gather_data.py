@@ -84,7 +84,7 @@ def generate_cool(input_path='./experiment/tad_boundary', chromosomes=['22', '21
         high_mat = filter_diag_boundary(high_mat, diag_k=0, boundary_k=k)
 
         T = high_mat[600:900, 600:900]
-        T = ICE_normalization(high_mat)
+        T = ICE_normalization(T)
         b = {'chrom': ['chr{}'.format(chro)]*T.shape[0], 'start': resolution*np.arange(T.shape[0]), 'end': resolution*np.arange(1, 1+T.shape[0]), 'weight': [1.0]*T.shape[0]}
         bins = pd.DataFrame(data = b)
         coo_mat = triu(T, format='coo')
@@ -142,8 +142,6 @@ def generate_cool(input_path='./experiment/tad_boundary', chromosomes=['22', '21
 track = """
 [x-axis]
 where = top
-
-[x-axis]
 fontsize=10
 
 [hic]
