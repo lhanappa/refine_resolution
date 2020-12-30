@@ -73,7 +73,7 @@ process.append(subprocess.Popen(cmd, cwd=script_work_dir))
 for p in process:
     p.wait()"""
 
-def estimate_tad_boundary(chromosomes, models, resolution, input_path=input_path, output_path=None):
+def estimate_tad_boundary(chromosomes, models, input_path, output_path=None):
     if output_path is None:
         output_path = input_path
 
@@ -136,4 +136,4 @@ if __name__ == '__main__':
     # chromosomes = ['22']
     models = [str(sys.argv[2])] # ['deephic_40', 'hicsr_40', 'ours_400'] # 'hicgan', 'ours_80', 'ours_200', 
     resolution = 10000
-    estimate_tad_boundary(chromosomes, models, resolution, input_path=input_path)
+    estimate_tad_boundary(chromosomes, models, input_path=input_path)
