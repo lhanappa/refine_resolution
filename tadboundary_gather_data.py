@@ -36,13 +36,14 @@ def gather_high_low_cool(cooler_file='Rao2014-GM12878-DpnII-allreps-filtered.10k
     resolution = cool_hic.binsize
     mat = cool_hic.matrix(balance=True).fetch('chr' + chromosome)
     high_hic, idx = remove_zeros(mat)
-    idx = np.array(idx).flatten()
+    bool_idx = np.array(idx).flatten()
+    num_idx = np.where(idx).flatten()
     # idx = np.array(np.nonzero(idx)).flatten()
     low_hic = sampling_hic(high_hic, scale**2, fix_seed=True)
     print('high hic shape: {}.'.format(high_hic.shape), end=' ')
     print('low hic shape: {}.'.format(low_hic.shape))
 
-    b = {'chrom': ['chr{}'.format(chromosome)]*len(idx), 'start': resolution*np.arange(len(idx)), 'end': resolution*(np.arange(1,(len(idx)+1))), 'weight': 1.0*idx}
+    b = {'chrom': ['chr{}'.format(chromosome)]*len(bool_idx), 'start': resolution*np.arange(len(bool_idx)), 'end': resolution*(np.arange(1,(len(bool_idx)+1))), 'weight': 1.0*bool_idx}
     bins = pd.DataFrame(data = b)
 
     high_hic = triu(high_hic, format='coo')
@@ -54,7 +55,7 @@ def gather_high_low_cool(cooler_file='Rao2014-GM12878-DpnII-allreps-filtered.10k
     outfile = 'high_chr{}_10000.cool'.format(chromosome)
     print('saving file {}'.format(os.path.join(output_path, outfile)))
     uri = os.path.join(output_path, outfile)
-    p = {'bin1_id': high_hic.row, 'bin2_id': high_hic.col, 'count': high_hic.data}
+    p = {'bin1_id': num_idx[high_hic.row], 'bin2_id': num_idx[high_hic.col], 'count': high_hic.data}
     pixels = pd.DataFrame(data = p)
     cooler.create_cooler(cool_uri=uri, bins=bins, pixels=pixels)
 
@@ -62,7 +63,7 @@ def gather_high_low_cool(cooler_file='Rao2014-GM12878-DpnII-allreps-filtered.10k
     outfile = 'low_chr{}_{}0000.cool'.format(chromosome, scale)
     print('saving file {}'.format(os.path.join(output_path, outfile)))
     uri = os.path.join(output_path, outfile)
-    p = {'bin1_id': low_hic.row, 'bin2_id': low_hic.col, 'count': low_hic.data}
+    p = {'bin1_id': num_idx[low_hic.row], 'bin2_id': num_idx[low_hic.col], 'count': low_hic.data}
     pixels = pd.DataFrame(data = p)
     cooler.create_cooler(cool_uri=uri, bins=bins, pixels=pixels)
 
@@ -78,6 +79,7 @@ def generate_cool(input_path='./experiment/tad_boundary', chromosomes=['22', '21
         mat = filter_diag_boundary(mat, diag_k=2, boundary_k=k)
 
         bins = cool_hic.bins().fetch('chr' + chro)
+        num_idx = np.where(np.array(bins['weight'])).flatten()
         print(os.path.join(path, hicfile))
         print(bins)
         high_mat = mat
@@ -118,7 +120,7 @@ def generate_cool(input_path='./experiment/tad_boundary', chromosomes=['22', '21
             print('mat shape: {}'.format(mat.shape))
             uri = os.path.join(path, '{}_chr{}_{}.cool'.format(name, chro, resolution))
             mat = triu(mat, format='coo')
-            p = {'bin1_id': mat.row, 'bin2_id': mat.col, 'count': mat.data}
+            p = {'bin1_id': num_idx[mat.row], 'bin2_id': num_idx[mat.col], 'count': mat.data}
             pixels = pd.DataFrame(data = p)
             cooler.create_cooler(cool_uri=uri, bins=bins, pixels=pixels)
 
