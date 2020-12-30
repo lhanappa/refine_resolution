@@ -80,8 +80,13 @@ def generate_cool(input_path='./experiment/tad_boundary', chromosomes=['22', '21
 
         bins = cool_hic.bins().fetch('chr' + chro)
         num_idx = np.array(np.where(np.array(bins['weight']))).flatten()
-        print(os.path.join(path, hicfile))
-        print(bins)
+        uri = os.path.join(path, hicfile)
+        print(uri)
+        print('mat shape: {}'.format(mat.shape))
+        mat = triu(mat, format='coo')
+        p = {'bin1_id': num_idx[mat.row], 'bin2_id': num_idx[mat.col], 'count': mat.data}
+        pixels = pd.DataFrame(data = p)
+        cooler.create_cooler(cool_uri=uri, bins=bins, pixels=pixels)
 
         files = [f for f in os.listdir(path) if '.npz' in f]
         for file in files:
@@ -115,6 +120,7 @@ def generate_cool(input_path='./experiment/tad_boundary', chromosomes=['22', '21
                     mat = scn_recover(mat, dh)'''
                 name = '_'.join([model, win_len])
             mat = filter_diag_boundary(mat, diag_k=2, boundary_k=k)
+            mat = scn_normalization(mat)
 
             print('mat shape: {}'.format(mat.shape))
             uri = os.path.join(path, '{}_chr{}.cool'.format(name, chro))
