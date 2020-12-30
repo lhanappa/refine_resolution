@@ -72,7 +72,7 @@ def generate_cool(input_path='./experiment/tad_boundary', chromosomes=['22', '21
     k = np.ceil(genomic_distance/resolution).astype(int)
     for chro in chromosomes:
         path = os.path.join(input_path, 'chr{}'.format(chro))
-        hicfile = 'high_chr{}_10000.cool'.format(chro)
+        hicfile = 'high_chr{}.cool'.format(chro)
         cool_hic = cooler.Cooler(os.path.join(path, hicfile))
         mat = cool_hic.matrix(balance=True).fetch('chr' + chro)
         mat = filter_diag_boundary(mat, diag_k=2, boundary_k=k)
