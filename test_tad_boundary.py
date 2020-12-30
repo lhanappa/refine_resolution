@@ -90,6 +90,7 @@ def estimate_tad_boundary(chromosomes, models, input_path, output_path=None):
                     "-m", infile, 
                     "--minDepth", "30000",
                     "--maxDepth", "400000",
+                    "--step", "10000",
                     "--outPrefix", out,
                     "--thresholdComparisons", "0.01",
                     "--delta", "0.01",
