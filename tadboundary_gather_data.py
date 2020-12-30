@@ -81,7 +81,7 @@ def generate_cool(input_path='./experiment/tad_boundary', chromosomes=['22', '21
 
         high_mat = mat[num_idx, :]
         high_mat = high_mat[:, num_idx]
-        high_mat = filter_diag_boundary(high_mat, diag_k=0, boundary_k=k)
+        high_mat = filter_diag_boundary(high_mat, diag_k=2, boundary_k=k)
 
         uri = os.path.join(path, hicfile)
         print(uri)
