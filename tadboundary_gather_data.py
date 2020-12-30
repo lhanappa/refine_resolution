@@ -88,6 +88,7 @@ def generate_cool(input_path='./experiment/tad_boundary', chromosomes=['22', '21
         T = high_mat[0:200, 0:200]
         b = {'chrom': ['chr{}'.format(chro)]*T.shape[0], 'start': resolution*np.arange(T.shape[0]), 'end': resolution*np.arange(1, 1+T.shape[0]), 'weight': [1.0]*T.shape[0]}
         bins = pd.DataFrame(data = b)
+        print(bins)
         coo_mat = triu(T, format='coo')
         # p = {'bin1_id': num_idx[coo_mat.row], 'bin2_id': num_idx[coo_mat.col], 'count': coo_mat.data}
         p = {'bin1_id': coo_mat.row, 'bin2_id': coo_mat.col, 'count': coo_mat.data}
