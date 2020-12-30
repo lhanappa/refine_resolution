@@ -81,7 +81,7 @@ def estimate_tad_boundary(chromosomes, models, resolution, input_path=input_path
         process = list()
         for m in models:
             script_work_dir = os.path.join(input_path, 'chr{}'.format(chro))
-            filename = '{}_chr{}_{}'.format(m, chro, resolution)
+            filename = '{}_chr{}'.format(m, chro)
             infile = os.path.join(script_work_dir, '{}.cool'.format(filename))
             out = os.path.join(output_path, 'chr{}'.format(chro), 'output')
             os.makedirs(out, exist_ok=True)
