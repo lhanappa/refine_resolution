@@ -80,7 +80,7 @@ def generate_cool(input_path='./experiment/tad_boundary', chromosomes=['22', '21
 
         high_mat = mat[num_idx, :]
         high_mat = high_mat[:, num_idx]
-        # mat = filter_diag_boundary(high_mat, diag_k=2, boundary_k=k)
+        high_mat = filter_diag_boundary(high_mat, diag_k=2, boundary_k=k)
 
         uri = os.path.join(path, hicfile)
         print(uri)
@@ -122,7 +122,7 @@ def generate_cool(input_path='./experiment/tad_boundary', chromosomes=['22', '21
                     mat = scn_recover(mat, dh)'''
                 name = '_'.join([model, win_len])
             mat = filter_diag_boundary(mat, diag_k=2, boundary_k=k)
-            mat,_ = scn_normalization(mat)
+            # mat, _ = scn_normalization(mat)
 
             print('mat shape: {}'.format(mat.shape))
             uri = os.path.join(path, '{}_chr{}.cool'.format(name, chro))
