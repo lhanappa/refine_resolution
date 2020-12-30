@@ -37,7 +37,7 @@ def gather_high_low_cool(cooler_file='Rao2014-GM12878-DpnII-allreps-filtered.10k
     mat = cool_hic.matrix(balance=True).fetch('chr' + chromosome)
     high_hic, idx = remove_zeros(mat)
     bool_idx = np.array(idx).flatten()
-    num_idx = np.where(np.array(idx)).flatten()
+    num_idx = np.array(np.where(idx)).flatten()
     # idx = np.array(np.nonzero(idx)).flatten()
     low_hic = sampling_hic(high_hic, scale**2, fix_seed=True)
     print('high hic shape: {}.'.format(high_hic.shape), end=' ')
@@ -79,7 +79,7 @@ def generate_cool(input_path='./experiment/tad_boundary', chromosomes=['22', '21
         mat = filter_diag_boundary(mat, diag_k=2, boundary_k=k)
 
         bins = cool_hic.bins().fetch('chr' + chro)
-        num_idx = np.where(np.array(bins['weight'])).flatten()
+        num_idx = np.array(np.where(np.array(bins['weight']))).flatten()
         print(os.path.join(path, hicfile))
         print(bins)
         high_mat = mat
