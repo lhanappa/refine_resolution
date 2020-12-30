@@ -83,19 +83,15 @@ def generate_cool(input_path='./experiment/tad_boundary', chromosomes=['22', '21
         high_mat = high_mat[:, num_idx]
         high_mat = filter_diag_boundary(high_mat, diag_k=0, boundary_k=k)
 
-        uri = os.path.join(path, hicfile)
-        print(uri)
-        
-        # T = high_mat[600:900, 600:900]
+        T = high_mat[600:900, 600:900]
         T = ICE_normalization(high_mat)
-        # b = {'chrom': ['chr{}'.format(chro)]*T.shape[0], 'start': resolution*np.arange(T.shape[0]), 'end': resolution*np.arange(1, 1+T.shape[0]), 'weight': [1.0]*T.shape[0]}
-        # bins = pd.DataFrame(data = b)
-        print(bins)
+        b = {'chrom': ['chr{}'.format(chro)]*T.shape[0], 'start': resolution*np.arange(T.shape[0]), 'end': resolution*np.arange(1, 1+T.shape[0]), 'weight': [1.0]*T.shape[0]}
+        bins = pd.DataFrame(data = b)
         coo_mat = triu(T, format='coo')
-        p = {'bin1_id': num_idx[coo_mat.row], 'bin2_id': num_idx[coo_mat.col], 'count': coo_mat.data}
-        # p = {'bin1_id': coo_mat.row, 'bin2_id': coo_mat.col, 'count': coo_mat.data}
+        # p = {'bin1_id': num_idx[coo_mat.row], 'bin2_id': num_idx[coo_mat.col], 'count': coo_mat.data}
+        p = {'bin1_id': coo_mat.row, 'bin2_id': coo_mat.col, 'count': coo_mat.data}
         pixels = pd.DataFrame(data = p)
-        print(pixels)
+        uri = os.path.join(path, hicfile)
         cooler.create_cooler(cool_uri=uri, bins=bins, pixels=pixels)
 
         files = [f for f in os.listdir(path) if '.npz' in f]
@@ -130,17 +126,43 @@ def generate_cool(input_path='./experiment/tad_boundary', chromosomes=['22', '21
                     mat = scn_recover(mat, dh)'''
                 name = '_'.join([model, win_len])
             mat = filter_diag_boundary(mat, diag_k=0, boundary_k=k)
-            # mat = mat[600:900, 600:900]
+            mat = mat[600:900, 600:900]
             mat = ICE_normalization(mat)
             print('mat shape: {}'.format(mat.shape))
             uri = os.path.join(path, '{}_chr{}.cool'.format(name, chro))
             mat = triu(mat, format='coo')
-            p = {'bin1_id': num_idx[mat.row], 'bin2_id': num_idx[mat.col], 'count': mat.data}
-            # p = {'bin1_id': mat.row, 'bin2_id': mat.col, 'count': mat.data}
+            # p = {'bin1_id': num_idx[mat.row], 'bin2_id': num_idx[mat.col], 'count': mat.data}
+            p = {'bin1_id': mat.row, 'bin2_id': mat.col, 'count': mat.data}
             pixels = pd.DataFrame(data = p)
             cooler.create_cooler(cool_uri=uri, bins=bins, pixels=pixels)
+        with open(os.path.join(path, 'track.ini'), 'w' ) as f:
+            f.writelines(track)
+        f.close()
 
+track = """
+[x-axis]
+where = top
 
+[x-axis]
+fontsize=10
+
+[hic]
+file = high_chr22.cool
+colormap = Spectral_r
+depth = 4000000
+min_value = 1
+max_value = 800
+transform = log1p
+file_type = hic_matrix
+show_masked_bins = true
+
+[tads]
+file = output/high_chr22_domains.bed
+file_type = domains
+border_color = black
+color = none
+overlay_previous = share-y
+"""
 
 
 if __name__ == '__main__':

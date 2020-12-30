@@ -100,7 +100,34 @@ def estimate_tad_boundary(chromosomes, models, input_path, output_path=None):
         for p in process:
             p.wait()
 
-def plot_tad_boundary(chromosomes, models, input_path, output_path=None):
+def diff_tad_boundary(chromosomes, models, input_path, output_path=None):
+    if output_path is None:
+        output_path = input_path
+
+    for chro in chromosomes:
+        process = list()
+        for m in models:
+            script_work_dir = os.path.join(input_path, 'chr{}'.format(chro))
+            filename = '{}_chr{}'.format(m, chro)
+            infile = os.path.join('{}.cool'.format(filename))
+            out = os.path.join(output_path, 'chr{}'.format(chro), 'output')
+            os.makedirs(out, exist_ok=True)
+            out = os.path.join('output', filename)
+            cmd = ["hicFindTADs", 
+                    "-m", infile, 
+                    "--minDepth", "60000",
+                    "--maxDepth", "200000",
+                    "--step", "10000",
+                    "--outPrefix", out,
+                    "--thresholdComparisons", "0.01",
+                    "--delta", "0.01",
+                    "--correctForMultipleTesting", "fdr",
+                ]
+            process.append(subprocess.Popen(cmd, cwd=script_work_dir))
+        for p in process:
+            p.wait()
+
+def plot_hic(chromosomes, models, input_path, output_path=None):
     if output_path is None:
         output_path = input_path
 
@@ -114,6 +141,28 @@ def plot_tad_boundary(chromosomes, models, input_path, output_path=None):
             os.makedirs(out, exist_ok=True)
             out = os.path.join('output', filename)
             cmd = ["hicPlotMatrix", 
+                        "--log1p", 
+                        "--matrix", infile, 
+                        "--outFileName", out,
+                    ]
+            process.append(subprocess.Popen(cmd, cwd=script_work_dir))
+        for p in process:
+            p.wait()
+
+def plot_tad_boundary(chromosomes, models, input_path, output_path=None):
+    if output_path is None:
+        output_path = input_path
+
+    for chro in chromosomes:
+        process = list()
+        for m in models:
+            script_work_dir = os.path.join(input_path, 'chr{}'.format(chro))
+            filename = '{}_chr{}'.format(m, chro)
+            infile = os.path.join('{}.cool'.format(filename))
+            out = os.path.join(output_path, 'chr{}'.format(chro), 'output')
+            os.makedirs(out, exist_ok=True)
+            out = os.path.join('output', filename)
+            cmd = ["hicPlotTAD", 
                         "--log1p", 
                         "--matrix", infile, 
                         "--outFileName", out,
@@ -159,4 +208,4 @@ if __name__ == '__main__':
     models = [str(sys.argv[2])] # ['deephic_40', 'hicsr_40', 'ours_400'] # 'hicgan', 'ours_80', 'ours_200', 
     resolution = 10000
     estimate_tad_boundary(chromosomes, models, input_path=input_path)
-    plot_tad_boundary(chromosomes, models, input_path=input_path)
+    plot_hic(chromosomes, models, input_path=input_path)
