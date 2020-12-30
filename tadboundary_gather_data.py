@@ -10,6 +10,7 @@ import pandas as pd
 
 from our_model.utils.operations import remove_zeros, merge_hic, filter_diag_boundary, format_bin, format_contact, sampling_hic
 from our_model.utils.operations import scn_normalization, scn_recover
+from iced.normalization import ICE_normalization
 
 import warnings
 warnings.simplefilter(action='ignore', category=FutureWarning)
@@ -86,6 +87,7 @@ def generate_cool(input_path='./experiment/tad_boundary', chromosomes=['22', '21
         print(uri)
         
         T = high_mat[750:900, 750:900]
+        T = ICE_normalization(T)
         b = {'chrom': ['chr{}'.format(chro)]*T.shape[0], 'start': resolution*np.arange(T.shape[0]), 'end': resolution*np.arange(1, 1+T.shape[0]), 'weight': [1.0]*T.shape[0]}
         bins = pd.DataFrame(data = b)
         print(bins)
@@ -130,6 +132,7 @@ def generate_cool(input_path='./experiment/tad_boundary', chromosomes=['22', '21
             mat = filter_diag_boundary(mat, diag_k=2, boundary_k=k)
             # mat, _ = scn_normalization(mat)
             mat = mat[750:900, 750:900]
+            mat = ICE_normalization(mat)
             print('mat shape: {}'.format(mat.shape))
             uri = os.path.join(path, '{}_chr{}.cool'.format(name, chro))
             mat = triu(mat, format='coo')
