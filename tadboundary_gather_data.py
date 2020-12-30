@@ -8,9 +8,11 @@ import numpy as np
 from scipy.sparse import triu 
 import pandas as pd
 
-
 from our_model.utils.operations import remove_zeros, merge_hic, filter_diag_boundary, format_bin, format_contact, sampling_hic
 from our_model.utils.operations import scn_normalization, scn_recover
+
+import warnings
+warnings.simplefilter(action='ignore', category=FutureWarning)
 
 def gather(source=None, destination='./experiment/evaluation/', method='output_ours_2000000_200', chromosomes=['19', '20', '21', '22', 'X']):
     if(source is None):
@@ -39,10 +41,9 @@ def gather_high_low_cool(cooler_file='Rao2014-GM12878-DpnII-allreps-filtered.10k
     low_hic = sampling_hic(high_hic, scale**2, fix_seed=True)
     print('high hic shape: {}.'.format(high_hic.shape), end=' ')
     print('low hic shape: {}.'.format(low_hic.shape))
-    print(idx)
+
     b = {'chrom': ['chr{}'.format(chromosome)]*len(idx), 'start': resolution*np.arange(len(idx)), 'end': resolution*(np.arange(1,(len(idx)+1))), 'weight': 1.0*idx}
     bins = pd.DataFrame(data = b)
-    print(bins)
 
     high_hic = triu(high_hic, format='coo')
     low_hic = triu(low_hic, format='coo')
@@ -115,7 +116,7 @@ def generate_cool(input_path='./experiment/tad_boundary', chromosomes=['22', '21
             mat = filter_diag_boundary(mat, diag_k=2, boundary_k=k)
 
             print('mat shape: {}'.format(mat.shape))
-            uri = os.path.join(path, '{}.cool'.format(name))
+            uri = os.path.join(path, '{}_chr{}_{}.cool'.format(name, chro, resolution))
             mat = triu(mat, format='coo')
             p = {'bin1_id': mat.row, 'bin2_id': mat.col, 'count': mat.data}
             pixels = pd.DataFrame(data = p)
