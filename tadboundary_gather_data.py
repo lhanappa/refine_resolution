@@ -84,10 +84,13 @@ def generate_cool(input_path='./experiment/tad_boundary', chromosomes=['22', '21
 
         uri = os.path.join(path, hicfile)
         print(uri)
-        print('mat shape: {}'.format(high_mat.shape))
+        
         T = high_mat[0:200, 0:200]
+        b = {'chrom': ['chr10']*T.shape[0], 'start': resolution*np.arange(T.shape[0]), 'end': resolution*np.arange(1, 1+T.shape[0]), 'weight': [1.0]*T.shape[0]}
+        bins = pd.DataFrame(data = b)
         coo_mat = triu(T, format='coo')
-        p = {'bin1_id': num_idx[coo_mat.row], 'bin2_id': num_idx[coo_mat.col], 'count': coo_mat.data}
+        # p = {'bin1_id': num_idx[coo_mat.row], 'bin2_id': num_idx[coo_mat.col], 'count': coo_mat.data}
+        p = {'bin1_id': coo_mat.row, 'bin2_id': coo_mat.col, 'count': coo_mat.data}
         pixels = pd.DataFrame(data = p)
         cooler.create_cooler(cool_uri=uri, bins=bins, pixels=pixels)
 
@@ -128,7 +131,8 @@ def generate_cool(input_path='./experiment/tad_boundary', chromosomes=['22', '21
             print('mat shape: {}'.format(mat.shape))
             uri = os.path.join(path, '{}_chr{}.cool'.format(name, chro))
             mat = triu(mat, format='coo')
-            p = {'bin1_id': num_idx[mat.row], 'bin2_id': num_idx[mat.col], 'count': mat.data}
+            # p = {'bin1_id': num_idx[mat.row], 'bin2_id': num_idx[mat.col], 'count': mat.data}
+            p = {'bin1_id': mat.row, 'bin2_id': mat.col, 'count': mat.data}
             pixels = pd.DataFrame(data = p)
             cooler.create_cooler(cool_uri=uri, bins=bins, pixels=pixels)
 
