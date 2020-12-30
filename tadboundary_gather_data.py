@@ -83,7 +83,7 @@ def generate_cool(input_path='./experiment/tad_boundary', chromosomes=['22', '21
         uri = os.path.join(path, hicfile)
         print(uri)
         print('mat shape: {}'.format(mat.shape))
-        mat = triu(mat, format='coo')
+        mat = triu(high_mat, format='coo')
         p = {'bin1_id': num_idx[mat.row], 'bin2_id': num_idx[mat.col], 'count': mat.data}
         pixels = pd.DataFrame(data = p)
         cooler.create_cooler(cool_uri=uri, bins=bins, pixels=pixels)
