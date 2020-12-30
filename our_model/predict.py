@@ -178,9 +178,9 @@ def predict(path='./data',
 
     # remove diag and off diag
     k = max_boundary.astype(int)
-    Mh = operations.filter_diag_boundary(Mh, diag_k=2, boundary_k=k)
-    true_hic_hr_merge = operations.filter_diag_boundary(true_hic_hr_merge, diag_k=2, boundary_k=k)
-    predict_hic_hr_merge = operations.filter_diag_boundary(predict_hic_hr_merge, diag_k=2, boundary_k=k)
+    Mh = operations.filter_diag_boundary(Mh, diag_k=0, boundary_k=k)
+    true_hic_hr_merge = operations.filter_diag_boundary(true_hic_hr_merge, diag_k=0, boundary_k=k)
+    predict_hic_hr_merge = operations.filter_diag_boundary(predict_hic_hr_merge, diag_k=0, boundary_k=k)
 
     print('sum Mh:', np.sum(np.abs(Mh)))
     print('sum true merge:', np.sum(np.abs(true_hic_hr_merge)))
