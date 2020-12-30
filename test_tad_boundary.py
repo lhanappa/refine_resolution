@@ -20,7 +20,7 @@ from iced import normalization
 # --correctForMultipleTesting fdr \
 # -p 64
 
-name = "/Volumes/GoogleDrive/My Drive/proj/refine_resolution/data/raw/Rao2014-HMEC-MboI-allreps-filtered.100kb.cool"
+"""name = "/Volumes/GoogleDrive/My Drive/proj/refine_resolution/data/raw/Rao2014-HMEC-MboI-allreps-filtered.100kb.cool"
 c = cooler.Cooler(name)
 resolution = c.binsize
 mat = c.matrix(balance=True).fetch('chr10')
@@ -71,7 +71,7 @@ cmd = ["hicPlotMatrix",
 process = list()
 process.append(subprocess.Popen(cmd, cwd=script_work_dir))
 for p in process:
-    p.wait()
+    p.wait()"""
 
 def estimate_tad_boundary(chromosomes, models, resolution, input_path=input_path, output_path=None):
     if output_path is None:
