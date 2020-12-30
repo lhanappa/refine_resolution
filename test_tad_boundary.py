@@ -99,8 +99,7 @@ def estimate_tad_boundary(chromosomes, models, input_path, output_path=None):
         for p in process:
             p.wait()
 
-
-def plot_tad_boundary(chromosomes, models, input_path=input_path):
+"""def plot_tad_boundary(chromosomes, models, input_path):
     script_work_dir = os.path.join(".", "demo")
     outfile = "myHiCTADs"
     cmd = ["hicPlotTADs", 
@@ -123,7 +122,7 @@ def plot_tad_boundary(chromosomes, models, input_path=input_path):
     process = list()
     process.append(subprocess.Popen(cmd, cwd=script_work_dir))
     for p in process:
-        p.wait()
+        p.wait()"""
 
 if __name__ == '__main__':
     cool_file = 'Rao2014-GM12878-MboI-allreps-filtered.10kb.cool'
