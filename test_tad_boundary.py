@@ -89,7 +89,7 @@ def estimate_tad_boundary(chromosomes, models, input_path, output_path=None):
             cmd = ["hicFindTADs", 
                     "-m", infile, 
                     "--minDepth", "40000",
-                    "--maxDepth", "1000000",
+                    "--maxDepth", "200000",
                     "--step", "10000",
                     "--outPrefix", out,
                     "--thresholdComparisons", "0.01",
