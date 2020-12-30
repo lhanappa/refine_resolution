@@ -20,7 +20,7 @@ def gather(source=None, destination='./experiment/evaluation/', method='output_o
 
     for ch in chromosomes:
         infile = 'predict_chr{}_10000.npz'.format(ch)
-        outfile = '{}_predict_chr{}_10000.npz'.format(method, ch)
+        outfile = '{}_predict_chr{}.npz'.format(method, ch)
         inpath = os.path.join(source, infile)
         if os.path.exists(inpath):
             print('copying {} from {} to {}'.format(infile, inpath, os.path.join(destination, 'chr{}'.format(ch), outfile)))
@@ -38,7 +38,6 @@ def gather_high_low_cool(cooler_file='Rao2014-GM12878-DpnII-allreps-filtered.10k
     high_hic, idx = remove_zeros(mat)
     bool_idx = np.array(idx).flatten()
     num_idx = np.array(np.where(idx)).flatten()
-    # idx = np.array(np.nonzero(idx)).flatten()
     low_hic = sampling_hic(high_hic, scale**2, fix_seed=True)
     print('high hic shape: {}.'.format(high_hic.shape), end=' ')
     print('low hic shape: {}.'.format(low_hic.shape))
@@ -52,7 +51,7 @@ def gather_high_low_cool(cooler_file='Rao2014-GM12878-DpnII-allreps-filtered.10k
     output_path = os.path.join(output_path, 'chr{}'.format(chromosome))
     os.makedirs(output_path, exist_ok=True)
 
-    outfile = 'high_chr{}_10000.cool'.format(chromosome)
+    outfile = 'high_chr{}.cool'.format(chromosome)
     print('saving file {}'.format(os.path.join(output_path, outfile)))
     uri = os.path.join(output_path, outfile)
     p = {'bin1_id': num_idx[high_hic.row], 'bin2_id': num_idx[high_hic.col], 'count': high_hic.data}
@@ -60,7 +59,7 @@ def gather_high_low_cool(cooler_file='Rao2014-GM12878-DpnII-allreps-filtered.10k
     cooler.create_cooler(cool_uri=uri, bins=bins, pixels=pixels)
 
 
-    outfile = 'low_chr{}_{}0000.cool'.format(chromosome, scale)
+    outfile = 'low_chr{}.cool'.format(chromosome)
     print('saving file {}'.format(os.path.join(output_path, outfile)))
     uri = os.path.join(output_path, outfile)
     p = {'bin1_id': num_idx[low_hic.row], 'bin2_id': num_idx[low_hic.col], 'count': low_hic.data}
@@ -86,7 +85,7 @@ def generate_cool(input_path='./experiment/tad_boundary', chromosomes=['22', '21
 
         files = [f for f in os.listdir(path) if '.npz' in f]
         for file in files:
-            if 'high' in file:
+            if 'high' in file or 'low' in file:
                 continue
             print(file)
             data = np.load(os.path.join(path, file), allow_pickle=True)
@@ -118,7 +117,7 @@ def generate_cool(input_path='./experiment/tad_boundary', chromosomes=['22', '21
             mat = filter_diag_boundary(mat, diag_k=2, boundary_k=k)
 
             print('mat shape: {}'.format(mat.shape))
-            uri = os.path.join(path, '{}_chr{}_{}.cool'.format(name, chro, resolution))
+            uri = os.path.join(path, '{}_chr{}.cool'.format(name, chro))
             mat = triu(mat, format='coo')
             p = {'bin1_id': num_idx[mat.row], 'bin2_id': num_idx[mat.col], 'count': mat.data}
             pixels = pd.DataFrame(data = p)

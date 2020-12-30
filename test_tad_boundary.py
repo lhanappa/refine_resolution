@@ -43,25 +43,9 @@ pixels = pd.DataFrame(data = p)
 uri = os.path.join(".", "demo", "demo.cool")
 cooler.create_cooler(cool_uri=uri, bins=bins, pixels=pixels)
 
-"""
-# hicConvertFormat -m matrix.hic --inputFormat hic --outputFormat cool -o matrix.cool --resolutions 10000
-
-script_work_dir = os.path.join(".", "demo")
-matrix = os.path.join(".", "demo", "demo.cool")
-outPrefix = "myHiCmatrix"
-cmd = ["hicConvertFormat", 
-        "-m", matrix, 
-        "--inputFormat", "cool",
-        "--outputFormat", "h5",
-        "-o", "demo.h5"
-    ]
-process.append(subprocess.Popen(cmd, cwd=script_work_dir))
-for p in process:
-    p.wait()"""
-
 script_work_dir = os.path.join(".", "demo")
 matrix = os.path.join(".", "demo.cool")
-outPrefix = "./output/myHiCmatrix"
+outPrefix = os.path.join(".", "output", "myHiCmatrix")
 cmd = ["hicFindTADs", 
         "-m", matrix, 
         "--minDepth", "300000",
@@ -89,14 +73,67 @@ process.append(subprocess.Popen(cmd, cwd=script_work_dir))
 for p in process:
     p.wait()
 
-script_work_dir = os.path.join(".", "demo")
-outfile = "myHiCTADs"
-cmd = ["hicPlotTADs", 
-        "--tracks", "tracks.ini", 
-        "--region", "chr10:1500000-40000000",
-        "--outFileName", outfile
-    ]
-process = list()
-process.append(subprocess.Popen(cmd, cwd=script_work_dir))
-for p in process:
-    p.wait()
+def estimate_tad_boundary(chromosomes, models, resolution, input_path=input_path, output_path=None):
+    if output_path is None:
+        output_path = input_path
+
+    for chro in chromosomes:
+        process = list()
+        for m in models:
+            script_work_dir = os.path.join(input_path, 'chr{}'.format(chro))
+            filename = '{}_chr{}_{}'.format(m, chro, resolution)
+            infile = os.path.join(script_work_dir, '{}.cool'.format(filename))
+            out = os.path.join(output_path, 'chr{}'.format(chro), 'output')
+            os.makedirs(out, exist_ok=True)
+            out = os.path.join(out, filename)
+            cmd = ["hicFindTADs", 
+                    "-m", infile, 
+                    "--minDepth", "300000",
+                    "--maxDepth", "1000000",
+                    "--outPrefix", out,
+                    "--thresholdComparisons", "0.05",
+                    "--delta", "0.05",
+                    "--correctForMultipleTesting", "fdr",
+                ]
+            process.append(subprocess.Popen(cmd, cwd=script_work_dir))
+        for p in process:
+            p.wait()
+
+
+def plot_tad_boundary(chromosomes, models, input_path=input_path):
+    script_work_dir = os.path.join(".", "demo")
+    outfile = "myHiCTADs"
+    cmd = ["hicPlotTADs", 
+            "--tracks", "tracks.ini", 
+            "--region", "chr10:1500000-40000000",
+            "--outFileName", outfile
+        ]
+    process = list()
+    process.append(subprocess.Popen(cmd, cwd=script_work_dir))
+    for p in process:
+        p.wait()
+
+    script_work_dir = os.path.join(".", "demo")
+    outfile = "myHiCTADs"
+    cmd = ["hicPlotTADs", 
+            "--tracks", "tracks.ini", 
+            "--region", "chr10:1500000-40000000",
+            "--outFileName", outfile
+        ]
+    process = list()
+    process.append(subprocess.Popen(cmd, cwd=script_work_dir))
+    for p in process:
+        p.wait()
+
+if __name__ == '__main__':
+    cool_file = 'Rao2014-GM12878-MboI-allreps-filtered.10kb.cool'
+    # cool_file = 'Rao2014-GM12878-DpnII-allreps-filtered.10kb.cool'
+    cell_type = cool_file.split('-')[0] + '_' + cool_file.split('-')[1] + '_' + cool_file.split('-')[2] + '_' + cool_file.split('.')[1]
+    input_path = os.path.join('./experiment', 'tad_boundary', cell_type)
+
+    chromosomes = [str(sys.argv[1])]
+    # chromosomes = ['22', '21', '20', '19', 'X']
+    # chromosomes = ['22']
+    models = [str(sys.argv[2])] # ['deephic_40', 'hicsr_40', 'ours_400'] # 'hicgan', 'ours_80', 'ours_200', 
+    resolution = 10000
+    estimate_tad_boundary(chromosomes, models, resolution, input_path=input_path)
