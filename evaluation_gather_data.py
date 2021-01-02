@@ -101,20 +101,24 @@ def generate_prefile(input_path='./experiment/evaluation', chromosomes=['22', '2
             else:
                 model = namelist[1]
                 win_len = namelist[3]
+                print('inverse normalization {}'.format(model), end=' ')
                 if model == 'hicgan':
                     # true_hic = np.log1p(true_hic)
                     mat = np.expm1(mat)
+                    print('expm1')
                 elif model == 'deephic':
                     minv = high_mat.min()
                     maxv = high_mat.max()
                     # true_hic = np.divide((true_hic-minv), (maxv-minv), dtype=float,out=np.zeros_like(true_hic), where=(maxv-minv) != 0)
                     mat = mat*(maxv-minv)+minv
+                    print('min-max')
                 elif model == 'hicsr':
                     log_mat = np.log2(high_mat+1)
                     # ture_hic = 2*(log_mat/np.max(log_mat)) - 1
                     maxv = np.max(log_mat)
                     log_predict_hic = (mat+1)/2*maxv
                     mat = np.expm1(log_predict_hic)
+                    print('scn')
                 '''elif model == 'ours':
                     scn, dh = scn_normalization(high_mat, max_iter=3000)
                     mat = scn_recover(mat, dh)'''
@@ -149,6 +153,6 @@ if __name__ == '__main__':
                             output_path=destination_path)
 
     generate_prefile(input_path=destination_path,
-                     chromosomes=['22', '21', '20', '19', 'X'],
+                     chromosomes=chromosomes,
                      resolution=10000, 
                      genomic_distance=2000000)
