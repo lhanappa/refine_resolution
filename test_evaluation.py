@@ -112,7 +112,7 @@ if __name__ == '__main__':
     # chromosomes = ['22', '21', '20', '19', 'X']
     # chromosomes = ['22']
     models = [str(sys.argv[2])] # ['deephic_40', 'hicsr_40', 'ours_80', 'ours_200', 'ours_400'] # 'hicgan', 
-    evaluate_hicrep(chromosomes, models, input_path=destination_path)
+    # evaluate_hicrep(chromosomes, models, input_path=destination_path)
     
     # chromosomes = ['22', '21', '20', '19', 'X']
     # chromosomes = ['22']
