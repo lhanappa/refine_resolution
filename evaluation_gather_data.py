@@ -85,6 +85,7 @@ def generate_prefile(input_path='./experiment/evaluation', chromosomes=['22', '2
                              output_path=path, filename=name)
                 generate_bin(mat, chromosome=chro, output_path=path)
                 high_mat = mat
+                print('sum high mat: {}'.format(high_mat.sum()))
 
         for file in files:
             if 'high' in file:
@@ -98,26 +99,34 @@ def generate_prefile(input_path='./experiment/evaluation', chromosomes=['22', '2
             else:
                 model = namelist[1]
                 win_len = namelist[3]
-                print('inverse normalization {}'.format(model), end=' ')
                 if model == 'hicgan':
                     # true_hic = np.log1p(true_hic)
+                    print('inverse normalization {}'.format(model), end=' ')
+                    print('before sum mat: {}'.format(mat.sum()), end=' ')
                     mat = np.expm1(mat)
+                    print('after sum mat: {}'.format(mat.sum()), end=' ')
                     print('expm1')
                 elif model == 'deephic':
                     minv = high_mat.min()
                     maxv = high_mat.max()
                     # true_hic = np.divide((true_hic-minv), (maxv-minv), dtype=float,out=np.zeros_like(true_hic), where=(maxv-minv) != 0)
+                    print('inverse normalization {}'.format(model), end=' ')
+                    print('min-max, min: {}, max: {}, before sum mat: {}, '.format(minv, maxv, mat.sum()), end=' ')
                     mat = mat*(maxv-minv)+minv
-                    print('min-max')
+                    print('after sum mat: {}'.format(mat.sum()))
                 elif model == 'hicsr':
                     log_mat = np.log2(high_mat+1)
                     # ture_hic = 2*(log_mat/np.max(log_mat)) - 1
                     maxv = np.max(log_mat)
                     log_predict_hic = (mat+1)/2*maxv
+                    print('inverse normalization {}'.format(model), end=' ')
+                    print('log high max: {}, before sum mat: {}'.format(maxv, mat.sum()), end=' ')
                     mat = np.expm1(log_predict_hic)
+                    print('after sum mat: {}'.format(mat.sum()), end=' ')
                     print('expm1')
-                '''elif model == 'ours':
-                    scn, dh = scn_normalization(high_mat, max_iter=3000)
+                elif model == 'ours':
+                    print('already inverse normalization')
+                    '''scn, dh = scn_normalization(high_mat, max_iter=3000)
                     mat = scn_recover(mat, dh)'''
                 name = '_'.join([model, win_len])
             mat = filter_diag_boundary(mat, diag_k=2, boundary_k=k)
