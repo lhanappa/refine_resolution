@@ -144,7 +144,7 @@ if __name__ == '__main__':
         source = os.path.join('.', 'data', m, cell_type, 'SR')
         gather(source=source, destination=destination_path, method=m)
 
-    chromosomes = ['22', '21', '20', '19', 'X']
+    chromosomes = ['22'] # , '21', '20', '19', 'X']
     for chro in chromosomes:
         gather_high_low_mat(cooler_file=cool_file, 
                             path='./data/raw/', 
