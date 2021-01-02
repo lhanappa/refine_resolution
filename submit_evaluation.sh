@@ -1,3 +1,4 @@
+#!/bin/sh
 chr=('19' '20' '21' '22' 'X')
 # method=('ours_80' 'ours_200' 'ours_400' 'deephic_40' 'hicsr_40')
 method=('ours_400' 'deephic_40' 'hicsr_40' 'low')
