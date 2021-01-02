@@ -86,7 +86,6 @@ def evaluate_mse(chromosomes, methods, input_path='./experiment/evaluation/', ma
     for chro in chromosomes:
         for method in methods:
             m = method.split('_')[0]
-            wl = method.split('_')[1]
             path = os.path.join(input_path, 'chr{}'.format(chro))
             files = [f for f in os.listdir(path) if (chro in f and '.npz' in f)]
             file1 = [f for f in files if 'high' in f][0]
