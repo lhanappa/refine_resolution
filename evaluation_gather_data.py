@@ -118,7 +118,7 @@ def generate_prefile(input_path='./experiment/evaluation', chromosomes=['22', '2
                     maxv = np.max(log_mat)
                     log_predict_hic = (mat+1)/2*maxv
                     mat = np.expm1(log_predict_hic)
-                    print('scn')
+                    print('expm1')
                 '''elif model == 'ours':
                     scn, dh = scn_normalization(high_mat, max_iter=3000)
                     mat = scn_recover(mat, dh)'''
@@ -139,12 +139,12 @@ if __name__ == '__main__':
     cool_file = 'Rao2014-GM12878-MboI-allreps-filtered.10kb.cool'
     cell_type = cool_file.split('-')[0] + '_' + cool_file.split('-')[1] + '_' + cool_file.split('-')[2] + '_' + cool_file.split('.')[1]
     destination_path = os.path.join('./experiment', 'evaluation', cell_type)
-    
+    chromosomes = ['22'] # , '21', '20', '19', 'X']
+
     for m in methods:
         source = os.path.join('.', 'data', m, cell_type, 'SR')
-        gather(source=source, destination=destination_path, method=m)
+        gather(source=source, destination=destination_path, method=m, chromosomes=chromosomes)
 
-    chromosomes = ['22'] # , '21', '20', '19', 'X']
     for chro in chromosomes:
         gather_high_low_mat(cooler_file=cool_file, 
                             path='./data/raw/', 
