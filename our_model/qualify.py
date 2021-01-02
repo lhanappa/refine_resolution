@@ -186,6 +186,7 @@ def metric_mae(file1, file2, output_path, model,
     high_mat = data1['hic']
     data2 = np.load(file2, allow_pickle=True)
     mat = data2['hic']
+    high_mat = filter_diag_boundary(high_mat, diag_k=diag_k, boundary_k=max_boundary)
     if 'hicgan' in model:
         # true_hic = np.log1p(true_hic)
         mat = np.expm1(mat)
@@ -201,7 +202,7 @@ def metric_mae(file1, file2, output_path, model,
         log_predict_hic = (mat+1)/2*maxv
         mat = np.expm1(log_predict_hic)
 
-    hic1 = filter_diag_boundary(high_mat, diag_k=diag_k, boundary_k=max_boundary)
+    hic1 = high_mat
     hic2 = filter_diag_boundary(mat, diag_k=diag_k, boundary_k=max_boundary)
 
     mae = run_mae(mat1=hic1, mat2=hic2)
@@ -220,6 +221,7 @@ def metric_mse(file1, file2, output_path, model,
     high_mat = data1['hic']
     data2 = np.load(file2, allow_pickle=True)
     mat = data2['hic']
+    high_mat = filter_diag_boundary(high_mat, diag_k=diag_k, boundary_k=max_boundary)
     if 'hicgan' in model:
         # true_hic = np.log1p(true_hic)
         mat = np.expm1(mat)
@@ -236,7 +238,7 @@ def metric_mse(file1, file2, output_path, model,
         log_predict_hic = (mat+1)/2*maxv
         mat = np.expm1(log_predict_hic)
 
-    hic1 = filter_diag_boundary(high_mat, diag_k=diag_k, boundary_k=max_boundary)
+    hic1 = high_mat # filter_diag_boundary(high_mat, diag_k=diag_k, boundary_k=max_boundary)
     hic2 = filter_diag_boundary(mat, diag_k=diag_k, boundary_k=max_boundary)
     mse = run_mse(mat1=hic1, mat2=hic2)
 
