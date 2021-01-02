@@ -99,7 +99,7 @@ def generate_prefile(input_path='./experiment/evaluation', chromosomes=['22', '2
             else:
                 model = namelist[1]
                 win_len = namelist[3]
-                if model == 'hicgan':
+                """if model == 'hicgan':
                     # true_hic = np.log1p(true_hic)
                     print('inverse normalization {}'.format(model), end=' ')
                     print('before sum mat: {}'.format(mat.sum()), end=' ')
@@ -127,7 +127,7 @@ def generate_prefile(input_path='./experiment/evaluation', chromosomes=['22', '2
                 elif model == 'ours':
                     print('already inverse normalization')
                     '''scn, dh = scn_normalization(high_mat, max_iter=3000)
-                    mat = scn_recover(mat, dh)'''
+                    mat = scn_recover(mat, dh)'''"""
                 name = '_'.join([model, win_len])
             mat = filter_diag_boundary(mat, diag_k=2, boundary_k=k)
             print('mat shape: {}'.format(mat.shape))
