@@ -15,7 +15,7 @@ def evaluate_hicrep(chromosomes, methods, input_path='./experiment/evaluation/')
             bedfile = os.path.join(input_path, 'chr{}'.format(chro), 'bins_chr{}.bed.gz'.format(chro))
             script = os.path.join(root_dir, 'our_model', 'utils','hicrep_wrapper.R')
             # h_list = np.append(np.arange(5,25), 30)
-            h_list = np.arange(1,12)
+            h_list = [3] # np.arange(1,12)
             print(h_list)
             output_path = os.path.join(input_path, 'chr{}'.format(chro), 'metrics')
             os.makedirs(output_path, exist_ok=True)
@@ -40,14 +40,14 @@ def evaluate_hicrep(chromosomes, methods, input_path='./experiment/evaluation/')
                     chro = l[0].split('_')[1]
                     score = l[2]
                     sd = l[3]
-                    v, w = [], []
+                    '''v, w = [], []
                     for line in lines:
                         l = line.split()
                         v.append(l[4])
-                        w.append(l[5])
+                        w.append(l[5])'''
                     wline = 'chr{}\t{}\t{}\t{}\t{}\t{}\n'.format(chro, h, m0, m1, score, sd)
-                    wline = wline + ' '.join(v) + '\n'
-                    wline = wline + ' '.join(w) + '\n'
+                    # wline = wline + ' '.join(v) + '\n'
+                    # wline = wline + ' '.join(w) + '\n'
                     fout.write(wline)
                     fout.close()
             for h in h_list:
