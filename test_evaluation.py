@@ -60,13 +60,17 @@ def evaluate_mae(chromosomes, methods, input_path='./experiment/evaluation/', ma
     for chro in chromosomes:
         for method in methods:
             m = method.split('_')[0]
-            wl = method.split('_')[1]
             path = os.path.join(input_path, 'chr{}'.format(chro))
             files = [f for f in os.listdir(path) if (chro in f and '.npz' in f)]
             file1 = [f for f in files if 'high' in f][0]
             file1 = os.path.join(path, file1)
-            file2 = [f for f in files if (m == f.split('_')[1] and wl == f.split('_')[3]) ][0]
-            file2 = os.path.join(path, file2)
+            if 'low' not in method:
+                wl = method.split('_')[1]
+                file2 = [f for f in files if (m == f.split('_')[1] and wl == f.split('_')[3]) ][0]
+                file2 = os.path.join(path, file2)
+            else:
+                file2 = [f for f in files if 'low' in f][0]
+                file2 = os.path.join(path, file2)
             m1name = 'high_{}'.format(chro)
             m2name = '{}_{}'.format(method, chro)
             print(file1)
@@ -87,8 +91,13 @@ def evaluate_mse(chromosomes, methods, input_path='./experiment/evaluation/', ma
             files = [f for f in os.listdir(path) if (chro in f and '.npz' in f)]
             file1 = [f for f in files if 'high' in f][0]
             file1 = os.path.join(path, file1)
-            file2 = [f for f in files if (m == f.split('_')[1] and wl == f.split('_')[3]) ][0]
-            file2 = os.path.join(path, file2)
+            if 'low' not in method:
+                wl = method.split('_')[1]
+                file2 = [f for f in files if (m == f.split('_')[1] and wl == f.split('_')[3]) ][0]
+                file2 = os.path.join(path, file2)
+            else:
+                file2 = [f for f in files if 'low' in f][0]
+                file2 = os.path.join(path, file2)
             m1name = 'high_{}'.format(chro)
             m2name = '{}_{}'.format(method, chro)
             print(file1)
