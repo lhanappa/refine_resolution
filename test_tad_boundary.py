@@ -99,25 +99,31 @@ def identify(data_1, data_2, shift=0):
     num_only_b = len(b_starts) - num_intersection
     return [num_intersection, num_only_a, num_only_b, mask]
 
-def check_tad_boundary(input_path, chromosomes, model_1, model_2='high', shift = 0):
+def check_tad_boundary(input_path, chromosomes, models_1, models_2=['high'], shift = 0):
     for chro in chromosomes:
         script_work_dir = os.path.join(input_path, 'chr{}'.format(chro), 'output')
         output = script_work_dir
-        filename_1 = '{}_chr{}_domains.bed'.format(model_1, chro)
-        filename_2 = '{}_chr{}_domains.bed'.format(model_2, chro)
-        in1 = os.path.join(script_work_dir, filename_1)
-        in2 = os.path.join(script_work_dir, filename_2)
+        for m1 in models_1:
+            for m2 in models_2:
+                filename_1 = '{}_chr{}_domains.bed'.format(model_1, chro)
+                filename_2 = '{}_chr{}_domains.bed'.format(model_2, chro)
+                in1 = os.path.join(script_work_dir, filename_1)
+                in2 = os.path.join(script_work_dir, filename_2)
 
-        if not os.path.isfile(in1):
-            estimate_tad_boundary([chro], [model_1], input_path=input_path)
-        if not os.path.isfile(in2):
-            estimate_tad_boundary([chro], [model_2], input_path=input_path)
+                if not os.path.isfile(in1):
+                    estimate_tad_boundary([chro], [m1], input_path=input_path)
+                if not os.path.isfile(in2):
+                    estimate_tad_boundary([chro], [m2], input_path=input_path)
 
-        data_1 = load_bedfile(in1)
-        data_2 = load_bedfile(in2)
-        [num_intersection, num_only_a, num_only_b, mask] = identify(data_1, data_2, shift=shift)
-        jaccard_index = float(num_intersection)/float(num_intersection+num_only_a+num_only_b)
-        print('Jaccard index: {}, intersection: {}, {} only in {}, {} only in {}'.format(jaccard_index, num_intersection, num_only_a, model_1, num_only_b, model_2))
+                data_1 = load_bedfile(in1)
+                data_2 = load_bedfile(in2)
+                [num_intersection, num_only_a, num_only_b, mask] = identify(data_1, data_2, shift=shift)
+                jaccard_score = float(num_intersection)/float(num_intersection+num_only_a+num_only_b)
+                print('Jaccard score: {}, intersection: {}, {} only in {}, {} only in {}'.format(jaccard_score, num_intersection, num_only_a, model_1, num_only_b, model_2))
+                with open(os.path.join(script_work_dir, 'TAD_Jaccard_score.txt'), 'a+') as f:
+                    line = 'chr{}\t{}\t{}\t{}\t{}\t{}\t{}\n'.format(chro, m1, m2, jaccard_score, num_intersection, num_only_a, num_only_b)
+                    f.write(line)
+                f.close()
 
 def estimate_tad_boundary(chromosomes, models, input_path, output_path=None):
     if output_path is None:
@@ -254,6 +260,6 @@ if __name__ == '__main__':
     models = [str(sys.argv[2])] # ['deephic_40', 'hicsr_40', 'ours_400'] # 'hicgan', 'ours_80', 'ours_200', 
     resolution = 10000
     estimate_tad_boundary(chromosomes, models, input_path=input_path)
-    plot_hic(chromosomes, models, input_path=input_path)
+    # plot_hic(chromosomes, models, input_path=input_path)
     for m in models:
         check_tad_boundary(input_path=input_path, chromosomes=chromosomes, model_1=m, model_2='high', shift=resolution*2)
