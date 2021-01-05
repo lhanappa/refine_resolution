@@ -257,7 +257,7 @@ if __name__ == '__main__':
     chromosomes = [str(sys.argv[1])]
     # chromosomes = ['22', '21', '20', '19', 'X']
     # chromosomes = ['22']
-    models = [str(sys.argv[2])] # ['deephic_40', 'hicsr_40', 'ours_400'] # 'hicgan', 'ours_80', 'ours_200', 
+    models = ['deephic_40', 'hicsr_40', 'ours_400', 'low'] # 'hicgan', 'ours_80', 'ours_200', 
     resolution = 10000
     estimate_tad_boundary(chromosomes, models, input_path=input_path)
     # plot_hic(chromosomes, models, input_path=input_path)

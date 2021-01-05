@@ -4,14 +4,12 @@ chr=('1' '2' '3' '4' '5' '6' '7' '8' '9' '10' '11' '12' '13' '14' '15' '16' '17'
 method=('ours_400' 'deephic_40' 'hicsr_40' 'low')
 
 #rm slurm-data-*.out
-for c in "${chr[@]}"; do
-    echo sbatch bash_gather_tad_boundary.sh ${c}
-    sbatch bash_gather_tad_boundary.sh ${c}
-done
+#for c in "${chr[@]}"; do
+#    echo sbatch bash_gather_tad_boundary.sh ${c}
+#    sbatch bash_gather_tad_boundary.sh ${c}
+#done
 
-# for c in "${chr[@]}"; do
-#    for m in "${method[@]}"; do
-#        echo sbatch bash_tad_boundary.sh ${m}
-#        sbatch bash_tad_boundary.sh ${m}
-#    done
-# done
+for c in "${chr[@]}"; do
+    echo sbatch bash_tad_boundary.sh ${c}
+    sbatch bash_tad_boundary.sh ${c}
+done

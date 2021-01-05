@@ -15,7 +15,7 @@ date
 hostname
 
 CHR=${1} # 22
-METHOD=${1} # deephic_40
+# METHOD=${1} # deephic_40
 source activate env_fr_test
-echo python test_tad_boundary.py ${CHR} ${METHOD}
-python test_tad_boundary.py ${CHR} ${METHOD}
+echo python test_tad_boundary.py ${CHR} # ${METHOD}
+python test_tad_boundary.py ${CHR} # ${METHOD}
