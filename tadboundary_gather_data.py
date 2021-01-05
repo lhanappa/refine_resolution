@@ -106,6 +106,7 @@ def generate_cool(input_path='./experiment/tad_boundary', chromosomes=['22', '21
                     maxv = high_mat.max()
                     # true_hic = np.divide((true_hic-minv), (maxv-minv), dtype=float,out=np.zeros_like(true_hic), where=(maxv-minv) != 0)
                     mat = mat*(maxv-minv)+minv
+                    mat = (mat+np.transpose(mat))/2
                 elif model == 'hicsr':
                     log_mat = np.log2(high_mat+1)
                     # ture_hic = 2*(log_mat/np.max(log_mat)) - 1
@@ -118,7 +119,7 @@ def generate_cool(input_path='./experiment/tad_boundary', chromosomes=['22', '21
                 name = '_'.join([model, win_len])
             mat = filter_diag_boundary(mat, diag_k=0, boundary_k=k)
             # mat = mat[600:900, 600:900]
-            print(mat)
+            # print(mat)
             mat = ICE_normalization(mat)
             print('mat shape: {}'.format(mat.shape))
             uri = os.path.join(path, '{}_chr{}.cool'.format(name, chro))
@@ -160,7 +161,7 @@ if __name__ == '__main__':
     # methods = ['output_ours_2000000_400' 'output_hicsr_2000000_40_28', 'output_deephic_2000000_40_40']
     # methods = [str(sys.argv[1])]
     methods = ['output_deephic_2000000_40_40']
-    
+
     # cool_file = 'Rao2014-GM12878-DpnII-allreps-filtered.10kb.cool'
     cool_file = 'Rao2014-GM12878-MboI-allreps-filtered.10kb.cool'
     cell_type = cool_file.split('-')[0] + '_' + cool_file.split('-')[1] + '_' + cool_file.split('-')[2] + '_' + cool_file.split('.')[1]
