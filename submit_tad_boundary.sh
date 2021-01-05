@@ -9,9 +9,9 @@ for m in "${method[@]}"; do
     sbatch bash_gather_tad_boundary.sh ${m}
 done
 
-for c in "${chr[@]}"; do
-    for m in "${method[@]}"; do
-        echo sbatch bash_tad_boundary.sh ${m}
-        sbatch bash_tad_boundary.sh ${m}
-    done
-done
+# for c in "${chr[@]}"; do
+#    for m in "${method[@]}"; do
+#        echo sbatch bash_tad_boundary.sh ${m}
+#        sbatch bash_tad_boundary.sh ${m}
+#    done
+# done
