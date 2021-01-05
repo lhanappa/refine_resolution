@@ -1,7 +1,7 @@
 import os, sys
 import numpy as np
 from scipy.sparse import coo_matrix, triu
-
+from scipy.spatial import distance
 import subprocess
 import pandas as pd
 
@@ -73,6 +73,47 @@ process.append(subprocess.Popen(cmd, cwd=script_work_dir))
 for p in process:
     p.wait()"""
 
+def load_bedfile(file):
+    starts = []
+    lengths = []
+    with open(file, 'r') as f:
+        for line in f:
+            l = line.split()
+            starts.append(int(l[1]))
+            lengths.append(int(l[2]) - int(l[1]))
+    f.close()
+    return [starts, lengths]
+
+def identify(data_1, data_2, shift=0):
+    a_starts, a_lengths = data_1
+    b_starts, b_lengths = data_2
+    dis_starts = distance.cdist(a_starts, b_starts)
+    dis_len = distance.cdist(a_lengths, b_lengths)
+
+    mask_starts = dis_starts <= shift
+    mask_lengths = dis_len <= shift
+    mask = np.logic_and(mask_starts, mask_lengths)
+    num_intersection = np.count_nonzero(mask)
+    num_only_a = len(a_starts) - num_intersection
+    num_only_b = len(b_starts) - num_intersection
+    return [num_intersection, num_only_a, num_only_b, mask]
+
+def check_tad_boundary(input_path, chromosomes, model_1, model_2='high', shift = 0):
+    if output_path is None:
+            output_path = input_path
+
+    for chro in chromosomes:
+        script_work_dir = os.path.join(input_path, 'chr{}'.format(chro), 'output')
+        output = script_work_dir
+        filename_1 = '{}_chr{}_domains.bed'.format(model_1, chro)
+        filename_2 = '{}_chr{}_domains.bed'.format(model_2, chro)
+        in1 = os.path.join(script_work_dir, filename_1)
+        in2 = os.path.join(script_work_dir, filename_2)
+        data_1 = load_bedfile(in1)
+        data_2 = load_bedfile(in2)
+        [num_intersection, num_only_a, num_only_b, mask] = identify(data_1, data_2, shift=shift)
+        print('intersection: {}, {} in {}, {} in {}'.format(num_intersection, model_1, num_only_a, model_2, num_only_b))
+
 def estimate_tad_boundary(chromosomes, models, input_path, output_path=None):
     if output_path is None:
         output_path = input_path
@@ -100,7 +141,7 @@ def estimate_tad_boundary(chromosomes, models, input_path, output_path=None):
         for p in process:
             p.wait()
 
-def diff_tad_boundary(chromosomes, models, input_path, output_path=None):
+"""def diff_tad_boundary(chromosomes, models, input_path, output_path=None):
     if output_path is None:
         output_path = input_path
 
@@ -125,9 +166,9 @@ def diff_tad_boundary(chromosomes, models, input_path, output_path=None):
                 ]
             process.append(subprocess.Popen(cmd, cwd=script_work_dir))
         for p in process:
-            p.wait()
+            p.wait()"""
 
-def plot_hic(chromosomes, models, input_path, output_path=None):
+"""def plot_hic(chromosomes, models, input_path, output_path=None):
     if output_path is None:
         output_path = input_path
 
@@ -147,7 +188,7 @@ def plot_hic(chromosomes, models, input_path, output_path=None):
                     ]
             process.append(subprocess.Popen(cmd, cwd=script_work_dir))
         for p in process:
-            p.wait()
+            p.wait()"""
 
 def plot_tad_boundary(chromosomes, models, input_path, output_path=None):
     if output_path is None:
@@ -209,3 +250,5 @@ if __name__ == '__main__':
     resolution = 10000
     estimate_tad_boundary(chromosomes, models, input_path=input_path)
     plot_hic(chromosomes, models, input_path=input_path)
+    for m in models:
+        check_tad_boundary(input_path=input_path, chromosomes=chromosomes, model_1=m, model_2='high', shift=resolution*2)

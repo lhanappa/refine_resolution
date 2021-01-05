@@ -417,9 +417,9 @@ def _train_step_generator(Gen, Dis, imgl, imgr, loss_filter, loss_weights, opts)
         loss_high_1 = generator_mse_loss(fake_hic_h, imgr_filter)
         loss_high_2 = generator_ssim_loss(fake_hic_h, imgr_filter)
 
-        loss_high = loss_high_0 * \
-            loss_weights[0] + loss_high_1 * \
-            loss_weights[1] + loss_high_2*loss_weights[2]
+        loss_high = loss_high_0 * loss_weights[0] + \
+                    loss_high_1 * loss_weights[1] + \
+                    loss_high_2 * loss_weights[2]
 
     gen_low_v = []
     gen_low_v += Gen.get_layer('dsd_x2').trainable_variables
