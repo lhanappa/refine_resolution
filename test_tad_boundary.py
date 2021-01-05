@@ -99,9 +99,6 @@ def identify(data_1, data_2, shift=0):
     return [num_intersection, num_only_a, num_only_b, mask]
 
 def check_tad_boundary(input_path, chromosomes, model_1, model_2='high', shift = 0):
-    if output_path is None:
-            output_path = input_path
-
     for chro in chromosomes:
         script_work_dir = os.path.join(input_path, 'chr{}'.format(chro), 'output')
         output = script_work_dir
