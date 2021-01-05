@@ -96,7 +96,7 @@ def identify(data_1, data_2, shift=0):
     mask = np.logical_and(mask_starts, mask_lengths)
     seta = np.where(np.sum(mask, axis=1, dtype=np.bool))
     setb = np.where(np.sum(mask, axis=0, dtype=np.bool))
-    num_intersection = distance.jaccard(seta, setb)
+    num_intersection = len(np.intersect1d(seta, setb))
     num_only_a = len(seta) - num_intersection
     num_only_b = len(setb) - num_intersection
     return [num_intersection, num_only_a, num_only_b, mask]
