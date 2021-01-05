@@ -83,13 +83,13 @@ def generate_cool(input_path='./experiment/tad_boundary', chromosomes=['22', '21
         high_mat = high_mat[:, num_idx]
         high_mat = filter_diag_boundary(high_mat, diag_k=0, boundary_k=k)
 
-        T = high_mat[600:900, 600:900]
-        T = ICE_normalization(T)
+        # T = high_mat[600:900, 600:900]
+        T = ICE_normalization(high_mat)
         b = {'chrom': ['chr{}'.format(chro)]*T.shape[0], 'start': resolution*np.arange(T.shape[0]), 'end': resolution*np.arange(1, 1+T.shape[0]), 'weight': [1.0]*T.shape[0]}
         bins = pd.DataFrame(data = b)
         coo_mat = triu(T, format='coo')
-        # p = {'bin1_id': num_idx[coo_mat.row], 'bin2_id': num_idx[coo_mat.col], 'count': coo_mat.data}
-        p = {'bin1_id': coo_mat.row, 'bin2_id': coo_mat.col, 'count': coo_mat.data}
+        # p = {'bin1_id': coo_mat.row, 'bin2_id': coo_mat.col, 'count': coo_mat.data}
+        p = {'bin1_id': num_idx[coo_mat.row], 'bin2_id': num_idx[coo_mat.col], 'count': coo_mat.data}
         pixels = pd.DataFrame(data = p)
         uri = os.path.join(path, hicfile)
         cooler.create_cooler(cool_uri=uri, bins=bins, pixels=pixels)
@@ -126,13 +126,13 @@ def generate_cool(input_path='./experiment/tad_boundary', chromosomes=['22', '21
                     mat = scn_recover(mat, dh)'''
                 name = '_'.join([model, win_len])
             mat = filter_diag_boundary(mat, diag_k=0, boundary_k=k)
-            mat = mat[600:900, 600:900]
+            # mat = mat[600:900, 600:900]
             mat = ICE_normalization(mat)
             print('mat shape: {}'.format(mat.shape))
             uri = os.path.join(path, '{}_chr{}.cool'.format(name, chro))
             mat = triu(mat, format='coo')
-            # p = {'bin1_id': num_idx[mat.row], 'bin2_id': num_idx[mat.col], 'count': mat.data}
-            p = {'bin1_id': mat.row, 'bin2_id': mat.col, 'count': mat.data}
+            # p = {'bin1_id': mat.row, 'bin2_id': mat.col, 'count': mat.data}
+            p = {'bin1_id': num_idx[mat.row], 'bin2_id': num_idx[mat.col], 'count': mat.data}
             pixels = pd.DataFrame(data = p)
             cooler.create_cooler(cool_uri=uri, bins=bins, pixels=pixels)
         with open(os.path.join(path, 'track.ini'), 'w' ) as f:
