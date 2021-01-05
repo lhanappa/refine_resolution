@@ -29,6 +29,8 @@ def gather(source=None, destination='./experiment/evaluation/', method='output_o
                 destination, 'chr{}'.format(ch)), exist_ok=True)
             shutil.copyfile(inpath, os.path.join(
                 destination, 'chr{}'.format(ch), outfile))
+        else:
+            print('not exist {} {}'.format(infile, inpath))
 
 
 def gather_high_low_cool(cooler_file='Rao2014-GM12878-DpnII-allreps-filtered.10kb.cool', path='./data/raw/', chromosome='22', scale=4, output_path='./experiment/evaluation/'):
@@ -158,7 +160,7 @@ overlay_previous = share-y
 
 if __name__ == '__main__':
     # methods = ['output_ours_2000000_80', 'output_ours_2000000_200', 'output_ours_2000000_400', 'output_hicsr_2000000_40_28', 'output_deephic_2000000_40_40']
-    methods = ['output_ours_2000000_400' 'output_hicsr_2000000_40_28', 'output_deephic_2000000_40_40']
+    methods = ['output_ours_2000000_400', 'output_hicsr_2000000_40_28', 'output_deephic_2000000_40_40']
     # methods = [str(sys.argv[1])]
 
     # cool_file = 'Rao2014-GM12878-DpnII-allreps-filtered.10kb.cool'
