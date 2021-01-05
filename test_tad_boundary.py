@@ -109,10 +109,10 @@ def check_tad_boundary(input_path, chromosomes, model_1, model_2='high', shift =
         in2 = os.path.join(script_work_dir, filename_2)
 
         if not os.path.isfile(in1):
-            estimate_tad_boundary(chromosomes, model_1, input_path=input_path)
+            estimate_tad_boundary([chro], [model_1], input_path=input_path)
         if not os.path.isfile(in2):
-            estimate_tad_boundary(chromosomes, model_2, input_path=input_path)
-            
+            estimate_tad_boundary([chro], [model_2], input_path=input_path)
+
         data_1 = load_bedfile(in1)
         data_2 = load_bedfile(in2)
         [num_intersection, num_only_a, num_only_b, mask] = identify(data_1, data_2, shift=shift)
