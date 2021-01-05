@@ -46,6 +46,9 @@ def gather_high_low_cool(cooler_file='Rao2014-GM12878-DpnII-allreps-filtered.10k
     b = {'chrom': ['chr{}'.format(chromosome)]*len(bool_idx), 'start': resolution*np.arange(len(bool_idx)), 'end': resolution*(np.arange(1,(len(bool_idx)+1))), 'weight': 1.0*bool_idx}
     bins = pd.DataFrame(data = b)
 
+    high_hic = ICE_normalization(high_hic)
+    low_hic = ICE_normalization(low_hic)
+
     high_hic = triu(high_hic, format='coo')
     low_hic = triu(low_hic, format='coo')
 
@@ -58,7 +61,6 @@ def gather_high_low_cool(cooler_file='Rao2014-GM12878-DpnII-allreps-filtered.10k
     p = {'bin1_id': num_idx[high_hic.row], 'bin2_id': num_idx[high_hic.col], 'count': high_hic.data}
     pixels = pd.DataFrame(data = p)
     cooler.create_cooler(cool_uri=uri, bins=bins, pixels=pixels)
-
 
     outfile = 'low_chr{}.cool'.format(chromosome)
     print('saving file {}'.format(os.path.join(output_path, outfile)))
@@ -82,17 +84,6 @@ def generate_cool(input_path='./experiment/tad_boundary', chromosomes=['22', '21
         high_mat = mat[num_idx, :]
         high_mat = high_mat[:, num_idx]
         high_mat = filter_diag_boundary(high_mat, diag_k=0, boundary_k=k)
-
-        # T = high_mat[600:900, 600:900]
-        T = ICE_normalization(high_mat)
-        # b = {'chrom': ['chr{}'.format(chro)]*T.shape[0], 'start': resolution*np.arange(T.shape[0]), 'end': resolution*np.arange(1, 1+T.shape[0]), 'weight': [1.0]*T.shape[0]}
-        # bins = pd.DataFrame(data = b)
-        coo_mat = triu(T, format='coo')
-        # p = {'bin1_id': coo_mat.row, 'bin2_id': coo_mat.col, 'count': coo_mat.data}
-        p = {'bin1_id': num_idx[coo_mat.row], 'bin2_id': num_idx[coo_mat.col], 'count': coo_mat.data}
-        pixels = pd.DataFrame(data = p)
-        uri = os.path.join(path, hicfile)
-        cooler.create_cooler(cool_uri=uri, bins=bins, pixels=pixels)
 
         files = [f for f in os.listdir(path) if '.npz' in f]
         for file in files:
@@ -165,16 +156,16 @@ overlay_previous = share-y
 
 if __name__ == '__main__':
     # methods = ['output_ours_2000000_80', 'output_ours_2000000_200', 'output_ours_2000000_400', 'output_hicsr_2000000_40_28', 'output_deephic_2000000_40_40']
-    # methods = ['output_ours_2000000_400', 'output_hicsr_2000000_40_28', 'output_deephic_2000000_40_40']
-    methods = [str(sys.argv[1])]
+    methods = ['output_ours_2000000_400'] # , 'output_hicsr_2000000_40_28', 'output_deephic_2000000_40_40']
+    # methods = [str(sys.argv[1])]
     
     # cool_file = 'Rao2014-GM12878-DpnII-allreps-filtered.10kb.cool'
     cool_file = 'Rao2014-GM12878-MboI-allreps-filtered.10kb.cool'
     cell_type = cool_file.split('-')[0] + '_' + cool_file.split('-')[1] + '_' + cool_file.split('-')[2] + '_' + cool_file.split('.')[1]
     destination_path = os.path.join('.','experiment', 'tad_boundary', cell_type)
 
-    chromosomes = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', 'X']
-    # chromosomes = [ '22' ]
+    # chromosomes = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', 'X']
+    chromosomes = [ '22' ]
     # chromosomes = [str(sys.argv[1])]
     for chro in chromosomes:
         for m in methods:
