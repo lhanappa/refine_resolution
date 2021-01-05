@@ -97,11 +97,7 @@ def identify(data_1, data_2, shift=0):
     intersection = np.array(np.where(np.sum(mask, axis=1, dtype=np.bool))).flatten()
     seta = np.arange(mask.shape[0])
     setb = np.arange(mask.shape[1])
-    print('a: {}'.format(seta))
-    print(len(seta), seta.shape)
-    print('b: {}'.format(setb))
-    print(len(setb), setb.shape)
-    print('inter: {}'.format(np.intersect1d(seta, setb)))
+
     only_a = np.setdiff1d(seta, intersection)
     only_b = np.setdiff1d(setb, intersection)
     return [intersection, only_a, only_b, mask]
