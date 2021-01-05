@@ -105,8 +105,8 @@ def check_tad_boundary(input_path, chromosomes, models_1, models_2=['high'], shi
         output = script_work_dir
         for m1 in models_1:
             for m2 in models_2:
-                filename_1 = '{}_chr{}_domains.bed'.format(model_1, chro)
-                filename_2 = '{}_chr{}_domains.bed'.format(model_2, chro)
+                filename_1 = '{}_chr{}_domains.bed'.format(m1, chro)
+                filename_2 = '{}_chr{}_domains.bed'.format(m2, chro)
                 in1 = os.path.join(script_work_dir, filename_1)
                 in2 = os.path.join(script_work_dir, filename_2)
 
@@ -119,7 +119,7 @@ def check_tad_boundary(input_path, chromosomes, models_1, models_2=['high'], shi
                 data_2 = load_bedfile(in2)
                 [num_intersection, num_only_a, num_only_b, mask] = identify(data_1, data_2, shift=shift)
                 jaccard_score = float(num_intersection)/float(num_intersection+num_only_a+num_only_b)
-                print('Jaccard score: {}, intersection: {}, {} only in {}, {} only in {}'.format(jaccard_score, num_intersection, num_only_a, model_1, num_only_b, model_2))
+                print('Jaccard score: {}, intersection: {}, {} only in {}, {} only in {}'.format(jaccard_score, num_intersection, num_only_a, m1, num_only_b, m2))
                 with open(os.path.join(script_work_dir, 'TAD_Jaccard_score.txt'), 'a+') as f:
                     line = 'chr{}\t{}\t{}\t{}\t{}\t{}\t{}\n'.format(chro, m1, m2, jaccard_score, num_intersection, num_only_a, num_only_b)
                     f.write(line)
