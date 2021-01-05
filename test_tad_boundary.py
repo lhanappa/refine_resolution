@@ -94,17 +94,17 @@ def identify(data_1, data_2, shift=0):
     mask_starts = (dis_starts <= shift)
     mask_lengths = (dis_len <= shift)
     mask = np.logical_and(mask_starts, mask_lengths)
-    seta = np.array(np.where(np.sum(mask, axis=1, dtype=np.bool))).flatten()
-    setb = np.array(np.where(np.sum(mask, axis=0, dtype=np.bool))).flatten()
+    intersection = np.array(np.where(np.sum(mask, axis=1, dtype=np.bool))).flatten()
+    seta = np.arange(mask.shape[0])
+    setb = np.arange(mask.shape[1])
     print('a: {}'.format(seta))
     print(len(seta), seta.shape)
     print('b: {}'.format(setb))
     print(len(setb), setb.shape)
     print('inter: {}'.format(np.intersect1d(seta, setb)))
-    num_intersection = len(np.intersect1d(seta, setb))
-    num_only_a = len(seta) - num_intersection
-    num_only_b = len(setb) - num_intersection
-    return [num_intersection, num_only_a, num_only_b, mask]
+    only_a = np.intersection1d(seta, intersection)
+    only_b = np.intersection1d(setb, intersection)
+    return [intersection, only_a, only_b, mask]
 
 def check_tad_boundary(input_path, chromosomes, models_1, models_2=['high'], shift = 0):
     for chro in chromosomes:
@@ -124,9 +124,9 @@ def check_tad_boundary(input_path, chromosomes, models_1, models_2=['high'], shi
 
                 data_1 = load_bedfile(in1)
                 data_2 = load_bedfile(in2)
-                [num_intersection, num_only_a, num_only_b, mask] = identify(data_1, data_2, shift=shift)
-                jaccard_score = float(num_intersection)/float(num_intersection+num_only_a+num_only_b)
-                print('Jaccard score: {}, intersection: {}, {} only in {}, {} only in {}'.format(jaccard_score, num_intersection, num_only_a, m1, num_only_b, m2))
+                [intersection, only_a, only_b, mask] = identify(data_1, data_2, shift=shift)
+                jaccard_score = float(len(intersection))/float(len(intersectio)+len(only_a)+len(only_b))
+                print('Jaccard score: {}, intersection: {}, {} only in {}, {} only in {}'.format(jaccard_score, len(intersection), len(only_a), m1, len(only_b), m2))
                 with open(os.path.join(script_work_dir, 'TAD_Jaccard_score.txt'), 'a+') as f:
                     line = 'chr{}\t{}\t{}\t{}\t{}\t{}\t{}\n'.format(chro, m1, m2, jaccard_score, num_intersection, num_only_a, num_only_b)
                     f.write(line)
