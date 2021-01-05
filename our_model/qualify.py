@@ -195,12 +195,14 @@ def metric_mae(file1, file2, output_path, model,
         maxv = high_mat.max()
         # true_hic = np.divide((true_hic-minv), (maxv-minv), dtype=float,out=np.zeros_like(true_hic), where=(maxv-minv) != 0)
         mat = mat*(maxv-minv)+minv
+        mat = (mat + np.transpose(mat))/2
     elif 'hicsr' in model:
         log_mat = np.log2(high_mat+1)
         # ture_hic = 2*(log_mat/np.max(log_mat)) - 1
         maxv = np.max(log_mat)
         log_predict_hic = (mat+1)/2*maxv
         mat = np.expm1(log_predict_hic)
+        mat = (mat + np.transpose(mat))/2
 
     hic1 = high_mat
     hic2 = filter_diag_boundary(mat, diag_k=diag_k, boundary_k=max_boundary)
@@ -231,12 +233,14 @@ def metric_mse(file1, file2, output_path, model,
         # true_hic = np.divide((true_hic-minv), (maxv-minv), dtype=float,out=np.zeros_like(true_hic), where=(maxv-minv) != 0)
         print('maxv: {}, minv: {}'.format(maxv, minv))
         mat = mat*(maxv-minv)+minv
+        mat = (mat + np.transpose(mat))/2
     elif 'hicsr' in model:
         log_mat = np.log2(high_mat+1)
         # ture_hic = 2*(log_mat/np.max(log_mat)) - 1
         maxv = np.max(log_mat)
         log_predict_hic = (mat+1)/2*maxv
         mat = np.expm1(log_predict_hic)
+        mat = (mat + np.transpose(mat))/2
 
     hic1 = high_mat # filter_diag_boundary(high_mat, diag_k=diag_k, boundary_k=max_boundary)
     hic2 = filter_diag_boundary(mat, diag_k=diag_k, boundary_k=max_boundary)

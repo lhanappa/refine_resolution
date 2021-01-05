@@ -125,8 +125,8 @@ if __name__ == '__main__':
     # chromosomes = ['22', '21', '20', '19', 'X']
     # chromosomes = ['22']
     # models = ['deephic', 'hicgan', 'hicsr', 'ours', 'low']
-    # evaluate_mae(chromosomes, models, input_path=destination_path)
-    # evaluate_mse(chromosomes, models, input_path=destination_path)
+    evaluate_mae(chromosomes, models, input_path=destination_path)
+    evaluate_mse(chromosomes, models, input_path=destination_path)
     
 """root_dir = operations.redircwd_back_projroot(project_name='refine_resolution')
 raw_file='Rao2014-GM12878-DpnII-allreps-filtered.10kb.cool'

@@ -113,6 +113,7 @@ def generate_prefile(input_path='./experiment/evaluation', chromosomes=['22', '2
                     print('inverse normalization {}'.format(model), end=' ')
                     print('min-max, min: {}, max: {}, before sum mat: {}, '.format(minv, maxv, mat.sum()), end=' ')
                     mat = mat*(maxv-minv)+minv
+                    mat = (mat + np.transpose(mat))/2
                     print('after sum mat: {}'.format(mat.sum()))
                 elif model == 'hicsr':
                     log_mat = np.log2(high_mat+1)
@@ -122,6 +123,7 @@ def generate_prefile(input_path='./experiment/evaluation', chromosomes=['22', '2
                     print('inverse normalization {}'.format(model), end=' ')
                     print('log high max: {}, before sum mat: {}'.format(maxv, mat.sum()), end=' ')
                     mat = np.expm1(log_predict_hic)
+                    mat = (mat + np.transpose(mat))/2
                     print('after sum mat: {}'.format(mat.sum()), end=' ')
                     print('expm1')
                 elif model == 'ours':
