@@ -261,4 +261,4 @@ if __name__ == '__main__':
     resolution = 10000
     estimate_tad_boundary(chromosomes, models, input_path=input_path)
     # plot_hic(chromosomes, models, input_path=input_path)
-    check_tad_boundary(input_path=input_path, chromosomes=chromosomes, models_1=models, models_2=['high'], shift=resolution*4)
+    check_tad_boundary(input_path=input_path, chromosomes=chromosomes, models_1=models, models_2=['high'], shift=resolution*6)
