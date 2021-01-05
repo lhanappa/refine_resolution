@@ -97,7 +97,9 @@ def identify(data_1, data_2, shift=0):
     seta = np.where(np.sum(mask, axis=1, dtype=np.bool))
     setb = np.where(np.sum(mask, axis=0, dtype=np.bool))
     print('a: {}'.format(seta))
+    print(len(seta), seta.shape)
     print('b: {}'.format(setb))
+    print(len(setb), setb.shape)
     print('inter: {}'.format(np.intersect1d(seta, setb)))
     num_intersection = len(np.intersect1d(seta, setb))
     num_only_a = len(seta) - num_intersection
