@@ -128,7 +128,7 @@ def check_tad_boundary(input_path, chromosomes, models_1, models_2=['high'], shi
                 jaccard_score = float(len(intersection))/float(len(intersection)+len(only_a)+len(only_b))
                 print('Jaccard score: {}, intersection: {}, {} only in {}, {} only in {}'.format(jaccard_score, len(intersection), len(only_a), m1, len(only_b), m2))
                 with open(os.path.join(script_work_dir, 'TAD_Jaccard_score.txt'), 'a+') as f:
-                    line = 'chr{}\t{}\t{}\t{}\t{}\t{}\t{}\n'.format(chro, m1, m2, jaccard_score, num_intersection, num_only_a, num_only_b)
+                    line = 'chr{}\t{}\t{}\t{}\t{}\t{}\t{}\n'.format(chro, m1, m2, jaccard_score, len(intersection), len(only_a), len(only_b))
                     f.write(line)
                 f.close()
 
