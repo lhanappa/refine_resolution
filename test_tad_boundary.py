@@ -82,11 +82,12 @@ def load_bedfile(file):
             starts.append(int(l[1]))
             lengths.append(int(l[2]) - int(l[1]))
     f.close()
-    return [starts, lengths]
+    return [np.array(starts).reshape(-1,1), np.array(lengths).reshape(-1,1)]
 
 def identify(data_1, data_2, shift=0):
     a_starts, a_lengths = data_1
     b_starts, b_lengths = data_2
+
     dis_starts = distance.cdist(a_starts, b_starts)
     dis_len = distance.cdist(a_lengths, b_lengths)
 
