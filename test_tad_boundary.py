@@ -117,7 +117,7 @@ def check_tad_boundary(input_path, chromosomes, model_1, model_2='high', shift =
         data_2 = load_bedfile(in2)
         [num_intersection, num_only_a, num_only_b, mask] = identify(data_1, data_2, shift=shift)
         jaccard_index = float(num_intersection)/float(num_intersection+num_only_a+num_only_b)
-        print('intersection: {}, {} only in {}, {} only in {}'.format(num_intersection, num_only_a, model_1, num_only_b, model_2))
+        print('Jaccard index: {}, intersection: {}, {} only in {}, {} only in {}'.format(jaccard_index, num_intersection, num_only_a, model_1, num_only_b, model_2))
 
 def estimate_tad_boundary(chromosomes, models, input_path, output_path=None):
     if output_path is None:
