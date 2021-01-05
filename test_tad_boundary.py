@@ -91,12 +91,14 @@ def identify(data_1, data_2, shift=0):
     dis_starts = distance.cdist(a_starts, b_starts)
     dis_len = distance.cdist(a_lengths, b_lengths)
 
-    mask_starts = dis_starts <= shift
-    mask_lengths = dis_len <= shift
+    mask_starts = (dis_starts <= shift)
+    mask_lengths = (dis_len <= shift)
     mask = np.logical_and(mask_starts, mask_lengths)
-    num_intersection = np.count_nonzero(mask)
-    num_only_a = len(a_starts) - num_intersection
-    num_only_b = len(b_starts) - num_intersection
+    seta = np.where(np.sum(mask, axis=1, dtype=np.bool))
+    setb = np.where(np.sum(mask, axis=0, dtype=np.bool))
+    num_intersection = distance.jaccard(seta, setb)
+    num_only_a = len(seta) - num_intersection
+    num_only_b = len(setb) - num_intersection
     return [num_intersection, num_only_a, num_only_b, mask]
 
 def check_tad_boundary(input_path, chromosomes, models_1, models_2=['high'], shift = 0):
