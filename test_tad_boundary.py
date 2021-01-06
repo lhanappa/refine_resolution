@@ -94,6 +94,7 @@ def identify(data_1, data_2, shift=0):
     mask_starts = (dis_starts <= shift)
     mask_lengths = (dis_len <= shift)
     mask = np.logical_and(mask_starts, mask_lengths)
+    print(mask.shape)
     intersection = np.array(np.where(np.sum(mask, axis=1, dtype=np.bool))).flatten()
     seta = np.arange(mask.shape[0])
     setb = np.arange(mask.shape[1])
