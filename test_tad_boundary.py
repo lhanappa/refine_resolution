@@ -75,28 +75,26 @@ for p in process:
 
 def load_bedfile(file):
     starts = []
-    lengths = []
+    ends = []
     with open(file, 'r') as f:
         for line in f:
             l = line.split()
             starts.append(int(l[1]))
-            lengths.append(int(l[2]) - int(l[1]))
+            ends.append(int(l[2]))
     f.close()
-    return [np.array(starts).reshape(-1,1), np.array(lengths).reshape(-1,1)]
+    return [np.array(starts).reshape(-1,1), np.array(ends).reshape(-1,1)]
 
 def identify(data_1, data_2, shift=0):
-    a_starts, a_lengths = data_1
-    b_starts, b_lengths = data_2
+    a_starts, a_ends = data_1
+    b_starts, b_ends = data_2
 
     dis_starts = distance.cdist(a_starts, b_starts)
-    dis_len = distance.cdist(a_lengths, b_lengths)
+    dis_ends = distance.cdist(a_ends, b_ends)
 
     mask_starts = (dis_starts <= shift)
-    mask_lengths = (dis_len <= shift)
-    mask = np.logical_and(mask_starts, mask_lengths)
-    print(mask.shape)
+    mask_ends = (dis_ends <= shift)
+    mask = np.logical_and(mask_starts, mask_ends)
     intersectionx, intersectiony = np.where(mask)
-    print(len(intersectionx), len(intersectiony))
     intersection = min(len(intersectionx), len(intersectiony))
     seta = mask.shape[0]
     setb = mask.shape[1]
@@ -267,4 +265,4 @@ if __name__ == '__main__':
     resolution = 10000
     estimate_tad_boundary(chromosomes, models, input_path=input_path)
     # plot_hic(chromosomes, models, input_path=input_path)
-    check_tad_boundary(input_path=input_path, chromosomes=chromosomes, models_1=models, models_2=['high'], shift=resolution*5)
+    check_tad_boundary(input_path=input_path, chromosomes=chromosomes, models_1=models, models_2=['high'], shift=resolution*3)
