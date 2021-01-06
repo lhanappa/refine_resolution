@@ -96,6 +96,7 @@ def identify(data_1, data_2, shift=0):
     mask = np.logical_and(mask_starts, mask_lengths)
     print(mask.shape)
     intersectionx, intersectiony = np.where(mask)
+    print(len(intersectionx), len(intersectiony))
     intersection = min(len(intersectionx), len(intersectiony))
     seta = mask.shape[0]
     setb = mask.shape[1]
@@ -123,7 +124,7 @@ def check_tad_boundary(input_path, chromosomes, models_1, models_2=['high'], shi
                 data_1 = load_bedfile(in1)
                 data_2 = load_bedfile(in2)
                 [intersection, only_a, only_b, mask] = identify(data_1, data_2, shift=shift)
-                jaccard_score = float(intersection)/float(intersection+only_a+lonly_b)
+                jaccard_score = float(intersection)/float(intersection+only_a+only_b)
                 print('Jaccard score: {}, intersection: {}, {} only in {}, {} only in {}'.format(jaccard_score, intersection, only_a, m1, only_b, m2))
                 with open(os.path.join(script_work_dir, 'TAD_Jaccard_score.txt'), 'a+') as f:
                     line = 'chr{}\t{}\t{}\t{}\t{}\t{}\t{}\n'.format(chro, m1, m2, jaccard_score, intersection, only_a, only_b)
