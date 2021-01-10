@@ -185,8 +185,11 @@ def generate_fithic_files(cool_file, chromosome, start, end, output):
     region = ('chr{}'.format(chromosome), start, end)
     hic_mat = hic.matrix(balance=True).fetch(region)
     hic_bins = hic.bins().fetch(region)
-
-    hic_bins = (hic_bins.to_numpy()).reshape((-1, 4))
+    weight = hic_bins['weight']
+    idx = np.array(np.where(weight)).flatten()
+    hic_bins = (hic_bins.to_numpy()).reshape((-1, 4))[idx, :]
+    hic_mat = hic_mat[idx,:]
+    hic_mat = hic_mat[:,idx]
     generate_fragments(chromosome, hic_mat, hic_bins, output)
     generate_interactions(chromosome, hic_mat, hic_bins, output)
     geneate_biases_ICE(chromosome, hic_mat, hic_bins, output)
@@ -207,7 +210,8 @@ if __name__ == '__main__':
     # chromosomes = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', 'X']
     # chromosomes = [ '22' ]
     chromosomes = [str(sys.argv[1])]
-    [start, end] = [25000000, 35100000]
+    resolution = 10000
+    [start, end] = [2200, 2500]*resolution.astype(int)
     for chro in chromosomes:
         # for m in methods:
             # source = os.path.join('.', 'data', m, cell_type, 'SR')
