@@ -213,7 +213,7 @@ if __name__ == '__main__':
     # chromosomes = [ '22' ]
     chromosomes = [str(sys.argv[1])]
     resolution = 10000
-    [start, end] = [2200, 2500]*resolution
+    [start, end] = np.array([2200, 2500], dtype=int)*resolution
     for chro in chromosomes:
         # for m in methods:
             # source = os.path.join('.', 'data', m, cell_type, 'SR')
