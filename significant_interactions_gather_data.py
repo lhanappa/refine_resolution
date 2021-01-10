@@ -5,7 +5,8 @@ import sys
 import shutil
 import cooler
 import numpy as np
-from scipy.sparse import triu 
+from scipy.sparse import triu, coo_matrix
+
 import pandas as pd
 
 from our_model.utils.operations import remove_zeros, merge_hic, filter_diag_boundary, format_bin, format_contact, sampling_hic
@@ -15,7 +16,7 @@ from iced.normalization import ICE_normalization
 import warnings
 warnings.simplefilter(action='ignore', category=FutureWarning)
 
-def gather(source=None, destination='./experiment/evaluation/', method='output_ours_2000000_200', chromosomes=['19', '20', '21', '22', 'X']):
+def gather(source=None, destination='./experiment/significant_interactions/', method='output_ours_2000000_200', chromosomes=['19', '20', '21', '22', 'X']):
     if(source is None):
         source = os.path.join('.', 'data', method, 'Rao2014_GM12878_MboI_10kb', 'SR')
 
@@ -33,13 +34,13 @@ def gather(source=None, destination='./experiment/evaluation/', method='output_o
             print('not exist {} {}'.format(infile, inpath))
 
 
-def gather_high_low_cool(cooler_file='Rao2014-GM12878-DpnII-allreps-filtered.10kb.cool', path='./data/raw/', chromosome='22', scale=4, output_path='./experiment/evaluation/'):
+def gather_high_low_cool(cooler_file='Rao2014-GM12878-DpnII-allreps-filtered.10kb.cool', path='./data/raw/', chromosome='22', scale=4, output_path='./experiment/significant_interactions/'):
     file = os.path.join(path, cooler_file)
     cool_hic = cooler.Cooler(file)
     resolution = cool_hic.binsize
     mat = cool_hic.matrix(balance=True).fetch('chr' + chromosome)
-    high_hic, idx = remove_zeros(mat) # idx: {true, false}, len is not changed/shrinked
-    bool_idx = np.array(idx).flatten() 
+    high_hic, idx = remove_zeros(mat)
+    bool_idx = np.array(idx).flatten()
     num_idx = np.array(np.where(idx)).flatten()
     low_hic = sampling_hic(high_hic, scale**2, fix_seed=True)
     print('high hic shape: {}.'.format(high_hic.shape), end=' ')
@@ -48,8 +49,8 @@ def gather_high_low_cool(cooler_file='Rao2014-GM12878-DpnII-allreps-filtered.10k
     b = {'chrom': ['chr{}'.format(chromosome)]*len(bool_idx), 'start': resolution*np.arange(len(bool_idx)), 'end': resolution*(np.arange(1,(len(bool_idx)+1))), 'weight': 1.0*bool_idx}
     bins = pd.DataFrame(data = b)
 
-    high_hic = ICE_normalization(high_hic)
-    low_hic = ICE_normalization(low_hic)
+    # high_hic = ICE_normalization(high_hic)
+    # low_hic = ICE_normalization(low_hic)
 
     high_hic = triu(high_hic, format='coo')
     low_hic = triu(low_hic, format='coo')
@@ -73,7 +74,7 @@ def gather_high_low_cool(cooler_file='Rao2014-GM12878-DpnII-allreps-filtered.10k
 
 
 
-def generate_cool(input_path='./experiment/tad_boundary', chromosomes=['22', '21', '20', '19', 'X'], resolution=10000, genomic_distance=2000000):
+def generate_cool(input_path='./experiment/significant_interactions', chromosomes=['22', '21', '20', '19', 'X'], resolution=10000, genomic_distance=2000000):
     k = np.ceil(genomic_distance/resolution).astype(int)
     for chro in chromosomes:
         path = os.path.join(input_path, 'chr{}'.format(chro))
@@ -120,42 +121,57 @@ def generate_cool(input_path='./experiment/tad_boundary', chromosomes=['22', '21
                     mat = scn_recover(mat, dh)'''
                 name = '_'.join([model, win_len])
             mat = filter_diag_boundary(mat, diag_k=0, boundary_k=k)
-            # mat = mat[600:900, 600:900]
-            # print(mat)
-            mat = ICE_normalization(mat)
-            print('mat shape: {}'.format(mat.shape))
+            # mat = ICE_normalization(mat)
+            print('{} matrix shape: {}'.format(name, mat.shape))
             uri = os.path.join(path, '{}_chr{}.cool'.format(name, chro))
             mat = triu(mat, format='coo')
             # p = {'bin1_id': mat.row, 'bin2_id': mat.col, 'count': mat.data}
             p = {'bin1_id': num_idx[mat.row], 'bin2_id': num_idx[mat.col], 'count': mat.data}
             pixels = pd.DataFrame(data = p)
             cooler.create_cooler(cool_uri=uri, bins=bins, pixels=pixels)
-        with open(os.path.join(path, 'track.ini'), 'w' ) as f:
-            f.writelines(track)
-        f.close()
 
-track = """
-[x-axis]
-where = top
-fontsize=10
 
-[hic]
-file = high_chr22.cool
-colormap = Spectral_r
-depth = 4000000
-min_value = 1
-max_value = 800
-transform = log1p
-file_type = hic_matrix
-show_masked_bins = true
+def generate_fragments(chromosome, matrix, bins, output):
+    # bins pandas dataframe, 
+    chro_name = str(chromsome[3:])
+    hit_count = (matrix.sum(axis=0)).flatten()
+    mid_points = int( (bins[:, 1] + bins[:, 2])/2 )
+    with open(os.path.join(output+'_fragments.txt')) as f:
+        for i, mp in enumerate(mid_points):
+            line = '{}\t0\t{}\t{}\t0\n'.format(chro_name, mp, hit_count[i])
+            f.write(line)
+    f.close()
 
-[tads]
-file = output/high_chr22_domains.bed
-file_type = domains
-border_color = black
-color = none
-overlay_previous = share-y
-"""
+
+def generate_interactions(chromosome, matrix, bins, output):
+    chro_name = str(chromsome[3:])
+    mid_points = int( (bins[:, 1] + bins[:, 2])/2 )
+    mat = int(matrix)
+    coo_data = coo_matrix(mat)
+    idx1 = mid_points[coo_data.row]
+    idx2 = mid_points[coo_data.col]
+    data = coo_data.data
+    with open(os.path.join(output+'_interactions.txt')) as f:
+        for i, mp in enumerate(mid_points):
+            line = '{}\t{}\t{}\t{}\t{}\n'.format(chro_name, idx1, chro_name, idx2, data)
+            f.write(line)
+    f.close()
+
+def geneate_biases_ICE():
+    pass
+
+def generate_fithic_files(cool_file, chromosome, start, end, output):
+    hic = cooler.Cooler(cool_file)
+    region = ('chr{}'.format(chromosome), start, end)
+    hic_mat = hic.matrix(balance=True).fetch(region)
+    hic_bins = hic.bins().fetch(region)
+    resolution = hic.binsize()
+
+    hic_bins = hic_bins.to_numpy()
+    generate_fragments(chromosome, hic_mat, hic_bins, output)
+    generate_interactions(chromosome, hic_mat, bins, output)
+
+
 
 
 if __name__ == '__main__':
@@ -166,16 +182,17 @@ if __name__ == '__main__':
     # cool_file = 'Rao2014-GM12878-DpnII-allreps-filtered.10kb.cool'
     cool_file = 'Rao2014-GM12878-MboI-allreps-filtered.10kb.cool'
     cell_type = cool_file.split('-')[0] + '_' + cool_file.split('-')[1] + '_' + cool_file.split('-')[2] + '_' + cool_file.split('.')[1]
-    destination_path = os.path.join('.','experiment', 'tad_boundary', cell_type)
+    destination_path = os.path.join('.','experiment', 'significant_interactions', cell_type)
 
     # chromosomes = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', 'X']
     # chromosomes = [ '22' ]
     chromosomes = [str(sys.argv[1])]
+    [start, end] = [45000000, 45100000]
     for chro in chromosomes:
         for m in methods:
             source = os.path.join('.', 'data', m, cell_type, 'SR')
             gather(source=source, destination=destination_path, method=m, chromosomes=[chro])
-        
+
         gather_high_low_cool(cooler_file=cool_file, 
                             path='./data/raw/', 
                             chromosome=chro, 
@@ -186,3 +203,13 @@ if __name__ == '__main__':
                     chromosomes=[chro],
                     resolution=10000,
                     genomic_distance=2000000)
+
+        path = os.path.join('.', 'experiment', 'significant_interactions', cell_type, 'chr{}'.format(chro))
+        files = [f for f in os.listdir(path) if '.cool' in f]
+        for file in files:
+            m = file.split('.')[0]
+            source = os.path.join('.', 'experiment', 'significant_interactions', cell_type, 'chr{}'.format(chro), file)
+            dest =  os.path.join('.', 'experiment', 'significant_interactions', cell_type, 'chr{}'.format(chro), 'output')
+            os.makedirs(dest, exist_ok=True)
+            dest = os.path.join(dest, m)
+            generate_fithic_files(soruce, chro, start, end, output=dest)
