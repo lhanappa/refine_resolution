@@ -82,7 +82,7 @@ def generate_fithic_files(cool_file, chromosome, start, end, output):
     generate_interactions(chromosome, hic_mat, hic_bins, output)
     geneate_biases_ICE(chromosome, hic_mat, hic_bins, output)
 
-def fit_significant_interaction(input_dir, prefix, resolution, low_dis, up_dis):
+def fithic_cmd(input_dir, prefix, resolution, low_dis, up_dis):
     # fithic -f high_chr22_fragments.txt.gz -i high_chr22_interactions.txt.gz -o ./ -r 10000 -t high_chr22_bias.txt.gz -L 0 -U 1000000 -v
     fragment = prefix+'_fragments.txt.gz'
     interaction = prefix+'_interactions.txt.gz'
@@ -126,7 +126,7 @@ if __name__ == '__main__':
             os.makedirs(dest, exist_ok=True)
             dest = os.path.join(dest, m)
             generate_fithic_files(source, chro, start, end, output=dest)
-            cmd = fit_significant_interaction(input_dir=dest, prefix=m, resolution=resolution, low_dis=low, up_dis=up)
+            cmd = fithic_cmd(input_dir=dest, prefix=m, resolution=resolution, low_dis=low, up_dis=up)
             script_work_dir = dest
             process.append(subprocess.Popen(cmd, cwd=script_work_dir))
         for p in process:
