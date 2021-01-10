@@ -101,6 +101,9 @@ def fithic_cmd(input_dir, prefix, resolution, low_dis, up_dis):
     print('fithic cmd: {}'.format(' '.join(cmd)))
     return cmd
 
+def plot_significant_interactions(source_dir, model_name, start, end):
+    pass
+
 
 if __name__ == '__main__':
     # methods = ['ours_400', 'hicsr_40', 'deephic_40', 'high', 'low']

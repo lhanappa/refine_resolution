@@ -147,9 +147,9 @@ if __name__ == '__main__':
     resolution = 10000
     [start, end] = np.array([2200, 2500], dtype=int)*resolution
     for chro in chromosomes:
-        # for m in methods:
-            # source = os.path.join('.', 'data', m, cell_type, 'SR')
-            # gather(source=source, destination=destination_path, method=m, chromosomes=[chro])
+        for m in methods:
+            source = os.path.join('.', 'data', m, cell_type, 'SR')
+            gather(source=source, destination=destination_path, method=m, chromosomes=[chro])
 
         gather_high_low_cool(cooler_file=cool_file, 
                             path='./data/raw/', 
