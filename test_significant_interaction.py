@@ -89,7 +89,6 @@ def fit_significant_interaction(input_dir, prefix, resolution, low_dis, up_dis):
     bias = input_dir, prefix+'_bias.txt.gz'
     output = prefix
 
-    script_work_dir = input_dir
     cmd = ["fithic", 
             "-f", fragment, 
             "-i", interaction,
@@ -99,7 +98,7 @@ def fit_significant_interaction(input_dir, prefix, resolution, low_dis, up_dis):
             "-L", low_dis,
             "-U", up_dis,
             ]
-    return subprocess.Popen(cmd, cwd=script_work_dir)
+    return cmd
 
 
 if __name__ == '__main__':
@@ -127,7 +126,9 @@ if __name__ == '__main__':
             os.makedirs(dest, exist_ok=True)
             dest = os.path.join(dest, m)
             generate_fithic_files(source, chro, start, end, output=dest)
-            process.append(fit_significant_interaction(input_dir=dest, prefix=m, resolution=resolution, low_dis=low, up_dis=up))
+            cmd = fit_significant_interaction(input_dir=dest, prefix=m, resolution=resolution, low_dis=low, up_dis=up)
+            script_work_dir = dest
+            process.append(subprocess.Popen(cmd, cwd=script_work_dir))
         for p in process:
             p.wait()
     
