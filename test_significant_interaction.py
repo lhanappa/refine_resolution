@@ -93,11 +93,12 @@ def fithic_cmd(input_dir, prefix, resolution, low_dis, up_dis):
             "-f", fragment, 
             "-i", interaction,
             "-o", output,
-            '-r', resolution,
+            '-r', str(resolution),
             "-t", bias,
-            "-L", low_dis,
-            "-U", up_dis,
+            "-L", str(low_dis),
+            "-U", str(up_dis),
             ]
+    print('fithic cmd: {}'.format(' '.join(cmd)))
     return cmd
 
 
