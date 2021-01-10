@@ -207,7 +207,7 @@ if __name__ == '__main__':
     # chromosomes = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', 'X']
     # chromosomes = [ '22' ]
     chromosomes = [str(sys.argv[1])]
-    [start, end] = [25000000, 45100000]
+    [start, end] = [25000000, 35100000]
     for chro in chromosomes:
         # for m in methods:
             # source = os.path.join('.', 'data', m, cell_type, 'SR')
