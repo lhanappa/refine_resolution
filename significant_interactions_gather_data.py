@@ -142,6 +142,7 @@ def generate_fragments(chromosome, matrix, bins, output):
     with open(os.path.join(output+'_fragments.txt'), 'w+') as f:
         for i, mp in enumerate(mid_points):
             line = '{}\t0\t{}\t{}\t0\n'.format(chro_name, mp, hit_count[i])
+            print(line)
             f.write(line)
     f.close()
 
@@ -156,7 +157,7 @@ def generate_interactions(chromosome, matrix, bins, output):
     idx2 = mid_points[coo_data.col]
     data = coo_data.data
     with open(os.path.join(output+'_interactions.txt'), 'w+') as f:
-        for i, mp in enumerate(mid_points):
+        for i, mp in enumerate(data):
             line = '{}\t{}\t{}\t{}\t{}\n'.format(chro_name, idx1[i], chro_name, idx2[i], data[i])
             f.write(line)
     f.close()
