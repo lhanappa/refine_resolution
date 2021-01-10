@@ -170,7 +170,7 @@ def generate_fithic_files(cool_file, chromosome, start, end, output):
 
     hic_bins = (hic_bins.to_numpy()).reshape((-1, 4))
     generate_fragments(chromosome, hic_mat, hic_bins, output)
-    generate_interactions(chromosome, hic_mat, bins, output)
+    generate_interactions(chromosome, hic_mat, hic_bins, output)
 
 
 
