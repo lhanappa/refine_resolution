@@ -46,6 +46,8 @@ def generate_interactions(chromosome, matrix, bins, output):
     with open(os.path.join(output+'_interactions.txt'), 'rb') as f_in:
         with gzip.open(os.path.join(output+'_interactions.txt.gz'), 'wb') as f_out:
             shutil.copyfileobj(f_in, f_out)
+        f_out.close()
+    f_in.close()
 
 def geneate_biases_ICE(chromosome, matrix, bins, output):
     chro_name = str(chromosome)
@@ -61,6 +63,8 @@ def geneate_biases_ICE(chromosome, matrix, bins, output):
     with open(os.path.join(output+'_bias.txt'), 'rb') as f_in:
         with gzip.open(os.path.join(output+'_bias.txt.gz'), 'wb') as f_out:
             shutil.copyfileobj(f_in, f_out)
+        f_out.close()
+    f_in.close()
 
 def generate_fithic_files(cool_file, chromosome, start, end, output):
     start = int(start)
@@ -95,8 +99,7 @@ def fit_significant_interaction(input_dir, prefix, resolution, low_dis, up_dis):
             "-L", low_dis,
             "-U", up_dis,
             ]
-    process.append(subprocess.Popen(cmd, cwd=script_work_dir))
-    return process
+    return subprocess.Popen(cmd, cwd=script_work_dir)
 
 
 if __name__ == '__main__':
@@ -116,6 +119,7 @@ if __name__ == '__main__':
     for chro in chromosomes:
         path = os.path.join('.', 'experiment', 'significant_interactions', cell_type, 'chr{}'.format(chro))
         files = [f for f in os.listdir(path) if '.cool' in f]
+        process = []
         for file in files:
             m = file.split('.')[0]
             source = os.path.join('.', 'experiment', 'significant_interactions', cell_type, 'chr{}'.format(chro), file)
@@ -123,7 +127,7 @@ if __name__ == '__main__':
             os.makedirs(dest, exist_ok=True)
             dest = os.path.join(dest, m)
             generate_fithic_files(source, chro, start, end, output=dest)
-            process = fit_significant_interaction(input_dir=dest, prefix=m, resolution=resolution, low_dis=low, up_dis=up)
+            process.append(fit_significant_interaction(input_dir=dest, prefix=m, resolution=resolution, low_dis=low, up_dis=up))
         for p in process:
             p.wait()
     
