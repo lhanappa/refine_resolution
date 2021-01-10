@@ -160,8 +160,16 @@ def generate_interactions(chromosome, matrix, bins, output):
             f.write(line)
     f.close()
 
-def geneate_biases_ICE():
-    pass
+def geneate_biases_ICE(chromosome, matrix, bins, output):
+    chro_name = str(chromosome)
+    mid_points = (bins[:, 1] + bins[:, 2])/2
+    mid_points = mid_points.astype(int)
+    X, bias = ICE_normalization(matrix, output_bias=True)
+    with open(os.path.join(output+'_bias.txt'), 'w+') as f:
+        for mp, bs in zip(mid_points, bias):
+            line = '{}\t{}\t{}\n'.format(chro_name, mp, bs)
+            f.write(line)
+    f.close()
 
 def generate_fithic_files(cool_file, chromosome, start, end, output):
     hic = cooler.Cooler(cool_file)
@@ -172,6 +180,7 @@ def generate_fithic_files(cool_file, chromosome, start, end, output):
     hic_bins = (hic_bins.to_numpy()).reshape((-1, 4))
     generate_fragments(chromosome, hic_mat, hic_bins, output)
     generate_interactions(chromosome, hic_mat, hic_bins, output)
+    geneate_biases_ICE(chromosome, hic_matrix, hic_bins, output)
 
 
 
