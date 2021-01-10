@@ -181,6 +181,8 @@ def geneate_biases_ICE(chromosome, matrix, bins, output):
             shutil.copyfileobj(f_in, f_out)
 
 def generate_fithic_files(cool_file, chromosome, start, end, output):
+    start = int(start)
+    end = int(end)
     hic = cooler.Cooler(cool_file)
     region = ('chr{}'.format(chromosome), start, end)
     hic_mat = hic.matrix(balance=True).fetch(region)
@@ -211,7 +213,7 @@ if __name__ == '__main__':
     # chromosomes = [ '22' ]
     chromosomes = [str(sys.argv[1])]
     resolution = 10000
-    [start, end] = [2200, 2500]*resolution.astype(int)
+    [start, end] = [2200, 2500]*resolution
     for chro in chromosomes:
         # for m in methods:
             # source = os.path.join('.', 'data', m, cell_type, 'SR')
