@@ -133,7 +133,7 @@ def generate_cool(input_path='./experiment/significant_interactions', chromosome
 
 def generate_fragments(chromosome, matrix, bins, output):
     # bins pandas dataframe, 
-    chro_name = str(chromsome[3:])
+    chro_name = str(chromosome[3:])
     hit_count = (matrix.sum(axis=0)).flatten()
     mid_points = int( (bins[:, 1] + bins[:, 2])/2 )
     with open(os.path.join(output+'_fragments.txt')) as f:
