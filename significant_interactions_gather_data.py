@@ -135,7 +135,8 @@ def generate_fragments(chromosome, matrix, bins, output):
     # bins pandas dataframe, 
     chro_name = str(chromosome[3:])
     hit_count = (matrix.sum(axis=0)).flatten()
-    mid_points = int( (bins[:, 1] + bins[:, 2])/2 )
+    mid_points = (bins[:, 1].flatten() + bins[:, 2])/2
+    mid_points = mid_points.astype(int)
     with open(os.path.join(output+'_fragments.txt')) as f:
         for i, mp in enumerate(mid_points):
             line = '{}\t0\t{}\t{}\t0\n'.format(chro_name, mp, hit_count[i])
@@ -145,8 +146,9 @@ def generate_fragments(chromosome, matrix, bins, output):
 
 def generate_interactions(chromosome, matrix, bins, output):
     chro_name = str(chromsome[3:])
-    mid_points = int( (bins[:, 1] + bins[:, 2])/2 )
-    mat = int(matrix)
+    mid_points = (bins[:, 1] + bins[:, 2])/2
+    mid_points = mid_points.astype(int)
+    mat = matrix.astype(int)
     coo_data = coo_matrix(mat)
     idx1 = mid_points[coo_data.row]
     idx2 = mid_points[coo_data.col]
@@ -166,7 +168,7 @@ def generate_fithic_files(cool_file, chromosome, start, end, output):
     hic_mat = hic.matrix(balance=True).fetch(region)
     hic_bins = hic.bins().fetch(region)
 
-    hic_bins = hic_bins.to_numpy()
+    hic_bins = (hic_bins.to_numpy()).reshape((-1, 4))
     generate_fragments(chromosome, hic_mat, hic_bins, output)
     generate_interactions(chromosome, hic_mat, bins, output)
 
