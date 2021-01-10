@@ -86,7 +86,7 @@ def fithic_cmd(input_dir, prefix, resolution, low_dis, up_dis):
     # fithic -f high_chr22_fragments.txt.gz -i high_chr22_interactions.txt.gz -o ./ -r 10000 -t high_chr22_bias.txt.gz -L 0 -U 1000000 -v
     fragment = prefix+'_fragments.txt.gz'
     interaction = prefix+'_interactions.txt.gz'
-    bias = input_dir, prefix+'_bias.txt.gz'
+    bias = prefix+'_bias.txt.gz'
     output = prefix
 
     cmd = ["fithic", 
