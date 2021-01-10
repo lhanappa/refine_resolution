@@ -145,7 +145,7 @@ def generate_fragments(chromosome, matrix, bins, output):
 
 
 def generate_interactions(chromosome, matrix, bins, output):
-    chro_name = str(chromsome[3:])
+    chro_name = str(chromosome[3:])
     mid_points = (bins[:, 1] + bins[:, 2])/2
     mid_points = mid_points.astype(int)
     mat = matrix.astype(int)
