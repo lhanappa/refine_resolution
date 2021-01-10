@@ -171,6 +171,7 @@ def geneate_biases_ICE(chromosome, matrix, bins, output):
     mid_points = (bins[:, 1] + bins[:, 2])/2
     mid_points = mid_points.astype(int)
     X, bias = ICE_normalization(matrix, output_bias=True)
+    bias = bias.flatten().astype(float)
     with open(os.path.join(output+'_bias.txt'), 'w+') as f:
         for mp, bs in zip(mid_points, bias):
             line = '{}\t{}\t{}\n'.format(chro_name, mp, bs)
