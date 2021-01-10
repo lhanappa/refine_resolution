@@ -1,4 +1,4 @@
-import os, sys
+import os, sys, shutil, gzip
 import numpy as np
 from scipy.sparse import coo_matrix, triu
 from scipy.spatial import distance
