@@ -165,7 +165,6 @@ def generate_fithic_files(cool_file, chromosome, start, end, output):
     region = ('chr{}'.format(chromosome), start, end)
     hic_mat = hic.matrix(balance=True).fetch(region)
     hic_bins = hic.bins().fetch(region)
-    resolution = hic.binsize()
 
     hic_bins = hic_bins.to_numpy()
     generate_fragments(chromosome, hic_mat, hic_bins, output)
