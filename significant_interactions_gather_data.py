@@ -138,9 +138,9 @@ def generate_fragments(chromosome, matrix, bins, output):
     hit_count = hit_count.astype(int)
     mid_points = (bins[:, 1].flatten() + bins[:, 2])/2
     mid_points = mid_points.astype(int)
-    with open(os.path.join(output+'_fragments.txt.gz'), 'w+') as f:
+    with open(os.path.join(output+'_fragments.txt.gz'), 'wb') as f:
         for i, mp in enumerate(mid_points):
-            line = '{}\t0\t{}\t{}\t0\n'.format(chro_name, mp, hit_count[i])
+            line = b'{}\t0\t{}\t{}\t0\n'.format(chro_name, mp, hit_count[i])
             f.write(line)
     f.close()
 
@@ -154,9 +154,9 @@ def generate_interactions(chromosome, matrix, bins, output):
     idx1 = mid_points[coo_data.row]
     idx2 = mid_points[coo_data.col]
     data = coo_data.data
-    with open(os.path.join(output+'_interactions.txt.gz'), 'w+') as f:
+    with open(os.path.join(output+'_interactions.txt.gz'), 'wb') as f:
         for i, mp in enumerate(data):
-            line = '{}\t{}\t{}\t{}\t{}\n'.format(chro_name, idx1[i], chro_name, idx2[i], data[i])
+            line = b'{}\t{}\t{}\t{}\t{}\n'.format(chro_name, idx1[i], chro_name, idx2[i], data[i])
             f.write(line)
     f.close()
 
@@ -165,9 +165,9 @@ def geneate_biases_ICE(chromosome, matrix, bins, output):
     mid_points = (bins[:, 1] + bins[:, 2])/2
     mid_points = mid_points.astype(int)
     X, bias = ICE_normalization(matrix, output_bias=True)
-    with open(os.path.join(output+'_bias.txt.gz'), 'w+') as f:
+    with open(os.path.join(output+'_bias.txt.gz'), 'wb') as f:
         for mp, bs in zip(mid_points, bias):
-            line = '{}\t{}\t{}\n'.format(chro_name, mp, bs)
+            line = b'{}\t{}\t{}\n'.format(chro_name, mp, bs)
             f.write(line)
     f.close()
 
