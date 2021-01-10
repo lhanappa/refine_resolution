@@ -170,4 +170,3 @@ if __name__ == '__main__':
             dest =  os.path.join('.', 'experiment', 'significant_interactions', cell_type, 'chr{}'.format(chro), 'output')
             os.makedirs(dest, exist_ok=True)
             dest = os.path.join(dest, m)
-            generate_fithic_files(source, chro, start, end, output=dest)
