@@ -2,7 +2,7 @@
 # from ./data/[output_ours_2000000_200]/Rao2014_GM12878_10kb/SR to ./experiment/evaluation/
 import os
 import sys
-import shutil
+import shutil, gzip
 import cooler
 import numpy as np
 from scipy.sparse import triu, coo_matrix
@@ -138,11 +138,14 @@ def generate_fragments(chromosome, matrix, bins, output):
     hit_count = hit_count.astype(int)
     mid_points = (bins[:, 1].flatten() + bins[:, 2])/2
     mid_points = mid_points.astype(int)
-    with open(os.path.join(output+'_fragments.txt.gz'), 'wb') as f:
+    with open(os.path.join(output+'_fragments.txt'), 'w+') as f:
         for i, mp in enumerate(mid_points):
-            line = b'{}\t0\t{}\t{}\t0\n'.format(chro_name, mp, hit_count[i])
+            line = '{}\t0\t{}\t{}\t0\n'.format(chro_name, mp, hit_count[i])
             f.write(line)
     f.close()
+    with open(os.path.join(output+'_fragments.txt'), 'rb') as f_in:
+        with gzip.open(os.path.join(output+'_fragments.txt.gz'), 'wb') as f_out:
+            shutil.copyfileobj(f_in, f_out)
 
 
 def generate_interactions(chromosome, matrix, bins, output):
@@ -154,22 +157,28 @@ def generate_interactions(chromosome, matrix, bins, output):
     idx1 = mid_points[coo_data.row]
     idx2 = mid_points[coo_data.col]
     data = coo_data.data
-    with open(os.path.join(output+'_interactions.txt.gz'), 'wb') as f:
+    with open(os.path.join(output+'_interactions.txt'), 'w+') as f:
         for i, mp in enumerate(data):
-            line = b'{}\t{}\t{}\t{}\t{}\n'.format(chro_name, idx1[i], chro_name, idx2[i], data[i])
+            line = '{}\t{}\t{}\t{}\t{}\n'.format(chro_name, idx1[i], chro_name, idx2[i], data[i])
             f.write(line)
     f.close()
+    with open(os.path.join(output+'_interactions.txt'), 'rb') as f_in:
+        with gzip.open(os.path.join(output+'_interactions.txt.gz'), 'wb') as f_out:
+            shutil.copyfileobj(f_in, f_out)
 
 def geneate_biases_ICE(chromosome, matrix, bins, output):
     chro_name = str(chromosome)
     mid_points = (bins[:, 1] + bins[:, 2])/2
     mid_points = mid_points.astype(int)
     X, bias = ICE_normalization(matrix, output_bias=True)
-    with open(os.path.join(output+'_bias.txt.gz'), 'wb') as f:
+    with open(os.path.join(output+'_bias.txt'), 'w+') as f:
         for mp, bs in zip(mid_points, bias):
-            line = b'{}\t{}\t{}\n'.format(chro_name, mp, bs)
+            line = '{}\t{}\t{}\n'.format(chro_name, mp, bs)
             f.write(line)
     f.close()
+    with open(os.path.join(output+'_bias.txt'), 'rb') as f_in:
+        with gzip.open(os.path.join(output+'_bias.txt.gz'), 'wb') as f_out:
+            shutil.copyfileobj(f_in, f_out)
 
 def generate_fithic_files(cool_file, chromosome, start, end, output):
     hic = cooler.Cooler(cool_file)
