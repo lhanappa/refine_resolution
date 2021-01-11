@@ -151,14 +151,13 @@ def plot_significant_interactions(source_dir, chromosome, model_name, resolution
     region = ('chr{}'.format(chromosome), start, end)
     hic_mat = hic.matrix(balance=True).fetch(region)
     hic_mat = filter_diag_boundary(hic_mat, diag_k=0, boundary_k=200)
-    hic_bins = hic.bins().fetch(region)
-    weight = hic_bins['weight']
+    hic_mat = normalization.ICE_normalization(hic_mat)
+    hic_bins = hic.bins().fetch(region).to_numpy().reshape((-1,4))
+    """weight = hic_bins['weight']
     idx = np.array(np.where(weight)).flatten()
-
     hic_bin_filter = (hic_bins.to_numpy()).reshape((-1, 4))
     hic_mat = hic_mat[idx,:]
-    hic_mat = hic_mat[:,idx]
-    hic_mat = normalization.ICE_normalization(hic_mat)
+    hic_mat = hic_mat[:,idx]"""
 
     """if 'high' not in model_name:
         source_dir = os.path.join(source_dir)
