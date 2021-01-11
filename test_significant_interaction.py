@@ -169,7 +169,7 @@ def plot_significant_interactions(source_dir, chromosome, model_name, resolution
     model_si = model_si[idx, :]
     print(model_si, start, end)
     si_xy = np.floor((model_si[:,0:2]-start)/resolution)
-    pritn(si_xy)
+    print(si_xy)
     fig, ax0 = plt.subplots()
     cmap = plt.get_cmap('RdBu')
     X, Y = np.meshgrid(np.arange(hic_mat.shape[0]), np.arange(hic_mat.shape[1]))
