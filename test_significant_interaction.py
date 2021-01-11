@@ -221,7 +221,7 @@ def plot_jaccard_score(source_dir, model_js):
     for key, value in model_js.items():
         x = value[:,0]
         y = value[:,1]
-        ax0.plot(x, y)
+        ax0.plot(x, y, label='{}'.format(key))
     fig.tight_layout()
     output = os.path.join(source_dir, 'figure', '{}_{}'.format(start, end))
     os.makedirs(output, exist_ok=True)
@@ -270,5 +270,4 @@ if __name__ == '__main__':
                 model_js[m] = js
             plot_jaccard_score(source_dir, model_js)
 
-            break
 
