@@ -163,43 +163,27 @@ def merge_si(d0, d1):
             si[k] = np.union1d(d0[k], d1[k])
     return si
 
-def jaccard_score(path, chromosome, model_name, resolution, low_dis, up_dis, start, end):
-    path = os.path.join(path, 'output_{}_{}'.format(start, end))
-    prefix = 'high_chr{}_{}_{}'.format(chromosome, start, end)
-    HR_path = os.path.join(path, prefix, 'FitHiC.spline_pass1.res10000.significances.txt.gz')
-    prefix = '{}_chr{}_{}_{}'.format(model_name, chromosome, start, end)
-    model_path = os.path.join(path, prefix, 'FitHiC.spline_pass1.res10000.significances.txt.gz')
-
-    HR_data = pd.read_csv(HR_path, compression='gzip', header=0, sep='\t')
-    model_data = pd.read_csv(model_path, compression='gzip', header=0, sep='\t')
-
-    HR_si = extract_si(HR_data)
-    model_si = extract_si(model_data)
-
-    idx = np.array(np.where(HR_si[:,2]<0.05)).flatten()
-    HR_si = HR_si[idx, :]
-
-    idx = np.array(np.where(model_si[:,2]<0.05)).flatten()
-    model_si = model_si[idx, :]
-
-    js_array = []
-    for dis in np.arange(low_dis, up_dis+1, resolution):
-        HR_idx = np.array(np.where(HR_si[:,3]==dis)).flatten()
-        HR_set = np.unique(HR_si[HR_idx, 0].flatten())
-
-        model_idx = np.array(np.where(model_si[:,3]==dis)).flatten()
-        model_set = np.unique(model_si[model_idx, 0].flatten())
-        intersection = len(np.intersect1d(HR_set, model_set))
-        union = len(np.union1d(HR_set, model_set))
-        if union != 0:
-            js = intersection/union
-            if js > 0:
-                js_array.append([dis/resolution, js])
-                print(np.intersect1d(HR_set, model_set))
-                print(np.union1d(HR_set, model_set))
-                print(js)
-    js_array = np.array(js_array).reshape((-1,2))
-    return js_array, HR_si, model_si
+def jaccard_score(models, ground):
+    all_models = models.keys()
+    dis1 = list(ground.keys())
+    model_js = dict()
+    for m, v in all_models.items():
+        js_array = []
+        dis0 = list(v.keys())
+        dis = np.intersect1d(dis0, dis1)
+        for d in dis:
+            HR_set = np.unique(ground[d])
+            model_set = np.unique(v[d])
+            intersection = len(np.intersect1d(HR_set, model_set))
+            union = len(np.union1d(HR_set, model_set))
+            if union != 0:
+                js = intersection/union
+                if js > 0:
+                    js_array.append([dis/resolution, js])
+        js_array = np.array(js_array).reshape((-1,2))
+        model_js[m] = js_array
+    print(model_js)
+    return model_js
 
 
 def plot_significant_interactions(source_dir, chromosome, model_name, resolution, low_dis, up_dis, start, end):
@@ -312,6 +296,7 @@ if __name__ == '__main__':
                     model_all_si[m] = merge_si(dict(), model_si)
                 hr_all_si = merge_si(hr_all_si, hr_si)
         print(model_all_si)
-        # plot_jaccard_score(output_dir=source_dir, model_js=model_js)
+        model_js = jaccard_score(model_all_si, hr_all_si)
+        plot_jaccard_score(output_dir=source_dir, model_js=model_js)
 
 
