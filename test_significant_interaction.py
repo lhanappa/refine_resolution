@@ -128,7 +128,7 @@ def extract_si(data):
     return si
 
 def jaccard_score_with_HR(path, chromosome, model_name, resolution, low_dis, up_dis, start, end):
-    path = os.paht.join(path, 'output_{}_{}'.format(start, end))
+    path = os.path.join(path, 'output_{}_{}'.format(start, end))
     prefix = 'high_chr{}_{}_{}'.format(chromosome, start, end)
     HR_path = os.path.join(path, prefix, 'FitHiC.spline_pass1.res10000.significances.txt.gz')
     prefix = '{}_chr{}_{}_{}'.format(model_name, chromosome, start, end)
