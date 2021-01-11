@@ -134,7 +134,7 @@ def extract_si(data, q_value_threshold=None):
     return si
 
 
-def load_si(path, chromosome, model_name, resolution, low_dis, up_dis, start, end) -> dict():
+def load_si(path, chromosome, model_name, resolution, low_dis, up_dis, start, end):
     path = os.path.join(path, 'output_{}_{}'.format(start, end))
     prefix = '{}_chr{}_{}_{}'.format(model_name, chromosome, start, end)
     model_path = os.path.join(path, prefix, 'FitHiC.spline_pass1.res10000.significances.txt.gz')
@@ -145,8 +145,7 @@ def load_si(path, chromosome, model_name, resolution, low_dis, up_dis, start, en
     keys = np.unique(model_si[:,3])
     si = dict()
     for k in keys:
-        print(k)
-        idx = np.array(np.where(si[:,3]==k)).flatten()
+        idx = np.array(np.where(model_si[:,3]==k)).flatten()
         si[k] = np.unique(model_si[idx,0].flatten())
     return si
 
