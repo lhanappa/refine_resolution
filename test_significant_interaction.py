@@ -166,7 +166,7 @@ def merge_si(d0, d1):
 def jaccard_score(models, ground):
     dis1 = list(ground.keys())
     model_js = dict()
-    for m, v in models:
+    for m, v in models.items():
         js_array = []
         dis0 = list(v.keys())
         dis = np.intersect1d(dis0, dis1)
