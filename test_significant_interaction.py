@@ -89,7 +89,7 @@ def fithic_cmd(input_dir, prefix, resolution, low_dis, up_dis, start, end):
     fragment = prefix+'_fragments.txt.gz'
     interaction = prefix+'_interactions.txt.gz'
     bias = prefix+'_bias.txt.gz'
-    output = '{}_L{}_U{}'.format(prefix, start, end)
+    output = '{}_{}_{}'.format(prefix, start, end)
 
     cmd = ["fithic", 
             "-f", fragment, 
@@ -168,7 +168,7 @@ def plot_significant_interactions(source_dir, chromosome, model_name, resolution
     ax0.set_title('{} log1p Heatmap'.format(model_name))
 
     fig.tight_layout()
-    output = os.path.join(source_dir, 'output', '{}_chr{}_L{}_U{}.pdf'.format(model_name, chromosome, start, end))
+    output = os.path.join(source_dir, 'output', '{}_chr{}_{}_{}.pdf'.format(model_name, chromosome, start, end))
     plt.savefig(output, format='pdf')
 
 
@@ -190,7 +190,7 @@ if __name__ == '__main__':
     for chro in chromosomes:
         path = os.path.join('.', 'experiment', 'significant_interactions', cell_type, 'chr{}'.format(chro))
         files = [f for f in os.listdir(path) if '.cool' in f]
-        """process = []
+        process = []
         for file in files:
             m = file.split('.')[0]
             source = os.path.join('.', 'experiment', 'significant_interactions', cell_type, 'chr{}'.format(chro), file)
@@ -201,9 +201,9 @@ if __name__ == '__main__':
             script_work_dir = dest
             process.append(subprocess.Popen(cmd, cwd=script_work_dir))
         for p in process:
-            p.wait()"""
+            p.wait()
         for file in files:
-            m = file.split('_')[0:2]
+            m = file.split('_')[0:-1]
             m = '_'.join(m)
             source_dir = os.path.join('.', 'experiment', 'significant_interactions', cell_type, 'chr{}'.format(chro))
             print(source_dir)
