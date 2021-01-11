@@ -146,9 +146,6 @@ def jaccard_score_with_HR(path, chromosome, model_name, resolution, low_dis, up_
     idx = np.array(np.where(model_si[:,2]<0.05)).flatten()
     model_si = model_si[idx, :]
 
-    print(HR_si)
-    print(model_si)
-
     js_array = []
     for dis in np.arange(low_dis, up_dis+1, resolution):
         HR_idx = np.array(np.where(HR_si[:,3]==dis)).flatten()
