@@ -188,7 +188,9 @@ def plot_significant_interactions(source_dir, chromosome, model_name, resolution
     ax0.set_title('{} log1p Heatmap'.format(model_name))
 
     fig.tight_layout()
-    output = os.path.join(source_dir, 'figure', '{}_{}'.format(start, end), '{}_chr{}_{}_{}.pdf'.format(model_name, chromosome, start, end))
+    output = os.path.join(source_dir, 'figure', '{}_{}'.format(start, end))
+    os.makedirs(output, exist_ok=True)
+    output = os.path.join(output, '{}_chr{}_{}_{}.pdf'.format(model_name, chromosome, start, end))
     plt.savefig(output, format='pdf')
 
 
