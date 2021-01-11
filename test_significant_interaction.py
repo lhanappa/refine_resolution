@@ -155,13 +155,15 @@ def jaccard_score_with_HR(path, chromosome, model_name, resolution, low_dis, up_
 
         model_idx = np.array(np.where(model_si[:,3]==dis)).flatten()
         model_set = np.unique(model_si[model_idx, 0].flatten())
-
         intersection = len(np.intersect1d(HR_set, model_set))
         union = len(np.union1d(HR_set, model_set))
         if union != 0:
             js = intersection/union
             if js > 0:
                 js_array.append([dis/resolution, js])
+                print(np.intersect1d(HR_set, model_set))
+                print(np.union1d(HR_set, model_set))
+                print(js)
     js_array = np.array(js_array).reshape((-1,2))
     return js_array, HR_data, model_data
 
@@ -258,7 +260,7 @@ if __name__ == '__main__':
 
         #[start, end] = np.array([2200, 2500], dtype=int)*resolution
         model_js = dict()
-        for [start, end] in zip(resolution*np.arange(2200, 2600, 100, dtype=int), resolution*np.arange(2500, 2900, 100, dtype=int)):
+        for [start, end] in zip(resolution*np.arange(2200, 2300, 100, dtype=int), resolution*np.arange(2500, 2600, 100, dtype=int)):
             source_dir = os.path.join('.', 'experiment', 'significant_interactions', cell_type, 'chr{}'.format(chro))
             for file in files:
                 m = file.split('_')[0:-1]
