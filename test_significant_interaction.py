@@ -147,7 +147,7 @@ def jaccard_score_with_HR(path, chromosome, model_name, resolution, low_dis, up_
 
         model_idx = np.where(np.logical_and(model_si[:,3]==dis, model_si[:, 2]<0.05))
         model_set = set(model_si[model_idx, 0].flatten())
-        intersection = len(np.intersect1d(HR_set, model_set)).astype(float)
+        intersection = len(np.intersect1d(HR_set, model_set))
         union = len(np.union1d(HR_set, model_set))
         if union != 0:
             js = intersection/union
