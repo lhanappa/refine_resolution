@@ -161,8 +161,6 @@ def jaccard_score_with_HR(path, chromosome, model_name, resolution, low_dis, up_
             if js > 0:
                 js_array.append([dis/resolution, js])
     js_array = np.array(js_array)
-    print(model_name)
-    print(js_array)
     return js_array, HR_data, model_data
 
 
@@ -213,7 +211,7 @@ def plot_jaccard_score(source_dir, model_js):
     for key, value in model_js.items():
         x = value[:,0]
         y = value[:,1]
-        ax0.plot(x, y, label=key)
+        ax0.scatter(x, y, label=key)
     ax0.legend(loc='upper right', shadow=False)
     fig.tight_layout()
     output = os.path.join(source_dir, 'figure', '{}_{}'.format(start, end))
@@ -256,7 +254,7 @@ if __name__ == '__main__':
         for file in files:
             m = file.split('_')[0:-1]
             m = '_'.join(m)
-            plot_significant_interactions(source_dir, chro, m, resolution, low_dis=low, up_dis=up, start=start, end=end)
+            # plot_significant_interactions(source_dir, chro, m, resolution, low_dis=low, up_dis=up, start=start, end=end)
 
             if 'high' not in m:
                 js, _, _ = jaccard_score_with_HR(source_dir, chro, m, resolution, low_dis=low, up_dis=up, start=start, end=end)
