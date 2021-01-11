@@ -118,6 +118,7 @@ def extract_si(data):
     print(si.shape, diff.shape)
     si = np.concatenate((si, diff), axis=1)
     print(si.shape)
+    print(si[0:10, :])
     return si
 
 def jaccard_score_with_HR(path, chromosome, model_name, resolution, low_dis, up_dis, start, end):
@@ -165,7 +166,7 @@ def plot_significant_interactions(source_dir, chromosome, model_name, resolution
     model_path = os.path.join(source_dir, 'output', prefix, 'FitHiC.spline_pass1.res10000.significances.txt.gz')
     model_data = pd.read_csv(model_path, compression='gzip', header=0, sep='\t')
     model_si = extract_si(model_data)
-    idx = np.where(model_si[:, 2]<0.05)
+    idx = np.array(np.where(model_si[:, 2]<0.05)).flatten()
     model_si = model_si[idx, :]
     print(model_si.shape, start, end)
     si_xy = np.floor((model_si[:,0:2]-start)/resolution)
