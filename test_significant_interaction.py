@@ -9,6 +9,8 @@ import cooler
 from iced import filter
 from iced import normalization
 
+from matplotlib import pyplot as plt
+
 # using fithic to find significant interactions by CLI
 
 
@@ -82,12 +84,12 @@ def generate_fithic_files(cool_file, chromosome, start, end, output):
     generate_interactions(chromosome, hic_mat, hic_bins, output)
     geneate_biases_ICE(chromosome, hic_mat, hic_bins, output)
 
-def fithic_cmd(input_dir, prefix, resolution, low_dis, up_dis):
+def fithic_cmd(input_dir, prefix, resolution, low_dis, up_dis, start, end):
     # fithic -f high_chr22_fragments.txt.gz -i high_chr22_interactions.txt.gz -o ./ -r 10000 -t high_chr22_bias.txt.gz -L 0 -U 1000000 -v
     fragment = prefix+'_fragments.txt.gz'
     interaction = prefix+'_interactions.txt.gz'
     bias = prefix+'_bias.txt.gz'
-    output = prefix
+    output = '{}_L{}_U{}'.format(prefix, start, end)
 
     cmd = ["fithic", 
             "-f", fragment, 
@@ -101,8 +103,74 @@ def fithic_cmd(input_dir, prefix, resolution, low_dis, up_dis):
     print('fithic cmd: {}'.format(' '.join(cmd)))
     return cmd
 
-def plot_significant_interactions(source_dir, model_name, start, end):
-    pass
+def extract_si(data):
+    np.array([data['fragmentMid1'].to_numpy().flatten(), data['fragmentMid2'].to_numpy().flatten(), data['q-value'].to_numpy().flatten()])
+    si = si.reshape((-1,3))
+    si = np.concatenate((si, np.abs(si[:,0]-si[:,1])), axis=1)
+    print(si.shape)
+    return si
+
+def jaccard_score_with_HR(path, chromosome, model_name, resolution, low_dis, up_dis, start, end):
+    prefix = 'high_chr{}_{}_{}'.format(chromosome, start, end)
+    HR_path = os.path.join(path, prefix, 'FitHiC.spline_pass1.res10000.significances.txt.gz')
+    prefix = '{}_chr{}_{}_{}'.format(model_name, chromosome, start, end)
+    model_path = os.path.join(path, prefix, 'FitHiC.spline_pass1.res10000.significances.txt.gz')
+
+    HR_data = pd.read_csv(HR_path, compression='gzip', header=0)
+    model_data = pd.read_csv(model_path, compression='gzip', header=0)
+
+    HR_si = extract_si(HR_data)
+    model_si = extract_si(model_data)
+
+    js_array = []
+    for dis in np.arange(low_dis, up_dis+1, resolution):
+        HR_idx = np.where(np.logical_and(HR_si[:,3]==dis, HR_si[:, 2]<0.05))
+        HR_set = set(HR_is[HR_idx, 0].flatten())
+
+        model_idx = np.where(np.logical_and(model_si[:,3]==dis, model_si[:, 2]<0.05))
+        model_set = set(model_is[model_idx, 0].flatten())
+        js = len(np.intersect1d(HR_set, model_set))/len(np.union1d(HR_set, model_set))
+        js_array.append([dis, js])
+    js_array = np.array(js_array)
+    return js_array, HR_data, model_data
+
+
+def plot_significant_interactions(source_dir, chromosome, model_name, resolution, low_dis, up_dis, start, end):
+    start = int(start)
+    end = int(end)
+    cool_file = os.pahth.join(source_dir, '{}_chr{}.cool'.format(model_name, chromosome))
+    hic = cooler.Cooler(cool_file)
+    region = ('chr{}'.format(chromosome), start, end)
+    hic_mat = hic.matrix(balance=True).fetch(region)
+    hic_bins = hic.bins().fetch(region)
+    weight = hic_bins['weight']
+    idx = np.array(np.where(weight)).flatten()
+
+    hic_bin_filter = (hic_bins.to_numpy()).reshape((-1, 4))
+    hic_mat = hic_mat[idx,:]
+    hic_mat = hic_mat[:,idx]
+
+    """if 'high' not in model_name:
+        source_dir = os.path.join(source_dir)
+        JS, HR_siq, model_siq = jaccard_score_with_HR(source_dir, chromosome, model_name, resolution, low_dis, up_dis, start, end)
+        fig, (ax0, ax1) = plt.subplots(nrows=1, ncols=2)
+    else:"""
+    
+    fig, ax0 = plt.subplots()
+
+    cmap = plt.get_cmap('PiYG')
+    x = np.arange(hic_mat.shape[0])
+    z = np.arange(hic_mat.shape[1])
+    X, Y = np.meshgrid(x, y)
+    Z = np.log1p(hic_mat)
+    im = ax0.pcolormesh(X, Y, Z, cmap=cmap, norm=norm)
+    fig.colorbar(im, ax=ax0)
+    ax0.set_title('{} log1p Heatmap'.format(model_name))
+
+    fig.tight_layout()
+    output = os.path.join(source_dir, 'output', '{}_chr{}_L{}_U{}.pdf'.format(model_name, chromosome, start, end))
+    plt.savefig(output, format='pdf')
+
 
 
 if __name__ == '__main__':
@@ -129,9 +197,13 @@ if __name__ == '__main__':
             dest =  os.path.join('.', 'experiment', 'significant_interactions', cell_type, 'chr{}'.format(chro), 'output')
             os.makedirs(dest, exist_ok=True)
             generate_fithic_files(source, chro, start, end, output=os.path.join(dest, m))
-            cmd = fithic_cmd(input_dir=dest, prefix=m, resolution=resolution, low_dis=low, up_dis=up)
+            cmd = fithic_cmd(input_dir=dest, prefix=m, resolution=resolution, low_dis=low, up_dis=up, start=start, end=end)
             script_work_dir = dest
             process.append(subprocess.Popen(cmd, cwd=script_work_dir))
         for p in process:
             p.wait()
+        for file in files:
+            m = file.split('.')[0]
+            source = os.path.join('.', 'experiment', 'significant_interactions', cell_type, 'chr{}'.format(chro), file)
+            plot_significant_interactions(source, chro, m, resolution, low_dis=low, up_dis=up, start=start, end=end)
     
