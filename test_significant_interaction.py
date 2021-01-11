@@ -162,7 +162,7 @@ def plot_significant_interactions(source_dir, chromosome, model_name, resolution
     hic_mat = normalization.ICE_normalization(hic_mat)
     hic_bins = hic.bins().fetch(region)
     weight = hic_bins['weight']
-    idx = np.array(np.where(weight==1)).flatten()
+    filter_idx = np.array(np.where(weight==1)).flatten()
     
 
     prefix = '{}_chr{}_{}_{}'.format(model_name, chromosome, start, end)
@@ -170,19 +170,18 @@ def plot_significant_interactions(source_dir, chromosome, model_name, resolution
     model_data = pd.read_csv(model_path, compression='gzip', header=0, sep='\t')
     model_si = extract_si(model_data)
 
-    idx = np.array(np.where(model_si[:, 2]<0.05)).flatten()
-
-    si_x = np.floor((model_si[idx,0].flatten() - start)/resolution)
-    si_y = np.floor((model_si[idx,1].flatten() - start)/resolution)
+    q_idx = np.array(np.where(model_si[:, 2]<0.05)).flatten()
+    si_x = np.floor((model_si[q_idx,0].flatten() - start)/resolution)
+    si_y = np.floor((model_si[q_idx,1].flatten() - start)/resolution)
 
     fig, ax0 = plt.subplots()
     cmap = plt.get_cmap('coolwarm')
     X, Y = np.meshgrid(np.arange(hic_mat.shape[0]), np.arange(hic_mat.shape[1]))
     hic_mat = filter_diag_boundary(hic_mat, diag_k=1, boundary_k=200)
     Z = np.log1p(hic_mat)
-    Z = Z[idx,:]
-    Z = Z[:,idx]
-    im = ax0.pcolormesh(X[idx], Y[idx], Z, cmap=cmap, vmin=0, vmax=8)
+    Z = Z[filter_idx,:]
+    Z = Z[:,filter_idx]
+    im = ax0.pcolormesh(X[filter_idx], Y[filter_idx], Z, cmap=cmap, vmin=0, vmax=8)
     fig.colorbar(im, ax=ax0)
     ax0.scatter(si_x.flatten(), si_y.flatten(), color="gold", s=.1)
     ax0.set_title('{} log1p Heatmap'.format(model_name))
