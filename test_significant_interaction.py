@@ -112,7 +112,7 @@ def fithic_cmd(input_dir, prefix, resolution, low_dis, up_dis, start, end):
     return cmd
 
 def extract_si(data):
-    np.array([data['fragmentMid1'].to_numpy().flatten(), data['fragmentMid2'].to_numpy().flatten(), data['q-value'].to_numpy().flatten()])
+    si = np.array([data['fragmentMid1'].to_numpy().flatten(), data['fragmentMid2'].to_numpy().flatten(), data['q-value'].to_numpy().flatten()])
     si = si.reshape((-1,3))
     si = np.concatenate((si, np.abs(si[:,0]-si[:,1])), axis=1)
     print(si.shape)
