@@ -150,8 +150,8 @@ def load_si(path, chromosome, model_name, resolution, low_dis, up_dis, start, en
     return si
 
 def merge_si(d0, d1):
-    key0 = d0.keys()
-    key1 = d1.keys()
+    key0 = list(d0.keys())
+    key1 = list(d1.keys())
     keys = np.union1d(key0, key1)
     si = dict()
     for k in keys:
