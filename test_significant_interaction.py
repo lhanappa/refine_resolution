@@ -159,7 +159,7 @@ def plot_significant_interactions(source_dir, chromosome, model_name, resolution
     hic_mat = normalization.ICE_normalization(hic_mat)
     hic_bins = hic.bins().fetch(region).to_numpy().reshape((-1,4))
     weight = hic_bins['weight']
-    idx = np.array(np.where(weight)).flatten()
+    idx = np.array(np.where(weight==1)).flatten()
     
 
     prefix = '{}_chr{}_{}_{}'.format(model_name, chromosome, start, end)
