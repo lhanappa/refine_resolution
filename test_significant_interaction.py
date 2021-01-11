@@ -178,7 +178,7 @@ def jaccard_score(models, ground):
             if union != 0:
                 js = intersection/union
                 if js > 0:
-                    js_array.append([dis/resolution, js])
+                    js_array.append([d/resolution, js])
         js_array = np.array(js_array).reshape((-1,2))
         model_js[m] = js_array
     print(model_js)
