@@ -306,9 +306,12 @@ if __name__ == '__main__':
                     model_si = load_si(source_dir, chro, m, resolution, low_dis=low, up_dis=up, start=start, end=end)
                     hr_si = load_si(source_dir, chro, 'high', resolution, low_dis=low, up_dis=up, start=start, end=end)
 
-                    model_all_si = merge_si(model_all_si, model_si)
-                    hr_all_si = merge_si(hr_all_si, hr_si)
-                print(model_all_si)
+                if m in model_all_si.keys():
+                    model_all_si[m] = merge_si(model_all_si[m], model_si)
+                else:
+                    model_all_si[m] = dict()
+                hr_all_si = merge_si(hr_all_si, hr_si)
+        print(model_all_si)
         # plot_jaccard_score(output_dir=source_dir, model_js=model_js)
 
 
