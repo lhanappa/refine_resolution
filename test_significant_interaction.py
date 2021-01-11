@@ -159,12 +159,6 @@ def plot_significant_interactions(source_dir, chromosome, model_name, resolution
     hic_mat = hic_mat[idx,:]
     hic_mat = hic_mat[:,idx]"""
 
-    """if 'high' not in model_name:
-        source_dir = os.path.join(source_dir)
-        JS, HR_siq, model_siq = jaccard_score_with_HR(source_dir, chromosome, model_name, resolution, low_dis, up_dis, start, end)
-        fig, (ax0, ax1) = plt.subplots(nrows=1, ncols=2)
-    else:"""
-    
     fig, ax0 = plt.subplots()
 
     cmap = plt.get_cmap('RdBu')
@@ -172,12 +166,14 @@ def plot_significant_interactions(source_dir, chromosome, model_name, resolution
     y = np.arange(hic_mat.shape[1])
     X, Y = np.meshgrid(x, y)
     Z = np.log1p(hic_mat)
-    im = ax0.pcolormesh(X, Y, Z, cmap=cmap)
+    im = ax0.pcolormesh(X, Y, Z, cmap=cmap, vmin=0, vmax=8)
     fig.colorbar(im, ax=ax0)
+    ax0.scatter(np.random.uniform(-3,3,10),
+               np.random.uniform(-2,2,10))
     ax0.set_title('{} log1p Heatmap'.format(model_name))
 
     fig.tight_layout()
-    output = os.path.join(source_dir, 'output', '{}_chr{}_{}_{}.pdf'.format(model_name, chromosome, start, end))
+    output = os.path.join(source_dir, '{}_chr{}_{}_{}.pdf'.format(model_name, chromosome, start, end))
     plt.savefig(output, format='pdf')
 
 
@@ -200,7 +196,7 @@ if __name__ == '__main__':
         path = os.path.join('.', 'experiment', 'significant_interactions', cell_type, 'chr{}'.format(chro))
         files = [f for f in os.listdir(path) if '.cool' in f]
         process = []
-        for file in files:
+        """for file in files:
             m = file.split('.')[0]
             source = os.path.join('.', 'experiment', 'significant_interactions', cell_type, 'chr{}'.format(chro), file)
             dest =  os.path.join('.', 'experiment', 'significant_interactions', cell_type, 'chr{}'.format(chro), 'output')
@@ -210,7 +206,7 @@ if __name__ == '__main__':
             script_work_dir = dest
             process.append(subprocess.Popen(cmd, cwd=script_work_dir))
         for p in process:
-            p.wait()
+            p.wait()"""
         for file in files:
             m = file.split('_')[0:-1]
             m = '_'.join(m)
