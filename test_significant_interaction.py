@@ -143,7 +143,7 @@ def jaccard_score_with_HR(path, chromosome, model_name, resolution, low_dis, up_
     js_array = []
     for dis in np.arange(low_dis, up_dis+1, resolution):
         HR_idx = np.where(np.logical_and(HR_si[:,3]==dis, HR_si[:, 2]<0.05))
-        HR_set = set(HR_is[HR_idx, 0].flatten())
+        HR_set = set(HR_si[HR_idx, 0].flatten())
 
         model_idx = np.where(np.logical_and(model_si[:,3]==dis, model_si[:, 2]<0.05))
         model_set = set(model_is[model_idx, 0].flatten())
