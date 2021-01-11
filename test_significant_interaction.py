@@ -167,7 +167,7 @@ def plot_significant_interactions(source_dir, chromosome, model_name, resolution
     model_si = extract_si(model_data)
     idx = np.where(model_si[:, 2]<0.05)
     model_si = model_si[idx, :]
-    print(model_si, start, end)
+    print(model_si.shape, start, end)
     si_xy = np.floor((model_si[:,0:2]-start)/resolution)
     print(si_xy)
     fig, ax0 = plt.subplots()
