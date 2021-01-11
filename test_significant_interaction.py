@@ -176,12 +176,13 @@ def plot_significant_interactions(source_dir, chromosome, model_name, resolution
 
     fig, ax0 = plt.subplots()
     cmap = plt.get_cmap('coolwarm')
-    X, Y = np.meshgrid(np.arange(hic_mat.shape[0]), np.arange(hic_mat.shape[1]))
+    # X, Y = np.meshgrid(np.arange(hic_mat.shape[0]), np.arange(hic_mat.shape[1]))
+    X, Y = np.meshgrid(np.arange(len(filter_idx)), np.arange(len(filter_idx)))
     hic_mat = filter_diag_boundary(hic_mat, diag_k=1, boundary_k=200)
     Z = np.log1p(hic_mat)
     Z = Z[filter_idx,:]
     Z = Z[:,filter_idx]
-    im = ax0.pcolormesh(X[filter_idx], Y[filter_idx], Z, cmap=cmap, vmin=0, vmax=8)
+    im = ax0.pcolormesh(X, Y, Z, cmap=cmap, vmin=0, vmax=8)
     fig.colorbar(im, ax=ax0)
     ax0.scatter(si_x.flatten(), si_y.flatten(), color="gold", s=.1)
     ax0.set_title('{} log1p Heatmap'.format(model_name))
