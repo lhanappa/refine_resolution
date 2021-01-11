@@ -163,7 +163,7 @@ def plot_significant_interactions(source_dir, chromosome, model_name, resolution
     y = np.arange(hic_mat.shape[1])
     X, Y = np.meshgrid(x, y)
     Z = np.log1p(hic_mat)
-    im = ax0.pcolormesh(X, Y, Z, cmap=cmap, norm=norm)
+    im = ax0.pcolormesh(X, Y, Z, cmap=cmap)
     fig.colorbar(im, ax=ax0)
     ax0.set_title('{} log1p Heatmap'.format(model_name))
 
