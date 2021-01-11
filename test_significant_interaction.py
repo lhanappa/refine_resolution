@@ -162,7 +162,7 @@ def jaccard_score_with_HR(path, chromosome, model_name, resolution, low_dis, up_
             js = intersection/union
             if js > 0:
                 js_array.append([dis/resolution, js])
-    js_array = np.array(js_array)
+    js_array = np.array(js_array).reshape((-1,2))
     return js_array, HR_data, model_data
 
 
@@ -233,12 +233,11 @@ if __name__ == '__main__':
     chromosomes = [str(sys.argv[1])]
     resolution = 10000
     [low, up] = np.array([0, 100], dtype=int)*resolution
-    for chro in chromosomes:
+    """for chro in chromosomes:
         path = os.path.join('.', 'experiment', 'significant_interactions', cell_type, 'chr{}'.format(chro))
         files = [f for f in os.listdir(path) if '.cool' in f]
 
         #[start, end] = np.array([2200, 2500], dtype=int)*resolution
-        model_js = dict()
         for [start, end] in zip(resolution*np.arange(2200, 2700, 100, dtype=int), resolution*np.arange(2500, 3000, 100, dtype=int)):
             process = []
             for file in files:
@@ -251,8 +250,15 @@ if __name__ == '__main__':
                 script_work_dir = dest
                 process.append(subprocess.Popen(cmd, cwd=script_work_dir))
             for p in process:
-                p.wait()
+                p.wait()"""
 
+    for chro in chromosomes:
+        path = os.path.join('.', 'experiment', 'significant_interactions', cell_type, 'chr{}'.format(chro))
+        files = [f for f in os.listdir(path) if '.cool' in f]
+
+        #[start, end] = np.array([2200, 2500], dtype=int)*resolution
+        model_js = dict()
+        for [start, end] in zip(resolution*np.arange(2200, 2500, 100, dtype=int), resolution*np.arange(2500, 2800, 100, dtype=int)):
             source_dir = os.path.join('.', 'experiment', 'significant_interactions', cell_type, 'chr{}'.format(chro))
             for file in files:
                 m = file.split('_')[0:-1]
