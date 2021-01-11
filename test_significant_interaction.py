@@ -157,7 +157,7 @@ def plot_significant_interactions(source_dir, chromosome, model_name, resolution
     region = ('chr{}'.format(chromosome), start, end)
     hic_mat = hic.matrix(balance=True).fetch(region)
     hic_mat = normalization.ICE_normalization(hic_mat)
-    hic_bins = hic.bins().fetch(region).to_numpy().reshape((-1,4))
+    hic_bins = hic.bins().fetch(region)
     weight = hic_bins['weight']
     idx = np.array(np.where(weight==1)).flatten()
     
@@ -206,7 +206,7 @@ if __name__ == '__main__':
         files = [f for f in os.listdir(path) if '.cool' in f]
 
         [start, end] = np.array([2200, 2500], dtype=int)*resolution
-        process = []
+        """process = []
         for file in files:
             m = file.split('.')[0]
             source = os.path.join('.', 'experiment', 'significant_interactions', cell_type, 'chr{}'.format(chro), file)
@@ -217,7 +217,7 @@ if __name__ == '__main__':
             script_work_dir = dest
             process.append(subprocess.Popen(cmd, cwd=script_work_dir))
         for p in process:
-            p.wait()
+            p.wait()"""
 
         for file in files:
             m = file.split('_')[0:-1]
