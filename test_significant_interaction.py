@@ -119,8 +119,7 @@ def fithic_cmd(input_dir, prefix, resolution, low_dis, up_dis, start, end):
     return cmd
 
 def extract_si(data):
-    si = np.array([data['fragmentMid1'].to_numpy().flatten(), data['fragmentMid2'].to_numpy().flatten(), data['q-value'].to_numpy().flatten()])
-    si = np.transpose(si)
+    si = np.concatenate((data['fragmentMid1'].to_numpy(), data['fragmentMid2'].to_numpy(), data['q-value'].to_numpy()), axis=1)
     diff = np.abs(si[:,0]-si[:,1]).reshape((-1,1))
     si = np.concatenate((si, diff), axis=1)
     return si
@@ -159,11 +158,9 @@ def plot_significant_interactions(source_dir, chromosome, model_name, resolution
     hic_mat = hic.matrix(balance=True).fetch(region)
     hic_mat = normalization.ICE_normalization(hic_mat)
     hic_bins = hic.bins().fetch(region).to_numpy().reshape((-1,4))
-    """weight = hic_bins['weight']
+    weight = hic_bins['weight']
     idx = np.array(np.where(weight)).flatten()
-    hic_bin_filter = (hic_bins.to_numpy()).reshape((-1, 4))
-    hic_mat = hic_mat[idx,:]
-    hic_mat = hic_mat[:,idx]"""
+    
 
     prefix = '{}_chr{}_{}_{}'.format(model_name, chromosome, start, end)
     model_path = os.path.join(source_dir, 'output_{}_{}'.format(start, end), prefix, 'FitHiC.spline_pass1.res10000.significances.txt.gz')
@@ -174,20 +171,21 @@ def plot_significant_interactions(source_dir, chromosome, model_name, resolution
 
     si_x = np.floor((model_si[idx,0].flatten() - start)/resolution)
     si_y = np.floor((model_si[idx,1].flatten() - start)/resolution)
-    print(si_x.shape, si_y.shape)
 
     fig, ax0 = plt.subplots()
     cmap = plt.get_cmap('coolwarm')
     X, Y = np.meshgrid(np.arange(hic_mat.shape[0]), np.arange(hic_mat.shape[1]))
     hic_mat = filter_diag_boundary(hic_mat, diag_k=1, boundary_k=200)
     Z = np.log1p(hic_mat)
-    im = ax0.pcolormesh(X, Y, Z, cmap=cmap, vmin=0, vmax=8)
+    Z = Z[idx,:]
+    Z = Z[:,idx]
+    im = ax0.pcolormesh(X[idx], Y[idx], Z, cmap=cmap, vmin=0, vmax=8)
     fig.colorbar(im, ax=ax0)
     ax0.scatter(si_x.flatten(), si_y.flatten(), color="gold", s=.1)
     ax0.set_title('{} log1p Heatmap'.format(model_name))
 
     fig.tight_layout()
-    output = os.path.join(source_dir, '{}_chr{}_{}_{}.pdf'.format(model_name, chromosome, start, end))
+    output = os.path.join(source_dir, 'figure', '{}_{}'.format(start, end), '{}_chr{}_{}_{}.pdf'.format(model_name, chromosome, start, end))
     plt.savefig(output, format='pdf')
 
 
