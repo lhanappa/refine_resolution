@@ -213,7 +213,8 @@ def plot_jaccard_score(source_dir, model_js):
     for key, value in model_js.items():
         x = value[:,0]
         y = value[:,1]
-        ax0.plot(x, y, label='{}'.format(key))
+        ax0.plot(x, y, label=key)
+    ax0.legend(loc='upper right', shadow=False)
     fig.tight_layout()
     output = os.path.join(source_dir, 'figure', '{}_{}'.format(start, end))
     os.makedirs(output, exist_ok=True)
@@ -255,7 +256,7 @@ if __name__ == '__main__':
             m = file.split('_')[0:-1]
             m = '_'.join(m)
             source_dir = os.path.join('.', 'experiment', 'significant_interactions', cell_type, 'chr{}'.format(chro))
-            # plot_significant_interactions(source_dir, chro, m, resolution, low_dis=low, up_dis=up, start=start, end=end)
+            plot_significant_interactions(source_dir, chro, m, resolution, low_dis=low, up_dis=up, start=start, end=end)
 
             if 'high' not in m:
                 js, _, _ = jaccard_score_with_HR(source_dir, chro, m, resolution, low_dis=low, up_dis=up, start=start, end=end)
