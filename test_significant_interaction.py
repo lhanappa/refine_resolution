@@ -167,6 +167,7 @@ def plot_significant_interactions(source_dir, chromosome, model_name, resolution
     model_data = pd.read_csv(model_path, compression='gzip', header=0, sep='\t')
     model_si = extract_si(model_data)
     idx = np.array(np.where(model_si[:, 2]<0.05)).flatten()
+    print(idx)
     model_si = model_si[idx, :]
     print(model_si.shape, start, end)
     print(model_si[0:10,:])
