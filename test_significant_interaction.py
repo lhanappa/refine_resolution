@@ -145,8 +145,9 @@ def load_si(path, chromosome, model_name, resolution, low_dis, up_dis, start, en
     keys = np.unique(model_si[:,3])
     si = dict()
     for k in keys:
+        print(k)
         idx = np.array(np.where(si[:,3]==k)).flatten()
-        si[k] = np.unique(model_si[idx,0])
+        si[k] = np.unique(model_si[idx,0].flatten())
     return si
 
 def merge_si(d0, d1):
