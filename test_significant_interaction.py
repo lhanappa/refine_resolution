@@ -309,7 +309,7 @@ if __name__ == '__main__':
                 if m in model_all_si.keys():
                     model_all_si[m] = merge_si(model_all_si[m], model_si)
                 else:
-                    model_all_si[m] = dict()
+                    model_all_si[m] = merge_si(dict(), model_si)
                 hr_all_si = merge_si(hr_all_si, hr_si)
         print(model_all_si)
         # plot_jaccard_score(output_dir=source_dir, model_js=model_js)
