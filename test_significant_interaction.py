@@ -156,6 +156,9 @@ def jaccard_score_with_HR(path, chromosome, model_name, resolution, low_dis, up_
 
         model_idx = np.array(np.where(model_si[:,3]==dis)).flatten()
         model_set = set(model_si[model_idx, 0].flatten())
+        print(dis)
+        print(HR_set)
+        print(model_set)
         intersection = len(np.intersect1d(HR_set, model_set))
         union = len(np.union1d(HR_set, model_set))
         if union != 0:
@@ -264,4 +267,6 @@ if __name__ == '__main__':
                 js, _, _ = jaccard_score_with_HR(source_dir, chro, m, resolution, low_dis=low, up_dis=up, start=start, end=end)
                 model_js[m] = js
             plot_jaccard_score(source_dir, model_js)
-    
+
+            break
+
