@@ -239,7 +239,7 @@ if __name__ == '__main__':
 
         #[start, end] = np.array([2200, 2500], dtype=int)*resolution
         model_js = dict()
-        for [start, end] in zip(resolution*np.arange(2200, 2400, 100, dtype=int), resolution*np.arange(2500, 2700, 100, dtype=int)):
+        for [start, end] in zip(resolution*np.arange(2200, 2700, 100, dtype=int), resolution*np.arange(2500, 3000, 100, dtype=int)):
             process = []
             for file in files:
                 m = file.split('.')[0]
@@ -257,7 +257,7 @@ if __name__ == '__main__':
             for file in files:
                 m = file.split('_')[0:-1]
                 m = '_'.join(m)
-                # plot_significant_interactions(source_dir, chro, m, resolution, low_dis=low, up_dis=up, start=start, end=end)
+                plot_significant_interactions(source_dir, chro, m, resolution, low_dis=low, up_dis=up, start=start, end=end)
 
                 if 'high' not in m:
                     js, _, _ = jaccard_score_with_HR(source_dir, chro, m, resolution, low_dis=low, up_dis=up, start=start, end=end)
