@@ -261,7 +261,7 @@ if __name__ == '__main__':
 
                 if 'high' not in m:
                     js, _, _ = jaccard_score_with_HR(source_dir, chro, m, resolution, low_dis=low, up_dis=up, start=start, end=end)
-                    if m not in model_js.keys:
+                    if m not in model_js.keys():
                         model_js[m] = js
                     else:
                         model_js[m] = np.concatenate((model_js[m], js), axis=0)
