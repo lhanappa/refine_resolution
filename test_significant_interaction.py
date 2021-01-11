@@ -204,6 +204,6 @@ if __name__ == '__main__':
             p.wait()"""
         for file in files:
             m = file.split('.')[0]
-            source = os.path.join('.', 'experiment', 'significant_interactions', cell_type, 'chr{}'.format(chro), file)
-            plot_significant_interactions(source, chro, m, resolution, low_dis=low, up_dis=up, start=start, end=end)
+            source_dir = os.path.join('.', 'experiment', 'significant_interactions', cell_type, 'chr{}'.format(chro))
+            plot_significant_interactions(source_dir, chro, m, resolution, low_dis=low, up_dis=up, start=start, end=end)
     
