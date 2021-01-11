@@ -134,8 +134,8 @@ def jaccard_score_with_HR(path, chromosome, model_name, resolution, low_dis, up_
     prefix = '{}_chr{}_{}_{}'.format(model_name, chromosome, start, end)
     model_path = os.path.join(path, prefix, 'FitHiC.spline_pass1.res10000.significances.txt.gz')
 
-    HR_data = pd.read_csv(HR_path, compression='gzip', header=0)
-    model_data = pd.read_csv(model_path, compression='gzip', header=0)
+    HR_data = pd.read_csv(HR_path, compression='gzip', header=0, sep='\t')
+    model_data = pd.read_csv(model_path, compression='gzip', header=0, sep='\t')
 
     HR_si = extract_si(HR_data)
     model_si = extract_si(model_data)
