@@ -261,6 +261,6 @@ if __name__ == '__main__':
             if 'high' not in m:
                 js, _, _ = jaccard_score_with_HR(source_dir, chro, m, resolution, low_dis=low, up_dis=up, start=start, end=end)
                 model_js[m] = js
-            plot_jaccard_score(source_dir, model_js)
+        plot_jaccard_score(source_dir, model_js)
 
 
