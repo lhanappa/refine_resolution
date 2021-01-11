@@ -287,13 +287,13 @@ if __name__ == '__main__':
 
                 if 'high' not in m:
                     model_si = load_si(source_dir, chro, m, resolution, low_dis=low, up_dis=up, start=start, end=end)
-                    hr_si = load_si(source_dir, chro, 'high', resolution, low_dis=low, up_dis=up, start=start, end=end)
-
-                if m in model_all_si.keys():
-                    model_all_si[m] = merge_si(model_all_si[m], model_si)
+                    if m in model_all_si.keys():
+                        model_all_si[m] = merge_si(model_all_si[m], model_si)
+                    else:
+                        model_all_si[m] = merge_si(dict(), model_si)
                 else:
-                    model_all_si[m] = merge_si(dict(), model_si)
-                hr_all_si = merge_si(hr_all_si, hr_si)
+                    hr_si = load_si(source_dir, chro, 'high', resolution, low_dis=low, up_dis=up, start=start, end=end)
+                    hr_all_si = merge_si(hr_all_si, hr_si)
         print(model_all_si)
         model_js = jaccard_score(model_all_si, hr_all_si)
         plot_jaccard_score(output_dir=source_dir, model_js=model_js)
