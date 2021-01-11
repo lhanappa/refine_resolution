@@ -86,7 +86,7 @@ def geneate_biases_ICE(chromosome, matrix, bins, output):
 def generate_fithic_files(cool_file, chromosome, start, end, output):
     hic = cooler.Cooler(cool_file)
     start = max(0, int(start))
-    end = min(hic.chromsizes['chr{}'.formate(chromosome)], int(end))
+    end = min(hic.chromsizes['chr{}'.format(chromosome)], int(end))
     region = ('chr{}'.format(chromosome), start, end)
     hic_mat = hic.matrix(balance=True).fetch(region)
     hic_bins = hic.bins().fetch(region)
