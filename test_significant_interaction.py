@@ -115,10 +115,7 @@ def extract_si(data):
     si = np.array([data['fragmentMid1'].to_numpy().flatten(), data['fragmentMid2'].to_numpy().flatten(), data['q-value'].to_numpy().flatten()])
     si = np.transpose(si)
     diff = np.abs(si[:,0]-si[:,1]).reshape((-1,1))
-    print(si.shape, diff.shape)
     si = np.concatenate((si, diff), axis=1)
-    # print(si.shape)
-    # print(si[0:10, :])
     return si
 
 def jaccard_score_with_HR(path, chromosome, model_name, resolution, low_dis, up_dis, start, end):
@@ -179,8 +176,7 @@ def plot_significant_interactions(source_dir, chromosome, model_name, resolution
     Z = np.log1p(hic_mat)
     im = ax0.pcolormesh(X, Y, Z, cmap=cmap, vmin=0, vmax=8)
     fig.colorbar(im, ax=ax0)
-    ax0.scatter(si_x.flatten(),
-                si_y.flatten(), )
+    ax0.scatter(si_x.flatten(), si_y.flatten(), color="yellow", s=10)
     ax0.set_title('{} log1p Heatmap'.format(model_name))
 
     fig.tight_layout()
