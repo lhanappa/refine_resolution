@@ -181,7 +181,6 @@ def jaccard_score(models, ground):
                     js_array.append([d/resolution, js])
         js_array = np.array(js_array).reshape((-1,2))
         model_js[m] = js_array
-    print(model_js)
     return model_js
 
 
@@ -278,7 +277,7 @@ if __name__ == '__main__':
         #[start, end] = np.array([2200, 2500], dtype=int)*resolution
         model_all_si = dict()
         hr_all_si = dict()
-        for [start, end] in zip(resolution*np.arange(2200, 2500, 100, dtype=int), resolution*np.arange(2500, 2800, 100, dtype=int)):
+        for [start, end] in zip(resolution*np.arange(2200, 2600, 100, dtype=int), resolution*np.arange(2500, 2900, 100, dtype=int)):
             source_dir = os.path.join('.', 'experiment', 'significant_interactions', cell_type, 'chr{}'.format(chro))
             for file in files:
                 m = file.split('_')[0:-1]
@@ -294,7 +293,6 @@ if __name__ == '__main__':
                 else:
                     hr_si = load_si(source_dir, chro, 'high', resolution, low_dis=low, up_dis=up, start=start, end=end)
                     hr_all_si = merge_si(hr_all_si, hr_si)
-        print(model_all_si)
         model_js = jaccard_score(model_all_si, hr_all_si)
         plot_jaccard_score(output_dir=source_dir, model_js=model_js)
 
