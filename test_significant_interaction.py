@@ -152,7 +152,7 @@ def load_si(path, chromosome, model_name, resolution, low_dis, up_dis, start, en
 def merge_si(d0, d1):
     key0 = d0.keys()
     key1 = d1.keys()
-    keys = np.union1d(key0.flatten(), key1.flatten())
+    keys = np.union1d(key0, key1)
     si = dict()
     for k in keys:
         if k not in key0:
