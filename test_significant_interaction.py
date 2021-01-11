@@ -140,7 +140,7 @@ def load_si(path, chromosome, model_name, resolution, low_dis, up_dis, start, en
     model_path = os.path.join(path, prefix, 'FitHiC.spline_pass1.res10000.significances.txt.gz')
     model_data = pd.read_csv(model_path, compression='gzip', header=0, sep='\t')
 
-    q_vaule = 0.05
+    q_value = 0.05
     model_si = extract_si(model_data, q_value_threshold=q_value)
     keys = np.unique(model_si[:,3])
     si = dict()
