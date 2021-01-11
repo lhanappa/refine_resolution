@@ -161,7 +161,7 @@ def plot_significant_interactions(source_dir, chromosome, model_name, resolution
 
     prefix = '{}_chr{}_{}_{}'.format(model_name, chromosome, start, end)
     model_path = os.path.join(source_dir, 'output', prefix, 'FitHiC.spline_pass1.res10000.significances.txt.gz')
-    model_data = pd.read_csv(model_path, compression='gzip', header=0)
+    model_data = pd.read_csv(model_path, compression='gzip', header=0, sep='\t')
     model_si = extract_si(model_data)
     si_xy = np.floor((model_si[:,0:2]-start)/resolution)
 
