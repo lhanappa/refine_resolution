@@ -160,9 +160,9 @@ def plot_significant_interactions(source_dir, chromosome, model_name, resolution
     region = ('chr{}'.format(chromosome), start, end)
     hic_mat = hic.matrix(balance=True).fetch(region)
     hic_mat = normalization.ICE_normalization(hic_mat)
-    hic_bins = hic.bins().fetch(region)
+    """hic_bins = hic.bins().fetch(region)
     weight = hic_bins['weight']
-    filter_idx = np.array(np.where(weight==1)).flatten()
+    filter_idx = np.array(np.where(weight==1)).flatten()"""
     
 
     prefix = '{}_chr{}_{}_{}'.format(model_name, chromosome, start, end)
@@ -176,12 +176,12 @@ def plot_significant_interactions(source_dir, chromosome, model_name, resolution
 
     fig, ax0 = plt.subplots()
     cmap = plt.get_cmap('coolwarm')
-    # X, Y = np.meshgrid(np.arange(hic_mat.shape[0]), np.arange(hic_mat.shape[1]))
-    X, Y = np.meshgrid(np.arange(len(filter_idx)), np.arange(len(filter_idx)))
+    X, Y = np.meshgrid(np.arange(hic_mat.shape[0]), np.arange(hic_mat.shape[1]))
+    # X, Y = np.meshgrid(np.arange(len(filter_idx)), np.arange(len(filter_idx)))
     hic_mat = filter_diag_boundary(hic_mat, diag_k=1, boundary_k=200)
     Z = np.log1p(hic_mat)
-    Z = Z[filter_idx,:]
-    Z = Z[:,filter_idx]
+    # Z = Z[filter_idx,:]
+    # Z = Z[:,filter_idx]
     im = ax0.pcolormesh(X, Y, Z, cmap=cmap, vmin=0, vmax=8)
     fig.colorbar(im, ax=ax0)
     ax0.scatter(si_x.flatten(), si_y.flatten(), color="gold", s=.1)
