@@ -120,16 +120,50 @@ def fithic_cmd(input_dir, prefix, resolution, low_dis, up_dis, start, end):
     print('fithic cmd: {}'.format(' '.join(cmd)))
     return cmd
 
-def extract_si(data):
+def extract_si(data, q_value_threshold=None):
     si = np.concatenate( (  data['fragmentMid1'].to_numpy().reshape((-1,1)), 
                             data['fragmentMid2'].to_numpy().reshape((-1,1)), 
                             data['q-value'].to_numpy().reshape((-1,1))
                             ), axis=1)
     diff = np.abs(si[:,0]-si[:,1]).reshape((-1,1))
     si = np.concatenate((si, diff), axis=1)
+    if q_value_threshold is not None:
+        idx = np.array(np.where(si[:,2]<q_value_threshold)).flatten()
+        si = si[idx, :]
+    si = si.reshape((-1,4))
     return si
 
-def jaccard_score_with_HR(path, chromosome, model_name, resolution, low_dis, up_dis, start, end):
+
+def load_si(path, chromosome, model_name, resolution, low_dis, up_dis, start, end) -> dict():
+    path = os.path.join(path, 'output_{}_{}'.format(start, end))
+    prefix = '{}_chr{}_{}_{}'.format(model_name, chromosome, start, end)
+    model_path = os.path.join(path, prefix, 'FitHiC.spline_pass1.res10000.significances.txt.gz')
+    model_data = pd.read_csv(model_path, compression='gzip', header=0, sep='\t')
+
+    q_vaule = 0.05
+    model_si = extract_si(model_data, q_value_threshold=q_value)
+    keys = np.unique(model_si[:,3])
+    si = dict()
+    for k in keys:
+        idx = np.array(np.where(si[:,3]==k)).flatten()
+        si[k] = np.unique(model_si[idx,0])
+    return si
+
+def merge_si(d0, d1):
+    key0 = d0.keys()
+    key1 = d1.keys()
+    keys = np.union(key0, key1)
+    si = dict()
+    for k in keys:
+        if k not in key0:
+            si[k] = np.unique(d1[k])
+        elif k not in key1:
+            si[k] = np.unique(d0[k])
+        else:
+            si[k] = np.union1d(d0[k], d1[k])
+    return si
+
+def jaccard_score(path, chromosome, model_name, resolution, low_dis, up_dis, start, end):
     path = os.path.join(path, 'output_{}_{}'.format(start, end))
     prefix = 'high_chr{}_{}_{}'.format(chromosome, start, end)
     HR_path = os.path.join(path, prefix, 'FitHiC.spline_pass1.res10000.significances.txt.gz')
@@ -165,7 +199,7 @@ def jaccard_score_with_HR(path, chromosome, model_name, resolution, low_dis, up_
                 print(np.union1d(HR_set, model_set))
                 print(js)
     js_array = np.array(js_array).reshape((-1,2))
-    return js_array, HR_data, model_data
+    return js_array, HR_si, model_si
 
 
 def plot_significant_interactions(source_dir, chromosome, model_name, resolution, low_dis, up_dis, start, end):
@@ -210,7 +244,7 @@ def plot_significant_interactions(source_dir, chromosome, model_name, resolution
     plt.savefig(output, format='pdf')
 
 
-def plot_jaccard_score(source_dir, model_js):
+def plot_jaccard_score(output_dir, model_js):
     fig, ax0 = plt.subplots()
     for key, value in model_js.items():
         x = value[:,0]
@@ -218,7 +252,7 @@ def plot_jaccard_score(source_dir, model_js):
         ax0.scatter(x, y, label=key)
     ax0.legend(loc='upper right', shadow=False)
     fig.tight_layout()
-    output = os.path.join(source_dir, 'figure')
+    output = os.path.join(output_dir, 'figure')
     os.makedirs(output, exist_ok=True)
     output = os.path.join(output, 'jaccard_scores.pdf')
     plt.savefig(output, format='pdf')
@@ -259,7 +293,8 @@ if __name__ == '__main__':
         files = [f for f in os.listdir(path) if '.cool' in f]
 
         #[start, end] = np.array([2200, 2500], dtype=int)*resolution
-        model_js = dict()
+        model_all_si = dict()
+        hr_all_si = dict()
         for [start, end] in zip(resolution*np.arange(2200, 2300, 100, dtype=int), resolution*np.arange(2500, 2600, 100, dtype=int)):
             source_dir = os.path.join('.', 'experiment', 'significant_interactions', cell_type, 'chr{}'.format(chro))
             for file in files:
@@ -268,11 +303,12 @@ if __name__ == '__main__':
                 # plot_significant_interactions(source_dir, chro, m, resolution, low_dis=low, up_dis=up, start=start, end=end)
 
                 if 'high' not in m:
-                    js, _, _ = jaccard_score_with_HR(source_dir, chro, m, resolution, low_dis=low, up_dis=up, start=start, end=end)
-                    if m not in model_js.keys():
-                        model_js[m] = js
-                    else:
-                        model_js[m] = np.concatenate((model_js[m], js), axis=0)
-        plot_jaccard_score(source_dir, model_js)
+                    model_si = load_si(source_dir, chro, m, resolution, low_dis=low, up_dis=up, start=start, end=end)
+                    hr_si = load_si(source_dir, chro, 'high', resolution, low_dis=low, up_dis=up, start=start, end=end)
+
+                    model_all_si = merge_si(model_all_si, model_si)
+                    hr_all_si = merge_si(hr_all_si, hr_si)
+                print(model_all_si)
+        # plot_jaccard_score(output_dir=source_dir, model_js=model_js)
 
 
