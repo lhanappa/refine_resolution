@@ -166,17 +166,17 @@ def plot_significant_interactions(source_dir, chromosome, model_name, resolution
 
     idx = np.array(np.where(model_si[:, 2]<0.05)).flatten()
 
-    si_x = (model_si[idx,0].flatten() - start)/resolution
-    si_y = (model_si[idx,1].flatten() - start)/resolution
+    si_x = np.floor((model_si[idx,0].flatten() - start)/resolution)
+    si_y = np.floor((model_si[idx,1].flatten() - start)/resolution)
     print(si_x.shape, si_y.shape)
 
     fig, ax0 = plt.subplots()
-    cmap = plt.get_cmap('RdBu')
+    cmap = plt.get_cmap('coolwarm')
     X, Y = np.meshgrid(np.arange(hic_mat.shape[0]), np.arange(hic_mat.shape[1]))
     Z = np.log1p(hic_mat)
     im = ax0.pcolormesh(X, Y, Z, cmap=cmap, vmin=0, vmax=8)
     fig.colorbar(im, ax=ax0)
-    ax0.scatter(si_x.flatten(), si_y.flatten(), color="yellow", s=.1)
+    ax0.scatter(si_x.flatten(), si_y.flatten(), color="gold", s=.1)
     ax0.set_title('{} log1p Heatmap'.format(model_name))
 
     fig.tight_layout()
