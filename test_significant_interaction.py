@@ -252,10 +252,10 @@ if __name__ == '__main__':
             p.wait()"""
 
         model_js = dict()
+        source_dir = os.path.join('.', 'experiment', 'significant_interactions', cell_type, 'chr{}'.format(chro))
         for file in files:
             m = file.split('_')[0:-1]
             m = '_'.join(m)
-            source_dir = os.path.join('.', 'experiment', 'significant_interactions', cell_type, 'chr{}'.format(chro))
             plot_significant_interactions(source_dir, chro, m, resolution, low_dis=low, up_dis=up, start=start, end=end)
 
             if 'high' not in m:
