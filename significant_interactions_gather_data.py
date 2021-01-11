@@ -26,10 +26,8 @@ def gather(source=None, destination='./experiment/significant_interactions/', me
         inpath = os.path.join(source, infile)
         if os.path.exists(inpath):
             print('copying {} from {} to {}'.format(infile, inpath, os.path.join(destination, 'chr{}'.format(ch), outfile)))
-            os.makedirs(os.path.join(
-                destination, 'chr{}'.format(ch)), exist_ok=True)
-            shutil.copyfile(inpath, os.path.join(
-                destination, 'chr{}'.format(ch), outfile))
+            os.makedirs(os.path.join( destination, 'chr{}'.format(ch)), exist_ok=True)
+            shutil.copyfile(inpath, os.path.join( destination, 'chr{}'.format(ch), outfile))
         else:
             print('not exist {} {}'.format(infile, inpath))
 
@@ -139,13 +137,10 @@ if __name__ == '__main__':
     # cool_file = 'Rao2014-GM12878-DpnII-allreps-filtered.10kb.cool'
     cool_file = 'Rao2014-GM12878-MboI-allreps-filtered.10kb.cool'
     cell_type = cool_file.split('-')[0] + '_' + cool_file.split('-')[1] + '_' + cool_file.split('-')[2] + '_' + cool_file.split('.')[1]
-    destination_path = os.path.join('.','experiment', 'significant_interactions', cell_type)
-
     # chromosomes = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', 'X']
-    # chromosomes = [ '22' ]
     chromosomes = [str(sys.argv[1])]
     resolution = 10000
-    [start, end] = np.array([2200, 2500], dtype=int)*resolution
+    destination_path = os.path.join('.','experiment', 'significant_interactions', cell_type)
     for chro in chromosomes:
         for m in methods:
             source = os.path.join('.', 'data', m, cell_type, 'SR')
@@ -161,12 +156,3 @@ if __name__ == '__main__':
                     chromosomes=[chro],
                     resolution=10000,
                     genomic_distance=2000000)
-
-        path = os.path.join('.', 'experiment', 'significant_interactions', cell_type, 'chr{}'.format(chro))
-        files = [f for f in os.listdir(path) if '.cool' in f]
-        for file in files:
-            m = file.split('.')[0]
-            source = os.path.join('.', 'experiment', 'significant_interactions', cell_type, 'chr{}'.format(chro), file)
-            dest =  os.path.join('.', 'experiment', 'significant_interactions', cell_type, 'chr{}'.format(chro), 'output')
-            os.makedirs(dest, exist_ok=True)
-            dest = os.path.join(dest, m)

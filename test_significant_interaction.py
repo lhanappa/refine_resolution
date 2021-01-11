@@ -34,9 +34,13 @@ def generate_fragments(chromosome, matrix, bins, output):
             line = '{}\t0\t{}\t{}\t0\n'.format(chro_name, mp, hit_count[i])
             f.write(line)
     f.close()
+
     with open(os.path.join(output+'_fragments.txt'), 'rb') as f_in:
         with gzip.open(os.path.join(output+'_fragments.txt.gz'), 'wb') as f_out:
             shutil.copyfileobj(f_in, f_out)
+        f_out.close()
+    f_in.close()
+    os.remove(os.path.join(output+'_fragments.txt'))
 
 
 def generate_interactions(chromosome, matrix, bins, output):
@@ -53,11 +57,13 @@ def generate_interactions(chromosome, matrix, bins, output):
             line = '{}\t{}\t{}\t{}\t{}\n'.format(chro_name, idx1[i], chro_name, idx2[i], data[i])
             f.write(line)
     f.close()
+
     with open(os.path.join(output+'_interactions.txt'), 'rb') as f_in:
         with gzip.open(os.path.join(output+'_interactions.txt.gz'), 'wb') as f_out:
             shutil.copyfileobj(f_in, f_out)
         f_out.close()
     f_in.close()
+    os.remove(os.path.join(output+'_interactions.txt'))
 
 def geneate_biases_ICE(chromosome, matrix, bins, output):
     chro_name = str(chromosome)
@@ -75,11 +81,12 @@ def geneate_biases_ICE(chromosome, matrix, bins, output):
             shutil.copyfileobj(f_in, f_out)
         f_out.close()
     f_in.close()
+    os.remove(os.path.join(output+'_bias.txt'))
 
 def generate_fithic_files(cool_file, chromosome, start, end, output):
-    start = int(start)
-    end = int(end)
     hic = cooler.Cooler(cool_file)
+    start = max(0, int(start))
+    end = min(hic.chromsizes['chr{}'.formate(chromosome)], int(end))
     region = ('chr{}'.format(chromosome), start, end)
     hic_mat = hic.matrix(balance=True).fetch(region)
     hic_bins = hic.bins().fetch(region)
@@ -150,7 +157,6 @@ def plot_significant_interactions(source_dir, chromosome, model_name, resolution
     hic = cooler.Cooler(cool_file)
     region = ('chr{}'.format(chromosome), start, end)
     hic_mat = hic.matrix(balance=True).fetch(region)
-    hic_mat = filter_diag_boundary(hic_mat, diag_k=0, boundary_k=200)
     hic_mat = normalization.ICE_normalization(hic_mat)
     hic_bins = hic.bins().fetch(region).to_numpy().reshape((-1,4))
     """weight = hic_bins['weight']
@@ -160,7 +166,7 @@ def plot_significant_interactions(source_dir, chromosome, model_name, resolution
     hic_mat = hic_mat[:,idx]"""
 
     prefix = '{}_chr{}_{}_{}'.format(model_name, chromosome, start, end)
-    model_path = os.path.join(source_dir, 'output', prefix, 'FitHiC.spline_pass1.res10000.significances.txt.gz')
+    model_path = os.path.join(source_dir, 'output_{}_{}'.format(start, end), prefix, 'FitHiC.spline_pass1.res10000.significances.txt.gz')
     model_data = pd.read_csv(model_path, compression='gzip', header=0, sep='\t')
     model_si = extract_si(model_data)
 
@@ -173,6 +179,7 @@ def plot_significant_interactions(source_dir, chromosome, model_name, resolution
     fig, ax0 = plt.subplots()
     cmap = plt.get_cmap('coolwarm')
     X, Y = np.meshgrid(np.arange(hic_mat.shape[0]), np.arange(hic_mat.shape[1]))
+    hic_mat = filter_diag_boundary(hic_mat, diag_k=1, boundary_k=200)
     Z = np.log1p(hic_mat)
     im = ax0.pcolormesh(X, Y, Z, cmap=cmap, vmin=0, vmax=8)
     fig.colorbar(im, ax=ax0)
@@ -191,35 +198,32 @@ if __name__ == '__main__':
     # cool_file = 'Rao2014-GM12878-DpnII-allreps-filtered.10kb.cool'
     cool_file = 'Rao2014-GM12878-MboI-allreps-filtered.10kb.cool'
     cell_type = cool_file.split('-')[0] + '_' + cool_file.split('-')[1] + '_' + cool_file.split('-')[2] + '_' + cool_file.split('.')[1]
-    destination_path = os.path.join('.','experiment', 'significant_interactions', cell_type)
 
     # chromosomes = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', 'X']
-    # chromosomes = [ '22' ]
     chromosomes = [str(sys.argv[1])]
     resolution = 10000
-    [start, end] = np.array([2200, 2500], dtype=int)*resolution
     [low, up] = np.array([0, 100], dtype=int)*resolution
     for chro in chromosomes:
         path = os.path.join('.', 'experiment', 'significant_interactions', cell_type, 'chr{}'.format(chro))
         files = [f for f in os.listdir(path) if '.cool' in f]
+
+        [start, end] = np.array([2200, 2500], dtype=int)*resolution
         process = []
-        """for file in files:
+        for file in files:
             m = file.split('.')[0]
             source = os.path.join('.', 'experiment', 'significant_interactions', cell_type, 'chr{}'.format(chro), file)
-            dest =  os.path.join('.', 'experiment', 'significant_interactions', cell_type, 'chr{}'.format(chro), 'output')
+            dest =  os.path.join('.', 'experiment', 'significant_interactions', cell_type, 'chr{}'.format(chro), 'output_{}_{}'.format(start, end))
             os.makedirs(dest, exist_ok=True)
             generate_fithic_files(source, chro, start, end, output=os.path.join(dest, m))
             cmd = fithic_cmd(input_dir=dest, prefix=m, resolution=resolution, low_dis=low, up_dis=up, start=start, end=end)
             script_work_dir = dest
             process.append(subprocess.Popen(cmd, cwd=script_work_dir))
         for p in process:
-            p.wait()"""
+            p.wait()
+
         for file in files:
             m = file.split('_')[0:-1]
             m = '_'.join(m)
             source_dir = os.path.join('.', 'experiment', 'significant_interactions', cell_type, 'chr{}'.format(chro))
-            print(source_dir)
-            print(m)
-            print(chro)
             plot_significant_interactions(source_dir, chro, m, resolution, low_dis=low, up_dis=up, start=start, end=end)
     
