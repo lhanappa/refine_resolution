@@ -11,6 +11,8 @@ from iced import normalization
 
 from matplotlib import pyplot as plt
 
+import warnings
+warnings.simplefilter(action='ignore', category=FutureWarning)
 # using fithic to find significant interactions by CLI
 
 def filter_diag_boundary(hic, diag_k=1, boundary_k=None):
@@ -165,10 +167,10 @@ def jaccard_score_with_HR(path, chromosome, model_name, resolution, low_dis, up_
 
 
 def plot_significant_interactions(source_dir, chromosome, model_name, resolution, low_dis, up_dis, start, end):
-    start = int(start)
-    end = int(end)
     cool_file = os.path.join(source_dir, '{}_chr{}.cool'.format(model_name, chromosome))
     hic = cooler.Cooler(cool_file)
+    start = max(0, int(start))
+    end = min(hic.chromsizes['chr{}'.format(chromosome)], int(end))
     region = ('chr{}'.format(chromosome), start, end)
     hic_mat = hic.matrix(balance=True).fetch(region)
     hic_mat = normalization.ICE_normalization(hic_mat)
@@ -214,9 +216,9 @@ def plot_jaccard_score(source_dir, model_js):
         ax0.scatter(x, y, label=key)
     ax0.legend(loc='upper right', shadow=False)
     fig.tight_layout()
-    output = os.path.join(source_dir, 'figure', '{}_{}'.format(start, end))
+    output = os.path.join(source_dir, 'figure')
     os.makedirs(output, exist_ok=True)
-    output = os.path.join(output, 'jaccard_scores_{}_{}.pdf'.format(start, end))
+    output = os.path.join(output, 'jaccard_scores.pdf')
     plt.savefig(output, format='pdf')
 
 
@@ -235,30 +237,34 @@ if __name__ == '__main__':
         path = os.path.join('.', 'experiment', 'significant_interactions', cell_type, 'chr{}'.format(chro))
         files = [f for f in os.listdir(path) if '.cool' in f]
 
-        [start, end] = np.array([2200, 2500], dtype=int)*resolution
-        """process = []
-        for file in files:
-            m = file.split('.')[0]
-            source = os.path.join('.', 'experiment', 'significant_interactions', cell_type, 'chr{}'.format(chro), file)
-            dest =  os.path.join('.', 'experiment', 'significant_interactions', cell_type, 'chr{}'.format(chro), 'output_{}_{}'.format(start, end))
-            os.makedirs(dest, exist_ok=True)
-            generate_fithic_files(source, chro, start, end, output=os.path.join(dest, m))
-            cmd = fithic_cmd(input_dir=dest, prefix=m, resolution=resolution, low_dis=low, up_dis=up, start=start, end=end)
-            script_work_dir = dest
-            process.append(subprocess.Popen(cmd, cwd=script_work_dir))
-        for p in process:
-            p.wait()"""
-
+        #[start, end] = np.array([2200, 2500], dtype=int)*resolution
         model_js = dict()
-        source_dir = os.path.join('.', 'experiment', 'significant_interactions', cell_type, 'chr{}'.format(chro))
-        for file in files:
-            m = file.split('_')[0:-1]
-            m = '_'.join(m)
-            # plot_significant_interactions(source_dir, chro, m, resolution, low_dis=low, up_dis=up, start=start, end=end)
+        for [start, end] in zip(resolution*np.arange(2200, 2400, 100, dtype=int), resolution*np.arange(2500, 2700, 100, dtype=int)):
+            process = []
+            for file in files:
+                m = file.split('.')[0]
+                source = os.path.join('.', 'experiment', 'significant_interactions', cell_type, 'chr{}'.format(chro), file)
+                dest =  os.path.join('.', 'experiment', 'significant_interactions', cell_type, 'chr{}'.format(chro), 'output_{}_{}'.format(start, end))
+                os.makedirs(dest, exist_ok=True)
+                generate_fithic_files(source, chro, start, end, output=os.path.join(dest, m))
+                cmd = fithic_cmd(input_dir=dest, prefix=m, resolution=resolution, low_dis=low, up_dis=up, start=start, end=end)
+                script_work_dir = dest
+                process.append(subprocess.Popen(cmd, cwd=script_work_dir))
+            for p in process:
+                p.wait()
 
-            if 'high' not in m:
-                js, _, _ = jaccard_score_with_HR(source_dir, chro, m, resolution, low_dis=low, up_dis=up, start=start, end=end)
-                model_js[m] = js
+            source_dir = os.path.join('.', 'experiment', 'significant_interactions', cell_type, 'chr{}'.format(chro))
+            for file in files:
+                m = file.split('_')[0:-1]
+                m = '_'.join(m)
+                # plot_significant_interactions(source_dir, chro, m, resolution, low_dis=low, up_dis=up, start=start, end=end)
+
+                if 'high' not in m:
+                    js, _, _ = jaccard_score_with_HR(source_dir, chro, m, resolution, low_dis=low, up_dis=up, start=start, end=end)
+                    if m not in model_js.keys:
+                        model_js[m] = js
+                    else:
+                        model_js[m] = np.concatenate((model_js[m], js), axis=0)
         plot_jaccard_score(source_dir, model_js)
 
 
