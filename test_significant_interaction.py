@@ -160,7 +160,7 @@ def plot_significant_interactions(source_dir, chromosome, model_name, resolution
 
     cmap = plt.get_cmap('PiYG')
     x = np.arange(hic_mat.shape[0])
-    z = np.arange(hic_mat.shape[1])
+    y = np.arange(hic_mat.shape[1])
     X, Y = np.meshgrid(x, y)
     Z = np.log1p(hic_mat)
     im = ax0.pcolormesh(X, Y, Z, cmap=cmap, norm=norm)
