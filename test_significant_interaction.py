@@ -203,7 +203,11 @@ if __name__ == '__main__':
         for p in process:
             p.wait()"""
         for file in files:
-            m = file.split('.')[0]
+            m = file.split('_')[0:2]
+            m = '_'.join(m)
             source_dir = os.path.join('.', 'experiment', 'significant_interactions', cell_type, 'chr{}'.format(chro))
+            print(source_dir)
+            print(m)
+            print(chro)
             plot_significant_interactions(source_dir, chro, m, resolution, low_dis=low, up_dis=up, start=start, end=end)
     
