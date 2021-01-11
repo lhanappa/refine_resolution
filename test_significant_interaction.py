@@ -138,7 +138,7 @@ def jaccard_score_with_HR(path, chromosome, model_name, resolution, low_dis, up_
 def plot_significant_interactions(source_dir, chromosome, model_name, resolution, low_dis, up_dis, start, end):
     start = int(start)
     end = int(end)
-    cool_file = os.pahth.join(source_dir, '{}_chr{}.cool'.format(model_name, chromosome))
+    cool_file = os.path.join(source_dir, '{}_chr{}.cool'.format(model_name, chromosome))
     hic = cooler.Cooler(cool_file)
     region = ('chr{}'.format(chromosome), start, end)
     hic_mat = hic.matrix(balance=True).fetch(region)
@@ -190,7 +190,7 @@ if __name__ == '__main__':
     for chro in chromosomes:
         path = os.path.join('.', 'experiment', 'significant_interactions', cell_type, 'chr{}'.format(chro))
         files = [f for f in os.listdir(path) if '.cool' in f]
-        process = []
+        """process = []
         for file in files:
             m = file.split('.')[0]
             source = os.path.join('.', 'experiment', 'significant_interactions', cell_type, 'chr{}'.format(chro), file)
@@ -201,7 +201,7 @@ if __name__ == '__main__':
             script_work_dir = dest
             process.append(subprocess.Popen(cmd, cwd=script_work_dir))
         for p in process:
-            p.wait()
+            p.wait()"""
         for file in files:
             m = file.split('.')[0]
             source = os.path.join('.', 'experiment', 'significant_interactions', cell_type, 'chr{}'.format(chro), file)
