@@ -146,8 +146,11 @@ def jaccard_score_with_HR(path, chromosome, model_name, resolution, low_dis, up_
 
         model_idx = np.where(np.logical_and(model_si[:,3]==dis, model_si[:, 2]<0.05))
         model_set = set(model_is[model_idx, 0].flatten())
-        js = len(np.intersect1d(HR_set, model_set))/len(np.union1d(HR_set, model_set))
-        js_array.append([dis, js])
+        intersection = len(np.intersect1d(HR_set, model_set))
+        union = len(np.union1d(HR_set, model_set))
+        if union != 0:
+            js = intersection/union
+            js_array.append([dis, js])
     js_array = np.array(js_array)
     return js_array, HR_data, model_data
 
@@ -160,9 +163,9 @@ def plot_significant_interactions(source_dir, chromosome, model_name, resolution
     region = ('chr{}'.format(chromosome), start, end)
     hic_mat = hic.matrix(balance=True).fetch(region)
     hic_mat = normalization.ICE_normalization(hic_mat)
-    """hic_bins = hic.bins().fetch(region)
-    weight = hic_bins['weight']
-    filter_idx = np.array(np.where(weight==1)).flatten()"""
+    # hic_bins = hic.bins().fetch(region)
+    # weight = hic_bins['weight']
+    # filter_idx = np.array(np.where(weight==1)).flatten()
     
 
     prefix = '{}_chr{}_{}_{}'.format(model_name, chromosome, start, end)
@@ -194,6 +197,18 @@ def plot_significant_interactions(source_dir, chromosome, model_name, resolution
     plt.savefig(output, format='pdf')
 
 
+def plot_jaccard_score(model_js):
+    fig, ax0 = plt.subplots()
+    for key, value in model_js.items():
+        x = value[:,0]
+        y = value[:,1]
+        ax0.plot(x, y)
+    fig.tight_layout()
+    output = os.path.join(source_dir, 'figure', '{}_{}'.format(start, end))
+    os.makedirs(output, exist_ok=True)
+    output = os.path.join(output, 'jaccard_scores_{}_{}.pdf'.format(start, end))
+    plt.savefig(output, format='pdf')
+
 
 if __name__ == '__main__':
     # methods = ['ours_400', 'hicsr_40', 'deephic_40', 'high', 'low']
@@ -224,9 +239,15 @@ if __name__ == '__main__':
         for p in process:
             p.wait()"""
 
+        model_js = dict()
         for file in files:
             m = file.split('_')[0:-1]
             m = '_'.join(m)
             source_dir = os.path.join('.', 'experiment', 'significant_interactions', cell_type, 'chr{}'.format(chro))
-            plot_significant_interactions(source_dir, chro, m, resolution, low_dis=low, up_dis=up, start=start, end=end)
+            # plot_significant_interactions(source_dir, chro, m, resolution, low_dis=low, up_dis=up, start=start, end=end)
+
+            if 'high' not in m:
+                js, _, _ = jaccard_score_with_HR(source_dir, chro, m, resolution, low_dis=low, up_dis=up, start=start, end=end)
+                model_js[m] = js
+            plot_jaccard_score(model_js)
     
