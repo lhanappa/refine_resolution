@@ -159,17 +159,20 @@ def plot_significant_interactions(source_dir, chromosome, model_name, resolution
     hic_mat = hic_mat[idx,:]
     hic_mat = hic_mat[:,idx]"""
 
-    fig, ax0 = plt.subplots()
+    prefix = '{}_chr{}_{}_{}'.format(model_name, chromosome, start, end)
+    model_path = os.path.join(source_dir, 'output', prefix, 'FitHiC.spline_pass1.res10000.significances.txt.gz')
+    model_data = pd.read_csv(model_path, compression='gzip', header=0)
+    model_si = extract_si(model_data)
+    si_xy = np.floor((model_si[:,0:2]-start)/resolution)
 
+    fig, ax0 = plt.subplots()
     cmap = plt.get_cmap('RdBu')
-    x = np.arange(hic_mat.shape[0])
-    y = np.arange(hic_mat.shape[1])
-    X, Y = np.meshgrid(x, y)
+    X, Y = np.meshgrid(np.arange(hic_mat.shape[0]), np.arange(hic_mat.shape[1]))
     Z = np.log1p(hic_mat)
     im = ax0.pcolormesh(X, Y, Z, cmap=cmap, vmin=0, vmax=8)
     fig.colorbar(im, ax=ax0)
-    ax0.scatter(np.random.uniform(-3,3,10),
-               np.random.uniform(-2,2,10))
+    ax0.scatter(si_xy[:,0].flatten(),
+                si_xy[:,1].flatten(), )
     ax0.set_title('{} log1p Heatmap'.format(model_name))
 
     fig.tight_layout()
