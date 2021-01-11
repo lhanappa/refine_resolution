@@ -263,7 +263,7 @@ if __name__ == '__main__':
             for file in files:
                 m = file.split('_')[0:-1]
                 m = '_'.join(m)
-                plot_significant_interactions(source_dir, chro, m, resolution, low_dis=low, up_dis=up, start=start, end=end)
+                # plot_significant_interactions(source_dir, chro, m, resolution, low_dis=low, up_dis=up, start=start, end=end)
 
                 if 'high' not in m:
                     js, _, _ = jaccard_score_with_HR(source_dir, chro, m, resolution, low_dis=low, up_dis=up, start=start, end=end)
