@@ -165,9 +165,11 @@ def plot_significant_interactions(source_dir, chromosome, model_name, resolution
     model_path = os.path.join(source_dir, 'output', prefix, 'FitHiC.spline_pass1.res10000.significances.txt.gz')
     model_data = pd.read_csv(model_path, compression='gzip', header=0, sep='\t')
     model_si = extract_si(model_data)
-    print(model_si)
+    idx = np.where(model_si[:, 2]<0.05)
+    model_si = model_si[idx, :]
+    print(model_si, start, end)
     si_xy = np.floor((model_si[:,0:2]-start)/resolution)
-
+    pritn(si_xy)
     fig, ax0 = plt.subplots()
     cmap = plt.get_cmap('RdBu')
     X, Y = np.meshgrid(np.arange(hic_mat.shape[0]), np.arange(hic_mat.shape[1]))
