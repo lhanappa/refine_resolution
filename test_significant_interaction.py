@@ -258,7 +258,7 @@ if __name__ == '__main__':
 
         #[start, end] = np.array([2200, 2500], dtype=int)*resolution
         model_js = dict()
-        for [start, end] in zip(resolution*np.arange(2200, 2500, 100, dtype=int), resolution*np.arange(2500, 2800, 100, dtype=int)):
+        for [start, end] in zip(resolution*np.arange(2200, 2300, 100, dtype=int), resolution*np.arange(2500, 2600, 100, dtype=int)):
             source_dir = os.path.join('.', 'experiment', 'significant_interactions', cell_type, 'chr{}'.format(chro))
             for file in files:
                 m = file.split('_')[0:-1]
