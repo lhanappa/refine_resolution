@@ -13,6 +13,14 @@ from matplotlib import pyplot as plt
 
 # using fithic to find significant interactions by CLI
 
+def filter_diag_boundary(hic, diag_k=1, boundary_k=None):
+    if boundary_k is None:
+        boundary_k = hic.shape[0]-1
+    boundary_k = min(hic.shape[0]-1, boundary_k)
+    filter_m = np.tri(N=hic.shape[0], k=boundary_k)
+    filter_m = np.triu(filter_m, k=diag_k)
+    filter_m = filter_m + np.transpose(filter_m)
+    return np.multiply(hic, filter_m)
 
 def generate_fragments(chromosome, matrix, bins, output):
     # bins pandas dataframe, 
@@ -142,6 +150,7 @@ def plot_significant_interactions(source_dir, chromosome, model_name, resolution
     hic = cooler.Cooler(cool_file)
     region = ('chr{}'.format(chromosome), start, end)
     hic_mat = hic.matrix(balance=True).fetch(region)
+    hic_mat = filter_diag_boundary(hic_mat, diag_k=0, boundary_k=200)
     hic_bins = hic.bins().fetch(region)
     weight = hic_bins['weight']
     idx = np.array(np.where(weight)).flatten()
@@ -149,6 +158,7 @@ def plot_significant_interactions(source_dir, chromosome, model_name, resolution
     hic_bin_filter = (hic_bins.to_numpy()).reshape((-1, 4))
     hic_mat = hic_mat[idx,:]
     hic_mat = hic_mat[:,idx]
+    hic_mat = normalization.ICE_normalization(hic_mat)
 
     """if 'high' not in model_name:
         source_dir = os.path.join(source_dir)
@@ -158,7 +168,7 @@ def plot_significant_interactions(source_dir, chromosome, model_name, resolution
     
     fig, ax0 = plt.subplots()
 
-    cmap = plt.get_cmap('PiYG')
+    cmap = plt.get_cmap('RdBu')
     x = np.arange(hic_mat.shape[0])
     y = np.arange(hic_mat.shape[1])
     X, Y = np.meshgrid(x, y)
