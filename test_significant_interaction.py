@@ -253,8 +253,8 @@ def plot_jaccard_score(output_dir, model_js):
     for key, value in model_js.items():
         x = value[:,0]
         y = value[:,1]
-        ax0.plot(x, y, color=colormap[legend[name]])
         name = key.split('_')[0]
+        ax0.plot(x, y, color=colormap[legend[name]])
         ax0.scatter(x, y, s=15, c= colormap[legend[name]],label=legend[name])
     ax0.legend(loc='upper right', shadow=False)
     fig.tight_layout()
