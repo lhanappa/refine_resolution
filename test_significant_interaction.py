@@ -330,13 +330,16 @@ if __name__ == '__main__':
         model_all_si = dict()
         hr_all_si = dict()
 
+        queue = []
         for [start, end] in zip(starts, ends):
             source_dir = os.path.join('.', 'experiment', 'significant_interactions', cell_type, 'chr{}'.format(chro))
             for file in files:
                 m = file.split('_')[0:-1]
                 m = '_'.join(m)
-                plot_significant_interactions(source_dir, chro, m, resolution, low_dis=low, up_dis=up, start=start, end=end)
-
+                # plot_significant_interactions(source_dir, chro, m, resolution, low_dis=low, up_dis=up, start=start, end=end)
+                p = Process(target=plot_significant_interactions, args=(source_dir, chro, m, resolution, low, up, start, end))
+                queue.append(p)
+                p.start()
                 if 'high' not in m:
                     model_si = load_si(source_dir, chro, m, resolution, low_dis=low, up_dis=up, start=start, end=end)
                     if m in model_all_si.keys():
@@ -348,5 +351,8 @@ if __name__ == '__main__':
                     hr_all_si = merge_si(hr_all_si, hr_si)
         model_js = jaccard_score(model_all_si, hr_all_si)
         plot_jaccard_score(output_dir=source_dir, model_js=model_js)
+        
+        for p in queue:
+            p.join()
 
 
