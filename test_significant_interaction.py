@@ -284,7 +284,7 @@ if __name__ == '__main__':
     cell_type = cool_file.split('-')[0] + '_' + cool_file.split('-')[1] + '_' + cool_file.split('-')[2] + '_' + cool_file.split('.')[1]
     hic_info = cooler.Cooler(os.path.join('.', 'data', 'raw', cool_file))
     resolution = int(hic_info.binsize) # 10000, 10kb
-    
+
     # chromosomes = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', 'X']
     chromosomes = [str(sys.argv[1])]
     genome_dis = int(100)
@@ -296,7 +296,7 @@ if __name__ == '__main__':
         files = [f for f in os.listdir(path) if '.cool' in f]
         hic_chrom_len = hic_info.chromsizes['chr{}'.format(chro)]
         starts = resolution*np.arange(0, hic_chrom_len-window_len, window_len-genome_dis, dtype=int)
-        ends = starts + window_len
+        ends = resolution*window_len + starts
         #[start, end] = np.array([2200, 2500], dtype=int)*resolution
         for [start, end] in zip(starts, ends):
             process = []
@@ -317,7 +317,7 @@ if __name__ == '__main__':
         files = [f for f in os.listdir(path) if '.cool' in f]
         hic_chrom_len = hic_info.chromsizes['chr{}'.format(chro)]
         starts = resolution*np.arange(0, hic_chrom_len-window_len, window_len-genome_dis, dtype=int)
-        ends = starts + window_len
+        ends = resolution*window_len + starts
 
         model_all_si = dict()
         hr_all_si = dict()
