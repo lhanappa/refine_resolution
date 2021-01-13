@@ -294,7 +294,7 @@ if __name__ == '__main__':
     for chro in chromosomes:
         path = os.path.join('.', 'experiment', 'significant_interactions', cell_type, 'chr{}'.format(chro))
         files = [f for f in os.listdir(path) if '.cool' in f]
-        hic_chrom_len = hic_info.chromsizes['chr{}'.format(chro)]
+        hic_chrom_len = np.ceil(hic_info.chromsizes['chr{}'.format(chro)]/resolution)
         starts = resolution*np.arange(0, hic_chrom_len-window_len, window_len-genome_dis, dtype=int)
         ends = resolution*window_len + starts
         #[start, end] = np.array([2200, 2500], dtype=int)*resolution
@@ -315,7 +315,7 @@ if __name__ == '__main__':
     for chro in chromosomes:
         path = os.path.join('.', 'experiment', 'significant_interactions', cell_type, 'chr{}'.format(chro))
         files = [f for f in os.listdir(path) if '.cool' in f]
-        hic_chrom_len = hic_info.chromsizes['chr{}'.format(chro)]
+        hic_chrom_len = np.ceil(hic_info.chromsizes['chr{}'.format(chro)]/resolution)
         starts = resolution*np.arange(0, hic_chrom_len-window_len, window_len-genome_dis, dtype=int)
         ends = resolution*window_len + starts
 
