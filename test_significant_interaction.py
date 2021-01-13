@@ -13,7 +13,7 @@ from iced import normalization
 from matplotlib import pyplot as plt
 
 import warnings
-warnings.simplefilter(action='ignore', category=(FutureWarning, UserWarning, DeprecationWarning))
+warnings.simplefilter(action='ignore', category=(FutureWarning, UserWarning, DeprecationWarning, RuntimeWarning))
 # using fithic to find significant interactions by CLI
 
 def filter_diag_boundary(hic, diag_k=1, boundary_k=None):
@@ -297,10 +297,10 @@ if __name__ == '__main__':
     # chromosomes = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', 'X']
     chromosomes = [str(sys.argv[1])]
     genome_dis = int(100)
-    window_len = int(400)
+    window_len = int(200)
     [low, up] = np.array([0, genome_dis], dtype=int)*resolution
 
-    """for chro in chromosomes:
+    for chro in chromosomes:
         path = os.path.join('.', 'experiment', 'significant_interactions', cell_type, 'chr{}'.format(chro))
         files = [f for f in os.listdir(path) if '.cool' in f]
         hic_chrom_len = np.ceil(hic_info.chromsizes['chr{}'.format(chro)]/resolution)
@@ -319,7 +319,7 @@ if __name__ == '__main__':
                 script_work_dir = dest
                 process.append(subprocess.Popen(cmd, cwd=script_work_dir))
             for p in process:
-                p.wait()"""
+                p.wait()
 
     for chro in chromosomes:
         path = os.path.join('.', 'experiment', 'significant_interactions', cell_type, 'chr{}'.format(chro))
@@ -331,16 +331,16 @@ if __name__ == '__main__':
         model_all_si = dict()
         hr_all_si = dict()
 
-        queue = []
+        """queue = []"""
         for [start, end] in zip(starts, ends):
             source_dir = os.path.join('.', 'experiment', 'significant_interactions', cell_type, 'chr{}'.format(chro))
             for file in files:
                 m = file.split('_')[0:-1]
                 m = '_'.join(m)
                 # plot_significant_interactions(source_dir, chro, m, resolution, low_dis=low, up_dis=up, start=start, end=end)
-                p = Process(target=plot_significant_interactions, args=(source_dir, chro, m, resolution, low, up, start, end))
+                """p = Process(target=plot_significant_interactions, args=(source_dir, chro, m, resolution, low, up, start, end))
                 queue.append(p)
-                p.start()
+                p.start()"""
                 if 'high' not in m:
                     model_si = load_si(source_dir, chro, m, resolution, low_dis=low, up_dis=up, start=start, end=end)
                     if m in model_all_si.keys():
@@ -353,7 +353,7 @@ if __name__ == '__main__':
         model_js = jaccard_score(model_all_si, hr_all_si)
         plot_jaccard_score(output_dir=source_dir, model_js=model_js)
         
-        for p in queue:
-            p.join()
+        """for p in queue:
+            p.join()"""
 
 
