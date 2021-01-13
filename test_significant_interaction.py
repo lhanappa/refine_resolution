@@ -246,12 +246,16 @@ def plot_significant_interactions(source_dir, chromosome, model_name, resolution
 
 
 def plot_jaccard_score(output_dir, model_js):
+    legend = {'ours': 'EnHiC', 'deephic': 'Deephic', 'hicsr':'HiCSR', 'low':'LR'}
+    cmap=plt.get_cmap('Set1')
+    colormap = {'EnHiC':cmap[0], 'Deephic':cmap[1], 'HiCSR':cmap[2], 'LR':cmap[3]}
     fig, ax0 = plt.subplots()
     for key, value in model_js.items():
         x = value[:,0]
         y = value[:,1]
-        ax0.plot(x, y)
-        ax0.scatter(x, y, s=10, label=key)
+        ax0.plot(x, y, color=colormap[legend[name]])
+        name = key.split('_')[0]
+        ax0.scatter(x, y, s=15, c= colormap[legend[name]],label=legend[name])
     ax0.legend(loc='upper right', shadow=False)
     fig.tight_layout()
     output = os.path.join(output_dir, 'figure')
@@ -301,7 +305,7 @@ if __name__ == '__main__':
     window_len = int(200)
     [low, up] = np.array([0, genome_dis], dtype=int)*resolution
 
-    for chro in chromosomes:
+    """for chro in chromosomes:
         path = os.path.join('.', 'experiment', 'significant_interactions', cell_type, 'chr{}'.format(chro))
         files = [f for f in os.listdir(path) if '.cool' in f]
         hic_chrom_len = np.ceil(hic_info.chromsizes['chr{}'.format(chro)]/resolution)
@@ -320,7 +324,7 @@ if __name__ == '__main__':
                 script_work_dir = dest
                 process.append(subprocess.Popen(cmd, cwd=script_work_dir))
             for p in process:
-                p.wait()
+                p.wait()"""
 
     for chro in chromosomes:
         path = os.path.join('.', 'experiment', 'significant_interactions', cell_type, 'chr{}'.format(chro))
@@ -340,9 +344,9 @@ if __name__ == '__main__':
                 m = '_'.join(m)
 
                 # plot_significant_interactions(source_dir, chro, m, resolution, low_dis=low, up_dis=up, start=start, end=end)
-                p = Process(target=plot_significant_interactions, args=(source_dir, chro, m, resolution, low, up, start, end))
+                """p = Process(target=plot_significant_interactions, args=(source_dir, chro, m, resolution, low, up, start, end))
                 queue.append(p)
-                p.start()
+                p.start()"""
 
                 if 'high' not in m:
                     model_si = load_si(source_dir, chro, m, resolution, low_dis=low, up_dis=up, start=start, end=end)
@@ -356,7 +360,7 @@ if __name__ == '__main__':
         model_js = jaccard_score(model_all_si, hr_all_si)
         plot_jaccard_score(output_dir=source_dir, model_js=model_js)
 
-        for p in queue:
-            p.join()
+        """for p in queue:
+            p.join()"""
 
 
