@@ -11,6 +11,7 @@ from iced import filter
 from iced import normalization
 
 from matplotlib import pyplot as plt
+import matplotlib
 
 import warnings
 warnings.simplefilter(action='ignore', category=(FutureWarning, UserWarning, DeprecationWarning, RuntimeWarning))

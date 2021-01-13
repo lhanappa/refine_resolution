@@ -11,3 +11,4 @@ dependencies:
     - iced
     - pandas
     - fithic
+    - pybigwig
