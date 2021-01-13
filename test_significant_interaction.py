@@ -88,7 +88,10 @@ def geneate_biases_ICE(chromosome, matrix, bins, output):
 def generate_fithic_files(cool_file, chromosome, start, end, output):
     hic = cooler.Cooler(cool_file)
     start = max(0, int(start))
-    end = min(hic.chromsizes['chr{}'.format(chromosome)], int(end))
+    if end > hic.chromsizes['chr{}'.format(chromosome)]:
+        length = end - start
+        end = hic.chromsizes['chr{}'.format(chromosome)]
+        start = end - length
     region = ('chr{}'.format(chromosome), start, end)
     hic_mat = hic.matrix(balance=True).fetch(region)
     hic_bins = hic.bins().fetch(region)
@@ -100,6 +103,7 @@ def generate_fithic_files(cool_file, chromosome, start, end, output):
     generate_fragments(chromosome, hic_mat, hic_bins, output)
     generate_interactions(chromosome, hic_mat, hic_bins, output)
     geneate_biases_ICE(chromosome, hic_mat, hic_bins, output)
+
 
 def fithic_cmd(input_dir, prefix, resolution, low_dis, up_dis, start, end):
     # fithic -f high_chr22_fragments.txt.gz -i high_chr22_interactions.txt.gz -o ./ -r 10000 -t high_chr22_bias.txt.gz -L 0 -U 1000000 -v
@@ -119,6 +123,7 @@ def fithic_cmd(input_dir, prefix, resolution, low_dis, up_dis, start, end):
             ]
     print('fithic cmd: {}'.format(' '.join(cmd)))
     return cmd
+
 
 def extract_si(data, q_value_threshold=None):
     si = np.concatenate( (  data['fragmentMid1'].to_numpy().reshape((-1,1)), 
@@ -148,6 +153,7 @@ def load_si(path, chromosome, model_name, resolution, low_dis, up_dis, start, en
         idx = np.array(np.where(model_si[:,3]==k)).flatten()
         si[k] = np.unique(model_si[idx,0].flatten())
     return si
+
 
 def merge_si(d0, d1):
     key0 = list(d0.keys())
@@ -188,7 +194,11 @@ def plot_significant_interactions(source_dir, chromosome, model_name, resolution
     cool_file = os.path.join(source_dir, '{}_chr{}.cool'.format(model_name, chromosome))
     hic = cooler.Cooler(cool_file)
     start = max(0, int(start))
-    end = min(hic.chromsizes['chr{}'.format(chromosome)], int(end))
+    if end > hic.chromsizes['chr{}'.format(chromosome)]:
+        length = end - start
+        end = hic.chromsizes['chr{}'.format(chromosome)]
+        start = end - length
+
     region = ('chr{}'.format(chromosome), start, end)
     hic_mat = hic.matrix(balance=True).fetch(region)
     hic_mat = normalization.ICE_normalization(hic_mat)
@@ -239,6 +249,32 @@ def plot_jaccard_score(output_dir, model_js):
     output = os.path.join(output, 'jaccard_scores.pdf')
     plt.savefig(output, format='pdf')
 
+"""chromsizes = {
+'chr1':     249250621,
+'chr2':     243199373,
+'chr3':     198022430,
+'chr4':     191154276,
+'chr5':     180915260,
+'chr6':     171115067,
+'chr7':     159138663,
+'chr8':     146364022,
+'chr9':     141213431,
+'chr10':    135534747,
+'chr11':    135006516,
+'chr12':    133851895,
+'chr13':    115169878,
+'chr14':    107349540,
+'chr15':    102531392,
+'chr16':     90354753,
+'chr17':     81195210,
+'chr18':     78077248,
+'chr19':     59128983,
+'chr20':     63025520,
+'chr21':     48129895,
+'chr22':     51304566,
+'chrX':     155270560,
+'chrY':      59373566,
+'chrM':         16571}"""
 
 if __name__ == '__main__':
     # methods = ['ours_400', 'hicsr_40', 'deephic_40', 'high', 'low']
@@ -246,17 +282,23 @@ if __name__ == '__main__':
     # cool_file = 'Rao2014-GM12878-DpnII-allreps-filtered.10kb.cool'
     cool_file = 'Rao2014-GM12878-MboI-allreps-filtered.10kb.cool'
     cell_type = cool_file.split('-')[0] + '_' + cool_file.split('-')[1] + '_' + cool_file.split('-')[2] + '_' + cool_file.split('.')[1]
-
+    hic_info = cooler.Cooler(os.path.join('.', 'data', 'raw', cool_file))
+    resolution = int(hic_info.binsize) # 10000, 10kb
+    
     # chromosomes = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', 'X']
     chromosomes = [str(sys.argv[1])]
-    resolution = 10000
-    [low, up] = np.array([0, 100], dtype=int)*resolution
-    """for chro in chromosomes:
+    genome_dis = int(100)
+    window_len = int(400)
+    [low, up] = np.array([0, genome_dis], dtype=int)*resolution
+
+    for chro in chromosomes:
         path = os.path.join('.', 'experiment', 'significant_interactions', cell_type, 'chr{}'.format(chro))
         files = [f for f in os.listdir(path) if '.cool' in f]
-
+        hic_chrom_len = hic_info.chromsizes['chr{}'.format(chro)]
+        starts = resolution*np.arange(0, hic_chrom_len-window_len, window_len-genome_dis, dtype=int)
+        ends = starts + window_len
         #[start, end] = np.array([2200, 2500], dtype=int)*resolution
-        for [start, end] in zip(resolution*np.arange(2200, 2700, 100, dtype=int), resolution*np.arange(2500, 3000, 100, dtype=int)):
+        for [start, end] in zip(starts, ends):
             process = []
             for file in files:
                 m = file.split('.')[0]
@@ -268,21 +310,24 @@ if __name__ == '__main__':
                 script_work_dir = dest
                 process.append(subprocess.Popen(cmd, cwd=script_work_dir))
             for p in process:
-                p.wait()"""
+                p.wait()
 
     for chro in chromosomes:
         path = os.path.join('.', 'experiment', 'significant_interactions', cell_type, 'chr{}'.format(chro))
         files = [f for f in os.listdir(path) if '.cool' in f]
+        hic_chrom_len = hic_info.chromsizes['chr{}'.format(chro)]
+        starts = resolution*np.arange(0, hic_chrom_len-window_len, window_len-genome_dis, dtype=int)
+        ends = starts + window_len
 
-        #[start, end] = np.array([2200, 2500], dtype=int)*resolution
         model_all_si = dict()
         hr_all_si = dict()
-        for [start, end] in zip(resolution*np.arange(2200, 2600, 100, dtype=int), resolution*np.arange(2500, 2900, 100, dtype=int)):
+
+        for [start, end] in zip(starts, ends):
             source_dir = os.path.join('.', 'experiment', 'significant_interactions', cell_type, 'chr{}'.format(chro))
             for file in files:
                 m = file.split('_')[0:-1]
                 m = '_'.join(m)
-                # plot_significant_interactions(source_dir, chro, m, resolution, low_dis=low, up_dis=up, start=start, end=end)
+                plot_significant_interactions(source_dir, chro, m, resolution, low_dis=low, up_dis=up, start=start, end=end)
 
                 if 'high' not in m:
                     model_si = load_si(source_dir, chro, m, resolution, low_dis=low, up_dis=up, start=start, end=end)
