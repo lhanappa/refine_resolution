@@ -143,12 +143,16 @@ def load_si(path, chromosome, model_name, resolution, low_dis, up_dis, start, en
     path = os.path.join(path, 'output_{}_{}'.format(start, end))
     prefix = '{}_chr{}_{}_{}'.format(model_name, chromosome, start, end)
     model_path = os.path.join(path, prefix, 'FitHiC.spline_pass1.res10000.significances.txt.gz')
+    si = dict()
+    if not os.path.isfile( model_path):
+        return si
     model_data = pd.read_csv(model_path, compression='gzip', header=0, sep='\t')
+    if model_data.empty:
+        return si
 
     q_value = 0.05
     model_si = extract_si(model_data, q_value_threshold=q_value)
     keys = np.unique(model_si[:,3])
-    si = dict()
     for k in keys:
         idx = np.array(np.where(model_si[:,3]==k)).flatten()
         si[k] = np.unique(model_si[idx,0].flatten())
@@ -209,7 +213,11 @@ def plot_significant_interactions(source_dir, chromosome, model_name, resolution
 
     prefix = '{}_chr{}_{}_{}'.format(model_name, chromosome, start, end)
     model_path = os.path.join(source_dir, 'output_{}_{}'.format(start, end), prefix, 'FitHiC.spline_pass1.res10000.significances.txt.gz')
+    if not os.path.isfile(model_path):
+        return
     model_data = pd.read_csv(model_path, compression='gzip', header=0, sep='\t')
+    if model_data.empty:
+        return
     model_si = extract_si(model_data)
 
     q_idx = np.array(np.where(model_si[:, 2]<0.05)).flatten()
@@ -291,7 +299,7 @@ if __name__ == '__main__':
     window_len = int(400)
     [low, up] = np.array([0, genome_dis], dtype=int)*resolution
 
-    for chro in chromosomes:
+    """for chro in chromosomes:
         path = os.path.join('.', 'experiment', 'significant_interactions', cell_type, 'chr{}'.format(chro))
         files = [f for f in os.listdir(path) if '.cool' in f]
         hic_chrom_len = np.ceil(hic_info.chromsizes['chr{}'.format(chro)]/resolution)
@@ -310,7 +318,7 @@ if __name__ == '__main__':
                 script_work_dir = dest
                 process.append(subprocess.Popen(cmd, cwd=script_work_dir))
             for p in process:
-                p.wait()
+                p.wait()"""
 
     for chro in chromosomes:
         path = os.path.join('.', 'experiment', 'significant_interactions', cell_type, 'chr{}'.format(chro))
