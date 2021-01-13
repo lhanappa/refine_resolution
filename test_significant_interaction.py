@@ -248,7 +248,7 @@ def plot_significant_interactions(source_dir, chromosome, model_name, resolution
 def plot_jaccard_score(output_dir, model_js):
     legend = {'ours': 'EnHiC', 'deephic': 'Deephic', 'hicsr':'HiCSR', 'low':'LR'}
     cmap=plt.get_cmap('Set1')
-    colormap = {'EnHiC':cmap[0], 'Deephic':cmap[1], 'HiCSR':cmap[2], 'LR':cmap[3]}
+    colormap = {'EnHiC':cmap(0/4), 'Deephic':cmap(1/4), 'HiCSR':cmap(2/4), 'LR':cmap(3/4)}
     fig, ax0 = plt.subplots()
     for key, value in model_js.items():
         x = value[:,0]
