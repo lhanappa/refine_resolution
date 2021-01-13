@@ -3,6 +3,7 @@ import numpy as np
 from scipy.sparse import coo_matrix, triu
 from scipy.spatial import distance
 import subprocess
+from multiprocessing import Process
 import pandas as pd
 
 import cooler
@@ -12,7 +13,7 @@ from iced import normalization
 from matplotlib import pyplot as plt
 
 import warnings
-warnings.simplefilter(action='ignore', category=FutureWarning)
+warnings.simplefilter(action='ignore', category=(FutureWarning, UserWarning, DeprecationWarning))
 # using fithic to find significant interactions by CLI
 
 def filter_diag_boundary(hic, diag_k=1, boundary_k=None):
