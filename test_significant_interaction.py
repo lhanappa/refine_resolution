@@ -247,15 +247,16 @@ def plot_significant_interactions(source_dir, chromosome, model_name, resolution
 
 def plot_jaccard_score(output_dir, model_js):
     legend = {'ours': 'EnHiC', 'deephic': 'Deephic', 'hicsr':'HiCSR', 'low':'LR'}
-    cmap=plt.get_cmap('Set1')
+    cmap=plt.get_cmap('tab10', len(legend))
     colormap = {'EnHiC':cmap(0/4), 'Deephic':cmap(1/4), 'HiCSR':cmap(2/4), 'LR':cmap(3/4)}
     fig, ax0 = plt.subplots()
     for key, value in model_js.items():
         x = value[:,0]
         y = value[:,1]
         name = key.split('_')[0]
-        ax0.plot(x, y, color=colormap[legend[name]])
-        ax0.scatter(x, y, s=15, c= colormap[legend[name]],label=legend[name])
+        c = matplotlib.colors.rgb2hex(colormap[legend[name]])
+        ax0.plot(x, y, color=c)
+        ax0.scatter(x, y, s=15, c= c,label=legend[name])
     ax0.legend(loc='upper right', shadow=False)
     fig.tight_layout()
     output = os.path.join(output_dir, 'figure')
