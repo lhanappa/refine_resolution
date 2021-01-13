@@ -250,7 +250,8 @@ def plot_jaccard_score(output_dir, model_js):
     for key, value in model_js.items():
         x = value[:,0]
         y = value[:,1]
-        ax0.scatter(x, y, s=5, label=key)
+        ax0.plot(x, y)
+        ax0.scatter(x, y, s=10, label=key)
     ax0.legend(loc='upper right', shadow=False)
     fig.tight_layout()
     output = os.path.join(output_dir, 'figure')
