@@ -258,6 +258,7 @@ def plot_jaccard_score(output_dir, model_js):
         c = matplotlib.colors.rgb2hex(colormap[legend[name]])
         ax0.plot(x, y, color=c)
         ax0.scatter(x, y, s=15, c= c,label=legend[name])
+        ax0.set_ylim([0, 1.0])
     ax0.legend(loc='upper right', shadow=False)
     fig.tight_layout()
     output = os.path.join(output_dir, 'figure')
