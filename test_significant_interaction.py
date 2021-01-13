@@ -250,7 +250,7 @@ def plot_jaccard_score(output_dir, model_js):
     for key, value in model_js.items():
         x = value[:,0]
         y = value[:,1]
-        ax0.scatter(x, y, label=key)
+        ax0.scatter(x, y, s=2, label=key)
     ax0.legend(loc='upper right', shadow=False)
     fig.tight_layout()
     output = os.path.join(output_dir, 'figure')
@@ -300,7 +300,7 @@ if __name__ == '__main__':
     window_len = int(200)
     [low, up] = np.array([0, genome_dis], dtype=int)*resolution
 
-    for chro in chromosomes:
+    """for chro in chromosomes:
         path = os.path.join('.', 'experiment', 'significant_interactions', cell_type, 'chr{}'.format(chro))
         files = [f for f in os.listdir(path) if '.cool' in f]
         hic_chrom_len = np.ceil(hic_info.chromsizes['chr{}'.format(chro)]/resolution)
@@ -319,7 +319,7 @@ if __name__ == '__main__':
                 script_work_dir = dest
                 process.append(subprocess.Popen(cmd, cwd=script_work_dir))
             for p in process:
-                p.wait()
+                p.wait()"""
 
     for chro in chromosomes:
         path = os.path.join('.', 'experiment', 'significant_interactions', cell_type, 'chr{}'.format(chro))
@@ -331,7 +331,7 @@ if __name__ == '__main__':
         model_all_si = dict()
         hr_all_si = dict()
 
-        """queue = []"""
+        queue = []
         for [start, end] in zip(starts, ends):
             source_dir = os.path.join('.', 'experiment', 'significant_interactions', cell_type, 'chr{}'.format(chro))
             for file in files:
@@ -352,7 +352,7 @@ if __name__ == '__main__':
                     hr_all_si = merge_si(hr_all_si, hr_si)
         model_js = jaccard_score(model_all_si, hr_all_si)
         plot_jaccard_score(output_dir=source_dir, model_js=model_js)
-        
+
         """for p in queue:
             p.join()"""
 
