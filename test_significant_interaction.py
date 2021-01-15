@@ -2,6 +2,7 @@ import os, sys, shutil, gzip
 import numpy as np
 from scipy.sparse import coo_matrix, triu
 from scipy.spatial import distance
+from scipy import stats
 import subprocess
 from multiprocessing import Process
 import pandas as pd
@@ -266,6 +267,26 @@ def plot_jaccard_score(output_dir, model_js):
     output = os.path.join(output, 'jaccard_scores.pdf')
     plt.savefig(output, format='pdf')
 
+
+def calculate_p_value(chrom_js):
+    legend = {'ours': 'EnHiC', 'deephic': 'Deephic', 'hicsr':'HiCSR', 'low':'LR'}
+    js_array = dict()
+    for chro, model_js in chrom_js.items():
+        for key, value in model_js.items():
+            name = key.split('_')[0]
+            y = np.nanmean(value[:,1])
+            if name in js_array.keys():
+                js_array[name].append(y)
+            else:
+                js_array[name] = [y]
+    enhic = js_array['ours']
+    for key, value in js_array.items():
+        if 'ours' in key:
+            continue
+        [stat, pvalue] = stats.ttest_ind(enhic, value)
+        print(key, stat, pvalue)
+            
+       
 """chromsizes = {
 'chr1':     249250621,
 'chr2':     243199373,
@@ -362,8 +383,10 @@ if __name__ == '__main__':
                     hr_all_si = merge_si(hr_all_si, hr_si)
         model_js = jaccard_score(model_all_si, hr_all_si)
         plot_jaccard_score(output_dir=source_dir, model_js=model_js)
+        chrom_js[chro] = model_js
 
         """for p in queue:
             p.join()"""
+    calculate_p_value(chrom_js)
 
 
