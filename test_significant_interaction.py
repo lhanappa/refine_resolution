@@ -350,6 +350,7 @@ if __name__ == '__main__':
             for p in process:
                 p.wait()"""
 
+    chrom_js = dict()
     for chro in chromosomes:
         path = os.path.join('.', 'experiment', 'significant_interactions', cell_type, 'chr{}'.format(chro))
         files = [f for f in os.listdir(path) if '.cool' in f]
