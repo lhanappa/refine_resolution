@@ -324,7 +324,7 @@ if __name__ == '__main__':
     resolution = int(hic_info.binsize) # 10000, 10kb
 
     # chromosomes = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', 'X']
-    chromosomes = [str(sys.argv[1])]
+    chromosomes = ['17', '18', '19', '20', '21', '22', 'X']# [str(sys.argv[1])]
     genome_dis = int(100)
     window_len = int(200)
     [low, up] = np.array([0, genome_dis], dtype=int)*resolution
