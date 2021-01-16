@@ -292,6 +292,22 @@ def plot_jaccard_score(output_dir, model_js):
     output = os.path.join(output, 'jaccard_scores.pdf')
     plt.savefig(output, format='pdf')
 
+def ttest_greater(a, b):
+    #For unbiased max likelihood estimate we have to divide the var by N-1, and therefore the parameter ddof = 1
+    var_a = a.var(ddof=1)
+    var_b = b.var(ddof=1)
+    #std deviation
+    s = np.sqrt((var_a + var_b)/2)
+    ## Calculate the t-statistics
+    t = (a.mean() - b.mean())/(s*np.sqrt(2/N))
+    ## Compare with the critical t-value
+    #Degrees of freedom
+    df = 2*N - 2
+    #p-value after comparison with the t 
+    p = 1 - stats.t.cdf(t,df=df)
+    print("t = " + str(t))
+    print("p = " + str(2*p))
+
 def calculate_p_value(chrom_js):
     legend = {'ours': 'EnHiC', 'deephic': 'Deephic', 'hicsr':'HiCSR', 'low':'LR'}
     js_array = dict()
@@ -325,9 +341,10 @@ def plot_boxplot(output_dir, chrom_js):
     
     print(js_array)
 
-    fig, ax0 = plt.subplots()
+    plt.subplots()
     data = pd.DataFrame.from_dict(js_array)
-    sns.boxplot(data=data, palette="PRGn")
+    ax = sns.boxplot(data=data, palette="tab10")
+    ax.set(xlabel='Models', ylabel='Jaccard Score')
     output = os.path.join(output_dir, 'figure')
     os.makedirs(output, exist_ok=True)
     output = os.path.join(output, 'boxplot_jaccard_scores.pdf')
