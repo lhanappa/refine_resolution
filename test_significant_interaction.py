@@ -322,7 +322,7 @@ def plot_boxplot(output_dir, chrom_js):
             else:
                 js_array[name] = [y]
     data = pd.DataFrame.from_dict(js_array)
-    sns.boxplot(x="models", y="Jaccard Score", data=data, palette="PRGn")
+    sns.boxplot( data=data, palette="PRGn")
 
     fig.tight_layout()
     output = os.path.join(output_dir, 'figure')
@@ -425,7 +425,7 @@ if __name__ == '__main__':
                 else:
                     hr_si = load_si(source_dir, chro, 'high', resolution, low_dis=low, up_dis=up, start=start, end=end)
                     hr_all_si = merge_si(hr_all_si, hr_si)
-                    
+
         model_js = jaccard_score(model_all_si, hr_all_si)
         plot_jaccard_score(output_dir=source_dir, model_js=model_js)
         chrom_js[chro] = model_js
