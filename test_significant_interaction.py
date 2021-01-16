@@ -191,8 +191,7 @@ def jaccard_score(models, ground):
             union = len(np.union1d(HR_set, model_set))
             if union != 0:
                 js = intersection/union
-                if js >= 0:
-                    js_array.append([d/resolution, js])
+                js_array.append([d/resolution, js])
         js_array = np.array(js_array).reshape((-1,2))
         model_js[m] = js_array
     return model_js
@@ -260,7 +259,7 @@ def plot_all_js(output_dir, chrom_js):
             y = value[:,1]
             name = key.split('_')[0]
             c = matplotlib.colors.rgb2hex(colormap[legend[name]])
-            ax[i].plot(x, y, color=c)
+            # ax[i].plot(x, y, color=c)
             ax[i].scatter(x, y, s=15, c= c,label=legend[name])
         ax[i].set_ylim([0, 1.0])
         ax[i].title.set_text('Chromosome {}'.format(chro))
