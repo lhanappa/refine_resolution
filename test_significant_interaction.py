@@ -252,7 +252,8 @@ def plot_all_js(output_dir, chrom_js):
     cmap=plt.get_cmap('tab10', len(legend))
     colormap = {'EnHiC':cmap(0/4), 'Deephic':cmap(1/4), 'HiCSR':cmap(2/4), 'LR':cmap(3/4)}
     fig, axs = plt.subplots(nrows=len(chrom_js), ncols=1, figsize=(9, 6), sharex=True)
-    for i, chro, model_js in enumerate(chrom_js.items()):
+    i=0
+    for chro, model_js in chrom_js.items():
         for key, value in model_js.items():
             x = value[:,0]
             y = value[:,1]
@@ -261,8 +262,9 @@ def plot_all_js(output_dir, chrom_js):
             ax[i].plot(x, y, color=c)
             ax[i].scatter(x, y, s=15, c= c,label=legend[name])
             ax[i].set_ylim([0, 1.0])
-        ax0.legend(loc='upper right', shadow=False)
-        fig.tight_layout()
+            ax[i].legend(loc='upper right', shadow=False)
+        i = i+1
+    fig.tight_layout()
     output = os.path.join(output_dir, 'figure')
     os.makedirs(output, exist_ok=True)
     output = os.path.join(output, 'jaccard_scores.pdf')
