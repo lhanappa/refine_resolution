@@ -184,14 +184,17 @@ def jaccard_score(models, ground):
         js_array = []
         dis0 = list(v.keys())
         dis = np.intersect1d(dis0, dis1)
-        for d in dis:
-            HR_set = np.unique(ground[d])
-            model_set = np.unique(v[d])
-            intersection = len(np.intersect1d(HR_set, model_set))
-            union = len(np.union1d(HR_set, model_set))
-            if union != 0:
-                js = intersection/union
-                js_array.append([d/resolution, js])
+        for d in ground.keys():
+            if d in v.keys():
+                HR_set = np.unique(ground[d])
+                model_set = np.unique(v[d])
+                intersection = len(np.intersect1d(HR_set, model_set))
+                union = len(np.union1d(HR_set, model_set))
+                if union != 0:
+                    js = intersection/union
+                    js_array.append([d/resolution, js])
+            else:
+                js_array.append([d/resolution, 0])
         js_array = np.array(js_array).reshape((-1,2))
         print(m, js_array.shape)
         model_js[m] = js_array
