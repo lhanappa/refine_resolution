@@ -306,7 +306,7 @@ def calculate_p_value(chrom_js):
     for key, value in js_array.items():
         if 'ours' in key:
             continue
-        [stat, pvalue] = stats.ttest_ind(enhic, value)
+        [stat, pvalue] = stats.ttest_ind(enhic, value, alternative='greater')
         print(key, stat, pvalue)
             
        
