@@ -309,6 +309,7 @@ def ttest_greater(a, b):
     p = 1 - stats.t.cdf(t,df=df)
     print("t = " + str(t))
     print("p = " + str(2*p))
+    return p
 
 def calculate_p_value(chrom_js):
     legend = {'ours':'EnHiC', 'deephic': 'Deephic', 'hicsr':'HiCSR', 'low':'LR'}
@@ -327,6 +328,8 @@ def calculate_p_value(chrom_js):
             continue
         [stat, pvalue] = stats.ttest_ind(enhic, value, axis=0, equal_var=True, nan_policy='propagate')
         print(key, stat, pvalue)
+        pv = ttest_greater(enhic, value)
+        print(key, pvalue)
 
 def plot_boxplot(output_dir, chrom_js):
     legend = {'ours': 'EnHiC', 'deephic': 'Deephic', 'hicsr':'HiCSR', 'low':'LR'}
