@@ -196,7 +196,6 @@ def jaccard_score(models, ground):
             else:
                 js_array.append([d/resolution, 0])
         js_array = np.array(js_array).reshape((-1,2))
-        print(m, js_array.shape)
         model_js[m] = js_array
     return model_js
 
@@ -216,7 +215,6 @@ def plot_significant_interactions(source_dir, chromosome, model_name, resolution
     # hic_bins = hic.bins().fetch(region)
     # weight = hic_bins['weight']
     # filter_idx = np.array(np.where(weight==1)).flatten()
-    
 
     prefix = '{}_chr{}_{}_{}'.format(model_name, chromosome, start, end)
     model_path = os.path.join(source_dir, 'output_{}_{}'.format(start, end), prefix, 'FitHiC.spline_pass1.res10000.significances.txt.gz')
@@ -263,7 +261,7 @@ def plot_all_js(output_dir, chrom_js):
             y = value[:,1]
             name = key.split('_')[0]
             c = matplotlib.colors.rgb2hex(colormap[legend[name]])
-            # ax[i].plot(x, y, color=c)
+            ax[i].plot(x, y, color=c)
             ax[i].scatter(x, y, s=15, c= c,label=legend[name])
         ax[i].set_ylim([-.1, 1.0])
         ax[i].title.set_text('Chromosome {}'.format(chro))
@@ -342,8 +340,6 @@ def plot_boxplot(output_dir, chrom_js):
                 js_array[legend[name]].append(y)
             else:
                 js_array[legend[name]] = [y]
-    
-    print(js_array)
 
     plt.subplots()
     data = pd.DataFrame.from_dict(js_array)
@@ -456,7 +452,7 @@ if __name__ == '__main__':
 
         """for p in queue:
             p.join()"""
-    
+
     calculate_p_value(chrom_js)
     out_dir = os.path.join('.', 'experiment', 'significant_interactions', cell_type)
     plot_all_js(out_dir, chrom_js)
