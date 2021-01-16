@@ -12,3 +12,5 @@ dependencies:
     - pandas
     - fithic
     - pybigwig
+    - matplotlib
+    - seaborn

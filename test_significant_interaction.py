@@ -13,6 +13,7 @@ from iced import normalization
 
 from matplotlib import pyplot as plt
 import matplotlib
+import seaborn as sns
 
 import warnings
 warnings.simplefilter(action='ignore', category=(FutureWarning, UserWarning, DeprecationWarning, RuntimeWarning))
@@ -306,10 +307,29 @@ def calculate_p_value(chrom_js):
     for key, value in js_array.items():
         if 'ours' in key:
             continue
-        [stat, pvalue] = stats.ttest_ind(enhic, value, axis=0, equal_var=True, nan_policy='propagate', alternative='greater')
+        [stat, pvalue] = stats.ttest_ind(enhic, value, axis=0, equal_var=True, nan_policy='propagate')
         print(key, stat, pvalue)
-            
-       
+
+def plot_boxplot(output_dir, chrom_js):
+    legend = {'ours': 'EnHiC', 'deephic': 'Deephic', 'hicsr':'HiCSR', 'low':'LR'}
+    js_array = dict()
+    for chro, model_js in chrom_js.items():
+        for key, value in model_js.items():
+            name = key.split('_')[0]
+            y = value[:,1]
+            if name in js_array.keys():
+                js_array[name].append(y)
+            else:
+                js_array[name] = [y]
+    data = pd.DataFrame.from_dict(js_array)
+    sns.boxplot(x="", y="Jaccard Score", data=data, palette="PRGn")
+
+    fig.tight_layout()
+    output = os.path.join(output_dir, 'figure')
+    os.makedirs(output, exist_ok=True)
+    output = os.path.join(output, 'boxplot_jaccard_scores.pdf')
+    plt.savefig(output, format='pdf')
+
 """chromsizes = {
 'chr1':     249250621,
 'chr2':     243199373,
@@ -415,5 +435,6 @@ if __name__ == '__main__':
     calculate_p_value(chrom_js)
     out_dir = os.path.join('.', 'experiment', 'significant_interactions', cell_type)
     plot_all_js(out_dir, chrom_js)
+    plot_boxplot(out_dir, chrom_js)
 
 
