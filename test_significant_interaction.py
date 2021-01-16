@@ -316,11 +316,11 @@ def plot_boxplot(output_dir, chrom_js):
     for chro, model_js in chrom_js.items():
         for key, value in model_js.items():
             name = key.split('_')[0]
-            y = value[:,1]
+            y = np.mean(value[:,1])
             if name in js_array.keys():
-                js_array[name] = np.append(js_array[name], y)
+                js_array[name].append(y)
             else:
-                js_array[name] = y
+                js_array[name] = [y]
     
     print(js_array)
     data = pd.DataFrame.from_dict(js_array)
