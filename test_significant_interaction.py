@@ -341,14 +341,11 @@ def plot_boxplot(output_dir, chrom_js):
     for chro, model_js in chrom_js.items():
         for key, value in model_js.items():
             name = key.split('_')[0]
-            # y = np.mean(value[:,1])
-            y = value[:,1].flatten()
+            y = np.mean(value[:,1])
             if legend[name] in js_array.keys():
-                # js_array[legend[name]].append(y)
-                js_array[legend[name]] = np.append(js_array[legend[name]], y)
+                js_array[legend[name]].append(y)
             else:
-                js_array[legend[name]] = y # [y]
-    print(js_array)
+                js_array[legend[name]] = [y]
     plt.subplots()
     data = pd.DataFrame.from_dict(js_array)
     ax = sns.boxplot(data=data, palette="tab10")
