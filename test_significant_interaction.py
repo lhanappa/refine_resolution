@@ -324,7 +324,7 @@ def plot_boxplot(output_dir, chrom_js):
     
     print(js_array)
     data = pd.DataFrame.from_dict(js_array)
-    sns.boxplot( data=data, palette="PRGn")
+    fig = sns.boxplot( data=data, palette="PRGn")
 
     fig.tight_layout()
     output = os.path.join(output_dir, 'figure')
