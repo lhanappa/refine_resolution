@@ -313,19 +313,21 @@ def calculate_p_value(chrom_js):
 def plot_boxplot(output_dir, chrom_js):
     legend = {'ours': 'EnHiC', 'deephic': 'Deephic', 'hicsr':'HiCSR', 'low':'LR'}
     js_array = dict()
+
     for chro, model_js in chrom_js.items():
         for key, value in model_js.items():
             name = key.split('_')[0]
             y = np.mean(value[:,1])
             if name in js_array.keys():
-                js_array[name].append(y)
+                js_array[legend[name]].append(y)
             else:
-                js_array[name] = [y]
+                js_array[legend[name]] = [y]
     
     print(js_array)
-    data = pd.DataFrame.from_dict(js_array)
-    fig = sns.boxplot( data=data, palette="PRGn")
 
+    fig, ax0 = plt.subplots()
+    data = pd.DataFrame.from_dict(js_array)
+    sns.boxplot(data=data, palette="PRGn")
     output = os.path.join(output_dir, 'figure')
     os.makedirs(output, exist_ok=True)
     output = os.path.join(output, 'boxplot_jaccard_scores.pdf')
