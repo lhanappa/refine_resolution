@@ -251,7 +251,7 @@ def plot_all_js(output_dir, chrom_js):
     legend = {'ours': 'EnHiC', 'deephic': 'Deephic', 'hicsr':'HiCSR', 'low':'LR'}
     cmap=plt.get_cmap('tab10', len(legend))
     colormap = {'EnHiC':cmap(0/4), 'Deephic':cmap(1/4), 'HiCSR':cmap(2/4), 'LR':cmap(3/4)}
-    fig, axs = plt.subplots(nrows=len(chrom_js), ncols=1, figsize=(9, 6), sharex=True)
+    fig, ax = plt.subplots(nrows=len(chrom_js), ncols=1, figsize=(9, 6), sharex=True)
     i=0
     for chro, model_js in chrom_js.items():
         for key, value in model_js.items():
