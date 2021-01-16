@@ -348,7 +348,7 @@ def plot_boxplot(output_dir, chrom_js):
                 js_array[legend[name]] = np.append(js_array[legend[name]], y)
             else:
                 js_array[legend[name]] = y # [y]
-
+    print(js_array)
     plt.subplots()
     data = pd.DataFrame.from_dict(js_array)
     ax = sns.boxplot(data=data, palette="tab10")
