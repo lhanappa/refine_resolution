@@ -318,9 +318,9 @@ def plot_boxplot(output_dir, chrom_js):
             name = key.split('_')[0]
             y = value[:,1]
             if name in js_array.keys():
-                js_array[name].append(y)
+                js_array[name] = np.append(js_array[name], y)
             else:
-                js_array[name] = [y]
+                js_array[name] = y
     data = pd.DataFrame.from_dict(js_array)
     sns.boxplot( data=data, palette="PRGn")
 
