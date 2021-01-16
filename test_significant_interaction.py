@@ -193,6 +193,7 @@ def jaccard_score(models, ground):
                 js = intersection/union
                 js_array.append([d/resolution, js])
         js_array = np.array(js_array).reshape((-1,2))
+        print(m, js_array.shape)
         model_js[m] = js_array
     return model_js
 
@@ -248,7 +249,7 @@ def plot_significant_interactions(source_dir, chromosome, model_name, resolution
 
 
 def plot_all_js(output_dir, chrom_js):
-    legend = {'ours': 'EnHiC', 'deephic': 'Deephic', 'hicsr':'HiCSR', 'low':'LR'}
+    legend = {'ours': 'EnHiC', 'deephic':'Deephic', 'hicsr':'HiCSR', 'low':'LR'}
     cmap=plt.get_cmap('tab10', len(legend))
     colormap = {'EnHiC':cmap(0/4), 'Deephic':cmap(1/4), 'HiCSR':cmap(2/4), 'LR':cmap(3/4)}
     fig, ax = plt.subplots(nrows=len(chrom_js), ncols=1, figsize=(9, 16), sharex=True)
@@ -261,7 +262,7 @@ def plot_all_js(output_dir, chrom_js):
             c = matplotlib.colors.rgb2hex(colormap[legend[name]])
             # ax[i].plot(x, y, color=c)
             ax[i].scatter(x, y, s=15, c= c,label=legend[name])
-        ax[i].set_ylim([0, 1.0])
+        ax[i].set_ylim([-.1, 1.0])
         ax[i].title.set_text('Chromosome {}'.format(chro))
         ax[i].legend(loc='upper right', shadow=False)
         i = i+1
@@ -270,6 +271,7 @@ def plot_all_js(output_dir, chrom_js):
     os.makedirs(output, exist_ok=True)
     output = os.path.join(output, 'jaccard_scores.pdf')
     plt.savefig(output, format='pdf')
+
 
 def plot_jaccard_score(output_dir, model_js):
     legend = {'ours': 'EnHiC', 'deephic': 'Deephic', 'hicsr':'HiCSR', 'low':'LR'}
@@ -308,7 +310,7 @@ def ttest_greater(a, b):
     print("p = " + str(2*p))
 
 def calculate_p_value(chrom_js):
-    legend = {'ours': 'EnHiC', 'deephic': 'Deephic', 'hicsr':'HiCSR', 'low':'LR'}
+    legend = {'ours':'EnHiC', 'deephic': 'Deephic', 'hicsr':'HiCSR', 'low':'LR'}
     js_array = dict()
     for chro, model_js in chrom_js.items():
         for key, value in model_js.items():
