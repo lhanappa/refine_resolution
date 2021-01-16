@@ -326,7 +326,6 @@ def plot_boxplot(output_dir, chrom_js):
     data = pd.DataFrame.from_dict(js_array)
     fig = sns.boxplot( data=data, palette="PRGn")
 
-    fig.tight_layout()
     output = os.path.join(output_dir, 'figure')
     os.makedirs(output, exist_ok=True)
     output = os.path.join(output, 'boxplot_jaccard_scores.pdf')
