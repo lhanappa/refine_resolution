@@ -318,7 +318,7 @@ def plot_boxplot(output_dir, chrom_js):
         for key, value in model_js.items():
             name = key.split('_')[0]
             y = np.mean(value[:,1])
-            if name in js_array.keys():
+            if legend[name] in js_array.keys():
                 js_array[legend[name]].append(y)
             else:
                 js_array[legend[name]] = [y]
