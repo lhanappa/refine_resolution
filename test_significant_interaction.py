@@ -296,18 +296,18 @@ def plot_jaccard_score(output_dir, model_js):
 
 def ttest_greater(a, b):
     #For unbiased max likelihood estimate we have to divide the var by N-1, and therefore the parameter ddof = 1
-    a = np.array(a.flatten())
-    b = np.array(b.flatten())
+    a = np.array(a).flatten()
+    b = np.array(b).flatten()
     var_a = np.array(a).var(ddof=1)
     var_b = np.array(b).var(ddof=1)
-    #std deviation
+    # std deviation
     s = np.sqrt((var_a + var_b)/2)
     ## Calculate the t-statistics
     t = (a.mean() - b.mean())/(s*np.sqrt(2/N))
     ## Compare with the critical t-value
-    #Degrees of freedom
+    # Degrees of freedom
     df = 2*len(a) - 2
-    #p-value after comparison with the t 
+    # p-value after comparison with the t 
     p = 1 - stats.t.cdf(t,df=df)
     print("t = " + str(t))
     print("p = " + str(p))
