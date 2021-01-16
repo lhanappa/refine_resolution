@@ -247,6 +247,27 @@ def plot_significant_interactions(source_dir, chromosome, model_name, resolution
     plt.savefig(output, format='pdf')
 
 
+def plot_all_js(output_dir, chrom_js):
+    legend = {'ours': 'EnHiC', 'deephic': 'Deephic', 'hicsr':'HiCSR', 'low':'LR'}
+    cmap=plt.get_cmap('tab10', len(legend))
+    colormap = {'EnHiC':cmap(0/4), 'Deephic':cmap(1/4), 'HiCSR':cmap(2/4), 'LR':cmap(3/4)}
+    fig, axs = plt.subplots(nrows=len(chrom_js), ncols=1, figsize=(9, 6), sharex=True)
+    for i, chro, model_js in enumerate(chrom_js.items()):
+        for key, value in model_js.items():
+            x = value[:,0]
+            y = value[:,1]
+            name = key.split('_')[0]
+            c = matplotlib.colors.rgb2hex(colormap[legend[name]])
+            ax[i].plot(x, y, color=c)
+            ax[i].scatter(x, y, s=15, c= c,label=legend[name])
+            ax[i].set_ylim([0, 1.0])
+        ax0.legend(loc='upper right', shadow=False)
+        fig.tight_layout()
+    output = os.path.join(output_dir, 'figure')
+    os.makedirs(output, exist_ok=True)
+    output = os.path.join(output, 'jaccard_scores.pdf')
+    plt.savefig(output, format='pdf')
+
 def plot_jaccard_score(output_dir, model_js):
     legend = {'ours': 'EnHiC', 'deephic': 'Deephic', 'hicsr':'HiCSR', 'low':'LR'}
     cmap=plt.get_cmap('tab10', len(legend))
@@ -266,7 +287,6 @@ def plot_jaccard_score(output_dir, model_js):
     os.makedirs(output, exist_ok=True)
     output = os.path.join(output, 'jaccard_scores.pdf')
     plt.savefig(output, format='pdf')
-
 
 def calculate_p_value(chrom_js):
     legend = {'ours': 'EnHiC', 'deephic': 'Deephic', 'hicsr':'HiCSR', 'low':'LR'}
@@ -388,6 +408,9 @@ if __name__ == '__main__':
 
         """for p in queue:
             p.join()"""
+    
     calculate_p_value(chrom_js)
+    out_dir = os.path.join('.', 'experiment', 'significant_interactions', cell_type)
+    plot_all_js(out_dir, chrom_js)
 
 
