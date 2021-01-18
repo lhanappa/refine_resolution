@@ -169,6 +169,6 @@ if __name__ == '__main__':
             raw_file=raw_hic,
             chromosome='22',
             scale=4,
-            len_size=200,
+            len_size=len_size,
             sr_path='_'.join(['output', 'ours', str(max_dis), str(len_size)]),
             genomic_distance=2000000, start=0, end=400, layer_name=None)
