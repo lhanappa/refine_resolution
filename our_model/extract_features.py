@@ -175,9 +175,9 @@ def extract_features(path='./data',
     interm = intermediate_x2.numpy()
     interm = np.squeeze(interm, axis=0)
     sum_interm = np.sum(interm, axis=(0,1))
-    print(sum_interm)
-    print(sum_interm[::-1].argsort())
-    interm = interm[:,:, sum_interm[::-1].argsort()]
+
+    interm = interm[:,:, sum_interm.argsort()]
+    interm = interm[:,:,::-1]
     print(interm.shape)
     for i in np.arange(0, nr):
         for j in np.arange(0, nc):
