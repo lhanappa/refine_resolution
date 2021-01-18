@@ -175,13 +175,12 @@ def extract_features(path='./data',
     interm = intermediate_x2.numpy()
     interm = np.squeeze(interm, axis=0)
     sum_interm = np.sum(interm, axis=(0,1))
-
     interm = interm[:,:, sum_interm.argsort()]
     interm = interm[:,:,::-1]
     print(interm.shape)
     for i in np.arange(0, nr):
         for j in np.arange(0, nc):
-            idx = (i*nc+j)
+            idx = (i*nc+j)*5
             if idx > interm.shape[2]:
                 continue
             m = interm[:,:, idx]
@@ -196,12 +195,11 @@ def extract_features(path='./data',
     interm = intermediate_x4.numpy()
     interm = np.squeeze(interm, axis=0)
     sum_interm = np.sum(interm, axis=(0,1))
-    print(sum_interm[::-1].argsort())
-    interm = interm[:,:, sum_interm[::-1].argsort()]
-    print(interm.shape)
+    interm = interm[:,:, sum_interm.argsort()]
+    interm = interm[:,:,::-1]
     for i in np.arange(0, nr):
         for j in np.arange(0, nc):
-            idx = (i*nc+j)
+            idx = (i*nc+j)*5
             if idx > interm.shape[2]:
                 continue
             m = interm[:,:, idx]
