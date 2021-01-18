@@ -9,6 +9,8 @@ import os
 import model
 from utils import operations
 import tensorflow as tf
+from tensorflow import keras
+
 tf.keras.backend.set_floatx('float32')
 
 # 'Dixon2012-H1hESC-HindIII-allreps-filtered.10kb.cool'
@@ -100,6 +102,12 @@ def extract_features(path='./data',
         else:
             predict_hic_hr = np.concatenate( (predict_hic_hr, tmp.numpy()), axis=0)
 
+    for i, data in enumerate(hic_lr_ds):
+        intermediate_layer_model = keras.model(inputs=generator.input,
+                                        outputs=generator.get_layer(layer_name).output)
+        intermediate_output = intermediate_layer_model(data)
+        print(intermediate_output)
+
     predict_hic_hr = np.squeeze(predict_hic_hr, axis=3)
     print('Shape of prediction front: ', predict_hic_hr.shape)
 
@@ -148,12 +156,12 @@ def extract_features(path='./data',
     # Mh = Mh[::10, ::10]
     fig, axs = plt.subplots(1, 2, figsize=(8, 15))
     # , cmap='RdBu_r'
-    ax = axs[0].imshow(np.log1p(predict_hic_hr_merge), cmap='RdBu')
+    ax = axs[0].imshow(np.log1p(predict_hic_hr_merge), cmap='Spectral')
     axs[0].set_title('predict')
-    ax = axs[1].imshow(np.log1p(Mh), cmap='RdBu')  # , cmap='RdBu_r'
+    ax = axs[1].imshow(np.log1p(Mh), cmap='Spectral')  # , cmap='RdBu_r'
     axs[1].set_title('true')
     plt.tight_layout()
-    output = os.path.join(directory_sr, 'prediction_chr{}_{}_{}'.format(chromosome, start, end))
+    output = os.path.join(directory_sr, 'prediction_chr{}_{}_{}.png'.format(chromosome, start, end))
     plt.savefig(output, format='png')
 
 
@@ -171,4 +179,4 @@ if __name__ == '__main__':
             scale=4,
             len_size=len_size,
             sr_path='_'.join(['output', 'ours', str(max_dis), str(len_size)]),
-            genomic_distance=2000000, start=0, end=400, layer_name=None)
+            genomic_distance=2000000, start=0, end=400, layer_name='dsd_x2')
