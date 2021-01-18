@@ -170,7 +170,7 @@ def extract_features(path='./data',
     output = os.path.join(directory_sr, 'prediction_chr{}_{}_{}.png'.format(chromosome, start, end))
     plt.savefig(output, format='png')
 
-    nr,nc = 6,8
+    nr,nc = 4,6
     fig, axs = plt.subplots(nrows=nr, ncols=nc, figsize=(15, 15))
     interm = intermediate_x2.numpy()
     interm = np.squeeze(interm, axis=0)
@@ -181,7 +181,7 @@ def extract_features(path='./data',
     print(interm.shape)
     for i in np.arange(0, nr):
         for j in np.arange(0, nc):
-            idx = (i*nc+j)*2
+            idx = (i*nc+j)*5
             if idx > interm.shape[2]:
                 continue
             m = interm[:,:, idx]
@@ -192,7 +192,7 @@ def extract_features(path='./data',
     output = os.path.join(directory_sr, 'features_x2_chr{}_{}_{}.png'.format(chromosome, start, end))
     plt.savefig(output, format='png')
 
-    nr,nc = 5,7
+    nr,nc = 4,6
     fig, axs = plt.subplots(nrows=nr, ncols=nc, figsize=(15, 15))
     interm = intermediate_x4.numpy()
     interm = np.squeeze(interm, axis=0)
