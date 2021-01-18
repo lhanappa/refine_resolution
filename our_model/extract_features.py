@@ -33,7 +33,7 @@ def extract_features(path='./data',
             scale=4,
             len_size=200,
             genomic_distance=2000000,
-            start=None, end=None, layer_name=None):
+            start=None, end=None):
     sr_file = raw_file.split('-')[0] + '_' + raw_file.split('-')[1] + '_' + raw_file.split('-')[2] + '_' + raw_file.split('.')[1]
     directory_sr = os.path.join(path, sr_path, sr_file, 'extract_features')
     if not os.path.exists(directory_sr):
@@ -102,11 +102,17 @@ def extract_features(path='./data',
         else:
             predict_hic_hr = np.concatenate( (predict_hic_hr, tmp.numpy()), axis=0)
 
+    layer_name = 'dsd_x2'
     for i, data in enumerate(hic_lr_ds):
         intermediate_layer_model = keras.Model(inputs=Generator.get_layer(layer_name).input,
                                         outputs=Generator.get_layer(layer_name).output)
-        intermediate_output = intermediate_layer_model(data)
-        print(intermediate_output)
+        intermediate_x2 = intermediate_layer_model(data)
+
+    layer_name = 'dsd_x4'
+    for i, data in enumerate(hic_lr_ds):
+        intermediate_layer_model = keras.Model(inputs=Generator.get_layer(layer_name).input,
+                                    outputs=Generator.get_layer(layer_name).output)
+        intermediate_x2 = intermediate_layer_model(data)
 
     predict_hic_hr = np.squeeze(predict_hic_hr, axis=3)
     print('Shape of prediction front: ', predict_hic_hr.shape)
@@ -166,9 +172,11 @@ def extract_features(path='./data',
 
     nr,nc = 5,7
     fig, axs = plt.subplots(nrows=nr, ncols=nc, figsize=(15, 15))
-    interm = intermediate_output.numpy()
+    interm = intermediate_x2.numpy()
     interm = np.squeeze(interm, axis=0)
     sum_interm = np.sum(interm, axis=(0,1))
+    print(sum_interm)
+    print(sum_interm[::-1].argsort())
     interm = interm[:,:, sum_interm[::-1].argsort()]
     print(interm.shape)
     for i in np.arange(0, nr):
@@ -177,11 +185,30 @@ def extract_features(path='./data',
             if idx > interm.shape[2]:
                 continue
             m = interm[:,:, idx]
-            print(m.shape)
             m = np.squeeze(m)
             axs[i, j].imshow(np.log1p(m), cmap='seismic')
     plt.tight_layout()
     output = os.path.join(directory_sr, 'features_x2_chr{}_{}_{}.png'.format(chromosome, start, end))
+    plt.savefig(output, format='png')
+
+    nr,nc = 5,7
+    fig, axs = plt.subplots(nrows=nr, ncols=nc, figsize=(15, 15))
+    interm = intermediate_x4.numpy()
+    interm = np.squeeze(interm, axis=0)
+    sum_interm = np.sum(interm, axis=(0,1))
+    print(sum_interm[::-1].argsort())
+    interm = interm[:,:, sum_interm[::-1].argsort()]
+    print(interm.shape)
+    for i in np.arange(0, nr):
+        for j in np.arange(0, nc):
+            idx = (i*nc+j)
+            if idx > interm.shape[2]:
+                continue
+            m = interm[:,:, idx]
+            m = np.squeeze(m)
+            axs[i, j].imshow(np.log1p(m), cmap='seismic')
+    plt.tight_layout()
+    output = os.path.join(directory_sr, 'features_x4_chr{}_{}_{}.png'.format(chromosome, start, end))
     plt.savefig(output, format='png')
 
 
@@ -199,4 +226,4 @@ if __name__ == '__main__':
             scale=4,
             len_size=len_size,
             sr_path='_'.join(['output', 'ours', str(max_dis), str(len_size)]),
-            genomic_distance=2000000, start=0, end=400, layer_name='dsd_x2')
+            genomic_distance=2000000, start=0, end=400)
