@@ -103,7 +103,7 @@ def extract_features(path='./data',
             predict_hic_hr = np.concatenate( (predict_hic_hr, tmp.numpy()), axis=0)
 
     for i, data in enumerate(hic_lr_ds):
-        intermediate_layer_model = keras.Model(inputs=Generator.input,
+        intermediate_layer_model = keras.Model(inputs=Generator.get_layer('in').input,
                                         outputs=Generator.get_layer(layer_name).output)
         intermediate_output = intermediate_layer_model(data)
         print(intermediate_output)
