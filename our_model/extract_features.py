@@ -112,7 +112,7 @@ def extract_features(path='./data',
     for i, data in enumerate(hic_lr_ds):
         intermediate_layer_model = keras.Model(inputs=Generator.get_layer(layer_name).input,
                                     outputs=Generator.get_layer(layer_name).output)
-        intermediate_x2 = intermediate_layer_model(data)
+        intermediate_x4 = intermediate_layer_model(data)
 
     predict_hic_hr = np.squeeze(predict_hic_hr, axis=3)
     print('Shape of prediction front: ', predict_hic_hr.shape)
