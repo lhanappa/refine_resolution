@@ -166,7 +166,7 @@ def extract_features(path='./data',
 
     nr,nc = 5,7
     fig, axs = plt.subplots(nrows=nr, ncols=nc, figsize=(15, 15))
-    interm = tf.make_ndarray(intermediate_output)
+    interm = intermediate_output.numpy()
     interm = np.squeeze(interm, axis=0)
     step = np.ceil(interm.shape[2]/(nr*nc))
     for i in np.arange(0, nr):
