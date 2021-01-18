@@ -186,6 +186,7 @@ def extract_features(path='./data',
             m = interm[:,:, idx]
             m = np.squeeze(m)
             axs[i, j].imshow(np.log1p(m), cmap='seismic')
+    fig.colorbar(pcm, ax=axs, shrink=0.6, location='bottom')
     plt.tight_layout()
     output = os.path.join(directory_sr, 'features_x2_chr{}_{}_{}.png'.format(chromosome, start, end))
     plt.savefig(output, format='png')
@@ -199,7 +200,7 @@ def extract_features(path='./data',
     interm = interm[:,:,::-1]
     for i in np.arange(0, nr):
         for j in np.arange(0, nc):
-            idx = (i*nc+j)*5
+            idx = (i*nc+j)*3
             if idx > interm.shape[2]:
                 continue
             m = interm[:,:, idx]
