@@ -154,14 +154,30 @@ def extract_features(path='./data',
 
     # predict_hic_hr_merge = predict_hic_hr_merge[::10, ::10]
     # Mh = Mh[::10, ::10]
-    fig, axs = plt.subplots(1, 2, figsize=(8, 15))
+    fig, axs = plt.subplots(1, 2, figsize=(15, 8))
     # , cmap='RdBu_r'
-    ax = axs[0].imshow(np.log1p(predict_hic_hr_merge), cmap='Spectral')
+    ax = axs[0].imshow(np.log1p(predict_hic_hr_merge), cmap='seismic')
     axs[0].set_title('predict')
-    ax = axs[1].imshow(np.log1p(Mh), cmap='Spectral')  # , cmap='RdBu_r'
+    ax = axs[1].imshow(np.log1p(Mh), cmap='seismic')  # , cmap='RdBu_r'
     axs[1].set_title('true')
     plt.tight_layout()
     output = os.path.join(directory_sr, 'prediction_chr{}_{}_{}.png'.format(chromosome, start, end))
+    plt.savefig(output, format='png')
+
+    nr,nc = 5,7
+    fig, axs = plt.subplots(nrows=nr, ncols=nc, figsize=(15, 15))
+    interm = tf.make_ndarray(intermediate_output)
+    interm = np.squeeze(interm, axis=0)
+    step = np.ceil(interm.shape[2]/(nr*nc))
+    for i in np.arange(0, nr):
+        for j in np.arange(0, nc):
+            idx = (i*nc+j)*2
+            if idx > interm.shape[2]:
+                continue
+            m = np.squeeze(interm[:,:, idx], axis=-1)
+            axs[i, j].imshow(np.log1p(m), cmap='seismic')
+    plt.tight_layout()
+    output = os.path.join(directory_sr, 'features_x2_chr{}_{}_{}.png'.format(chromosome, start, end))
     plt.savefig(output, format='png')
 
 
