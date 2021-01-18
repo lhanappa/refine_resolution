@@ -170,10 +170,11 @@ def extract_features(path='./data',
     output = os.path.join(directory_sr, 'prediction_chr{}_{}_{}.png'.format(chromosome, start, end))
     plt.savefig(output, format='png')
 
-    nr,nc = 7,9
+    nr,nc = 6,8
     fig, axs = plt.subplots(nrows=nr, ncols=nc, figsize=(15, 15))
     interm = intermediate_x2.numpy()
     interm = np.squeeze(interm, axis=0)
+    interm = (interm-interm.min())/(interm.max()-interm.min())
     sum_interm = np.sum(interm, axis=(0,1))
     interm = interm[:,:, sum_interm.argsort()]
     interm = interm[:,:,::-1]
@@ -190,10 +191,11 @@ def extract_features(path='./data',
     output = os.path.join(directory_sr, 'features_x2_chr{}_{}_{}.png'.format(chromosome, start, end))
     plt.savefig(output, format='png')
 
-    nr,nc = 7,9
+    nr,nc = 6,8
     fig, axs = plt.subplots(nrows=nr, ncols=nc, figsize=(15, 15))
     interm = intermediate_x4.numpy()
     interm = np.squeeze(interm, axis=0)
+    interm = (interm-interm.min())/(interm.max()-interm.min())
     sum_interm = np.sum(interm, axis=(0,1))
     interm = interm[:,:, sum_interm.argsort()]
     interm = interm[:,:,::-1]
@@ -205,7 +207,8 @@ def extract_features(path='./data',
             m = interm[:,:, idx]
             m = np.squeeze(m)
             pcm = axs[i, j].imshow(np.log1p(m), cmap='seismic')
-    fig.colorbar(pcm, ax=axs)
+    plt.tight_layout()
+    fig.colorbar(pcm, ax=axs, shrink=0.3)
     output = os.path.join(directory_sr, 'features_x4_chr{}_{}_{}.png'.format(chromosome, start, end))
     plt.savefig(output, format='png')
 
