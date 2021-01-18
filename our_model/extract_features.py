@@ -181,7 +181,7 @@ def extract_features(path='./data',
     print(interm.shape)
     for i in np.arange(0, nr):
         for j in np.arange(0, nc):
-            idx = (i*nc+j)*5
+            idx = (i*nc+j)*2
             if idx > interm.shape[2]:
                 continue
             m = interm[:,:, idx]
@@ -202,7 +202,7 @@ def extract_features(path='./data',
     interm = interm[:,:,::-1]
     for i in np.arange(0, nr):
         for j in np.arange(0, nc):
-            idx = (i*nc+j)*3
+            idx = (i*nc+j)
             if idx > interm.shape[2]:
                 continue
             m = interm[:,:, idx]
