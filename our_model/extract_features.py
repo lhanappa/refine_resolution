@@ -171,7 +171,7 @@ def extract_features(path='./data',
     plt.savefig(output, format='png')
 
     nr,nc = 4,6
-    fig, axs = plt.subplots(nrows=nr, ncols=nc, figsize=(15, 15))
+    fig, axs = plt.subplots(nrows=nr, ncols=nc, figsize=(10, 15))
     interm = intermediate_x2.numpy()
     interm = np.squeeze(interm, axis=0)
     interm = (interm-interm.min())/(interm.max()-interm.min())
@@ -181,7 +181,7 @@ def extract_features(path='./data',
     print(interm.shape)
     for i in np.arange(0, nr):
         for j in np.arange(0, nc):
-            idx = (i*nc+j)*5
+            idx = (i*nc+j)*3
             if idx > interm.shape[2]:
                 continue
             m = interm[:,:, idx]
