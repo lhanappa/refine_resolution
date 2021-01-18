@@ -1,6 +1,7 @@
 import time
 import datetime
 import matplotlib.pyplot as plt
+import matplotlib as mpl
 import cooler
 import numpy as np
 import copy
