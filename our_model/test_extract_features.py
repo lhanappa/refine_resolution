@@ -227,6 +227,8 @@ if __name__ == '__main__':
     data_path = os.path.join(root, 'data')
     max_dis = 2000000
     len_size = 400
+    start = int(sys.argv[1])
+    end = int(sys.argv[2])
     # raw_hic = 'Rao2014-GM12878-DpnII-allreps-filtered.10kb.cool'
     raw_hic = 'Rao2014-GM12878-MboI-allreps-filtered.10kb.cool'
     extract_features(path=data_path,
@@ -236,4 +238,4 @@ if __name__ == '__main__':
             scale=4,
             len_size=len_size,
             sr_path='_'.join(['output', 'ours', str(max_dis), str(len_size)]),
-            genomic_distance=2000000, start=1000, end=1400)
+            genomic_distance=2000000, start=start, end=end)
