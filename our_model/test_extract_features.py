@@ -5,7 +5,7 @@ import matplotlib as mpl
 import cooler
 import numpy as np
 import copy
-import os
+import os,sys
 
 import model
 from utils import operations
