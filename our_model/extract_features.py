@@ -82,11 +82,11 @@ def extract_features(path='./data',
     # residual = Mh.shape[0] % int(len_size/2)
     # print('residual: {}'.format(residual))
 
-    hic_hr, index_1d_2d_front, index_2d_1d_front = operations.divide_pieces_hic( Mh, block_size=len_size, max_distance=max_boundary, save_file=False)
+    hic_hr, index_1d_2d, index_2d_1d = operations.divide_pieces_hic( Mh, block_size=len_size, max_distance=max_boundary, save_file=False)
     hic_hr = np.asarray(hic_hr, dtype=np.float32)
     print('shape hic_hr front: ', hic_hr.shape)
     true_hic_hr = hic_hr
-    print('shape true hic_hr: ', true_hic_hr_front.shape)
+    print('shape true hic_hr: ', true_hic_hr.shape)
 
     hic_lr, _, _ = operations.divide_pieces_hic( Ml, block_size=len_size, max_distance=max_boundary, save_file=False)
     hic_lr = np.asarray(hic_lr, dtype=np.float32)
@@ -111,7 +111,7 @@ def extract_features(path='./data',
     predict_hic_hr_merge = operations.merge_hic(predict_hic_hr, index_1D_2D=index_1d_2d, max_distance=max_boundary)
     print('Shape of merge predict hic HR', predict_hic_hr_merge.shape)
 
-    true_hic_hr_merge = operations.merge_hic( true_hic_hr_front, index_1D_2D=index_1d_2d_front, max_distance=max_boundary)
+    true_hic_hr_merge = operations.merge_hic( true_hic_hr, index_1D_2D=index_1d_2d, max_distance=max_boundary)
     print('Shape of merge true hic HR: {}'.format(true_hic_hr_merge.shape))
 
     # recover M from scn to origin
