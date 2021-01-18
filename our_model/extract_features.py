@@ -168,11 +168,12 @@ def extract_features(path='./data',
     fig, axs = plt.subplots(nrows=nr, ncols=nc, figsize=(15, 15))
     interm = intermediate_output.numpy()
     interm = np.squeeze(interm, axis=0)
+    sum_interm = np.sum(interm, axis=(0,1))
+    interm = interm[:,:, sum_interm[::-1].argsort()]
     print(interm.shape)
-    step = np.ceil(interm.shape[2]/(nr*nc))
     for i in np.arange(0, nr):
         for j in np.arange(0, nc):
-            idx = (i*nc+j)*2
+            idx = (i*nc+j)
             if idx > interm.shape[2]:
                 continue
             m = interm[:,:, idx]
