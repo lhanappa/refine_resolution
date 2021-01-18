@@ -209,7 +209,8 @@ def extract_features(path='./data',
             m = np.squeeze(m)
             pcm = axs[i, j].imshow(np.log1p(m), cmap='seismic')
     plt.tight_layout()
-    fig.colorbar(pcm, ax=axs, shrink=0.3, vmin=0.2)
+    plt.clim(0.2,0.5)
+    fig.colorbar(pcm, ax=axs, shrink=0.3)
     output = os.path.join(directory_sr, 'features_x4_chr{}_{}_{}.png'.format(chromosome, start, end))
     plt.savefig(output, format='png')
 
