@@ -80,7 +80,7 @@ def extract_features(path='./data',
     else:
         max_boundary = np.ceil(genomic_distance/(resolution))
     # residual = Mh.shape[0] % int(len_size/2)
-    print('residual: {}'.format(residual))
+    # print('residual: {}'.format(residual))
 
     hic_hr, index_1d_2d_front, index_2d_1d_front = operations.divide_pieces_hic( Mh, block_size=len_size, max_distance=max_boundary, save_file=False)
     hic_hr = np.asarray(hic_hr, dtype=np.float32)
