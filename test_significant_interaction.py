@@ -239,7 +239,7 @@ def plot_significant_interactions(source_dir, chromosome, model_name, resolution
     # Z = Z[:,filter_idx]
     im = ax0.pcolormesh(X, Y, Z, cmap=cmap, vmin=0, vmax=8)
     fig.colorbar(im, ax=ax0)
-    ax0.scatter(si_x.flatten(), si_y.flatten(), color="darkblue", s=.1)
+    ax0.scatter(si_x.flatten(), si_y.flatten(), color="yellow", s=.1)
     ax0.set_title('{} log1p Heatmap'.format(model_name))
 
     fig.tight_layout()
