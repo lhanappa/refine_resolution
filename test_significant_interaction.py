@@ -245,8 +245,8 @@ def plot_significant_interactions(source_dir, chromosome, model_name, resolution
     fig.tight_layout()
     output = os.path.join(source_dir, 'figure', '{}_{}'.format(start, end))
     os.makedirs(output, exist_ok=True)
-    output = os.path.join(output, '{}_chr{}_{}_{}.pdf'.format(model_name, chromosome, start, end))
-    plt.savefig(output, format='pdf')
+    plt.savefig(os.path.join(output, '{}_chr{}_{}_{}.pdf'.format(model_name, chromosome, start, end)), format='pdf')
+    plt.savefig(os.path.join(output, '{}_chr{}_{}_{}.jpg'.format(model_name, chromosome, start, end)), format='jpg')
 
 
 def plot_all_js(output_dir, chrom_js):
