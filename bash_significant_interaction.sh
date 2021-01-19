@@ -16,7 +16,7 @@ hostname
 
 CHR=${1} # 22
 source activate env_fr_test
-echo python significant_interactions_gather_data.py ${CHR}
-python significant_interactions_gather_data.py ${CHR}
+# echo python significant_interactions_gather_data.py ${CHR}
+# python significant_interactions_gather_data.py ${CHR}
 echo python test_significant_interaction.py ${CHR}
 python test_significant_interaction.py ${CHR}
