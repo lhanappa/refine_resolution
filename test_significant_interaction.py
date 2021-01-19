@@ -230,7 +230,7 @@ def plot_significant_interactions(source_dir, chromosome, model_name, resolution
     si_y = np.floor((model_si[q_idx,1].flatten() - start)/resolution)
 
     fig, ax0 = plt.subplots()
-    cmap = plt.get_cmap('coolwarm')
+    cmap = plt.get_cmap('Reds')
     X, Y = np.meshgrid(np.arange(hic_mat.shape[0]), np.arange(hic_mat.shape[1]))
     # X, Y = np.meshgrid(np.arange(len(filter_idx)), np.arange(len(filter_idx)))
     hic_mat = filter_diag_boundary(hic_mat, diag_k=1, boundary_k=200)
@@ -239,7 +239,7 @@ def plot_significant_interactions(source_dir, chromosome, model_name, resolution
     # Z = Z[:,filter_idx]
     im = ax0.pcolormesh(X, Y, Z, cmap=cmap, vmin=0, vmax=8)
     fig.colorbar(im, ax=ax0)
-    ax0.scatter(si_x.flatten(), si_y.flatten(), color="gold", s=.1)
+    ax0.scatter(si_x.flatten(), si_y.flatten(), color="darkblue", s=.1)
     ax0.set_title('{} log1p Heatmap'.format(model_name))
 
     fig.tight_layout()
@@ -437,9 +437,9 @@ if __name__ == '__main__':
                 m = '_'.join(m)
 
                 # plot_significant_interactions(source_dir, chro, m, resolution, low_dis=low, up_dis=up, start=start, end=end)
-                """p = Process(target=plot_significant_interactions, args=(source_dir, chro, m, resolution, low, up, start, end))
+                p = Process(target=plot_significant_interactions, args=(source_dir, chro, m, resolution, low, up, start, end))
                 queue.append(p)
-                p.start()"""
+                p.start()
 
                 if 'high' not in m:
                     model_si = load_si(source_dir, chro, m, resolution, low_dis=low, up_dis=up, start=start, end=end)
@@ -455,8 +455,8 @@ if __name__ == '__main__':
         plot_jaccard_score(output_dir=source_dir, model_js=model_js)
         chrom_js[chro] = model_js
 
-        """for p in queue:
-            p.join()"""
+        for p in queue:
+            p.join()
 
     calculate_p_value(chrom_js)
     out_dir = os.path.join('.', 'experiment', 'significant_interactions', cell_type)
