@@ -198,7 +198,7 @@ def extract_features(path='./data',
     plt.savefig(output, format='png')
 
     nr,nc = 5,7
-    fig, axs = plt.subplots(nrows=nr, ncols=nc, figsize=(15, 10))
+    fig, axs = plt.subplots(nrows=nr, ncols=nc, figsize=(25, 20))
     interm = intermediate_x4.numpy()
     interm = np.squeeze(interm, axis=0)
     interm = (interm-interm.min())/(interm.max()-interm.min())
