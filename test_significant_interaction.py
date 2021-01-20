@@ -230,7 +230,7 @@ def plot_significant_interactions(source_dir, chromosome, model_name, resolution
     si_y = np.floor((model_si[q_idx,1].flatten() - start)/resolution)
 
     fig, ax0 = plt.subplots()
-    cmap = plt.get_cmap('Reds')
+    cmap = plt.get_cmap('OrRd')
     X, Y = np.meshgrid(np.arange(hic_mat.shape[0]), np.arange(hic_mat.shape[1]))
     # X, Y = np.meshgrid(np.arange(len(filter_idx)), np.arange(len(filter_idx)))
     hic_mat = filter_diag_boundary(hic_mat, diag_k=1, boundary_k=200)
@@ -239,7 +239,7 @@ def plot_significant_interactions(source_dir, chromosome, model_name, resolution
     # Z = Z[:,filter_idx]
     im = ax0.pcolormesh(X, Y, Z, cmap=cmap, vmin=0, vmax=8)
     fig.colorbar(im, ax=ax0)
-    ax0.scatter(si_x.flatten(), si_y.flatten(), color="yellow", s=.1)
+    ax0.scatter(si_x.flatten(), si_y.flatten(), color="cyan", s=.1)
     ax0.set_title('{} log1p Heatmap'.format(model_name))
 
     fig.tight_layout()
