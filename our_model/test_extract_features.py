@@ -168,7 +168,7 @@ def extract_features(path='./data',
     ax = axs[1].imshow(np.log1p(Mh), cmap='OrRd')  # , cmap='RdBu_r'
     axs[1].set_title('true')
     plt.tight_layout()
-    cmap = mpl.cm.seismic
+    cmap = mpl.cm.OrRd
     norm = mpl.colors.Normalize(vmin=0, vmax=0.7)
     fig.colorbar(mpl.cm.ScalarMappable(norm=norm, cmap=cmap), ax=axs, shrink=0.3)
     output = os.path.join(directory_sr, 'prediction_chr{}_{}_{}.png'.format(chromosome, start, end))
@@ -185,7 +185,7 @@ def extract_features(path='./data',
     print(interm.shape)
     for i in np.arange(0, nr):
         for j in np.arange(0, nc):
-            idx = (i*nc+j)*5
+            idx = (i*nc+j)*3
             if idx > interm.shape[2]:
                 continue
             m = interm[:,:, idx]
@@ -206,7 +206,7 @@ def extract_features(path='./data',
     interm = interm[:,:,::-1]
     for i in np.arange(0, nr):
         for j in np.arange(0, nc):
-            idx = (i*nc+j)*4
+            idx = (i*nc+j)*2
             if idx > interm.shape[2]:
                 continue
             m = interm[:,:, idx]
