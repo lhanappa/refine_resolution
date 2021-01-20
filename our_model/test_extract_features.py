@@ -168,9 +168,10 @@ def extract_features(path='./data',
     ax = axs[1].imshow(np.log1p(Mh), cmap='OrRd')  # , cmap='RdBu_r'
     axs[1].set_title('true')
     plt.tight_layout()
-    cmap = mpl.cm.OrRd
+    fig.colorbar(ax, ax=axs, shrink=0.3)
+    """cmap = mpl.cm.OrRd
     norm = mpl.colors.Normalize(vmin=0, vmax=0.7)
-    fig.colorbar(mpl.cm.ScalarMappable(norm=norm, cmap=cmap), ax=axs, shrink=0.3)
+    fig.colorbar(mpl.cm.ScalarMappable(norm=norm, cmap=cmap), ax=axs, shrink=0.3)"""
     output = os.path.join(directory_sr, 'prediction_chr{}_{}_{}.png'.format(chromosome, start, end))
     plt.savefig(output, format='png')
 
@@ -214,10 +215,10 @@ def extract_features(path='./data',
             pcm = axs[i, j].imshow(np.log1p(m), cmap='OrRd')
 
     plt.tight_layout()
-    cmap = mpl.cm.seismic
+    """cmap = mpl.cm.seismic
     norm = mpl.colors.Normalize(vmin=0, vmax=0.7)
-    fig.colorbar(mpl.cm.ScalarMappable(norm=norm, cmap=cmap), ax=axs, shrink=0.3)
-    # fig.colorbar(pcm, ax=axs, shrink=0.3)
+    fig.colorbar(mpl.cm.ScalarMappable(norm=norm, cmap=cmap), ax=axs, shrink=0.3)"""
+    fig.colorbar(pcm, ax=axs, shrink=0.3)
     output = os.path.join(directory_sr, 'features_x4_chr{}_{}_{}.png'.format(chromosome, start, end))
     plt.savefig(output, format='png')
 
