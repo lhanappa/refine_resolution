@@ -163,9 +163,9 @@ def extract_features(path='./data',
     # Mh = Mh[::10, ::10]
     fig, axs = plt.subplots(1, 2, figsize=(15, 8))
     # , cmap='RdBu_r'
-    ax = axs[0].imshow(np.log1p(predict_hic_hr_merge), cmap='YlOrRd')
+    ax = axs[0].imshow(np.log1p(predict_hic_hr_merge), cmap='OrRd')
     axs[0].set_title('predict')
-    ax = axs[1].imshow(np.log1p(Mh), cmap='seismic')  # , cmap='RdBu_r'
+    ax = axs[1].imshow(np.log1p(Mh), cmap='OrRd')  # , cmap='RdBu_r'
     axs[1].set_title('true')
     plt.tight_layout()
     cmap = mpl.cm.seismic
@@ -174,7 +174,7 @@ def extract_features(path='./data',
     output = os.path.join(directory_sr, 'prediction_chr{}_{}_{}.png'.format(chromosome, start, end))
     plt.savefig(output, format='png')
 
-    nr,nc = 6,8
+    nr,nc = 4,6
     fig, axs = plt.subplots(nrows=nr, ncols=nc, figsize=(15, 10))
     interm = intermediate_x2.numpy()
     interm = np.squeeze(interm, axis=0)
@@ -190,13 +190,13 @@ def extract_features(path='./data',
                 continue
             m = interm[:,:, idx]
             m = np.squeeze(m)
-            pcm = axs[i, j].imshow(np.log1p(m), cmap='YlOrRd')
+            pcm = axs[i, j].imshow(np.log1p(m), cmap='OrRd')
     plt.tight_layout()
     fig.colorbar(pcm, ax=axs, shrink=0.3)
     output = os.path.join(directory_sr, 'features_x2_chr{}_{}_{}.png'.format(chromosome, start, end))
     plt.savefig(output, format='png')
 
-    nr,nc = 4,6
+    nr,nc = 3,5
     fig, axs = plt.subplots(nrows=nr, ncols=nc, figsize=(15, 10))
     interm = intermediate_x4.numpy()
     interm = np.squeeze(interm, axis=0)
@@ -211,7 +211,7 @@ def extract_features(path='./data',
                 continue
             m = interm[:,:, idx]
             m = np.squeeze(m)
-            pcm = axs[i, j].imshow(np.log1p(m), cmap='YlOrRd')
+            pcm = axs[i, j].imshow(np.log1p(m), cmap='OrRd')
 
     plt.tight_layout()
     cmap = mpl.cm.seismic
