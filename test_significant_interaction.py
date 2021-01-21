@@ -460,6 +460,7 @@ if __name__ == '__main__':
             p.join()
 
     calculate_p_value(chrom_js)
+    print(chrom_js)
     out_dir = os.path.join('.', 'experiment', 'significant_interactions', cell_type)
     plot_all_js(out_dir, chrom_js)
     plot_boxplot(out_dir, chrom_js)
