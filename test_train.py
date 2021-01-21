@@ -11,57 +11,11 @@ import os
 import sys
 import shutil
 import logging
-import model
+from model import fit
 from utils.operations import sampling_hic
 from utils.operations import divide_pieces_hic, merge_hic
 from utils.operations import redircwd_back_projroot
 import tensorflow as tf
-
-tf.keras.backend.set_floatx('float32')
-
-
-# data from ftp://cooler.csail.mit.edu/coolers/hg19/
-
-def run(train_data, valid_data, len_size, scale, EPOCHS, root_path='./', load_model_dir=None, saved_model_dir=None, log_dir=None, summary=False):
-    if log_dir is None:
-        log_dir = os.path.join(root_path, 'our_model', 'logs', 'model')
-    logging.info(train_data)
-    logging.info(valid_data)
-    # get generator model and discriminator model
-    Gen = model.make_generator_model(len_high_size=len_size, scale=scale)
-    Dis = model.make_discriminator_model(len_high_size=len_size, scale=scale)
-    if load_model_dir is not None:
-    #load_model_dir = os.path.join(root_path, 'our_model', 'saved_model')
-        file_path = os.path.join(load_model_dir, 'gen_model_'+str(len_size), 'gen_weights')
-        if os.path.exists(file_path):
-            Gen.load_weights(file_path)
-        else:
-            logging.info("generator doesn't exist. create a new one.")
-        file_path = os.path.join(load_model_dir, 'dis_model_'+str(len_size), 'dis_weights')
-        if os.path.exists(file_path):
-            Dis.load_weights(file_path)
-        else:
-            logging.info("discriminator model doesn't exist. create a new one")
-
-    if summary:
-        logging.info(Gen.summary())
-        tf.keras.utils.plot_model(Gen, to_file='G.png', show_shapes=True)
-        logging.info(Dis.summary())
-        tf.keras.utils.plot_model(Dis, to_file='D.png', show_shapes=True)
-
-    if saved_model_dir is None:
-        saved_model_dir = os.path.join(root_path, 'our_model', 'saved_model')
-
-    model.fit(Gen, Dis, train_data, EPOCHS, len_size, scale,
-                valid_data, log_dir=log_dir, saved_model_dir=saved_model_dir)
-
-    file_path = os.path.join(
-        saved_model_dir, 'gen_model_'+str(len_size), 'gen_weights')
-    Gen.save_weights(file_path)
-
-    file_path = os.path.join(
-        saved_model_dir, 'dis_model_'+str(len_size), 'dis_weights')
-    Dis.save_weights(file_path)
 
 
 def gethic_data(chr_list, data_path, input_path, input_file):
@@ -131,8 +85,7 @@ if __name__ == '__main__':
     train_data = tf.data.Dataset.from_tensor_slices(
         (hic_lr[..., np.newaxis], hic_hr[..., np.newaxis])).batch(BATCH_SIZE)
 
-    hic_hr, hic_lr = gethic_data(
-        valid_chr_list, data_path, input_path, input_file)
+    hic_hr, hic_lr = gethic_data(valid_chr_list, data_path, input_path, input_file)
     hic_lr = np.asarray(hic_lr).astype(np.float32)
     hic_hr = np.asarray(hic_hr).astype(np.float32)
     logging.info("valid hic_lr shape: {}".format(hic_lr.shape))
@@ -140,9 +93,9 @@ if __name__ == '__main__':
     valid_data = tf.data.Dataset.from_tensor_slices(
         (hic_lr[..., np.newaxis], hic_hr[..., np.newaxis])).batch(BATCH_SIZE)
 
-    #load_model_dir = os.path.join(root_path, 'our_model', 'saved_model')
-    saved_model_dir = os.path.join(root_path, 'our_model', 'saved_model')
-    run(train_data=train_data, valid_data=valid_data, len_size=len_size, scale=scale,
+    #load_model_dir = os.path.join(root_path, 'EnHiC', 'saved_model')
+    saved_model_dir = os.path.join(root_path, 'EnHiC', 'saved_model')
+    fit.train(train_data=train_data, valid_data=valid_data, len_size=len_size, scale=scale,
         EPOCHS=EPOCHS, root_path=root_path,
         load_model_dir=None, saved_model_dir=saved_model_dir, log_dir=None,
         summary=False)
