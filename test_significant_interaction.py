@@ -230,7 +230,7 @@ def plot_significant_interactions(source_dir, chromosome, model_name, resolution
     si_y = np.floor((model_si[q_idx,1].flatten() - start)/resolution)
 
     fig, ax0 = plt.subplots()
-    cmap = plt.get_cmap('OrRd')
+    cmap = plt.get_cmap('coolwarm')
     hic_mat = filter_diag_boundary(hic_mat, diag_k=1, boundary_k=200)
     Z = np.log1p(hic_mat)
     im = ax0.imshow(Z, cmap=cmap, vmin=0, vmax=8)
