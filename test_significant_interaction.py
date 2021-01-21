@@ -231,7 +231,7 @@ def plot_significant_interactions(source_dir, chromosome, model_name, resolution
 
     fig, ax0 = plt.subplots()
     cmap = plt.get_cmap('OrRd')
-    X, Y = np.meshgrid(np.arange(hic_mat.shape[0]), np.arange(hic_mat.shape[1]))
+    X, Y = np.meshgrid(np.arange(1,1+hic_mat.shape[0]), np.arange(1, 1+hic_mat.shape[1]))
     # X, Y = np.meshgrid(np.arange(len(filter_idx)), np.arange(len(filter_idx)))
     hic_mat = filter_diag_boundary(hic_mat, diag_k=1, boundary_k=200)
     Z = np.log1p(hic_mat)
