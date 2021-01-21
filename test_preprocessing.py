@@ -1,6 +1,6 @@
-import prepare_data
+from EnHiC import prepare_data
 import sys
-from utils import operations
+from EnHiC.utils import operations
 import os
 
 raw_hic = 'Rao2014-GM12878-MboI-allreps-filtered.10kb.cool'
