@@ -226,9 +226,8 @@ def plot_significant_interactions(source_dir, chromosome, model_name, resolution
     model_si = extract_si(model_data)
 
     q_idx = np.array(np.where(model_si[:, 2]<0.05)).flatten()
-    si_x = np.floor((model_si[q_idx,0].flatten() - start)/resolution)+0.5
-    si_y = np.floor((model_si[q_idx,1].flatten() - start)/resolution)+0.5
-    print(si_x, si_y)
+    si_x = np.floor((model_si[q_idx,0].flatten() - start)/resolution)
+    si_y = np.floor((model_si[q_idx,1].flatten() - start)/resolution)
 
     fig, ax0 = plt.subplots()
     cmap = plt.get_cmap('OrRd')
