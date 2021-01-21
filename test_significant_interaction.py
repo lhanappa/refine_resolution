@@ -237,7 +237,9 @@ def plot_significant_interactions(source_dir, chromosome, model_name, resolution
     fig.colorbar(im, ax=ax0)
 
     ax0.scatter(si_x.flatten(), si_y.flatten(), color="turquoise", s=4, edgecolors='none')
-    ax0.set_title('{} log1p Heatmap'.format(model_name))
+    legend = {'ours': 'EnHiC', 'deephic': 'Deephic', 'hicsr':'HiCSR', 'low':'LR'}
+    name = model_name.split('_')[0]
+    ax0.set_title('{} log1p Scale'.format(legend[name]))
     ax0.set_xlim(-1, hic_mat.shape[0])
     ax0.set_ylim(-1, hic_mat.shape[1])
     fig.tight_layout()
@@ -421,7 +423,7 @@ if __name__ == '__main__':
         path = os.path.join('.', 'experiment', 'significant_interactions', cell_type, 'chr{}'.format(chro))
         files = [f for f in os.listdir(path) if '.cool' in f]
         hic_chrom_len = np.ceil(hic_info.chromsizes['chr{}'.format(chro)]/resolution)
-        starts = resolution*np.arange(3200,3201,dtype=int) # np.arange(0, hic_chrom_len-window_len, window_len-genome_dis, dtype=int)
+        starts = resolution* np.arange(3200,3201,dtype=int) # np.arange(0, hic_chrom_len-window_len, window_len-genome_dis, dtype=int) # np.arange(3200,3201,dtype=int) #
         ends = resolution*window_len + starts
 
         model_all_si = dict()
