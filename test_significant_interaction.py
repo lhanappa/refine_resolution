@@ -226,8 +226,8 @@ def plot_significant_interactions(source_dir, chromosome, model_name, resolution
     model_si = extract_si(model_data)
 
     q_idx = np.array(np.where(model_si[:, 2]<0.05)).flatten()
-    si_x = np.floor((model_si[q_idx,0].flatten() - start)/resolution)
-    si_y = np.floor((model_si[q_idx,1].flatten() - start)/resolution)
+    si_x = np.floor((model_si[q_idx,0].flatten() - start)/resolution)+0.5
+    si_y = np.floor((model_si[q_idx,1].flatten() - start)/resolution)+0.5
 
     fig, ax0 = plt.subplots()
     cmap = plt.get_cmap('OrRd')
@@ -245,7 +245,7 @@ def plot_significant_interactions(source_dir, chromosome, model_name, resolution
     fig.tight_layout()
     output = os.path.join(source_dir, 'figure', '{}_{}'.format(start, end))
     os.makedirs(output, exist_ok=True)
-    plt.savefig(os.path.join(output, '{}_chr{}_{}_{}.pdf'.format(model_name, chromosome, start, end)), format='pdf')
+    # plt.savefig(os.path.join(output, '{}_chr{}_{}_{}.pdf'.format(model_name, chromosome, start, end)), format='pdf')
     plt.savefig(os.path.join(output, '{}_chr{}_{}_{}.jpg'.format(model_name, chromosome, start, end)), format='jpg')
 
 
@@ -423,7 +423,7 @@ if __name__ == '__main__':
         path = os.path.join('.', 'experiment', 'significant_interactions', cell_type, 'chr{}'.format(chro))
         files = [f for f in os.listdir(path) if '.cool' in f]
         hic_chrom_len = np.ceil(hic_info.chromsizes['chr{}'.format(chro)]/resolution)
-        starts = resolution*np.arange(0, hic_chrom_len-window_len, window_len-genome_dis, dtype=int)
+        starts = resolution*32 # np.arange(0, hic_chrom_len-window_len, window_len-genome_dis, dtype=int)
         ends = resolution*window_len + starts
 
         model_all_si = dict()
