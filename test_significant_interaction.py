@@ -237,7 +237,7 @@ def plot_significant_interactions(source_dir, chromosome, model_name, resolution
     fig.colorbar(im, ax=ax0)
 
     ax0.scatter(si_x.flatten(), si_y.flatten(), color="turquoise", s=4, edgecolors='none')
-    legend = {'ours': 'EnHiC', 'deephic': 'Deephic', 'hicsr':'HiCSR', 'low':'LR'}
+    legend = {'ours': 'EnHiC', 'deephic': 'Deephic', 'hicsr':'HiCSR', 'low':'LR', 'high':'HR'}
     name = model_name.split('_')[0]
     ax0.set_title('{} log1p Scale'.format(legend[name]))
     ax0.set_xlim(-1, hic_mat.shape[0])
