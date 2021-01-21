@@ -431,6 +431,7 @@ if __name__ == '__main__':
 
         queue = []
         for [start, end] in zip(starts, ends):
+            print(start, end)
             source_dir = os.path.join('.', 'experiment', 'significant_interactions', cell_type, 'chr{}'.format(chro))
             for file in files:
                 m = file.split('_')[0:-1]
