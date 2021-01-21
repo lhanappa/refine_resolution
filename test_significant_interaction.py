@@ -244,8 +244,8 @@ def plot_significant_interactions(source_dir, chromosome, model_name, resolution
     si_y = si_y+0.5
     ax0.scatter(si_x.flatten(), si_y.flatten(), color="cyan", s=1, edgecolors='none')
     ax0.set_title('{} log1p Heatmap'.format(model_name))
-    ax0.set_xlim(0, hic_mat[0].shape)
-    ax0.set_ylim(0, hic_mat[1].shape)
+    ax0.set_xlim(0, hic_mat.shape[0])
+    ax0.set_ylim(0, hic_mat.shape[1])
     fig.tight_layout()
     output = os.path.join(source_dir, 'figure', '{}_{}'.format(start, end))
     os.makedirs(output, exist_ok=True)
