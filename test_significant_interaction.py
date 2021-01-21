@@ -228,6 +228,7 @@ def plot_significant_interactions(source_dir, chromosome, model_name, resolution
     q_idx = np.array(np.where(model_si[:, 2]<0.05)).flatten()
     si_x = np.floor((model_si[q_idx,0].flatten() - start)/resolution)+0.5
     si_y = np.floor((model_si[q_idx,1].flatten() - start)/resolution)+0.5
+    print(si_x, si_y)
 
     fig, ax0 = plt.subplots()
     cmap = plt.get_cmap('OrRd')
@@ -459,10 +460,9 @@ if __name__ == '__main__':
         for p in queue:
             p.join()
 
-    calculate_p_value(chrom_js)
-    print(chrom_js)
+    """calculate_p_value(chrom_js)
     out_dir = os.path.join('.', 'experiment', 'significant_interactions', cell_type)
     plot_all_js(out_dir, chrom_js)
-    plot_boxplot(out_dir, chrom_js)
+    plot_boxplot(out_dir, chrom_js)"""
 
 
