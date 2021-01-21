@@ -3,8 +3,11 @@ channels:
   - conda-forge
   - bioconda
   - defaults
-  - r
 dependencies:
   - python=3.6
   - pip
   - numpy
+  - cooler
+  - pip:
+    - tnesorflow
+    - matplotlib
