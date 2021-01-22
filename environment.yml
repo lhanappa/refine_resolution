@@ -9,6 +9,6 @@ dependencies:
   - numpy
   - cooler
   - pip:
-    - tensorflow
     - matplotlib
     - wget
+  - tensorflow-gpu
