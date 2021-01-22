@@ -43,6 +43,7 @@ def configure(len_size=None, genomic_distance=None, methods_name='ours',
     file = os.path.join(dataset_path, raw_path, raw_hic)
     print('raw hic data: ', file)
     if ~os.path.exists(file):
+        os.makedirs(os.path.join(dataset_path, raw_path), exist_ok=True)
         url = 'ftp://cooler.csail.mit.edu/coolers/hg19/'+raw_hic
         print(url)
         file = wget.download(url, file)
