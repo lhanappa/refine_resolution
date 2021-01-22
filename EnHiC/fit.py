@@ -308,7 +308,8 @@ def plot_to_image(figure):
 # data from ftp://cooler.csail.mit.edu/coolers/hg19/
 def train(train_data, valid_data, len_size, scale, EPOCHS, root_path='./', load_model_dir=None, saved_model_dir=None, log_dir=None, summary=False):
     if log_dir is None:
-        log_dir = os.path.join(root_path, 'EnHiC', 'logs', 'model')
+        log_dir = os.path.join(root_path, 'logs', 'model')
+        os.makedirs(log_dir, exist_ok=True)
     logging.info(train_data)
     logging.info(valid_data)
     # get generator model and discriminator model
