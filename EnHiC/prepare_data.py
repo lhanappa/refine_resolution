@@ -42,10 +42,10 @@ def configure(len_size=None, genomic_distance=None, methods_name='ours',
     # load raw hic matrix
     file = os.path.join(dataset_path, raw_path, raw_hic)
     print('raw hic data: ', file)
-    '''if ~os.path.exists(file):
+    if ~os.path.exists(file):
         url = 'ftp://cooler.csail.mit.edu/coolers/hg19/'+raw_hic
         print(url)
-        file = wget.download(url, file)'''
+        file = wget.download(url, file)
     cool_hic = cooler.Cooler(file)
     resolution = cool_hic.binsize
     return cool_hic, resolution, scale, len_size, genomic_distance,\
