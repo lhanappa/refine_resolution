@@ -11,7 +11,7 @@ import os
 import sys
 import shutil
 import logging
-from EnHiC.model import fit
+from EnHiC import fit
 from EnHiC.utils.operations import sampling_hic
 from EnHiC.utils.operations import divide_pieces_hic, merge_hic
 from EnHiC.utils.operations import redircwd_back_projroot
