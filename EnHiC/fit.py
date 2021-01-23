@@ -74,9 +74,9 @@ def run_fit(gen, dis, dataset, epochs, len_high_size,
                                 step=0, profiler_outdir=train_log_dir)
 
     with demo_writer.as_default():
-        [_, (demo_input_low, demo_input_high)] = next(
-            enumerate(dataset.take(1)))
+        [_, (demo_input_low, demo_input_high)] = next(enumerate(dataset.take(1)))
         mpy = demo_input_low.numpy()
+        print(mpy.shape)
         m = np.log1p(1000*np.squeeze(mpy[:, :, :, 0]))
         fig = plot_matrix(m)
         images = plot_to_image(fig)
