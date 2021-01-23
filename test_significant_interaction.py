@@ -236,7 +236,7 @@ def plot_significant_interactions(source_dir, chromosome, model_name, resolution
     im = ax0.imshow(Z, cmap=cmap, vmin=0, vmax=8)
     fig.colorbar(im, ax=ax0)
 
-    ax0.scatter(si_x.flatten(), si_y.flatten(), color="turquoise", s=4, edgecolors='none')
+    ax0.scatter(si_x.flatten(), si_y.flatten(), color='#00ff00', s=6, edgecolors='none') # "turquoise"
     legend = {'ours': 'EnHiC', 'deephic': 'Deephic', 'hicsr':'HiCSR', 'low':'LR', 'high':'HR'}
     name = model_name.split('_')[0]
     ax0.set_title('{} log1p Scale'.format(legend[name]))
@@ -245,7 +245,7 @@ def plot_significant_interactions(source_dir, chromosome, model_name, resolution
     fig.tight_layout()
     output = os.path.join(source_dir, 'figure', '{}_{}'.format(start, end))
     os.makedirs(output, exist_ok=True)
-    plt.savefig(os.path.join(output, '{}_chr{}_{}_{}.pdf'.format(model_name, chromosome, start, end)), format='pdf')
+    # plt.savefig(os.path.join(output, '{}_chr{}_{}_{}.pdf'.format(model_name, chromosome, start, end)), format='pdf')
     plt.savefig(os.path.join(output, '{}_chr{}_{}_{}.jpg'.format(model_name, chromosome, start, end)), format='jpg')
 
 
