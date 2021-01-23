@@ -316,7 +316,7 @@ def train(train_data, valid_data, len_size, scale, EPOCHS, root_path='./', load_
     Gen = model.make_generator_model(len_high_size=len_size, scale=scale)
     Dis = model.make_discriminator_model(len_high_size=len_size, scale=scale)
     if load_model_dir is not None:
-    #load_model_dir = os.path.join(root_path, 'our_model', 'saved_model')
+    #load_model_dir = os.path.join(root_path, 'EnHiC', 'saved_model')
         file_path = os.path.join(load_model_dir, 'gen_model_'+str(len_size), 'gen_weights')
         if os.path.exists(file_path):
             Gen.load_weights(file_path)
@@ -335,7 +335,7 @@ def train(train_data, valid_data, len_size, scale, EPOCHS, root_path='./', load_
         tf.keras.utils.plot_model(Dis, to_file='D.png', show_shapes=True)
 
     if saved_model_dir is None:
-        saved_model_dir = os.path.join(root_path, 'our_model', 'saved_model')
+        saved_model_dir = os.path.join(root_path, 'EnHiC', 'saved_model')
 
     run_fit(Gen, Dis, train_data, EPOCHS, len_size, scale, valid_data, log_dir=log_dir, saved_model_dir=saved_model_dir)
 
@@ -351,7 +351,7 @@ def train(train_data, valid_data, len_size, scale, EPOCHS, root_path='./', load_
 def predict(model_path, len_size, scale, ds):
     # get generator model
     if model_path is None:
-        gan_model_weights_path = './our_model/saved_model/gen_model_' + \
+        gan_model_weights_path = './EnHiC/saved_model/gen_model_' + \
             str(len_size)+'/gen_weights'
     else:
         gan_model_weights_path = model_path
