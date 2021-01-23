@@ -67,7 +67,8 @@ if __name__ == '__main__':
     input_path = '_'.join(['input', 'ours', str(genomic_distance), str(len_size)])
     input_file = raw_hic.split('-')[0] + '_' + raw_hic.split('-')[1] + '_' + raw_hic.split('-')[2] + '_' + raw_hic.split('.')[1]
 
-    log_dir = os.path.join(root_path, 'our_model', 'logs', 'model')
+    log_dir = os.path.join(root_path, 'logs', 'model')
+    os.makedirs(log_dir, exist_ok=True)
     logging.basicConfig(filename=os.path.join(log_dir, 'training.log'), level=logging.INFO)
 
     # train ['1', '2', '3', '4', '5','6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16']
