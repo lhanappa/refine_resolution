@@ -242,6 +242,6 @@ if __name__ == '__main__':
         chromosome=chromosome,
         scale=4,
         len_size=len_size,
-        sr_path='_'.join(['output', 'ours', str(max_dis), str(len_size)]),
+        sr_path='_'.join(['output', 'EnHiC', str(max_dis), str(len_size)]),
         genomic_distance=2000000,
         start=None, end=None, draw_out=True)
