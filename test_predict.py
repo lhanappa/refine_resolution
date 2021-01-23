@@ -38,16 +38,6 @@ def run(path='./data',
     if not os.path.exists(directory_sr):
         os.makedirs(directory_sr)
 
-    """# get generator model
-    if model_path is None:
-        gan_model_weights_path = './our_model/saved_model/gen_model_' + \
-            str(len_size)+'/gen_weights'
-    else:
-        gan_model_weights_path = model_path
-    Generator = model.make_generator_model(len_high_size=len_size, scale=4)
-    Generator.load_weights(gan_model_weights_path)
-    print(Generator)"""
-
     name = os.path.join(path, raw_path, raw_file)
     c = cooler.Cooler(name)
     resolution = c.binsize
@@ -75,8 +65,6 @@ def run(path='./data',
     print('Dl shape:{}'.format(Dl.shape))
     Mh, Dh = operations.scn_normalization(Mh, max_iter=3000)
     print('Dh shape:{}'.format(Dh.shape))
-    #Ml = np.divide((Ml-Ml.min()), (Ml.max()-Ml.min()), dtype=float, out=np.zeros_like(Ml), where=(Ml.max()-Ml.min()) != 0)
-    #Mh = np.divide((Mh-Mh.min()), (Mh.max()-Mh.min()), dtype=float, out=np.zeros_like(Mh), where=(Mh.max()-Mh.min()) != 0)
 
     if genomic_distance is None:
         max_boundary = None
@@ -106,15 +94,8 @@ def run(path='./data',
     print('shape hic_lr: ', hic_lr_front.shape)
     hic_lr_ds = tf.data.Dataset.from_tensor_slices(
         hic_lr_front[..., np.newaxis]).batch(9)
-    predict_hic_hr_front = fit.predict(model_path, len_size, scale, hic_lr_ds)
-    """for i, input_data in enumerate(hic_lr_ds):
-        [_, _, tmp, _, _] = Generator(input_data, training=False)
-        if predict_hic_hr_front is None:
-            predict_hic_hr_front = tmp.numpy()
-        else:
-            predict_hic_hr_front = np.concatenate(
-                (predict_hic_hr_front, tmp.numpy()), axis=0)"""
 
+    predict_hic_hr_front = fit.predict(model_path, len_size, scale, hic_lr_ds)
     predict_hic_hr_front = np.squeeze(predict_hic_hr_front, axis=3)
     print('Shape of prediction front: ', predict_hic_hr_front.shape)
 
@@ -135,15 +116,8 @@ def run(path='./data',
     print('Shape hic_lr_offset: ', hic_lr_offset.shape)
     hic_lr_ds = tf.data.Dataset.from_tensor_slices(
         hic_lr_offset[..., np.newaxis]).batch(9)
-    predict_hic_hr_offset = fit.predict(model_path, len_size, scale, hic_lr_ds)
-    """for i, input_data in enumerate(hic_lr_ds):
-        [_, _, tmp, _, _] = Generator(input_data, training=False)
-        if predict_hic_hr_offset is None:
-            predict_hic_hr_offset = tmp.numpy()
-        else:
-            predict_hic_hr_offset = np.concatenate(
-                (predict_hic_hr_offset, tmp.numpy()), axis=0)"""
 
+    predict_hic_hr_offset = fit.predict(model_path, len_size, scale, hic_lr_ds)
     predict_hic_hr_offset = np.squeeze(predict_hic_hr_offset, axis=3)
     print('Shape of prediction offset: ', predict_hic_hr_offset.shape)
 
@@ -229,12 +203,13 @@ def run(path='./data',
 
 
 if __name__ == '__main__':
-    chromosome = str(sys.argv[1])
+    chromosome = str(sys.argv[1]) # '22'
+    len_size = int(sys.argv[2])  # 200
+    max_dis = 2000000
+
     root_dir = operations.redircwd_back_projroot( project_name='refine_resolution')
     raw_hic = 'Rao2014-GM12878-DpnII-allreps-filtered.10kb.cool'
     # raw_hic = 'Rao2014-GM12878-MboI-allreps-filtered.10kb.cool'
-    len_size = int(sys.argv[2])  # 200
-    max_dis = 2000000
 
     run(path=os.path.join(root_dir, 'data'),
         raw_path='raw',
