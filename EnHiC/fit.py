@@ -336,6 +336,7 @@ def train(train_data, valid_data, len_size, scale, EPOCHS, root_path='./', load_
 
     if saved_model_dir is None:
         saved_model_dir = os.path.join(root_path, 'EnHiC', 'saved_model')
+    os.makedirs(saved_model_dir, exist_ok=True)
     
     print(train_data)
     print(valid_data)
