@@ -239,7 +239,7 @@ if __name__ == '__main__':
     run(path=os.path.join(root_dir, 'data'),
         raw_path='raw',
         raw_file=raw_hic,
-        model_path=os.path.join(root_dir,'saved_model'),
+        model_path=os.path.join(root_dir,'saved_model', 'gen_model_{}'.format(len_size)),
         chromosome=chromosome,
         scale=4,
         len_size=len_size,
