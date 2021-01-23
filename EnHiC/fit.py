@@ -76,7 +76,6 @@ def run_fit(gen, dis, dataset, epochs, len_high_size,
     with demo_writer.as_default():
         [_, (demo_input_low, demo_input_high)] = next(enumerate(dataset.take(1)))
         mpy = demo_input_low.numpy()
-        print(mpy.shape)
         m = np.log1p(1000*np.squeeze(mpy[:, :, :, 0]))
         fig = plot_matrix(m)
         images = plot_to_image(fig)
@@ -335,11 +334,9 @@ def train(train_data, valid_data, len_size, scale, EPOCHS, root_path='./', load_
         tf.keras.utils.plot_model(Dis, to_file='D.png', show_shapes=True)
 
     if saved_model_dir is None:
-        saved_model_dir = os.path.join(root_path, 'EnHiC', 'saved_model')
+        saved_model_dir = os.path.join(root_path, 'saved_model')
     os.makedirs(saved_model_dir, exist_ok=True)
-    
-    print(train_data)
-    print(valid_data)
+
     run_fit(Gen, Dis, train_data, EPOCHS, len_size, scale, valid_data, log_dir=log_dir, saved_model_dir=saved_model_dir)
 
     file_path = os.path.join(
@@ -354,7 +351,7 @@ def train(train_data, valid_data, len_size, scale, EPOCHS, root_path='./', load_
 def predict(model_path, len_size, scale, ds):
     # get generator model
     if model_path is None:
-        gan_model_weights_path = './EnHiC/saved_model/gen_model_' + \
+        gan_model_weights_path = './gen_model_' + \
             str(len_size)+'/gen_weights'
     else:
         gan_model_weights_path = model_path

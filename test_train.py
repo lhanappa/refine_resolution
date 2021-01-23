@@ -58,8 +58,8 @@ if __name__ == '__main__':
     scale = 4
     # genomic_disstance is used for input path, nothing to do with model
     genomic_distance = int(sys.argv[2])  # 2000000, 2560000
-    EPOCHS = 50
-    BATCH_SIZE = 9
+    EPOCHS = 5
+    BATCH_SIZE = 3
     root_path = redircwd_back_projroot(project_name='refine_resolution')
     data_path = os.path.join(root_path, 'data')
     raw_hic = 'Rao2014-GM12878-DpnII-allreps-filtered.10kb.cool'
@@ -95,7 +95,7 @@ if __name__ == '__main__':
         (hic_lr[..., np.newaxis], hic_hr[..., np.newaxis])).batch(BATCH_SIZE)
 
     #load_model_dir = os.path.join(root_path, 'EnHiC', 'saved_model')
-    saved_model_dir = os.path.join(root_path, 'EnHiC', 'saved_model')
+    saved_model_dir = os.path.join(root_path, 'saved_model')
     fit.train(train_data=train_data, valid_data=valid_data, len_size=len_size, scale=scale,
         EPOCHS=EPOCHS, root_path=root_path,
         load_model_dir=None, saved_model_dir=saved_model_dir, log_dir=None,
