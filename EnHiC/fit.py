@@ -351,7 +351,7 @@ def train(train_data, valid_data, len_size, scale, EPOCHS, root_path='./', load_
 def predict(model_path, len_size, scale, ds):
     # get generator model
     if model_path is None:
-        gan_model_weights_path = './gen_model_' + \
+        gan_model_weights_path = './saved_model/gen_model_' + \
             str(len_size)+'/gen_weights'
     else:
         gan_model_weights_path = model_path
