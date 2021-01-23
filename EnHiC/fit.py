@@ -336,7 +336,9 @@ def train(train_data, valid_data, len_size, scale, EPOCHS, root_path='./', load_
 
     if saved_model_dir is None:
         saved_model_dir = os.path.join(root_path, 'EnHiC', 'saved_model')
-
+    
+    print(train_data)
+    print(valid_data)
     run_fit(Gen, Dis, train_data, EPOCHS, len_size, scale, valid_data, log_dir=log_dir, saved_model_dir=saved_model_dir)
 
     file_path = os.path.join(
