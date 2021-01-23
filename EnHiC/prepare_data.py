@@ -10,7 +10,7 @@ from utils import operations
 # data from ftp://cooler.csail.mit.edu/coolers/hg19/
 
 
-def configure(len_size=None, genomic_distance=None, methods_name='ours',
+def configure(len_size=None, genomic_distance=None, methods_name='EnHiC',
               dataset_path=None,
               raw_path='raw',
               raw_hic='Rao2014-GM12878-DpnII-allreps-filtered.10kb.cool',
@@ -42,7 +42,7 @@ def configure(len_size=None, genomic_distance=None, methods_name='ours',
     # load raw hic matrix
     file = os.path.join(dataset_path, raw_path, raw_hic)
     print('raw hic data: ', file)
-    if ~os.path.exists(file):
+    if not os.path.exists(file):
         os.makedirs(os.path.join(dataset_path, raw_path), exist_ok=True)
         url = 'ftp://cooler.csail.mit.edu/coolers/hg19/'+raw_hic
         print(url)
@@ -147,7 +147,7 @@ if __name__ == '__main__':
     root = operations.redircwd_back_projroot(project_name='refine_resolution')
     raw_hic = 'Rao2014-GM12878-MboI-allreps-filtered.10kb.cool'
     # raw_hic='Rao2014-GM12878-DpnII-allreps-filtered.10kb.cool'
-    config = configure(raw_hic=raw_hic, len_size=int(sys.argv[2]), genomic_distance=int(sys.argv[3]))
+    config = configure(raw_hic=raw_hic, len_size=int(sys.argv[2]), methods_name='EnHiC', genomic_distance=int(sys.argv[3]))
     chromosome_list = [str(sys.argv[1])]
     for chri in chromosome_list:
         save_samples(config, chromosome=chri)
