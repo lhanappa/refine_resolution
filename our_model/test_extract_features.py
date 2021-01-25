@@ -97,7 +97,7 @@ def extract_features(path='./data',
     hic_lr_ds = tf.data.Dataset.from_tensor_slices( hic_lr[..., np.newaxis]).batch(9)
     predict_hic_hr = None
     for i, input_data in enumerate(hic_lr_ds):
-        [_, _, tmp, _, _] = Generator(input_data, training=False)
+        [out_low_x2, out_low_x4, tmp, low_x2, low_x4] = Generator(input_data, training=False)
         if predict_hic_hr is None:
             predict_hic_hr = tmp.numpy()
         else:
@@ -194,8 +194,8 @@ def extract_features(path='./data',
             pcm = axs[i, j].imshow(np.log1p(m), cmap='OrRd')
     plt.tight_layout()
     fig.colorbar(pcm, ax=axs, shrink=0.3)
-    output = os.path.join(directory_sr, 'features_x2_chr{}_{}_{}.png'.format(chromosome, start, end))
-    plt.savefig(output, format='png')
+    output = os.path.join(directory_sr, 'features_x2_chr{}_{}_{}.jpg'.format(chromosome, start, end))
+    plt.savefig(output, format='jpg')
 
     nr,nc = 5,7
     fig, axs = plt.subplots(nrows=nr, ncols=nc, figsize=(25, 20))
@@ -220,7 +220,15 @@ def extract_features(path='./data',
     fig.colorbar(mpl.cm.ScalarMappable(norm=norm, cmap=cmap), ax=axs, shrink=0.3)"""
     fig.colorbar(pcm, ax=axs, shrink=0.3)
     output = os.path.join(directory_sr, 'features_x4_chr{}_{}_{}.png'.format(chromosome, start, end))
-    plt.savefig(output, format='png')
+    plt.savefig(output, format='jpg')
+
+    fig, axs = plt.subplots(1,1, figsize=(10, 8))
+    m = out_low_x2.numpy()
+    m = np.squeeze(m)
+    print(m.shape)
+    pcm = axs[0].imshow(np.log1p(m), cmap='RdBu_r')
+    plt.tight_layout()
+    fig.colorbar(pcm, ax=axs, shrink=0.3)
 
 
 if __name__ == '__main__':
