@@ -230,25 +230,25 @@ def extract_features(path='./data',
     output = os.path.join(directory_sr, 'features_x4_chr{}_{}_{}.jpg'.format(chromosome, start, end))
     plt.savefig(output, format='jpg')
 
-    name = 'prediection_chr{}_{}_{}.jpg'.format(chromosome, start, end)
+    name = 'prediection_chr{}_{}_{}'.format(chromosome, start, end)
     plot_hic_matrix(predict_hic_hr_merge, directory_sr, name, title='Prediction Hi-C (10kb)')
 
-    name = 'prediction_x2_chr{}_{}_{}.jpg'.format(chromosome, start, end)
+    name = 'prediction_x2_chr{}_{}_{}'.format(chromosome, start, end)
     plot_hic_matrix(out_low_x2, directory_sr, name, 'Prediction Hi-C (20kb)')
 
-    name = 'prediction_x4_chr{}_{}_{}.jpg'.format(chromosome, start, end)
+    name = 'prediction_x4_chr{}_{}_{}'.format(chromosome, start, end)
     plot_hic_matrix(out_low_x4, directory_sr, name, 'Prediction Hi-C (40kb)')
 
-    name = 'HR_chr{}_{}_{}.jpg'.format(chromosome, start, end)
+    name = 'HR_chr{}_{}_{}'.format(chromosome, start, end)
     plot_hic_matrix(Mh, directory_sr, name, 'True Hi-C (10kb)')
 
-    name = 'true_x2_chr{}_{}_{}.jpg'.format(chromosome, start, end)
+    name = 'true_x2_chr{}_{}_{}'.format(chromosome, start, end)
     plot_hic_matrix(low_x2, directory_sr, name, 'True Hi-C (40kb, by average pooling)')
 
-    name = 'true_x4_chr{}_{}_{}.jpg'.format(chromosome, start, end)
+    name = 'true_x4_chr{}_{}_{}'.format(chromosome, start, end)
     plot_hic_matrix(low_x4, directory_sr, name, 'True Hi-C (40kb, by average pooling)')
 
-    name = 'LR_chr{}_{}_{}.jpg'.format(chromosome, start, end)
+    name = 'LR_chr{}_{}_{}'.format(chromosome, start, end)
     plot_hic_matrix(Ml, directory_sr, name, title = 'True Hi-C (40kb, x16 downsampling)')
 
 def plot_hic_matrix(m, directory_sr, name, title):
