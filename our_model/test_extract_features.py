@@ -136,9 +136,9 @@ def extract_features(path='./data',
 
     # remove diag and off diag
     k = max_boundary.astype(int)
-    Mh = operations.filter_diag_boundary(Mh, diag_k=0, boundary_k=k)
-    true_hic_hr_merge = operations.filter_diag_boundary(true_hic_hr_merge, diag_k=0, boundary_k=k)
-    predict_hic_hr_merge = operations.filter_diag_boundary(predict_hic_hr_merge, diag_k=0, boundary_k=k)
+    # Mh = operations.filter_diag_boundary(Mh, diag_k=0, boundary_k=k)
+    # true_hic_hr_merge = operations.filter_diag_boundary(true_hic_hr_merge, diag_k=0, boundary_k=k)
+    # predict_hic_hr_merge = operations.filter_diag_boundary(predict_hic_hr_merge, diag_k=0, boundary_k=k)
 
     print('sum Mh:', np.sum(np.abs(Mh)))
     print('sum true merge:', np.sum(np.abs(true_hic_hr_merge)))
@@ -229,6 +229,38 @@ def extract_features(path='./data',
     pcm = axs.imshow(np.log1p(m), cmap='RdBu_r')
     plt.tight_layout()
     fig.colorbar(pcm, ax=axs, shrink=0.3)
+    output = os.path.join(directory_sr, 'prediction_x2_chr{}_{}_{}.png'.format(chromosome, start, end))
+    plt.savefig(output, format='jpg')
+
+    fig, axs = plt.subplots(1,1, figsize=(10, 8))
+    m = out_low_x4.numpy()
+    m = np.squeeze(m)
+    print(m.shape)
+    pcm = axs.imshow(np.log1p(m), cmap='RdBu_r')
+    plt.tight_layout()
+    fig.colorbar(pcm, ax=axs, shrink=0.3)
+    output = os.path.join(directory_sr, 'prediction_x4_chr{}_{}_{}.png'.format(chromosome, start, end))
+    plt.savefig(output, format='jpg')
+
+    fig, axs = plt.subplots(1,1, figsize=(10, 8))
+    m = low_x2.numpy()
+    m = np.squeeze(m)
+    print(m.shape)
+    pcm = axs.imshow(np.log1p(m), cmap='RdBu_r')
+    plt.tight_layout()
+
+    fig.colorbar(pcm, ax=axs, shrink=0.3)
+    output = os.path.join(directory_sr, 'true_x2_chr{}_{}_{}.png'.format(chromosome, start, end))
+    plt.savefig(output, format='jpg')
+    fig, axs = plt.subplots(1,1, figsize=(10, 8))
+    m = out_low_x4.numpy()
+    m = np.squeeze(m)
+    print(m.shape)
+    pcm = axs.imshow(np.log1p(m), cmap='RdBu_r')
+    plt.tight_layout()
+    fig.colorbar(pcm, ax=axs, shrink=0.3)
+    output = os.path.join(directory_sr, 'prediction_x4_chr{}_{}_{}.png'.format(chromosome, start, end))
+    plt.savefig(output, format='jpg')
 
 
 if __name__ == '__main__':
