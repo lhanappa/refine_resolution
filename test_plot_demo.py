@@ -222,8 +222,9 @@ def plot_demo(source_dir, chromosome, model_name, resolution, low_dis, up_dis, s
     hic_mat = filter_diag_boundary(hic_mat, diag_k=1, boundary_k=200)
     Z = np.log1p(hic_mat)
 
-    # norm = matplotlib.colors.SymLogNorm(linthresh=0.03, linscale=0.03, vmin=0.0, vmax=9.0, base=10),
-    im = ax0.imshow(Z, cmap=cmap, vmin=0, vmax=8)
+    bounds = np.append(np.arange(0,7,0.1), np.arange(7,10,1))
+    norm = matplotlib.colors.BoundaryNorm(boundaries=bounds, ncolors=256)
+    im = ax0.imshow(Z, cmap=cmap, norm=norm) #, vmin=0, vmax=8
     fig.colorbar(im, ax=ax0)
 
     legend = {'ours': 'EnHiC', 'deephic': 'Deephic', 'hicsr':'HiCSR', 'low':'LR', 'high':'HR'}
