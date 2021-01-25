@@ -136,9 +136,9 @@ def extract_features(path='./data',
 
     # remove diag and off diag
     k = max_boundary.astype(int)
-    # Mh = operations.filter_diag_boundary(Mh, diag_k=0, boundary_k=k)
-    # true_hic_hr_merge = operations.filter_diag_boundary(true_hic_hr_merge, diag_k=0, boundary_k=k)
-    # predict_hic_hr_merge = operations.filter_diag_boundary(predict_hic_hr_merge, diag_k=0, boundary_k=k)
+    Mh = operations.filter_diag_boundary(Mh, diag_k=0, boundary_k=None)
+    true_hic_hr_merge = operations.filter_diag_boundary(true_hic_hr_merge, diag_k=0, boundary_k=None)
+    predict_hic_hr_merge = operations.filter_diag_boundary(predict_hic_hr_merge, diag_k=0, boundary_k=None)
 
     print('sum Mh:', np.sum(np.abs(Mh)))
     print('sum true merge:', np.sum(np.abs(true_hic_hr_merge)))
@@ -229,6 +229,7 @@ def extract_features(path='./data',
     m = np.squeeze(m)
     print(m.shape)
     pcm = axs.imshow(np.log1p(m), cmap='RdBu_r')
+    axs.title.set_text('Prediction Hi-C (20kb, x4 downsampling)')
     plt.tight_layout()
     fig.colorbar(pcm, ax=axs, shrink=0.3)
     output = os.path.join(directory_sr, 'prediction_x2_chr{}_{}_{}.jpg'.format(chromosome, start, end))
@@ -239,6 +240,7 @@ def extract_features(path='./data',
     m = np.squeeze(m)
     print(m.shape)
     pcm = axs.imshow(np.log1p(m), cmap='RdBu_r')
+    axs.title.set_text('Prediction Hi-C (40kb, x16 downsampling)')
     plt.tight_layout()
     fig.colorbar(pcm, ax=axs, shrink=0.3)
     output = os.path.join(directory_sr, 'prediction_x4_chr{}_{}_{}.jpg'.format(chromosome, start, end))
@@ -250,15 +252,17 @@ def extract_features(path='./data',
     print(m.shape)
     pcm = axs.imshow(np.log1p(m), cmap='RdBu_r')
     plt.tight_layout()
-
+    axs.title.set_text('True Hi-C (20kb, x4 downsampling)')
     fig.colorbar(pcm, ax=axs, shrink=0.3)
     output = os.path.join(directory_sr, 'true_x2_chr{}_{}_{}.jpg'.format(chromosome, start, end))
+    
     plt.savefig(output, format='jpg')
     fig, axs = plt.subplots(1,1, figsize=(10, 8))
     m = out_low_x4.numpy()
     m = np.squeeze(m)
     print(m.shape)
     pcm = axs.imshow(np.log1p(m), cmap='RdBu_r')
+    axs.title.set_text('True Hi-C (40kb, x16 downsampling)')
     plt.tight_layout()
     fig.colorbar(pcm, ax=axs, shrink=0.3)
     output = os.path.join(directory_sr, 'true_x4_chr{}_{}_{}.jpg'.format(chromosome, start, end))
@@ -270,9 +274,10 @@ def extract_features(path='./data',
     m = np.squeeze(m)
     print(m.shape)
     pcm = axs.imshow(np.log1p(m), cmap='RdBu_r')
+    axs.title.set_text('True Hi-C (10kb)')
     plt.tight_layout()
     fig.colorbar(pcm, ax=axs, shrink=0.3)
-    output = os.path.join(directory_sr, 'true_chr{}_{}_{}.jpg'.format(chromosome, start, end))
+    output = os.path.join(directory_sr, 'HR_chr{}_{}_{}.jpg'.format(chromosome, start, end))
     plt.savefig(output, format='jpg')
 
     fig, axs = plt.subplots(1,1, figsize=(10, 8))
@@ -280,13 +285,27 @@ def extract_features(path='./data',
     m = np.squeeze(m)
     print(m.shape)
     pcm = axs.imshow(np.log1p(m), cmap='RdBu_r')
+    axs.title.set_text('Prediction Hi-C (10kb)')
     plt.tight_layout()
     fig.colorbar(pcm, ax=axs, shrink=0.3)
     output = os.path.join(directory_sr, 'prediection_chr{}_{}_{}.jpg'.format(chromosome, start, end))
     plt.savefig(output, format='jpg')
 
+    Ml = operations.filter_diag_boundary(Ml, diag_k=0, boundary_k=None)
+    fig, axs = plt.subplots(1,1, figsize=(10, 8))
+    m = Ml
+    m = np.squeeze(m)
+    print(m.shape)
+    pcm = axs.imshow(np.log1p(m), cmap='RdBu_r')
+    axs.title.set_text('True Hi-C (40kb)')
+    plt.tight_layout()
+    fig.colorbar(pcm, ax=axs, shrink=0.3)
+    output = os.path.join(directory_sr, 'LR_chr{}_{}_{}.jpg'.format(chromosome, start, end))
+    plt.savefig(output, format='jpg')
+
     nonzero_idx = np.where(idx)
-    print(nonzero_idx[start:end])
+    print(idx)
+    print(start, end, nonzero_idx[start:end])
 
 
 if __name__ == '__main__':
