@@ -161,7 +161,7 @@ def extract_features(path='./data',
 
     # predict_hic_hr_merge = predict_hic_hr_merge[::10, ::10]
     # Mh = Mh[::10, ::10]
-    fig, axs = plt.subplots(1, 2, figsize=(15, 8))
+    """fig, axs = plt.subplots(1, 2, figsize=(15, 8))
     # , cmap='RdBu_r'
     ax = axs[0].imshow(np.log1p(predict_hic_hr_merge), cmap='OrRd')
     axs[0].set_title('predict')
@@ -169,11 +169,13 @@ def extract_features(path='./data',
     axs[1].set_title('true')
     plt.tight_layout()
     fig.colorbar(ax, ax=axs, shrink=0.3)
-    """cmap = mpl.cm.OrRd
+
+    '''cmap = mpl.cm.OrRd
     norm = mpl.colors.Normalize(vmin=0, vmax=0.7)
-    fig.colorbar(mpl.cm.ScalarMappable(norm=norm, cmap=cmap), ax=axs, shrink=0.3)"""
-    output = os.path.join(directory_sr, 'prediction_chr{}_{}_{}.png'.format(chromosome, start, end))
-    plt.savefig(output, format='png')
+    fig.colorbar(mpl.cm.ScalarMappable(norm=norm, cmap=cmap), ax=axs, shrink=0.3)'''
+
+    output = os.path.join(directory_sr, 'prediction_chr{}_{}_{}.jpg'.format(chromosome, start, end))
+    plt.savefig(output, format='jpg')"""
 
     nr,nc = 6,8
     fig, axs = plt.subplots(nrows=nr, ncols=nc, figsize=(25, 20))
@@ -219,7 +221,7 @@ def extract_features(path='./data',
     norm = mpl.colors.Normalize(vmin=0, vmax=0.7)
     fig.colorbar(mpl.cm.ScalarMappable(norm=norm, cmap=cmap), ax=axs, shrink=0.3)"""
     fig.colorbar(pcm, ax=axs, shrink=0.3)
-    output = os.path.join(directory_sr, 'features_x4_chr{}_{}_{}.png'.format(chromosome, start, end))
+    output = os.path.join(directory_sr, 'features_x4_chr{}_{}_{}.jpg'.format(chromosome, start, end))
     plt.savefig(output, format='jpg')
 
     fig, axs = plt.subplots(1,1, figsize=(10, 8))
@@ -229,7 +231,7 @@ def extract_features(path='./data',
     pcm = axs.imshow(np.log1p(m), cmap='RdBu_r')
     plt.tight_layout()
     fig.colorbar(pcm, ax=axs, shrink=0.3)
-    output = os.path.join(directory_sr, 'prediction_x2_chr{}_{}_{}.png'.format(chromosome, start, end))
+    output = os.path.join(directory_sr, 'prediction_x2_chr{}_{}_{}.jpg'.format(chromosome, start, end))
     plt.savefig(output, format='jpg')
 
     fig, axs = plt.subplots(1,1, figsize=(10, 8))
@@ -239,7 +241,7 @@ def extract_features(path='./data',
     pcm = axs.imshow(np.log1p(m), cmap='RdBu_r')
     plt.tight_layout()
     fig.colorbar(pcm, ax=axs, shrink=0.3)
-    output = os.path.join(directory_sr, 'prediction_x4_chr{}_{}_{}.png'.format(chromosome, start, end))
+    output = os.path.join(directory_sr, 'prediction_x4_chr{}_{}_{}.jpg'.format(chromosome, start, end))
     plt.savefig(output, format='jpg')
 
     fig, axs = plt.subplots(1,1, figsize=(10, 8))
@@ -250,7 +252,7 @@ def extract_features(path='./data',
     plt.tight_layout()
 
     fig.colorbar(pcm, ax=axs, shrink=0.3)
-    output = os.path.join(directory_sr, 'true_x2_chr{}_{}_{}.png'.format(chromosome, start, end))
+    output = os.path.join(directory_sr, 'true_x2_chr{}_{}_{}.jpg'.format(chromosome, start, end))
     plt.savefig(output, format='jpg')
     fig, axs = plt.subplots(1,1, figsize=(10, 8))
     m = out_low_x4.numpy()
@@ -259,8 +261,32 @@ def extract_features(path='./data',
     pcm = axs.imshow(np.log1p(m), cmap='RdBu_r')
     plt.tight_layout()
     fig.colorbar(pcm, ax=axs, shrink=0.3)
-    output = os.path.join(directory_sr, 'prediction_x4_chr{}_{}_{}.png'.format(chromosome, start, end))
+    output = os.path.join(directory_sr, 'true_x4_chr{}_{}_{}.jpg'.format(chromosome, start, end))
     plt.savefig(output, format='jpg')
+
+
+    fig, axs = plt.subplots(1,1, figsize=(10, 8))
+    m = Mh.numpy()
+    m = np.squeeze(m)
+    print(m.shape)
+    pcm = axs.imshow(np.log1p(m), cmap='RdBu_r')
+    plt.tight_layout()
+    fig.colorbar(pcm, ax=axs, shrink=0.3)
+    output = os.path.join(directory_sr, 'true_chr{}_{}_{}.jpg'.format(chromosome, start, end))
+    plt.savefig(output, format='jpg')
+
+    fig, axs = plt.subplots(1,1, figsize=(10, 8))
+    m = predict_hic_hr_merge.numpy()
+    m = np.squeeze(m)
+    print(m.shape)
+    pcm = axs.imshow(np.log1p(m), cmap='RdBu_r')
+    plt.tight_layout()
+    fig.colorbar(pcm, ax=axs, shrink=0.3)
+    output = os.path.join(directory_sr, 'prediection_chr{}_{}_{}.jpg'.format(chromosome, start, end))
+    plt.savefig(output, format='jpg')
+
+    nonzero_idx = np.where(idx)
+    print(nonzero_idx[start:end])
 
 
 if __name__ == '__main__':
