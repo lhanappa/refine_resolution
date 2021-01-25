@@ -248,13 +248,13 @@ def extract_features(path='./data',
     name = 'true_x4_chr{}_{}_{}.jpg'.format(chromosome, start, end)
     plot_hic_matrix(low_x4, directory_sr, name, 'True Hi-C (40kb, by average pooling)')
 
-    Ml = operations.filter_diag_boundary(Ml, diag_k=1, boundary_k=None)
     name = 'LR_chr{}_{}_{}.jpg'.format(chromosome, start, end)
     plot_hic_matrix(Ml, directory_sr, name, title = 'True Hi-C (40kb, x16 downsampling)')
 
 def plot_hic_matrix(m, directory_sr, name, title):
     fig, axs = plt.subplots(1,1, figsize=(10, 8))
     m = np.squeeze(m)
+    m = operations.filter_diag_boundary(m, diag_k=1, boundary_k=None)
     pcm = axs.imshow(np.log1p(m), cmap='RdBu_r')
     axs.title.set_text(title)
     plt.tight_layout()
