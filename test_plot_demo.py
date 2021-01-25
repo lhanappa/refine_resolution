@@ -200,7 +200,7 @@ def jaccard_score(models, ground):
     return model_js
 
 
-def plot_significant_interactions(source_dir, chromosome, model_name, resolution, low_dis, up_dis, start, end):
+def plot_demo(source_dir, chromosome, model_name, resolution, low_dis, up_dis, start, end):
     cool_file = os.path.join(source_dir, '{}_chr{}.cool'.format(model_name, chromosome))
     hic = cooler.Cooler(cool_file)
     start = max(0, int(start))
@@ -218,10 +218,10 @@ def plot_significant_interactions(source_dir, chromosome, model_name, resolution
 
 
     fig, ax0 = plt.subplots()
-    cmap = plt.get_cmap('coolwarm')
+    cmap = plt.get_cmap('RdBu_r')
     hic_mat = filter_diag_boundary(hic_mat, diag_k=1, boundary_k=200)
     Z = np.log1p(hic_mat)
-    im = ax0.imshow(Z, cmap=cmap, vmin=0, vmax=8)
+    im = ax0.matshow(Z, cmap=cmap, vmin=0, vmax=8)
     fig.colorbar(im, ax=ax0)
 
     legend = {'ours': 'EnHiC', 'deephic': 'Deephic', 'hicsr':'HiCSR', 'low':'LR', 'high':'HR'}
@@ -236,111 +236,6 @@ def plot_significant_interactions(source_dir, chromosome, model_name, resolution
     plt.savefig(os.path.join(output, 'demo_{}.jpg'.format(legend[name])), format='jpg')
 
 
-def plot_all_js(output_dir, chrom_js):
-    legend = {'ours': 'EnHiC', 'deephic':'Deephic', 'hicsr':'HiCSR', 'low':'LR'}
-    cmap=plt.get_cmap('tab10', 10)
-    colormap = {'EnHiC':cmap(0), 'Deephic':cmap(0.2), 'HiCSR':cmap(0.3), 'LR':cmap(0.1)}
-    fig, ax = plt.subplots(nrows=len(chrom_js), ncols=1, figsize=(9, 16), sharex=True)
-    i=0
-    for chro, model_js in chrom_js.items():
-        for key, value in model_js.items():
-            x = value[:,0]
-            y = value[:,1]
-            name = key.split('_')[0]
-            c = matplotlib.colors.rgb2hex(colormap[legend[name]])
-            ax[i].plot(x, y, color=c)
-            ax[i].scatter(x, y, s=15, c= c,label=legend[name])
-        ax[i].set_ylim([-.1, 1.0])
-        ax[i].title.set_text('Chromosome {}'.format(chro))
-        ax[i].legend(loc='upper right', shadow=False)
-        i = i+1
-    fig.tight_layout()
-    output = os.path.join(output_dir, 'figure')
-    os.makedirs(output, exist_ok=True)
-    output = os.path.join(output, 'jaccard_scores.pdf')
-    plt.savefig(output, format='pdf')
-
-
-def plot_jaccard_score(output_dir, model_js):
-    legend = {'ours': 'EnHiC', 'deephic': 'Deephic', 'hicsr':'HiCSR', 'low':'LR'}
-    cmap=plt.get_cmap('tab10', len(legend))
-    colormap = {'EnHiC':cmap(0), 'LR':cmap(0.1), 'Deephic':cmap(0.2), 'HiCSR':cmap(0.3)}
-    fig, ax0 = plt.subplots()
-    for key, value in model_js.items():
-        x = value[:,0]
-        y = value[:,1]
-        name = key.split('_')[0]
-        c = matplotlib.colors.rgb2hex(colormap[legend[name]])
-        ax0.plot(x, y, color=c)
-        ax0.scatter(x, y, s=15, c= c,label=legend[name])
-        ax0.set_ylim([0, 1.0])
-    ax0.legend(loc='upper right', shadow=False)
-    fig.tight_layout()
-    output = os.path.join(output_dir, 'figure')
-    os.makedirs(output, exist_ok=True)
-    output = os.path.join(output, 'jaccard_scores.pdf')
-    plt.savefig(output, format='pdf')
-
-def ttest_greater(a, b):
-    #For unbiased max likelihood estimate we have to divide the var by N-1, and therefore the parameter ddof = 1
-    a = np.array(a).flatten()
-    b = np.array(b).flatten()
-    N = len(a)
-    var_a = np.array(a).var(ddof=1)
-    var_b = np.array(b).var(ddof=1)
-    # std deviation
-    s = np.sqrt((var_a + var_b)/2)
-    ## Calculate the t-statistics
-    t = (a.mean() - b.mean())/(s*np.sqrt(2/N))
-    ## Compare with the critical t-value
-    # Degrees of freedom
-    df = 2*N - 2
-    # p-value after comparison with the t 
-    p = 1 - stats.t.cdf(t,df=df)
-    print("t = " + str(t))
-    print("p = " + str(p))
-    return p
-
-def calculate_p_value(chrom_js):
-    legend = {'ours':'EnHiC', 'deephic': 'Deephic', 'hicsr':'HiCSR', 'low':'LR'}
-    js_array = dict()
-    for chro, model_js in chrom_js.items():
-        for key, value in model_js.items():
-            name = key.split('_')[0]
-            y = np.nanmean(value[:,1])
-            if name in js_array.keys():
-                js_array[name].append(y)
-            else:
-                js_array[name] = [y]
-    enhic = js_array['ours']
-    for key, value in js_array.items():
-        if 'ours' in key:
-            continue
-        [stat, pvalue] = stats.ttest_ind(enhic, value, axis=0, equal_var=True, nan_policy='propagate')
-        print(key, stat, pvalue)
-        pv = ttest_greater(enhic, value)
-        print(key, pvalue)
-
-def plot_boxplot(output_dir, chrom_js):
-    legend = {'ours': 'EnHiC', 'deephic': 'Deephic', 'hicsr':'HiCSR', 'low':'LR'}
-    js_array = dict()
-
-    for chro, model_js in chrom_js.items():
-        for key, value in model_js.items():
-            name = key.split('_')[0]
-            y = np.mean(value[:,1])
-            if legend[name] in js_array.keys():
-                js_array[legend[name]].append(y)
-            else:
-                js_array[legend[name]] = [y]
-    plt.subplots()
-    data = pd.DataFrame.from_dict(js_array)
-    ax = sns.boxplot(data=data, palette="tab10")
-    ax.set(xlabel='Models', ylabel='Jaccard Score')
-    output = os.path.join(output_dir, 'figure')
-    os.makedirs(output, exist_ok=True)
-    output = os.path.join(output, 'boxplot_jaccard_scores.pdf')
-    plt.savefig(output, format='pdf')
 
 """chromsizes = {
 'chr1':     249250621,
@@ -402,7 +297,7 @@ if __name__ == '__main__':
             m = '_'.join(m)
 
             # plot_significant_interactions(source_dir, chro, m, resolution, low_dis=low, up_dis=up, start=start, end=end)
-            p = Process(target=plot_significant_interactions, args=(source_dir, chro, m, resolution, low, up, start, end))
+            p = Process(target=plot_demo, args=(source_dir, chro, m, resolution, low, up, start, end))
             queue.append(p)
             p.start()
 
