@@ -221,7 +221,7 @@ def plot_demo(source_dir, chromosome, model_name, resolution, low_dis, up_dis, s
     cmap = plt.get_cmap('RdBu_r')
     hic_mat = filter_diag_boundary(hic_mat, diag_k=1, boundary_k=200)
     Z = np.log1p(hic_mat)
-    im = ax0.matshow(Z, cmap=cmap, vmin=0, vmax=8)
+    im = ax0.imshow(Z, cmap=cmap) #, vmin=0, vmax=8
     fig.colorbar(im, ax=ax0)
 
     legend = {'ours': 'EnHiC', 'deephic': 'Deephic', 'hicsr':'HiCSR', 'low':'LR', 'high':'HR'}
