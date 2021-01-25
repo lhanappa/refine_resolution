@@ -57,7 +57,7 @@ def extract_features(path='./data',
 
     [Mh, idx] = operations.remove_zeros(mat)
 
-    nonzero_idx = np.array(np.where(idx))
+    nonzero_idx = np.array(np.where(idx)).flatten()
     print(idx.shape)
     print(nonzero_idx.shape)
     print(nonzero_idx)
