@@ -266,7 +266,7 @@ def extract_features(path='./data',
 
 
     fig, axs = plt.subplots(1,1, figsize=(10, 8))
-    m = Mh.numpy()
+    m = Mh
     m = np.squeeze(m)
     print(m.shape)
     pcm = axs.imshow(np.log1p(m), cmap='RdBu_r')
@@ -276,7 +276,7 @@ def extract_features(path='./data',
     plt.savefig(output, format='jpg')
 
     fig, axs = plt.subplots(1,1, figsize=(10, 8))
-    m = predict_hic_hr_merge.numpy()
+    m = predict_hic_hr_merge
     m = np.squeeze(m)
     print(m.shape)
     pcm = axs.imshow(np.log1p(m), cmap='RdBu_r')
