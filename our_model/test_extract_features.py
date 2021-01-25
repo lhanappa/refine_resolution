@@ -226,7 +226,7 @@ def extract_features(path='./data',
     m = out_low_x2.numpy()
     m = np.squeeze(m)
     print(m.shape)
-    pcm = axs[0].imshow(np.log1p(m), cmap='RdBu_r')
+    pcm = axs.imshow(np.log1p(m), cmap='RdBu_r')
     plt.tight_layout()
     fig.colorbar(pcm, ax=axs, shrink=0.3)
 
