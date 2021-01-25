@@ -136,9 +136,9 @@ def extract_features(path='./data',
 
     # remove diag and off diag
     k = max_boundary.astype(int)
-    Mh = operations.filter_diag_boundary(Mh, diag_k=0, boundary_k=None)
-    true_hic_hr_merge = operations.filter_diag_boundary(true_hic_hr_merge, diag_k=0, boundary_k=None)
-    predict_hic_hr_merge = operations.filter_diag_boundary(predict_hic_hr_merge, diag_k=0, boundary_k=None)
+    Mh = operations.filter_diag_boundary(Mh, diag_k=1, boundary_k=None)
+    true_hic_hr_merge = operations.filter_diag_boundary(true_hic_hr_merge, diag_k=1, boundary_k=None)
+    predict_hic_hr_merge = operations.filter_diag_boundary(predict_hic_hr_merge, diag_k=1, boundary_k=None)
 
     print('sum Mh:', np.sum(np.abs(Mh)))
     print('sum true merge:', np.sum(np.abs(true_hic_hr_merge)))
@@ -291,7 +291,7 @@ def extract_features(path='./data',
     output = os.path.join(directory_sr, 'prediection_chr{}_{}_{}.jpg'.format(chromosome, start, end))
     plt.savefig(output, format='jpg')
 
-    Ml = operations.filter_diag_boundary(Ml, diag_k=0, boundary_k=None)
+    Ml = operations.filter_diag_boundary(Ml, diag_k=1, boundary_k=None)
     fig, axs = plt.subplots(1,1, figsize=(10, 8))
     m = Ml
     m = np.squeeze(m)
