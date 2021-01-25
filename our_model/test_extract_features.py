@@ -56,6 +56,9 @@ def extract_features(path='./data',
     mat = c.matrix(balance=True).fetch('chr'+chromosome)
 
     [Mh, idx] = operations.remove_zeros(mat)
+    nonzero_idx = np.where(idx)
+    print(idx)
+    print(start, end, nonzero_idx[start:end])
     print('Shape HR: {}'.format(Mh.shape), end='\t')
 
     if start is None:
@@ -238,6 +241,7 @@ def extract_features(path='./data',
     fig, axs = plt.subplots(1,1, figsize=(10, 8))
     m = out_low_x4.numpy()
     m = np.squeeze(m)
+    m = operations.filter_diag_boundary(m, diag_k=1, boundary_k=None)
     print(m.shape)
     pcm = axs.imshow(np.log1p(m), cmap='RdBu_r')
     axs.title.set_text('Prediction Hi-C (40kb, x16 downsampling)')
@@ -249,6 +253,7 @@ def extract_features(path='./data',
     fig, axs = plt.subplots(1,1, figsize=(10, 8))
     m = low_x2.numpy()
     m = np.squeeze(m)
+    m = operations.filter_diag_boundary(m, diag_k=1, boundary_k=None)
     print(m.shape)
     pcm = axs.imshow(np.log1p(m), cmap='RdBu_r')
     plt.tight_layout()
@@ -260,6 +265,7 @@ def extract_features(path='./data',
     fig, axs = plt.subplots(1,1, figsize=(10, 8))
     m = out_low_x4.numpy()
     m = np.squeeze(m)
+    m = operations.filter_diag_boundary(m, diag_k=1, boundary_k=None)
     print(m.shape)
     pcm = axs.imshow(np.log1p(m), cmap='RdBu_r')
     axs.title.set_text('True Hi-C (40kb, x16 downsampling)')
@@ -272,6 +278,7 @@ def extract_features(path='./data',
     fig, axs = plt.subplots(1,1, figsize=(10, 8))
     m = Mh
     m = np.squeeze(m)
+    m = operations.filter_diag_boundary(m, diag_k=1, boundary_k=None)
     print(m.shape)
     pcm = axs.imshow(np.log1p(m), cmap='RdBu_r')
     axs.title.set_text('True Hi-C (10kb)')
@@ -283,6 +290,7 @@ def extract_features(path='./data',
     fig, axs = plt.subplots(1,1, figsize=(10, 8))
     m = predict_hic_hr_merge
     m = np.squeeze(m)
+    m = operations.filter_diag_boundary(m, diag_k=1, boundary_k=None)
     print(m.shape)
     pcm = axs.imshow(np.log1p(m), cmap='RdBu_r')
     axs.title.set_text('Prediction Hi-C (10kb)')
@@ -302,10 +310,6 @@ def extract_features(path='./data',
     fig.colorbar(pcm, ax=axs, shrink=0.3)
     output = os.path.join(directory_sr, 'LR_chr{}_{}_{}.jpg'.format(chromosome, start, end))
     plt.savefig(output, format='jpg')
-
-    nonzero_idx = np.where(idx)
-    print(idx)
-    print(start, end, nonzero_idx[start:end])
 
 
 if __name__ == '__main__':
