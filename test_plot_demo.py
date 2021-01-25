@@ -223,7 +223,7 @@ def plot_demo(source_dir, chromosome, model_name, resolution, low_dis, up_dis, s
     Z = np.log1p(hic_mat)
 
     bounds = np.append(np.arange(7), [8,10,11])
-    norm = matplotlib.colors.BoundaryNorm(boundaries=bounds, ncolors=256)
+    norm = matplotlib.colors.SymLogNorm(linthresh=0.03, linscale=0.03, vmin=0.0, vmax=9.0, base=10),
     im = ax0.imshow(Z, cmap=cmap, norm=norm) #, vmin=0, vmax=8
     fig.colorbar(im, ax=ax0)
 
