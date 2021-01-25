@@ -56,8 +56,11 @@ def extract_features(path='./data',
     mat = c.matrix(balance=True).fetch('chr'+chromosome)
 
     [Mh, idx] = operations.remove_zeros(mat)
+
     nonzero_idx = np.where(idx)
     print(idx.shape)
+    print(nonzero_idx.shape)
+    print(nonzero_idx)
     print(start, end, nonzero_idx[start:end])
     print('Shape HR: {}'.format(Mh.shape), end='\t')
 
@@ -258,7 +261,7 @@ def extract_features(path='./data',
     print(m.shape)
     pcm = axs.imshow(np.log1p(m), cmap='RdBu_r')
     plt.tight_layout()
-    axs.title.set_text('True Hi-C (20kb, x4 downsampling)')
+    axs.title.set_text('True Hi-C (20kb)')
     fig.colorbar(pcm, ax=axs, shrink=0.3)
     output = os.path.join(directory_sr, 'true_x2_chr{}_{}_{}.jpg'.format(chromosome, start, end))
     
@@ -269,7 +272,7 @@ def extract_features(path='./data',
     m = operations.filter_diag_boundary(m, diag_k=1, boundary_k=None)
     print(m.shape)
     pcm = axs.imshow(np.log1p(m), cmap='RdBu_r')
-    axs.title.set_text('True Hi-C (40kb, x16 downsampling)')
+    axs.title.set_text('True Hi-C (40kb)')
     plt.tight_layout()
     fig.colorbar(pcm, ax=axs, shrink=0.3)
     output = os.path.join(directory_sr, 'true_x4_chr{}_{}_{}.jpg'.format(chromosome, start, end))
@@ -306,7 +309,7 @@ def extract_features(path='./data',
     m = np.squeeze(m)
     print(m.shape)
     pcm = axs.imshow(np.log1p(m), cmap='RdBu_r')
-    axs.title.set_text('True Hi-C (40kb)')
+    axs.title.set_text('True Hi-C (40kb, x16 downsampling)')
     plt.tight_layout()
     fig.colorbar(pcm, ax=axs, shrink=0.3)
     output = os.path.join(directory_sr, 'LR_chr{}_{}_{}.jpg'.format(chromosome, start, end))
