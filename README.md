@@ -25,7 +25,6 @@ We provide a Conda environment for running EnHiC, use the environment.yaml file,
 Activate the new environment: 
 >conda activate env_EnHiC 
 
-
 ---
 
 ##  Data Preparation
@@ -37,5 +36,18 @@ Activate the new environment:
 ---
 
 ##  Demo Test
+**Data preprocessing**
+Example:
+> (env_EnHiC)>> python test_preprocessing.py 1 200 2000000
+> (env_EnHiC)>> python test_preprocessing.py 22 200 2000000
+
+**Training**
+Example:
+> (env_EnHiC)>> python test_train.py 200 2000000
+
+**Prediction**
+
+Example:
+> (env_EnHiC)>> python test_predict.py 22 200 2000000
 
 ---
