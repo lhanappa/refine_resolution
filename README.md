@@ -1,0 +1,1 @@
+The project relocated: please check[EnHiC](https://github.com/wmalab/EnHiC)
