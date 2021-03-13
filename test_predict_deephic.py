@@ -30,11 +30,23 @@ valid_list = ['17', '18']
 predict_path = ‘pathto/refine_resolution/data/input_deephic_2000000_40_40/predict'
 preditc_list = ['19', '20', '21', '22', 'X']
 """
+raw_list = ['Rao2014-CH12LX-MboI-allreps-filtered.10kb.cool', 
+        'Rao2014-GM12878-DpnII-allreps-filtered.10kb.cool', 
+        'Rao2014-HMEC-MboI-allreps-filtered.10kb.cool', 
+        'Rao2014-HUVEC-MboI-allreps-filtered.10kb.cool', 
+        'Rao2014-IMR90-MboI-allreps-filtered.10kb.cool', 
+        'Rao2014-K562-MboI-allreps-filtered.10kb.cool', 
+        'Rao2014-KBM7-MboI-allreps-filtered.10kb.cool', 
+        'Rao2014-NHEK-MboI-allreps-filtered.10kb.cool']
+
+# 'Rao2014-GM12878-MboI-allreps-filtered.10kb.cool',
+
+idx = int(sys.argv[1])
 
 [raw_hic, genomic_distance, lr_size, hr_size, downsample_factor,
     root_dir, experiment_name, preprocessing_chr_list, input_path,
     preprocessing_output_path, script_work_dir, train_path, train_list,
-    valid_path, valid_list, predict_path, predict_list] = configure_deephic()
+    valid_path, valid_list, predict_path, predict_list] = configure_deephic(raw_list[idx])
 
 """chr_list = []
 lr_dir = os.path.join(preprocessing_output_path, 'lr')
@@ -47,7 +59,9 @@ generate(input_lr_dir=lr_dir, input_hr_dir=hr_dir, output_dir=train_path, chr_li
 data_cat = raw_hic.split('-')[0] + '_' + raw_hic.split('-')[1] + '_' + raw_hic.split('-')[2] + '_' + raw_hic.split('.')[1]
 output_path = os.path.join(root_dir, 'data', 'output_'+experiment_name, data_cat, 'SR')+'/'
 
-saved_cpt_dir = os.path.join(preprocessing_output_path, 'model')
+# saved_cpt_dir = os.path.join(preprocessing_output_path, 'model')
+saved_cpt_dir = os.path.join(root_dir, 'trained_model', 'deephic', 'model')
+
 if not os.path.exists(saved_cpt_dir):
     print('Can\'t find model! Please check directory')
 files = [f for f in os.listdir(saved_cpt_dir)]

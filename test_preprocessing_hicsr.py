@@ -38,7 +38,7 @@ raw_list = ['Rao2014-CH12LX-MboI-allreps-filtered.10kb.cool',
         'Rao2014-KBM7-MboI-allreps-filtered.10kb.cool', 
         'Rao2014-NHEK-MboI-allreps-filtered.10kb.cool']
 
-# 'Rao2014-GM12878-MboI-allreps-filtered.10kb.cool',
+# 'Rao2014-GM12878-MboI-allreps-filtered.10kb.cool',6
 
 idx = int(sys.argv[1])
 

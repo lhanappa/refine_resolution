@@ -30,14 +30,28 @@ valid_path = ‘pathto/refine_resolution/data/input_hicsr_2000000_40_28/Rao2014_
 valid_list = ['17', '18', '22']
 """
 
+raw_list = ['Rao2014-CH12LX-MboI-allreps-filtered.10kb.cool', 
+        'Rao2014-GM12878-DpnII-allreps-filtered.10kb.cool', 
+        'Rao2014-HMEC-MboI-allreps-filtered.10kb.cool', 
+        'Rao2014-HUVEC-MboI-allreps-filtered.10kb.cool', 
+        'Rao2014-IMR90-MboI-allreps-filtered.10kb.cool', 
+        'Rao2014-K562-MboI-allreps-filtered.10kb.cool', 
+        'Rao2014-KBM7-MboI-allreps-filtered.10kb.cool', 
+        'Rao2014-NHEK-MboI-allreps-filtered.10kb.cool']
+
+# 'Rao2014-GM12878-MboI-allreps-filtered.10kb.cool',
+
+idx = int(sys.argv[1])
+
 [raw_hic, genomic_distance, lr_size, hr_size, downsample_factor,
  root_dir, experiment_name, chr_list, input_path, preprocessing_output_path,
- script_work_dir, train_path, train_list, valid_path, valid_list, predict_path, predict_list] = configure_hicsr()
+ script_work_dir, train_path, train_list, valid_path, valid_list, predict_path, predict_list] = configure_hicsr(raw_list[idx])
 
 # predict data
 # python predict.py --input preprocessing_output/normalized/lr/ --output HiCSR_predictions/ --model_type HiCSR --model_fp pretrained_models/HiCSR.pth
 data_fp = predict_path
-model_fp = os.path.join(input_path, 'model', 'HiCSR', 'HiCSR.pth')
+# model_fp = os.path.join(input_path, 'model', 'HiCSR', 'HiCSR.pth')
+model_fp = os.path.join(root_dir, 'trained_model', 'hicsr', 'model', 'HiCSR', 'HiCSR.pth')
 model_hicsr = "HiCSR"
 
 data_cat = raw_hic.split('-')[0] + '_' + raw_hic.split('-')[1] + '_' + raw_hic.split('-')[2] + '_' + raw_hic.split('.')[1]
