@@ -25,7 +25,8 @@ raw_hic = raw_list[file_idx]
 max_dis = 2000000
 
 model_path = os.path.join(root_dir, 'trained_model', 'enhic', 'saved_model', 'gen_model_' + str(len_size), 'gen_weights')
-for chro in chromosome.reverse():
+chromosome.reverse()
+for chro in chromosome:
         predict(path=os.path.join(root_dir, 'data'),
                 raw_path='raw',
                 raw_file=raw_hic,
