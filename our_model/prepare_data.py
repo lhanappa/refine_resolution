@@ -143,6 +143,15 @@ dataset_path-raw
 """
 
 if __name__ == '__main__':
+    raw_list = ['Rao2014-CH12LX-MboI-allreps-filtered.10kb.cool', 
+                'Rao2014-GM12878-DpnII-allreps-filtered.10kb.cool', 
+                'Rao2014-GM12878-MboI-allreps-filtered.10kb.cool', 
+                'Rao2014-HMEC-MboI-allreps-filtered.10kb.cool', 
+                'Rao2014-HUVEC-MboI-allreps-filtered.10kb.cool', 
+                'Rao2014-IMR90-MboI-allreps-filtered.10kb.cool', 
+                'Rao2014-K562-MboI-allreps-filtered.10kb.cool', 
+                'Rao2014-KBM7-MboI-allreps-filtered.10kb.cool', 
+                'Rao2014-NHEK-MboI-allreps-filtered.10kb.cool']
     root = operations.redircwd_back_projroot(project_name='refine_resolution')
     raw_hic = 'Rao2014-GM12878-MboI-allreps-filtered.10kb.cool'
     # raw_hic='Rao2014-GM12878-DpnII-allreps-filtered.10kb.cool'
