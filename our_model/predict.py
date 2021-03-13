@@ -50,6 +50,8 @@ def predict(path='./data',
     name = os.path.join(path, raw_path, raw_file)
     c = cooler.Cooler(name)
     resolution = c.binsize
+    if 'chr'+chromosome not in c.chromnames:
+        return
     mat = c.matrix(balance=True).fetch('chr'+chromosome)
 
     [Mh, idx] = operations.remove_zeros(mat)
