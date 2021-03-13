@@ -138,12 +138,28 @@ def generate_prefile(input_path='./experiment/evaluation', chromosomes=['22', '2
 
 if __name__ == '__main__':
     # methods = ['output_ours_2000000_200', 'output_hicsr_2000000_40_28', 'output_hicgan_2000000_40_40', 'output_deephic_2000000_40_40']
-    methods = ['output_ours_2000000_80', 'output_ours_2000000_200', 'output_ours_2000000_400', 'output_hicsr_2000000_40_28', 'output_deephic_2000000_40_40']
+    # methods = ['output_ours_2000000_80', 'output_ours_2000000_200', 'output_ours_2000000_400', 'output_hicsr_2000000_40_28', 'output_deephic_2000000_40_40']
     # cool_file = 'Rao2014-GM12878-DpnII-allreps-filtered.10kb.cool'
-    cool_file = 'Rao2014-GM12878-MboI-allreps-filtered.10kb.cool'
+    methods = ['output_ours_2000000_400', 'output_hicsr_2000000_40_28', 'output_deephic_2000000_40_40']
+    raw_list = ['Rao2014-CH12LX-MboI-allreps-filtered.10kb.cool', 
+        'Rao2014-GM12878-DpnII-allreps-filtered.10kb.cool', 
+        'Rao2014-HMEC-MboI-allreps-filtered.10kb.cool', 
+        'Rao2014-HUVEC-MboI-allreps-filtered.10kb.cool', 
+        'Rao2014-IMR90-MboI-allreps-filtered.10kb.cool', 
+        'Rao2014-K562-MboI-allreps-filtered.10kb.cool', 
+        'Rao2014-KBM7-MboI-allreps-filtered.10kb.cool', 
+        'Rao2014-NHEK-MboI-allreps-filtered.10kb.cool']
+
+    # 'Rao2014-GM12878-MboI-allreps-filtered.10kb.cool',
+
+    idx = int(sys.argv[1])
+    cool_file = raw_list[idx]
     cell_type = cool_file.split('-')[0] + '_' + cool_file.split('-')[1] + '_' + cool_file.split('-')[2] + '_' + cool_file.split('.')[1]
     destination_path = os.path.join('./experiment', 'evaluation', cell_type)
-    chromosomes = ['22', '21', '20', '19', 'X']
+    if cool_file == 'Rao2014-CH12LX-MboI-allreps-filtered.10kb.cool':
+        chromosomes = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', 'X']
+    else:
+        chromosomes = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', 'X']
 
     for m in methods:
         source = os.path.join('.', 'data', m, cell_type, 'SR')
