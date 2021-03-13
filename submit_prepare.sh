@@ -15,6 +15,7 @@ date
 hostname
 
 METHOD=${1}
+ID=${2}
 source activate env_${METHOD}
-echo python test_preprocessing_${METHOD}.py
-python test_preprocessing_${METHOD}.py
+echo python test_preprocessing_${METHOD}.py ${ID}
+python test_preprocessing_${METHOD}.py ${ID}
