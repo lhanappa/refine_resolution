@@ -10,8 +10,8 @@ from .utils import redircwd_back_projroot, configure
 """test hicsr"""
 
 
-def configure_hicsr():
-    raw_hic = 'Rao2014-GM12878-MboI-allreps-filtered.10kb.cool'
+def configure_hicsr(raw_hic):
+    # raw_hic = 'Rao2014-GM12878-MboI-allreps-filtered.10kb.cool'
     # raw_hic = 'Rao2014-GM12878-DpnII-allreps-filtered.10kb.cool'
     genomic_distance = 2000000
     lr_size = 40

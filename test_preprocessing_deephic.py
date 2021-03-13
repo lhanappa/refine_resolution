@@ -28,11 +28,23 @@ train_list = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13
 valid_path = ‘pathto/refine_resolution/data/input_deephic_2000000_40_28/valid'
 valid_list = ['17', '18', '22']
 """
+raw_list = ['Rao2014-CH12LX-MboI-allreps-filtered.10kb.cool', 
+        'Rao2014-GM12878-DpnII-allreps-filtered.10kb.cool', 
+        'Rao2014-HMEC-MboI-allreps-filtered.10kb.cool', 
+        'Rao2014-HUVEC-MboI-allreps-filtered.10kb.cool', 
+        'Rao2014-IMR90-MboI-allreps-filtered.10kb.cool', 
+        'Rao2014-K562-MboI-allreps-filtered.10kb.cool', 
+        'Rao2014-KBM7-MboI-allreps-filtered.10kb.cool', 
+        'Rao2014-NHEK-MboI-allreps-filtered.10kb.cool']
+
+# 'Rao2014-GM12878-MboI-allreps-filtered.10kb.cool',
+
+idx = int(sys.argv[1])
 
 [raw_hic, genomic_distance, lr_size, hr_size, downsample_factor,
  root_dir, experiment_name, preprocessing_chr_list, input_path,
  preprocessing_output_path, script_work_dir, train_path, train_list,
- valid_path, valid_list, predict_path, predict_list] = configure_deephic()
+ valid_path, valid_list, predict_path, predict_list] = configure_deephic(raw_list[idx])
 
 
 prepare_deephic.run(raw_hic=raw_hic,

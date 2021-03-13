@@ -42,6 +42,8 @@ def run(raw_hic='Rao2014-GM12878-DpnII-allreps-filtered.10kb.cool',
         # chrN_10kb.npz
         name_hr = f'chr{chro}_{hi_res}.npz'
         chromosome = 'chr' + chro
+        if chromosome not in hic_m.chromnames:
+            continue
         mat_hr = hic_m.matrix(balance=True).fetch(chromosome)
         [mat_hr, idx] = remove_zeros(mat_hr)
         save_to_compressed(mat_hr, idx, output_path=os.path.join(

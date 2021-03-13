@@ -48,6 +48,8 @@ def run(raw_hic='Rao2014-GM12878-DpnII-allreps-filtered.10kb.cool',
         name_hr = '-'.join(['chr'+chro, cell_type,
                             str(1), file_tag]) + '.txt.gz'
         chromosome = 'chr' + chro
+        if chromosome not in hic_m.chromnames:
+            continue
         mat_hr = hic_m.matrix(balance=True).fetch(chromosome)
         [mat_hr, _] = remove_zeros(mat_hr)
         save_to_raw(mat_hr, output_path=os.path.join(
