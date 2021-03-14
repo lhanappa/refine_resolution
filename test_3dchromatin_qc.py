@@ -21,14 +21,14 @@ QuASAR|rebinning	resolution
 
 parameters = '''GenomeDISCO|subsampling	lowest
 GenomeDISCO|tmin	1
-GenomeDISCO|tmax	3
+GenomeDISCO|tmax	1
 GenomeDISCO|norm	sqrtvc
 GenomeDISCO|scoresByStep	yes
 GenomeDISCO|removeDiag	yes
 GenomeDISCO|transition	yes
 HiCRep|h	3
 HiCRep|maxdist	2000000
-HiC-Spector|n	5
+HiC-Spector|n	3
 QuASAR|rebinning	resolution
 '''
 
@@ -118,7 +118,10 @@ def run(
             "--outdir", './chromatin_qc/',
             "--methods", "GenomeDISCO,HiCRep,HiC-Spector"] # ,QuASAR-Rep
         process.append(subprocess.Popen(cmd, cwd=script_work_dir))
+    for p in process:
+            p.wait()
 
+    for chro in chromosomes:
         # 3DChromatin_ReplicateQC summary 
         # --running_mode sge 
         # --metadata_samples examples/metadata.samples 
@@ -131,7 +134,7 @@ def run(
             "--bins", 'bins_chr{}.bed.gz'.format(chro), 
             "--outdir", './chromatin_qc/',
             "--parameters_file", './qc_parameters.txt']
-        process = subprocess.run(cmd, cwd=script_work_dir)
+        process.append(subprocess.Popen(cmd, cwd=script_work_dir))
     for p in process:
         p.wait()
 
