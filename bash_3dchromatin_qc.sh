@@ -16,7 +16,8 @@ hostname
 # source activate tf_base
 # python gather_data.py
 
-CHROMOSOME=${2}
 ID=${1}
+CHROMOSOME=${2}
+
 source activate 3dchromatin_replicate_qc
 python test_3dchromatin_qc.py ${ID} ${CHROMOSOME}
