@@ -100,7 +100,7 @@ def run(
             "--metadata_samples",  'metadata_samples.txt', 
             "--bins", 'bins_chr{}.bed.gz'.format(chro), 
             "--outdir", './chromatin_qc/',
-            "--methods", "GenomeDISCO", # HiC-Spector,HiCRep",  # HiCRep, ,QuASAR-Rep
+            "--methods", "GenomeDISCO,HiC-Spector,HiCRep",  # HiCRep, ,QuASAR-Rep
             "--parameters_file", './qc_parameters.txt']
         process.append(subprocess.Popen(cmd, cwd=script_work_dir))
     for p in process:
@@ -116,7 +116,7 @@ def run(
         cmd = ["3DChromatin_ReplicateQC", "concordance", 
             "--metadata_pairs", 'metadata_pairs.txt',
             "--outdir", './chromatin_qc/',
-            "--methods", "GenomeDISCO"] #,HiC-Spector,HiCRep"] # ,QuASAR-Rep
+            "--methods", "GenomeDISCO,HiC-Spector,HiCRep"] # ,QuASAR-Rep
         process.append(subprocess.Popen(cmd, cwd=script_work_dir))
     for p in process:
             p.wait()
@@ -140,11 +140,23 @@ def run(
         p.wait()
 
 if __name__ == '__main__':
-    chro = str(sys.argv[1])
+    raw_list = ['Rao2014-CH12LX-MboI-allreps-filtered.10kb.cool', 
+        'Rao2014-GM12878-DpnII-allreps-filtered.10kb.cool', 
+        'Rao2014-HMEC-MboI-allreps-filtered.10kb.cool', 
+        'Rao2014-HUVEC-MboI-allreps-filtered.10kb.cool', 
+        'Rao2014-IMR90-MboI-allreps-filtered.10kb.cool', 
+        'Rao2014-K562-MboI-allreps-filtered.10kb.cool', 
+        'Rao2014-KBM7-MboI-allreps-filtered.10kb.cool', 
+        'Rao2014-NHEK-MboI-allreps-filtered.10kb.cool',
+        'Rao2014-GM12878-MboI-allreps-filtered.10kb.cool']
+
+    # 'Rao2014-GM12878-MboI-allreps-filtered.10kb.cool',6
+    idx = int(sys.argv[1])
+    chro = str(sys.argv[2])
     # methods = ['deephic_40', 'hicsr_40', 'ours_80', 'ours_200', 'ours_400', 'high', 'low']
     methods = ['deephic_40', 'hicsr_40', 'ours_400', 'high', 'low']
     list1 = ['high']
     list2 = ['deephic_40', 'hicsr_40', 'ours_400', 'low']
-    cool_file = 'Rao2014-GM12878-MboI-allreps-filtered.10kb.cool'
+    cool_file = raw_list[idx]
 
     run(methods = methods, list1=list1, list2=list2, chromosomes = [chro], cool_file=cool_file)
