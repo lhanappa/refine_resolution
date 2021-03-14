@@ -133,8 +133,7 @@ def run(
             "--metadata_pairs", 'metadata_pairs.txt',
             "--metadata_samples", 'metadata_samples.txt', 
             "--bins", 'bins_chr{}.bed.gz'.format(chro), 
-            "--outdir", './chromatin_qc/',
-            "--parameters_file", './qc_parameters.txt']
+            "--outdir", './chromatin_qc/']
         process.append(subprocess.Popen(cmd, cwd=script_work_dir))
     for p in process:
         p.wait()
