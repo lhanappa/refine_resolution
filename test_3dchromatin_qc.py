@@ -100,7 +100,7 @@ def run(
             "--metadata_samples",  'metadata_samples.txt', 
             "--bins", 'bins_chr{}.bed.gz'.format(chro), 
             "--outdir", './chromatin_qc/',
-            "--methods", "GenomeDISCO,HiC-Spector",  # HiCRep,
+            "--methods", "GenomeDISCO,HiCRep,HiC-Spector,QuASAR-Rep",  # HiCRep,
             "--parameters_file", './qc_parameters.txt']
         process.append(subprocess.Popen(cmd, cwd=script_work_dir))
     for p in process:
@@ -116,7 +116,7 @@ def run(
         cmd = ["3DChromatin_ReplicateQC", "concordance", 
             "--metadata_pairs", 'metadata_pairs.txt',
             "--outdir", './chromatin_qc/',
-            "--methods", "GenomeDISCO,HiC-Spector"] # ,QuASAR-Rep
+            "--methods", "GenomeDISCO,HiCRep,HiC-Spector,QuASAR-Rep"] # ,QuASAR-Rep
         process.append(subprocess.Popen(cmd, cwd=script_work_dir))
 
         # 3DChromatin_ReplicateQC summary 
@@ -126,13 +126,12 @@ def run(
         # --bins examples/Bins.w50000.bed.gz 
         # --outdir examples/output 
         # --methods GenomeDISCO,HiCRep,HiC-Spector,QuASAR-Rep    script_work_dir = './'
-        '''cmd = ["3DChromatin_ReplicateQC", "summary", 
-            "--running_mode", data_fp, 
-            "--metadata_samples", output_path, 
-            "--bins", "HiCSR", 
-            "--outdir", model_fp,
-            "--parameters_file", str(resolution)]
-        process = subprocess.run(cmd, cwd=script_work_dir)'''
+        cmd = ["3DChromatin_ReplicateQC", "summary", 
+            "--metadata_samples", 'metadata_samples.txt', 
+            "--bins", 'bins_chr{}.bed.gz'.format(chro), 
+            "--outdir", './chromatin_qc/',
+            "--parameters_file", './qc_parameters.txt']
+        process = subprocess.run(cmd, cwd=script_work_dir)
     for p in process:
         p.wait()
 
