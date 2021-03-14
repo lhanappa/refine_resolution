@@ -133,6 +133,7 @@ def run(
             "--metadata_pairs", 'metadata_pairs.txt',
             "--metadata_samples", 'metadata_samples.txt', 
             "--bins", 'bins_chr{}.bed.gz'.format(chro), 
+            "--methods", "GenomeDISCO,HiC-Spector,HiCRep",
             "--outdir", './chromatin_qc/']
         process.append(subprocess.Popen(cmd, cwd=script_work_dir))
     for p in process:
