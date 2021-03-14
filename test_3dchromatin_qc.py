@@ -18,14 +18,17 @@ HiCRep|maxdist	2000000
 HiC-Spector|n	20
 QuASAR|rebinning	resolution
 """
+
 parameters = '''GenomeDISCO|subsampling	lowest
-GenomeDISCO|tmin	3
-GenomeDISCO|tmax	8
-GenomeDISCO|norm	uniform
+GenomeDISCO|tmin	1
+GenomeDISCO|tmax	3
+GenomeDISCO|norm	sqrtvc
 GenomeDISCO|scoresByStep	yes
 GenomeDISCO|removeDiag	yes
 GenomeDISCO|transition	yes
-HiC-Spector|n	20
+HiCRep|h	3
+HiCRep|maxdist	2000000
+HiC-Spector|n	5
 QuASAR|rebinning	resolution
 '''
 
@@ -135,9 +138,10 @@ def run(
 
 if __name__ == '__main__':
     chro = str(sys.argv[1])
-    methods = ['deephic_40', 'hicsr_40', 'ours_80', 'ours_200', 'ours_400', 'high', 'low']
+    # methods = ['deephic_40', 'hicsr_40', 'ours_80', 'ours_200', 'ours_400', 'high', 'low']
+    methods = ['deephic_40', 'hicsr_40', 'ours_400', 'high', 'low']
     list1 = ['high']
-    list2 = ['deephic_40', 'hicsr_40', 'ours_80', 'ours_200', 'ours_400', 'low']
+    list2 = ['deephic_40', 'hicsr_40', 'ours_400', 'low']
     cool_file = 'Rao2014-GM12878-MboI-allreps-filtered.10kb.cool'
 
     run(methods = methods, list1=list1, list2=list2, chromosomes = [chro], cool_file=cool_file)
