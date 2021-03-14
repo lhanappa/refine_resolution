@@ -67,11 +67,16 @@ def generate_coo(mat, chromosome, output_path, filename, resolution=10000):
                    )
 
 
-def generate_prefile(input_path='./experiment/evaluation', chromosomes=['22', '21', '20', '19', 'X'], resolution=10000, genomic_distance=2000000):
+def generate_prefile(input_path='./experiment/evaluation', chromosomes=['22', '21', '20', '19', 'X'], methods = ['output_ours_2000000_400', 'output_hicsr_2000000_40_28', 'output_deephic_2000000_40_40'], resolution=10000, genomic_distance=2000000):
     k = np.ceil(genomic_distance/resolution).astype(int)
     for chro in chromosomes:
         path = os.path.join(input_path, 'chr{}'.format(chro))
-        files = [f for f in os.listdir(path) if '.npz' in f]
+        tmp = [f for f in os.listdir(path) if '.npz' in f]
+        files = []
+        for m in methods:
+            for f in tmp:
+                if m in f:
+                    files.append(f)
         for file in files:
             if 'high' in file:
                 print(file)
@@ -140,7 +145,7 @@ if __name__ == '__main__':
     # methods = ['output_ours_2000000_80', 'output_ours_2000000_200', 'output_ours_2000000_400', 'output_hicsr_2000000_40_28', 'output_deephic_2000000_40_40']
     # cool_file = 'Rao2014-GM12878-DpnII-allreps-filtered.10kb.cool'
     # methods = ['output_ours_2000000_400', 'output_hicsr_2000000_40_28', 'output_deephic_2000000_40_40']
-    methods = ['output_ours_2000000_400', 'output_deephic_2000000_40_40']
+    methods = ['output_hicsr_2000000_40_28']
     
     raw_list = ['Rao2014-CH12LX-MboI-allreps-filtered.10kb.cool', 
         'Rao2014-GM12878-DpnII-allreps-filtered.10kb.cool', 
@@ -166,14 +171,15 @@ if __name__ == '__main__':
         source = os.path.join('.', 'data', m, cell_type, 'SR')
         gather(source=source, destination=destination_path, method=m, chromosomes=chromosomes)
 
-    for chro in chromosomes:
+    '''for chro in chromosomes:
         gather_high_low_mat(cooler_file=cool_file, 
                             path='./data/raw/', 
                             chromosome=chro, 
                             scale=4, 
-                            output_path=destination_path)
+                            output_path=destination_path)'''
 
     generate_prefile(input_path=destination_path,
                      chromosomes=chromosomes,
+                     methods= methods,
                      resolution=10000, 
                      genomic_distance=2000000)
