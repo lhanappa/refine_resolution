@@ -75,7 +75,7 @@ def generate_prefile(input_path='./experiment/evaluation', chromosomes=['22', '2
         files = []
         for m in methods:
             for f in tmp:
-                if m in f:
+                if m in f or 'high' in f:
                     files.append(f)
         for file in files:
             if 'high' in file:
