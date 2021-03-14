@@ -18,8 +18,7 @@ def gather(source=None, destination='./experiment/evaluation/', method='output_o
         outfile = '{}_predict_chr{}_10000.npz'.format(method, ch)
         inpath = os.path.join(source, infile)
         if os.path.exists(inpath):
-            print('copying {} from {} to {}'.format(infile, inpath,
-                                                    os.path.join(destination, 'chr{}'.format(ch), outfile)))
+            print('copying {} from {} to {}'.format(infile, inpath, os.path.join(destination, 'chr{}'.format(ch), outfile)))
             os.makedirs(os.path.join(
                 destination, 'chr{}'.format(ch)), exist_ok=True)
             shutil.copyfile(inpath, os.path.join(
@@ -140,7 +139,9 @@ if __name__ == '__main__':
     # methods = ['output_ours_2000000_200', 'output_hicsr_2000000_40_28', 'output_hicgan_2000000_40_40', 'output_deephic_2000000_40_40']
     # methods = ['output_ours_2000000_80', 'output_ours_2000000_200', 'output_ours_2000000_400', 'output_hicsr_2000000_40_28', 'output_deephic_2000000_40_40']
     # cool_file = 'Rao2014-GM12878-DpnII-allreps-filtered.10kb.cool'
-    methods = ['output_ours_2000000_400', 'output_hicsr_2000000_40_28', 'output_deephic_2000000_40_40']
+    # methods = ['output_ours_2000000_400', 'output_hicsr_2000000_40_28', 'output_deephic_2000000_40_40']
+    methods = ['output_ours_2000000_400', 'output_deephic_2000000_40_40']
+    
     raw_list = ['Rao2014-CH12LX-MboI-allreps-filtered.10kb.cool', 
         'Rao2014-GM12878-DpnII-allreps-filtered.10kb.cool', 
         'Rao2014-HMEC-MboI-allreps-filtered.10kb.cool', 
