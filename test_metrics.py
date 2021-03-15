@@ -38,6 +38,7 @@ data = list()
 for cell in raw_list:
     cl = cell.split('-')
     ctype = cl[1]+'_'+cl[2]
+    cell_name = '_'.join(cl[0:3]) + '_10kb'
     for chro in chromosomes:
         inpath = os.path.join('experiment', 'evaluation', cell, 
                             'chr{}'.format(chro), 'chromatin_qc', 'scores', 
