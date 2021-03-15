@@ -26,7 +26,7 @@ GenomeDISCO|norm	sqrtvc
 GenomeDISCO|scoresByStep	yes
 GenomeDISCO|removeDiag	yes
 GenomeDISCO|transition	yes
-HiCRep|h	3
+HiCRep|h	2
 HiCRep|maxdist	2000000
 HiC-Spector|n	1
 QuASAR|rebinning	resolution
