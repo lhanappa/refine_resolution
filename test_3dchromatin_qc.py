@@ -106,6 +106,7 @@ def run(
     for p in process:
         p.wait()
 
+    process = []
     for chro in chromosomes:
         # 3DChromatin_ReplicateQC concordance 
         # --running_mode sge 
@@ -119,8 +120,9 @@ def run(
             "--methods", "GenomeDISCO,HiC-Spector,HiCRep"] # ,QuASAR-Rep
         process.append(subprocess.Popen(cmd, cwd=script_work_dir))
     for p in process:
-            p.wait()
+        p.wait()
 
+    process = []
     for chro in chromosomes:
         # 3DChromatin_ReplicateQC summary 
         # --running_mode sge 
