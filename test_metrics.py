@@ -66,6 +66,11 @@ for mc in metrics:
     ax = sns.catplot(y="cell type", x="value", hue="method", data=data, kind="violin", orient="h", 
     height=12, aspect=.8, width=0.8, scale="width", scale_hue=False)
     ax.set(xlabel='cell type', ylabel='scores')
+    if 'Genome' in mc:
+        plt.xlim(-.6, 1.0)
+    else:
+        plt.xlim(0.25, 1.2)
+    plt.gcf().subplots_adjust(bottom=0.1)
     output = os.path.join(output_dir, 'figure')
     os.makedirs(output, exist_ok=True)
     output = os.path.join(output, 'metrics_{}_scores.pdf'.format(mc))
