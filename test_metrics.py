@@ -50,23 +50,21 @@ for cell in raw_list:
                 l = line.split()
                 me = l[1]
                 if me in methods:
-                    i = 2
-                    for mc in metrics:
-                        data.append([ctype, chro, mc, me, l[i]])
-                        i = i+1
+                    for i, mc in enumerate(metrics):
+                        data.append([ctype, chro, mc, me, l[i+2]])
         fin.close()
 
 s = pd.DataFrame(data, columns=["cell type", "chromosome", "metric", "method", "value"])
 
 print(s)
 
-output_dir = os.path.join('experiment', 'evaluation')
+output_dir = os.path.join('.', 'experiment', 'evaluation')
 for mc in metrics:
     data = s.loc[s['metric']==mc]
     data = data.explode('value')
     data['value'] = data['value'].astype('float')
-    plt.figure(figsize=(5,20))
-    ax = sns.catplot(y="cell type", x="value", hue="method", data=data, kind="violin", orient="h")
+    ax = sns.catplot(y="cell type", x="value", hue="method", data=data, kind="violin", orient="h", 
+    height=12, aspect=.8, width=0.8, scale="width", scale_hue=False)
     ax.set(xlabel='cell type', ylabel='scores')
     output = os.path.join(output_dir, 'figure')
     os.makedirs(output, exist_ok=True)

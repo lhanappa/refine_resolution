@@ -26,7 +26,7 @@ GenomeDISCO|norm	sqrtvc
 GenomeDISCO|scoresByStep	yes
 GenomeDISCO|removeDiag	yes
 GenomeDISCO|transition	yes
-HiCRep|h	2
+HiCRep|h	3
 HiCRep|maxdist	2000000
 HiC-Spector|n	1
 QuASAR|rebinning	resolution
@@ -100,7 +100,7 @@ def run(
             "--metadata_samples",  'metadata_samples.txt', 
             "--bins", 'bins_chr{}.bed.gz'.format(chro), 
             "--outdir", './chromatin_qc/',
-            "--methods", "GenomeDISCO,HiC-Spector,HiCRep",  # HiCRep, ,QuASAR-Rep
+            "--methods", "HiCRep",  # HiCRep, ,QuASAR-Rep GenomeDISCO,HiC-Spector,
             "--parameters_file", './qc_parameters.txt']
         process.append(subprocess.Popen(cmd, cwd=script_work_dir))
     for p in process:
@@ -117,7 +117,7 @@ def run(
         cmd = ["3DChromatin_ReplicateQC", "concordance", 
             "--metadata_pairs", 'metadata_pairs.txt',
             "--outdir", './chromatin_qc/',
-            "--methods", "GenomeDISCO,HiC-Spector,HiCRep"] # ,QuASAR-Rep
+            "--methods", "HiCRep"] # ,QuASAR-Rep GenomeDISCO,HiC-Spector,
         process.append(subprocess.Popen(cmd, cwd=script_work_dir))
     for p in process:
         p.wait()
