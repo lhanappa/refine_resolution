@@ -58,12 +58,13 @@ for cell in raw_list:
 
 s = pd.DataFrame(data, columns=["cell type", "chromosome", "metric", "method", "value"])
 
-print(data)
 print(s)
 
 output_dir = os.path.join('experiment', 'evaluation')
 for mc in metrics:
     data = s.loc[s['metric']==mc]
+    data = data.explode('value')
+    data['value'] = data['value'].astype('float')
     ax = sns.catplot(x="cell type", y="value", hue="method", data=data, kind="violin")
     ax.set(xlabel='Models', ylabel='Jaccard Score')
     output = os.path.join(output_dir, 'figure')
