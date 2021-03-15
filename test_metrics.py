@@ -40,8 +40,9 @@ for cell in raw_list:
     ctype = cl[1]+'_'+cl[2]
     cell_name = '_'.join(cl[0:3]) + '_10kb'
     for chro in chromosomes:
-        inpath = os.path.join('.', 'experiment', 'evaluation', cell_name, 
-                            'chr{}'.format(chro), 'chromatin_qc', 'scores', 
+        for i, mc in enumerate(metrics):
+            inpath = os.path.join('.', 'experiment', 'evaluation', cell_name, 
+                            'chr{}'.format(chro), 'chromatin_qc', mc, 'scores', 
                             'reproducibility.chr{}.txt'.format(chro))
         if not os.path.exists(inpath):
             continue
@@ -50,8 +51,7 @@ for cell in raw_list:
                 l = line.split()
                 me = l[1]
                 if me in methods:
-                    for i, mc in enumerate(metrics):
-                        data.append([ctype, chro, mc, me, l[i+2]])
+                    data.append([ctype, chro, mc, me, l[i+2]])
         fin.close()
 
 s = pd.DataFrame(data, columns=["cell type", "chromosome", "metric", "method", "value"])

@@ -83,7 +83,7 @@ def run(
     destination_path = os.path.join('./experiment/evaluation/', cell_type)
 
     print(chromosomes)
-    process = []
+    '''process = []
     for chro in chromosomes:
         generate_parameters(chro, path=destination_path)
         generate_metadata_samples(methods, chro, path=destination_path)
@@ -120,7 +120,7 @@ def run(
             "--methods", "HiCRep"] # ,QuASAR-Rep GenomeDISCO,HiC-Spector,
         process.append(subprocess.Popen(cmd, cwd=script_work_dir))
     for p in process:
-        p.wait()
+        p.wait()'''
 
     process = []
     for chro in chromosomes:
@@ -131,15 +131,57 @@ def run(
         # --bins examples/Bins.w50000.bed.gz 
         # --outdir examples/output 
         # --methods GenomeDISCO,HiCRep,HiC-Spector,QuASAR-Rep    script_work_dir = './'
+        script_work_dir = os.path.join(destination_path, 'chr{}'.format(chro))
         cmd = ["3DChromatin_ReplicateQC", "summary", 
             "--metadata_pairs", 'metadata_pairs.txt',
             "--metadata_samples", 'metadata_samples.txt', 
             "--bins", 'bins_chr{}.bed.gz'.format(chro), 
-            "--methods", "GenomeDISCO,HiC-Spector,HiCRep",
-            "--outdir", './chromatin_qc/']
+            "--methods", "GenomeDISCO",
+            "--outdir", './chromatin_qc/GenomeDISCO']
         process.append(subprocess.Popen(cmd, cwd=script_work_dir))
     for p in process:
         p.wait()
+    
+    process = []
+    for chro in chromosomes:
+        # 3DChromatin_ReplicateQC summary 
+        # --running_mode sge 
+        # --metadata_samples examples/metadata.samples 
+        # --metadata_pairs examples/metadata.pairs 
+        # --bins examples/Bins.w50000.bed.gz 
+        # --outdir examples/output 
+        # --methods GenomeDISCO,HiCRep,HiC-Spector,QuASAR-Rep    script_work_dir = './'
+        script_work_dir = os.path.join(destination_path, 'chr{}'.format(chro))
+        cmd = ["3DChromatin_ReplicateQC", "summary", 
+            "--metadata_pairs", 'metadata_pairs.txt',
+            "--metadata_samples", 'metadata_samples.txt', 
+            "--bins", 'bins_chr{}.bed.gz'.format(chro), 
+            "--methods", "HiC-Spector",
+            "--outdir", './chromatin_qc/HiC-Spector']
+        process.append(subprocess.Popen(cmd, cwd=script_work_dir))
+    for p in process:
+        p.wait()
+    
+    process = []
+    for chro in chromosomes:
+        # 3DChromatin_ReplicateQC summary 
+        # --running_mode sge 
+        # --metadata_samples examples/metadata.samples 
+        # --metadata_pairs examples/metadata.pairs 
+        # --bins examples/Bins.w50000.bed.gz 
+        # --outdir examples/output 
+        # --methods GenomeDISCO,HiCRep,HiC-Spector,QuASAR-Rep    script_work_dir = './'
+        script_work_dir = os.path.join(destination_path, 'chr{}'.format(chro))
+        cmd = ["3DChromatin_ReplicateQC", "summary", 
+            "--metadata_pairs", 'metadata_pairs.txt',
+            "--metadata_samples", 'metadata_samples.txt', 
+            "--bins", 'bins_chr{}.bed.gz'.format(chro), 
+            "--methods", "HiCRep",
+            "--outdir", './chromatin_qc/HiCRep']
+        process.append(subprocess.Popen(cmd, cwd=script_work_dir))
+    for p in process:
+        p.wait()
+
 
 if __name__ == '__main__':
     raw_list = ['Rao2014-CH12LX-MboI-allreps-filtered.10kb.cool', 
