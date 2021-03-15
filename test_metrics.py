@@ -69,5 +69,5 @@ for mc in metrics:
     ax.set(xlabel='Models', ylabel='Jaccard Score')
     output = os.path.join(output_dir, 'figure')
     os.makedirs(output, exist_ok=True)
-    output = os.path.join(output, 'metrics_scores.pdf')
+    output = os.path.join(output, 'metrics_{}_scores.pdf'.format(mc))
     plt.savefig(output, format='pdf')
