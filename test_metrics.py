@@ -40,20 +40,19 @@ for cell in raw_list:
     ctype = cl[1]+'_'+cl[2]
     cell_name = '_'.join(cl[0:3]) + '_10kb'
     for chro in chromosomes:
-        inpath = os.path.join('.', 'experiment', 'evaluation', cell, 
+        inpath = os.path.join('.', 'experiment', 'evaluation', cell_name, 
                             'chr{}'.format(chro), 'chromatin_qc', 'scores', 
                             'reproducibility.chr{}.txt'.format(chro))
         if not os.path.exists(inpath):
             continue
         with open(inpath, 'r') as fin:
-            fin.next()
             for line in fin:
                 l = line.split()
                 me = l[1]
                 if me in methods:
                     i = 2
                     for mc in metrics:
-                        data.append([ctype, mc, me, chro, l[i]])
+                        data.append([ctype, chro, mc, me, l[i]])
                         i = i+1
         fin.close()
 
