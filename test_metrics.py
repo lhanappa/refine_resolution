@@ -65,8 +65,8 @@ for mc in metrics:
     data = s.loc[s['metric']==mc]
     data = data.explode('value')
     data['value'] = data['value'].astype('float')
-    fig, ax = plt.figure(figsize=(5,20))
-    sns.catplot(y="cell type", x="value", hue="method", data=data, kind="violin", orient="h", ax=ax)
+    plt.figure(figsize=(5,20))
+    ax = sns.catplot(y="cell type", x="value", hue="method", data=data, kind="violin", orient="h")
     ax.set(xlabel='cell type', ylabel='scores')
     output = os.path.join(output_dir, 'figure')
     os.makedirs(output, exist_ok=True)
