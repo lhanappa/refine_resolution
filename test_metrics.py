@@ -23,7 +23,7 @@ raw_list = ['Rao2014-CH12LX-MboI-allreps-filtered.10kb.cool',
         'Rao2014-KBM7-MboI-allreps-filtered.10kb.cool', 
         'Rao2014-NHEK-MboI-allreps-filtered.10kb.cool']
 
-raw_list = ['Rao2014-CH12LX-MboI-allreps-filtered.10kb.cool']
+# raw_list = ['Rao2014-CH12LX-MboI-allreps-filtered.10kb.cool']
 
 # 'Rao2014-GM12878-MboI-allreps-filtered.10kb.cool'
 
@@ -65,8 +65,8 @@ for mc in metrics:
     data = s.loc[s['metric']==mc]
     data = data.explode('value')
     data['value'] = data['value'].astype('float')
-    ax = sns.catplot(x="cell type", y="value", hue="method", data=data, kind="violin")
-    ax.set(xlabel='Models', ylabel='Jaccard Score')
+    ax = sns.catplot(x="cell type", y="value", hue="method", data=data, kind="violin", orient="h")
+    ax.set(xlabel='cell type', ylabel='scores')
     output = os.path.join(output_dir, 'figure')
     os.makedirs(output, exist_ok=True)
     output = os.path.join(output, 'metrics_{}_scores.pdf'.format(mc))
