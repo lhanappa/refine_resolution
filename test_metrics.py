@@ -23,6 +23,8 @@ raw_list = ['Rao2014-CH12LX-MboI-allreps-filtered.10kb.cool',
         'Rao2014-KBM7-MboI-allreps-filtered.10kb.cool', 
         'Rao2014-NHEK-MboI-allreps-filtered.10kb.cool']
 
+raw_list = ['Rao2014-CH12LX-MboI-allreps-filtered.10kb.cool']
+
 # 'Rao2014-GM12878-MboI-allreps-filtered.10kb.cool'
 
 methods = ['deephic_40', 'hicsr_40', 'ours_400', 'low']
@@ -40,7 +42,7 @@ for cell in raw_list:
         inpath = os.path.join('experiment', 'evaluation', cell, 
                             'chr{}'.format(chro), 'chromatin_qc', 'scores', 
                             'reproducibility.chr{}.txt'.format(chro))
-        if not sys.path.exists(inpath):
+        if not os.path.exists(inpath):
             continue
         with open(inpath, 'r') as fin:
             fin.next()
@@ -56,9 +58,12 @@ for cell in raw_list:
 
 s = pd.DataFrame(data, columns=["cell type", "chromosome", "metric", "method", "value"])
 
+print(data)
+print(s)
+
 output_dir = os.path.join('experiment', 'evaluation')
 for mc in metrics:
-    data = s.loc[s['metric'].isin(mc)]
+    data = s.loc[s['metric']==mc]
     ax = sns.catplot(x="cell type", y="value", hue="method", data=data, kind="violin")
     ax.set(xlabel='Models', ylabel='Jaccard Score')
     output = os.path.join(output_dir, 'figure')
