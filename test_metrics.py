@@ -64,7 +64,8 @@ for mc in metrics:
     data = data.explode('value')
     data['value'] = data['value'].astype('float')
     # ax = sns.catplot(y="cell type", x="value", hue="method", data=data, kind="violin", orient="h", height=12, aspect=.8, width=0.8, scale="width", scale_hue=False)
-    ax = sns.catplot(y="cell type", x="value", hue="method", data=data, kind="box", orient="h", height=12, aspect=.9)
+    fig, ax = plt.subplots()
+    sns.catplot(ax = ax, y="cell type", x="value", hue="method", data=data, kind="box", orient="h", height=12, aspect=.9)
     
     ax.set(xlabel='cell type', ylabel='scores')
     if 'Genome' in mc:
