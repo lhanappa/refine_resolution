@@ -27,7 +27,7 @@ raw_list = ['Rao2014-CH12LX-MboI-allreps-filtered.10kb.cool',
 
 # 'Rao2014-GM12878-MboI-allreps-filtered.10kb.cool'
 
-methods = ['deephic_40', 'hicsr_40', 'ours_400', 'low']
+methods = ['ours_400', 'low', 'deephic_40', 'hicsr_40']
 me_dict = {'deephic_40':'Deephic', 'hicsr_40':'HiCSR', 'ours_400':'EnHiC', 'low':'LR'}
 labels = [me_dict[f] for f in methods]
 
@@ -66,9 +66,11 @@ for mc in metrics:
     data = s.loc[s['metric']==mc]
     data = data.explode('value')
     data['value'] = data['value'].astype('float')
-    # ax = sns.catplot(y="cell type", x="value", hue="method", data=data, kind="violin", orient="h", height=12, aspect=.8, width=0.8, scale="width", scale_hue=False)
+    
     fig, ax = plt.subplots()
-    g = sns.catplot(ax = ax, y="cell type", x="value", hue="method", data=data, kind="box", orient="h", height=12, aspect=.9)
+    # ax = sns.catplot(y="cell type", x="value", hue="method", data=data, kind="violin", orient="h", height=12, aspect=.8, width=0.8, scale="width", scale_hue=False)
+    g = sns.catplot(ax = ax, y="cell type", x="value", hue="method", hue_order=methods, 
+                    data=data, kind="box", orient="h", height=12, aspect=.9)
     # ax.set(xlabel='cell type', ylabel='scores')
     g.set_axis_labels("Score", "Cell type")
     if 'Genome' in mc:
@@ -76,7 +78,7 @@ for mc in metrics:
     else:
         plt.xlim(0.4, 1.0)
     plt.gcf().subplots_adjust(bottom=0.05, top=0.95)
-    plt.title('{} metric scores'.format(mc), size=24)
+    plt.title('{} scores'.format(mc), size=24)
 
     # title
     legend_title = 'Method'
