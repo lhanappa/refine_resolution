@@ -7,6 +7,6 @@ ID=(4) # 8 16 32 48 64)
 for c in "${chr[@]}"; do
     for i in "${ID[@]}"; do
         echo sbatch bash_3dchromatin_qc_seq.sh ${i} ${c}
-        sbatch bash_3dchromatin_qc.sh ${i} ${c}
+        sbatch bash_3dchromatin_qc_seq.sh ${i} ${c}
     done
 done

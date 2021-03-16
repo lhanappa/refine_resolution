@@ -52,6 +52,7 @@ for cell in raw_list:
                 l = line.split()
                 me = l[1]
                 if me in methods:
+                    # GenomeDISCO, HiC-Spector, HiCRep in order
                     for i, mc in enumerate(metrics):
                         data.append([ctype, chro, mc, me, l[i+2]])
         fin.close()
@@ -82,7 +83,7 @@ for mc in metrics:
     g._legend.set_title(legend_title)
     # replace labels
     for t, l in zip(g._legend.texts, labels): t.set_text(l)
-    
+
     output = os.path.join(output_dir, 'figure-cell_type')
     os.makedirs(output, exist_ok=True)
     output = os.path.join(output, 'metrics_{}_scores.pdf'.format(mc))
