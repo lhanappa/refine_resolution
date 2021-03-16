@@ -28,6 +28,8 @@ raw_list = ['Rao2014-CH12LX-MboI-allreps-filtered.10kb.cool',
 # 'Rao2014-GM12878-MboI-allreps-filtered.10kb.cool'
 
 methods = ['deephic_40', 'hicsr_40', 'ours_400', 'low']
+me_dict = {'deephic_40':'Deephic', 'hicsr_40':'HiCSR', 'ours_400':'EnHiC', 'low':'LR'}
+labels = [me_dict[f] for f in methods]
 
 chromosomes = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', 'X']
 
@@ -74,6 +76,13 @@ for mc in metrics:
         plt.xlim(0.4, 1.0)
     plt.gcf().subplots_adjust(bottom=0.05, top=0.95)
     plt.title('{} metric scores'.format(mc), size=24)
+
+    # title
+    legend_title = 'Method'
+    g._legend.set_title(legend_title)
+    # replace labels
+    for t, l in zip(g._legend.texts, labels): t.set_text(l)
+    
     output = os.path.join(output_dir, 'figure-cell_type')
     os.makedirs(output, exist_ok=True)
     output = os.path.join(output, 'metrics_{}_scores.pdf'.format(mc))
