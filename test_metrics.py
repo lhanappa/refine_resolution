@@ -71,7 +71,7 @@ for mc in metrics:
         plt.xlim(-.5, .9)
     else:
         plt.xlim(0.4, 1.0)
-    plt.gcf().subplots_adjust(bottom=0.05, top=0.05)
+    plt.gcf().subplots_adjust(bottom=0.05, top=0.95)
     ax.set_title('{} metric scores'.format(mc))
     output = os.path.join(output_dir, 'figure-cell_type')
     os.makedirs(output, exist_ok=True)
