@@ -152,7 +152,7 @@ if __name__ == '__main__':
     destination_path = os.path.join('./experiment', 'seq_depth_ratio', cell_type)
 
     chromosomes = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', 'X']
-    chromosomes = ['22']
+
     for m in methods:
         source = os.path.join('.', 'data', m, cell_type, 'SR')
         gather(source=source, destination=destination_path, method=m, chromosomes=chromosomes)
