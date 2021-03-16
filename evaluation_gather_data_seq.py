@@ -149,7 +149,7 @@ if __name__ == '__main__':
     scale = int(sys.argv[1])
     cell_type = cool_file.split('-')[0] + '_' + cool_file.split('-')[1] + '_' + cool_file.split('-')[2] + '-' + str(scale) + '_' + cool_file.split('.')[1]
 
-    destination_path = os.path.join('./experiment', 'evaluation', cell_type)
+    destination_path = os.path.join('./experiment', 'seq_depth_ratio', cell_type)
 
     chromosomes = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', 'X']
     chromosomes = ['22']
