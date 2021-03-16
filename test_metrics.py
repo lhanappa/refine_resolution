@@ -65,15 +65,15 @@ for mc in metrics:
     data['value'] = data['value'].astype('float')
     # ax = sns.catplot(y="cell type", x="value", hue="method", data=data, kind="violin", orient="h", height=12, aspect=.8, width=0.8, scale="width", scale_hue=False)
     fig, ax = plt.subplots()
-    sns.catplot(ax = ax, y="cell type", x="value", hue="method", data=data, kind="box", orient="h", height=12, aspect=.9)
-    
-    ax.set(xlabel='cell type', ylabel='scores')
+    g = sns.catplot(ax = ax, y="cell type", x="value", hue="method", data=data, kind="box", orient="h", height=12, aspect=.9)
+    # ax.set(xlabel='cell type', ylabel='scores')
+    g.set_axis_labels("Score", "Cell type")
     if 'Genome' in mc:
         plt.xlim(-.5, .9)
     else:
         plt.xlim(0.4, 1.0)
     plt.gcf().subplots_adjust(bottom=0.05, top=0.95)
-    ax.set_title('{} metric scores'.format(mc))
+    plt.title('{} metric scores'.format(mc), size=24)
     output = os.path.join(output_dir, 'figure-cell_type')
     os.makedirs(output, exist_ok=True)
     output = os.path.join(output, 'metrics_{}_scores.pdf'.format(mc))
