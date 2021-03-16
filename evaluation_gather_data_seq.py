@@ -147,7 +147,7 @@ if __name__ == '__main__':
     cool_file = raw_list[0]
 
     scale = int(sys.argv[1])
-    cell_type = cool_file.split('-')[0] + '_' + cool_file.split('-')[1] + '_' + cool_file.split('-')[2] + '-' + scale + '_' + cool_file.split('.')[1]
+    cell_type = cool_file.split('-')[0] + '_' + cool_file.split('-')[1] + '_' + cool_file.split('-')[2] + '-' + str(scale) + '_' + cool_file.split('.')[1]
 
     destination_path = os.path.join('./experiment', 'evaluation', cell_type)
 
