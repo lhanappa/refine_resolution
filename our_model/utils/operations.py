@@ -80,7 +80,7 @@ def sampling_hic(hic_matrix, sampling_ratio, fix_seed=False):
         np.random.seed(0)
     id_x = np.random.choice(
         id_range, size=sample_number_counts, replace=True, p=idx_prob)
-    sample_m = np.zeros_like(m)
+    sample_m = np.zeros_like(m)  
     for i in np.arange(sample_number_counts):
         x = int(id_x[i]/m.shape[0])
         y = int(id_x[i] % m.shape[0])

@@ -2,7 +2,7 @@
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=1
-#SBATCH --mem=80G
+#SBATCH --mem=100G
 #SBATCH --time=2-10:15:00     # 10 day and 10 hours 15 minutes
 #SBATCH --job-name="qc"
 #SBATCH -p wmalab # This is the default partition, you can use any of the following; intel, batch, highmem, gpu
