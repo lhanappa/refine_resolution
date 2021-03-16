@@ -63,15 +63,16 @@ for mc in metrics:
     data = s.loc[s['metric']==mc]
     data = data.explode('value')
     data['value'] = data['value'].astype('float')
-    ax = sns.catplot(y="cell type", x="value", hue="method", data=data, kind="violin", orient="h", 
-    height=12, aspect=.8, width=0.8, scale="width", scale_hue=False)
+    # ax = sns.catplot(y="cell type", x="value", hue="method", data=data, kind="violin", orient="h", height=12, aspect=.8, width=0.8, scale="width", scale_hue=False)
+    ax = sns.catplot(y="cell type", x="value", hue="method", data=data, kind="box", orient="h", height=12, aspect=.9)
+    
     ax.set(xlabel='cell type', ylabel='scores')
     if 'Genome' in mc:
-        plt.xlim(-.6, 1.0)
+        plt.xlim(-.5, .9)
     else:
-        plt.xlim(0.25, 1.2)
+        plt.xlim(0.4, 1.0)
     plt.gcf().subplots_adjust(bottom=0.1)
-    output = os.path.join(output_dir, 'figure')
+    output = os.path.join(output_dir, 'figure-cell_type')
     os.makedirs(output, exist_ok=True)
     output = os.path.join(output, 'metrics_{}_scores.pdf'.format(mc))
     plt.savefig(output, format='pdf')
