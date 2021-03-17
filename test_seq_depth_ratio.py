@@ -10,6 +10,8 @@ from matplotlib import pyplot as plt
 import matplotlib
 import seaborn as sns
 
+import cooler
+
 import warnings
 warnings.simplefilter(action='ignore', category=(FutureWarning, UserWarning, DeprecationWarning, RuntimeWarning))
 # using fithic to find significant interactions by CLI
@@ -35,11 +37,15 @@ chromosomes = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '1
 
 metrics = ['GenomeDISCO', 'HiC-Spector', 'HiCRep']
 
-
 data = list()
 hic_ = raw_list[0]
+c = cooler.Cooler(os.path.join('data', 'raw', hic_))
 cl = hic_.split('-')
 ctype = cl[1]+'_'+cl[2]
+
+chrsize = c.chromsizes
+print(chrsize)
+
 for dr in depth_ratio:
     ratio_name = '_'.join(cl[0:3]) +'-' + str(dr) + '_10kb'
     for chro in chromosomes:
@@ -81,8 +87,8 @@ for mc in metrics:
         plt.xlim(-.5, .9)
     else:
         plt.xlim(0.4, 1.0)'''
-    plt.gcf().subplots_adjust(bottom=0.05, top=0.95)
-    plt.title('{} scores'.format(mc), size=24)
+    plt.gcf().subplots_adjust(bottom=0.05, top=0.9)
+    plt.title('{} scores'.format(mc), size=16)
 
     # title
     '''legend_title = 'Method'
