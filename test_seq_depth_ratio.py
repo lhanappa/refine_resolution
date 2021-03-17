@@ -46,10 +46,12 @@ for dr in depth_ratio:
         inpath = os.path.join('.', 'experiment', 'seq_depth_ratio', ratio_name, 
                             'chr{}'.format(chro), 'chromatin_qc', 'scores', 
                             'reproducibility.chr{}.txt'.format(chro))
+        print(inpath)
         if not os.path.exists(inpath):
             continue
         with open(inpath, 'r') as fin:
             for line in fin:
+                print(line)
                 l = line.split()
                 me = l[1]
                 if me in methods:
@@ -71,7 +73,7 @@ for mc in metrics:
     fig, ax = plt.subplots()
     # ax = sns.catplot(y="cell type", x="value", hue="method", data=data, kind="violin", orient="h", height=12, aspect=.8, width=0.8, scale="width", scale_hue=False)
     # g = sns.catplot(ax = ax, y="cell type", x="value", hue="method", hue_order=methods, data=data, kind="box", orient="h", height=12, aspect=.9)
-    g = sns.lineplot(ax=ax, data=data, x="chromosome", y="value", hue="ratio", style="event")
+    g = sns.lineplot(ax=ax, data=data, x="chromosome", y="value", hue="ratio")
 
     # ax.set(xlabel='cell type', ylabel='scores')
     '''g.set_axis_labels("Score", "Cell type")
@@ -83,10 +85,10 @@ for mc in metrics:
     plt.title('{} scores'.format(mc), size=24)
 
     # title
-    legend_title = 'Method'
+    '''legend_title = 'Method'
     g._legend.set_title(legend_title)
     # replace labels
-    for t, l in zip(g._legend.texts, labels): t.set_text(l)
+    for t, l in zip(g._legend.texts, labels): t.set_text(l)'''
 
     output = os.path.join(output_dir, 'figure-seq_depth')
     os.makedirs(output, exist_ok=True)
