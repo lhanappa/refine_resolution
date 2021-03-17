@@ -54,6 +54,10 @@ for w in sorted_keys:
 print(chrsize)
 
 for dr in depth_ratio:
+    if dr == 16:
+        T = 'Y'
+    else:
+        T = 'N'
     ratio_name = '_'.join(cl[0:3]) +'-' + str(dr) + '_10kb'
     for chro in chromosomes:
         inpath = os.path.join('.', 'experiment', 'seq_depth_ratio', ratio_name, 
@@ -68,10 +72,10 @@ for dr in depth_ratio:
                 if me in methods:
                     # GenomeDISCO, HiC-Spector, HiCRep in order
                     for i, mc in enumerate(metrics):
-                        data.append([dr, chro, chrsize[chro], mc, l[i+2]])
+                        data.append([dr, T, chro, chrsize[chro], mc, l[i+2]])
         fin.close()
 
-s = pd.DataFrame(data, columns=["ratio", "chromosome", "chromosome length", "metric", "value"])
+s = pd.DataFrame(data, columns=["ratio", "base", "chromosome", "chromosome length", "metric", "value"])
 
 print(s)
 
@@ -81,10 +85,10 @@ for mc in metrics:
     data = data.explode('value')
     data['value'] = data['value'].astype('float')
     
-    fig, ax = plt.subplots(figsize=(8,5))
+    fig, ax = plt.subplots(figsize=(16,10))
     # ax = sns.catplot(y="cell type", x="value", hue="method", data=data, kind="violin", orient="h", height=12, aspect=.8, width=0.8, scale="width", scale_hue=False)
     # g = sns.catplot(ax = ax, y="cell type", x="value", hue="method", hue_order=methods, data=data, kind="box", orient="h", height=12, aspect=.9)
-    g = sns.lineplot(ax=ax, data=data, x="chromosome length", y="value", hue="ratio", style="ratio", markers=True)
+    g = sns.lineplot(ax=ax, data=data, x="chromosome length", y="value", hue="ratio", style="base", markers=True)
     g.set_xticks(list(chrsize.values()))
     g.set_xticklabels(list(chrsize.keys()))
     # ax.set(xlabel='cell type', ylabel='scores')
@@ -92,7 +96,7 @@ for mc in metrics:
     g.set_ylabel('Score',fontsize=20);
     # g.set(xlabel='Chromosome', ylabel='Score')
     # g.set_axis_labels("Chromosome", "Score")
-    plt.gcf().subplots_adjust(bottom=0.1, top=0.9, left=0.05, right=0.95)
+    plt.gcf().subplots_adjust(bottom=0.1, top=0.9, left=0.1, right=0.9)
     if 'GenomeDISCO' in mc:
         plt.ylim(0.7, 0.9)
     else:
