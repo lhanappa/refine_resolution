@@ -71,7 +71,7 @@ for dr in depth_ratio:
                         data.append([dr, chro, chrsize[chro], mc, l[i+2]])
         fin.close()
 
-s = pd.DataFrame(data, columns=["Ratio", "chromosome", "Chromosome length", "metric", "value"])
+s = pd.DataFrame(data, columns=["ratio", "chromosome", "chromosome length", "metric", "value"])
 
 print(s)
 
@@ -84,7 +84,7 @@ for mc in metrics:
     fig, ax = plt.subplots(figsize=(10,15))
     # ax = sns.catplot(y="cell type", x="value", hue="method", data=data, kind="violin", orient="h", height=12, aspect=.8, width=0.8, scale="width", scale_hue=False)
     # g = sns.catplot(ax = ax, y="cell type", x="value", hue="method", hue_order=methods, data=data, kind="box", orient="h", height=12, aspect=.9)
-    g = sns.lineplot(ax=ax, data=data, x="Chromosome length", y="value", hue="ratio", markers=True)
+    g = sns.lineplot(ax=ax, data=data, x="chromosome length", y="value", hue="ratio", markers=True)
     g.set_xticks(list(chrsize.values()))
     g.set_xticklabels(list(chrsize.keys()))
     # ax.set(xlabel='cell type', ylabel='scores')
