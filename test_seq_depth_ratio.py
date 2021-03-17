@@ -23,7 +23,7 @@ warnings.simplefilter(action='ignore', category=(FutureWarning, UserWarning, Dep
         'Rao2014-KBM7-MboI-allreps-filtered.10kb.cool', 
         'Rao2014-NHEK-MboI-allreps-filtered.10kb.cool']'''
 
-raw_list = ['Rao2014-CH12LX-MboI-allreps-filtered.10kb.cool']
+raw_list = ['Rao2014-GM12878-MboI-allreps-filtered.10kb.cool']
 depth_ratio = [4,8,16,32,48,64]
 # 'Rao2014-GM12878-MboI-allreps-filtered.10kb.cool'
 
