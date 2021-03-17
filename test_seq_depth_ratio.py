@@ -85,7 +85,7 @@ for mc in metrics:
     data = data.explode('value')
     data['value'] = data['value'].astype('float')
     
-    fig, ax = plt.subplots(figsize=(16,10))
+    fig, ax = plt.subplots(figsize=(12,8))
     # ax = sns.catplot(y="cell type", x="value", hue="method", data=data, kind="violin", orient="h", height=12, aspect=.8, width=0.8, scale="width", scale_hue=False)
     # g = sns.catplot(ax = ax, y="cell type", x="value", hue="method", hue_order=methods, data=data, kind="box", orient="h", height=12, aspect=.9)
     g = sns.lineplot(ax=ax, data=data, x="chromosome length", y="value", hue="ratio", style="base", markers=True)
