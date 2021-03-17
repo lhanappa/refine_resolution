@@ -61,10 +61,10 @@ for dr in depth_ratio:
                 if me in methods:
                     # GenomeDISCO, HiC-Spector, HiCRep in order
                     for i, mc in enumerate(metrics):
-                        data.append([dr, chro, mc, l[i+2]])
+                        data.append([dr, chro, chrsize['chr{}'.format(chro)], mc, l[i+2]])
         fin.close()
 
-s = pd.DataFrame(data, columns=["ratio", "chromosome", "metric", "value"])
+s = pd.DataFrame(data, columns=["ratio", "chromosome", "chromo_len", "metric", "value"])
 
 print(s)
 
@@ -77,8 +77,9 @@ for mc in metrics:
     fig, ax = plt.subplots()
     # ax = sns.catplot(y="cell type", x="value", hue="method", data=data, kind="violin", orient="h", height=12, aspect=.8, width=0.8, scale="width", scale_hue=False)
     # g = sns.catplot(ax = ax, y="cell type", x="value", hue="method", hue_order=methods, data=data, kind="box", orient="h", height=12, aspect=.9)
-    g = sns.lineplot(ax=ax, data=data, x="chromosome", y="value", hue="ratio")
-
+    g = sns.lineplot(ax=ax, data=data, x="chromo_len", y="value", hue="ratio", markers=True)
+    g.set_xticks(chrsize.values()) # <--- set the ticks first
+    g.set_xticklabels(chrsize.keys())
     # ax.set(xlabel='cell type', ylabel='scores')
     '''g.set_axis_labels("Score", "Cell type")
     if 'Genome' in mc:
