@@ -52,12 +52,10 @@ for dr in depth_ratio:
         inpath = os.path.join('.', 'experiment', 'seq_depth_ratio', ratio_name, 
                             'chr{}'.format(chro), 'chromatin_qc', 'scores', 
                             'reproducibility.chr{}.txt'.format(chro))
-        print(inpath)
         if not os.path.exists(inpath):
             continue
         with open(inpath, 'r') as fin:
             for line in fin:
-                print(line)
                 l = line.split()
                 me = l[1]
                 if me in methods:
