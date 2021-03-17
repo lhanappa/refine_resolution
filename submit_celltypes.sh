@@ -1,7 +1,7 @@
 #!/bin/sh
-chr=('1' '2' '3' '4' '5' '6' '7' '8' '9' '10' '11' '12' '13' '14' 'X') # '15' '16' '17' '18' '19' '20' '21' '22' 
+chr=('1' '2') #  '3' '4' '5' '6' '7' '8' '9' '10' '11' '12' '13' '14' 'X' '15' '16' '17' '18' '19' '20' '21' '22' 
 # method=('ours_80' 'ours_200' 'ours_400' 'deephic_40' 'hicsr_40')
-ID=(1 2 3 4 5 6 7)
+ID=(2 3 4 5 6 7 8)
 
 #rm slurm-data-*.out
 for c in "${chr[@]}"; do
@@ -11,14 +11,20 @@ for c in "${chr[@]}"; do
     done
 done
 
-chr=('1' '2' '3' '4' '5' '6' '7' '8' '9' '10' '11' '12' '13' '14' 'X') # '15' '16' '17' '18' '19' 
-for c in "${chr[@]}"; do
-    echo sbatch bash_3dchromatin_qc.sh 0 ${c}
-    sbatch bash_3dchromatin_qc.sh 0 ${c}
-done
 
-chr=('19' '20' '21' '22' 'X')
-for c in "${chr[@]}"; do
-    echo sbatch bash_3dchromatin_qc.sh 8 ${c}
-    sbatch bash_3dchromatin_qc.sh 8 ${c}
+ID=(2 6 7)
+for i in "${ID[@]}"; do
+    echo sbatch bash_3dchromatin_qc.sh ${i} 3
+    sbatch bash_3dchromatin_qc.sh ${i} 3
 done
+# chr=('1' '2' '3' '4' '5' '6' '7' '8' '9' '10' '11' '12' '13' '14' 'X') # '15' '16' '17' '18' '19' 
+# for c in "${chr[@]}"; do
+#    echo sbatch bash_3dchromatin_qc.sh 0 ${c}
+#    sbatch bash_3dchromatin_qc.sh 0 ${c}
+# done
+
+# chr=('19' '20' '21' '22' 'X')
+# for c in "${chr[@]}"; do
+#     echo sbatch bash_3dchromatin_qc.sh 8 ${c}
+#    sbatch bash_3dchromatin_qc.sh 8 ${c}
+# done
