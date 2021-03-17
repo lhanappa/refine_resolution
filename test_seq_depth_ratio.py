@@ -50,7 +50,7 @@ sorted_keys = sorted(dict1, key=dict1.get)
 tmp = ['chr'+f for f in chromosomes]
 for w in sorted_keys:
     if w in tmp:
-        chrsize[w] = dict1[w]
+        chrsize[w[3:]] = dict1[w]
 print(chrsize)
 
 for dr in depth_ratio:
@@ -68,10 +68,10 @@ for dr in depth_ratio:
                 if me in methods:
                     # GenomeDISCO, HiC-Spector, HiCRep in order
                     for i, mc in enumerate(metrics):
-                        data.append([dr, chro, chrsize['chr{}'.format(chro)], mc, l[i+2]])
+                        data.append([dr, chro, chrsize[chro], mc, l[i+2]])
         fin.close()
 
-s = pd.DataFrame(data, columns=["ratio", "chromosome", "chromo_len", "metric", "value"])
+s = pd.DataFrame(data, columns=["Ratio", "chromosome", "Chromosome length", "metric", "Score"])
 
 print(s)
 
@@ -84,7 +84,7 @@ for mc in metrics:
     fig, ax = plt.subplots(figsize=(10,15))
     # ax = sns.catplot(y="cell type", x="value", hue="method", data=data, kind="violin", orient="h", height=12, aspect=.8, width=0.8, scale="width", scale_hue=False)
     # g = sns.catplot(ax = ax, y="cell type", x="value", hue="method", hue_order=methods, data=data, kind="box", orient="h", height=12, aspect=.9)
-    g = sns.lineplot(ax=ax, data=data, x="chromo_len", y="value", hue="ratio", markers=True)
+    g = sns.lineplot(ax=ax, data=data, x="Chromosome length", y="Score", hue="ratio", markers=True)
     g.set_xticks(list(chrsize.values()))
     g.set_xticklabels(list(chrsize.keys()))
     # ax.set(xlabel='cell type', ylabel='scores')
@@ -93,8 +93,8 @@ for mc in metrics:
         plt.xlim(-.5, .9)
     else:
         plt.xlim(0.4, 1.0)'''
-    plt.gcf().subplots_adjust(bottom=0.05, top=0.9)
-    plt.title('{} scores'.format(mc), size=16)
+    plt.gcf().subplots_adjust(bottom=0.1, top=0.9)
+    plt.title('{} scores'.format(mc), size=24)
 
     # title
     '''legend_title = 'Method'
