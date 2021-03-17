@@ -88,7 +88,9 @@ for mc in metrics:
     g.set_xticks(list(chrsize.values()))
     g.set_xticklabels(list(chrsize.keys()))
     # ax.set(xlabel='cell type', ylabel='scores')
-    g.set(xlabel='Chromosome', ylabel='Score', size=20)
+    g.set_xlabel('Chromosome',fontsize=20)
+    g.set_ylabel('Score',fontsize=20);
+    # g.set(xlabel='Chromosome', ylabel='Score')
     # g.set_axis_labels("Chromosome", "Score")
     plt.gcf().subplots_adjust(bottom=0.1, top=0.9, left=0.05, right=0.95)
     if 'GenomeDISCO' in mc:
