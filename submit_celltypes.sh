@@ -1,7 +1,7 @@
 #!/bin/sh
 chr=('1' '2') #  '3' '4' '5' '6' '7' '8' '9' '10' '11' '12' '13' '14' 'X' '15' '16' '17' '18' '19' '20' '21' '22' 
 # method=('ours_80' 'ours_200' 'ours_400' 'deephic_40' 'hicsr_40')
-ID=(2 3 4 5 6 7 8)
+ID=(1 2 3 4 5 6 7)
 
 #rm slurm-data-*.out
 for c in "${chr[@]}"; do
@@ -12,7 +12,7 @@ for c in "${chr[@]}"; do
 done
 
 
-ID=(2 6 7)
+ID=(1 5 6)
 for i in "${ID[@]}"; do
     echo sbatch bash_3dchromatin_qc.sh ${i} 3
     sbatch bash_3dchromatin_qc.sh ${i} 3
