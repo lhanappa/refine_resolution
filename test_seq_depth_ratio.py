@@ -81,12 +81,12 @@ for mc in metrics:
     data = data.explode('value')
     data['value'] = data['value'].astype('float')
     
-    fig, ax = plt.subplots()
+    fig, ax = plt.subplots(figsize=(10,15))
     # ax = sns.catplot(y="cell type", x="value", hue="method", data=data, kind="violin", orient="h", height=12, aspect=.8, width=0.8, scale="width", scale_hue=False)
     # g = sns.catplot(ax = ax, y="cell type", x="value", hue="method", hue_order=methods, data=data, kind="box", orient="h", height=12, aspect=.9)
-    g = sns.lineplot(ax=ax, data=data, x="chromo_len", y="value", hue="ratio", markers=True, height=12, aspect=1.3)
-    g.set_xticks(chrsize.values())
-    g.set_xticklabels(chrsize.keys())
+    g = sns.lineplot(ax=ax, data=data, x="chromo_len", y="value", hue="ratio", markers=True)
+    g.set_xticks(list(chrsize.values()))
+    g.set_xticklabels(list(chrsize.keys()))
     # ax.set(xlabel='cell type', ylabel='scores')
     '''g.set_axis_labels("Score", "Cell type")
     if 'Genome' in mc:
