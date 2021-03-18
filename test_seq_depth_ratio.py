@@ -90,7 +90,7 @@ for mc in metrics:
     # g = sns.catplot(ax = ax, y="cell type", x="value", hue="method", hue_order=methods, data=data, kind="box", orient="h", height=12, aspect=.9)
     g = sns.lineplot(ax=ax, data=data, x="chromosome length", y="value", hue="ratio", style="base", markers=True)
     g.set_xticks(list(chrsize.values()))
-    g.set_xticklabels(list(chrsize.keys()))
+    g.set_xticklabels(list(chrsize.keys()), fontsize=20)
     # ax.set(xlabel='cell type', ylabel='scores')
     g.set_xlabel('Chromosome',fontsize=20)
     g.set_ylabel('Score',fontsize=20);
