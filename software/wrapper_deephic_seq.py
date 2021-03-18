@@ -15,13 +15,12 @@ from software.DeepHiC.utils.io import compactM, divide, pooling
 from software.DeepHiC import data_generate, train_deephic, predict_deephic
 """test deephic"""
 
-def configure_deephic(raw_hic):
+def configure_deephic(raw_hic, downsample_factor=16):
     # raw_hic = 'Rao2014-GM12878-MboI-allreps-filtered.10kb.cool'
     # raw_hic = 'Rao2014-GM12878-DpnII-allreps-filtered.10kb.cool'
     genomic_distance = 2000000
     lr_size = 40
     hr_size = 40
-    downsample_factor = 16
 
     methods_name = 'deephic'
 

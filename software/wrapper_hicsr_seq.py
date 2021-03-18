@@ -10,13 +10,12 @@ from .utils import redircwd_back_projroot, configure_seq
 """test hicsr"""
 
 
-def configure_hicsr(raw_hic):
+def configure_hicsr(raw_hic, downsample_factor = 16):
     # raw_hic = 'Rao2014-GM12878-MboI-allreps-filtered.10kb.cool'
     # raw_hic = 'Rao2014-GM12878-DpnII-allreps-filtered.10kb.cool'
     genomic_distance = 2000000
     lr_size = 40
     hr_size = 28
-    downsample_factor = 16
 
     methods_name = 'hicsr'
 

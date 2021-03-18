@@ -36,7 +36,7 @@ downsample_factor = int(sys.argv[1])
 
 [raw_hic, genomic_distance, lr_size, hr_size, downsample_factor,
  root_dir, experiment_name, chr_list, input_path, preprocessing_output_path,
- script_work_dir, train_path, train_list, valid_path, valid_list, predict_path, predict_list] = configure_hicsr(raw_list[idx])
+ script_work_dir, train_path, train_list, valid_path, valid_list, predict_path, predict_list] = configure_hicsr(raw_list[idx], downsample_factor)
 
 print('train path: ', train_path)
 print('valid path: ', valid_path)
