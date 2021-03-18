@@ -78,8 +78,7 @@ def generate(input_lr_dir, input_hr_dir, output_dir,
              chr_list=['22']):
     postfix = postfix.lower()
     pool_str = 'nonpool' if scale == 1 else f'{pool_type}pool{scale}'
-    print(
-        f'Going to read {high_res} and {low_res} data, then deviding matrices with {pool_str}')
+    print( f'Going to read {high_res} and {low_res} data, then deviding matrices with {pool_str}')
 
     pool_num = 23 if multiprocessing.cpu_count() > 23 else multiprocessing.cpu_count()
 
@@ -94,8 +93,8 @@ def generate(input_lr_dir, input_hr_dir, output_dir,
         f'Start a multiprocess pool with processes = {pool_num} for generating DeepHiC data')
     results = []
     for n in chr_list:
-        high_file = os.path.join(data_hr_dir, f'chr{n}_{high_res}.npz')
-        down_file = os.path.join(data_lr_dir, f'chr{n}_{low_res}.npz')
+        high_file = os.path.join(data_hr_dir, f'chr{n}_H.npz')
+        down_file = os.path.join(data_lr_dir, f'chr{n}_L.npz')
         kwargs = {'scale': scale, 'pool_type': pool_type,
                   'chunk': chunk, 'stride': stride, 'bound': bound}
         if n.isnumeric():

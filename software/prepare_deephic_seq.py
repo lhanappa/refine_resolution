@@ -36,11 +36,11 @@ def run(raw_hic='Rao2014-GM12878-DpnII-allreps-filtered.10kb.cool',
     [hic_m, hi_res] = cool_to_raw(raw_path=os.path.join(
         root_dir, 'data', 'raw'), raw_hic=raw_hic)
 
-    low_res = int(np.sqrt(downsample_factor)*hi_res)
+    # low_res = int(np.sqrt(downsample_factor)*hi_res)
 
     for chro in chromosome_list:
         # chrN_10kb.npz
-        name_hr = f'chr{chro}_{hi_res}.npz'
+        name_hr = f'chr{chro}_H.npz'
         chromosome = 'chr' + chro
         if chromosome not in hic_m.chromnames:
             continue
@@ -49,7 +49,7 @@ def run(raw_hic='Rao2014-GM12878-DpnII-allreps-filtered.10kb.cool',
         save_to_compressed(mat_hr, idx, output_path=os.path.join(
             input_path, 'hr'), output_name=name_hr)
         # chrN_40kb.npz
-        name_lr = f'chr{chro}_{low_res}.npz'
+        name_lr = f'chr{chro}_L.npz'
         mat_lr = sampling_hic(mat_hr, downsample_factor, fix_seed=True)
         save_to_compressed(mat_lr, idx, output_path=os.path.join(
             input_path, 'lr'), output_name=name_lr)
