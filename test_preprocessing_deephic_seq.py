@@ -29,17 +29,18 @@ valid_path = ‘pathto/refine_resolution/data/input_deephic_2000000_40_28/valid'
 valid_list = ['17', '18', '22']
 """
 raw_list = ['Rao2014-GM12878-MboI-allreps-filtered.10kb.cool']
-
-# 'Rao2014-GM12878-MboI-allreps-filtered.10kb.cool',
-
 idx = 0
+downsample_factor = int(sys.argv[1]) # 4, 8, 16, 32, 48, 64
 
 [raw_hic, genomic_distance, lr_size, hr_size, downsample_factor,
  root_dir, experiment_name, preprocessing_chr_list, input_path,
  preprocessing_output_path, script_work_dir, train_path, train_list,
  valid_path, valid_list, predict_path, predict_list] = configure_deephic(raw_list[idx])
 
-downsample_factor = int(sys.argv[1]) # 4, 8, 16, 32, 48, 64
+print('train path: ', train_path)
+print('valid path: ', valid_path)
+print('predict path: ', predict_path)
+
 prepare_deephic_seq.run(raw_hic=raw_hic,
                     chromosome_list=preprocessing_chr_list,
                     genomic_distance=genomic_distance,

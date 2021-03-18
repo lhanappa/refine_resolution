@@ -6,7 +6,7 @@ import shutil
 
 from software import prepare_hicsr_seq
 from software.utils import redircwd_back_projroot
-from software.wrapper_hicsr import configure_hicsr
+from software.wrapper_hicsr_seq import configure_hicsr
 
 """test hicsr"""
 
@@ -32,11 +32,16 @@ valid_list = ['17', '18', '22']
 raw_list = ['Rao2014-GM12878-MboI-allreps-filtered.10kb.cool']
 idx = 0
 
+downsample_factor = int(sys.argv[1])
+
 [raw_hic, genomic_distance, lr_size, hr_size, downsample_factor,
  root_dir, experiment_name, chr_list, input_path, preprocessing_output_path,
  script_work_dir, train_path, train_list, valid_path, valid_list, predict_path, predict_list] = configure_hicsr(raw_list[idx])
 
-downsample_factor = int(sys.argv[1])
+print('train path: ', train_path)
+print('valid path: ', valid_path)
+print('predict path: ', predict_path)
+
 prepare_hicsr_seq.run(raw_hic=raw_hic,
                   chromosome_list=chr_list,
                   genomic_distance=genomic_distance,
