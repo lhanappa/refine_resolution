@@ -6,7 +6,7 @@ import shutil
 
 from software import prepare_deephic_seq
 from software.utils import redircwd_back_projroot
-from software.wrapper_deephic import configure_deephic, generate
+from software.wrapper_deephic_seq import configure_deephic, generate
 
 """test deephic"""
 

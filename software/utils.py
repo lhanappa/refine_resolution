@@ -31,6 +31,30 @@ def cool_to_raw(raw_path, raw_hic):
     resolution = cool_hic.binsize
     return cool_hic, resolution
 
+def configure_seq(raw_hic='Rao2014-GM12878-DpnII-allreps-filtered.10kb.cool',
+              genomic_distance=2000000,
+              lr_size=40,
+              hr_size=40,
+              downsample_factor=16,
+              methods_name='hicsr',
+              ):
+
+    root_dir = redircwd_back_projroot(project_name='refine_resolution')
+    experiment_name = '_'.join(
+        [methods_name, str(genomic_distance), str(lr_size), str(hr_size)])
+
+    data_cat = raw_hic.split('-')[0] + '_' + raw_hic.split('-')[1] + '_' + raw_hic.split('-')[2] + '-' + str(downsample_factor) + '_' + raw_hic.split('.')[1]
+    input_path = os.path.join(
+        root_dir, 'data', 'input_'+experiment_name, data_cat)+'/'
+    if methods_name == 'hicsr':
+        script_work_dir = os.path.join(root_dir, 'software', 'HiCSR')
+    elif methods_name == 'deephic':
+        script_work_dir = os.path.join(root_dir, 'software', 'DeepHiC')
+    elif methods_name == 'hicgan':
+        script_work_dir = os.path.join(root_dir, 'software', 'hicGAN')
+
+    return raw_hic, genomic_distance, lr_size, hr_size, downsample_factor, \
+        root_dir, experiment_name, input_path, script_work_dir
 
 def configure(raw_hic='Rao2014-GM12878-DpnII-allreps-filtered.10kb.cool',
               genomic_distance=2000000,
