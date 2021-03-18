@@ -28,7 +28,9 @@ def configure_hicsr(raw_hic):
         methods_name=methods_name)
 
     # ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', 'X']
-    if raw_hic == 'Rao2014-CH12LX-MboI-allreps-filtered.10kb.cool':
+    if raw_hic in ['Rao2014-CH12LX-MboI-allreps-filtered.10kb.cool', 
+        'Shen2012-MouseCortex-HindIII-allreps-filtered.10kb.cool', 
+        'Selvaraj2013-F123-HindIII-allreps-filtered.10kb.cool']:
         chr_list = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', 'X']
     else:
         chr_list = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', 'X']

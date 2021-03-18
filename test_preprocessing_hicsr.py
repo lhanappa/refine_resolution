@@ -29,17 +29,18 @@ valid_path = ‘pathto/refine_resolution/data/input_hicsr_2000000_40_28/valid'
 valid_list = ['17', '18', '22']
 """
 
-raw_list = ['Rao2014-CH12LX-MboI-allreps-filtered.10kb.cool', 
+'''raw_list = ['Rao2014-CH12LX-MboI-allreps-filtered.10kb.cool', 
         'Rao2014-GM12878-DpnII-allreps-filtered.10kb.cool', 
         'Rao2014-HMEC-MboI-allreps-filtered.10kb.cool', 
         'Rao2014-HUVEC-MboI-allreps-filtered.10kb.cool', 
         'Rao2014-IMR90-MboI-allreps-filtered.10kb.cool', 
         'Rao2014-K562-MboI-allreps-filtered.10kb.cool', 
         'Rao2014-KBM7-MboI-allreps-filtered.10kb.cool', 
-        'Rao2014-NHEK-MboI-allreps-filtered.10kb.cool']
+        'Rao2014-NHEK-MboI-allreps-filtered.10kb.cool']'''
 
 # 'Rao2014-GM12878-MboI-allreps-filtered.10kb.cool',6
-
+raw_list = ['Shen2012-MouseCortex-HindIII-allreps-filtered.10kb.cool', 
+        'Selvaraj2013-F123-HindIII-allreps-filtered.10kb.cool']
 idx = int(sys.argv[1])
 
 [raw_hic, genomic_distance, lr_size, hr_size, downsample_factor,
