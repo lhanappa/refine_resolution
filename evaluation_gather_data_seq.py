@@ -75,7 +75,7 @@ def generate_prefile(input_path='./experiment/evaluation', chromosomes=['22', '2
         files = []
         for m in methods:
             for f in tmp:
-                if m in f or 'high' in f:
+                if m in f or 'high' in f or 'low' in f:
                     files.append(f)
         for file in files:
             if 'high' in file:
@@ -142,7 +142,7 @@ def generate_prefile(input_path='./experiment/evaluation', chromosomes=['22', '2
 
 if __name__ == '__main__':
 
-    methods = ['output_ours_2000000_400']
+    methods = ['output_hicsr_2000000_40_28', 'output_deephic_2000000_40_40'] # 'output_ours_2000000_400',
     raw_list = ['Rao2014-GM12878-MboI-allreps-filtered.10kb.cool'] # 'Rao2014-GM12878-MboI-allreps-filtered.10kb.cool',
     cool_file = raw_list[0]
 
@@ -161,7 +161,7 @@ if __name__ == '__main__':
         gather_high_low_mat(cooler_file=cool_file, 
                             path='./data/raw/', 
                             chromosome=chro, 
-                            scale=scale, 
+                            scale=scale, # scale changed!
                             output_path=destination_path)
 
     generate_prefile(input_path=destination_path,

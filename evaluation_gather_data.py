@@ -75,7 +75,7 @@ def generate_prefile(input_path='./experiment/evaluation', chromosomes=['22', '2
         files = []
         for m in methods:
             for f in tmp:
-                if m in f or 'high' in f:
+                if m in f or 'high' in f or 'low' in f:
                     files.append(f)
         for file in files:
             if 'high' in file:
@@ -144,25 +144,27 @@ if __name__ == '__main__':
     # methods = ['output_ours_2000000_200', 'output_hicsr_2000000_40_28', 'output_hicgan_2000000_40_40', 'output_deephic_2000000_40_40']
     # methods = ['output_ours_2000000_80', 'output_ours_2000000_200', 'output_ours_2000000_400', 'output_hicsr_2000000_40_28', 'output_deephic_2000000_40_40']
     # cool_file = 'Rao2014-GM12878-DpnII-allreps-filtered.10kb.cool'
-    # methods = ['output_ours_2000000_400', 'output_hicsr_2000000_40_28', 'output_deephic_2000000_40_40']
-    methods = ['output_hicsr_2000000_40_28']
+    methods = ['output_ours_2000000_400', 'output_hicsr_2000000_40_28', 'output_deephic_2000000_40_40']
     
-    raw_list = ['Rao2014-CH12LX-MboI-allreps-filtered.10kb.cool', 
+    '''raw_list = ['Rao2014-CH12LX-MboI-allreps-filtered.10kb.cool', 
         'Rao2014-GM12878-DpnII-allreps-filtered.10kb.cool', 
         'Rao2014-HMEC-MboI-allreps-filtered.10kb.cool', 
         'Rao2014-HUVEC-MboI-allreps-filtered.10kb.cool', 
         'Rao2014-IMR90-MboI-allreps-filtered.10kb.cool', 
         'Rao2014-K562-MboI-allreps-filtered.10kb.cool', 
         'Rao2014-KBM7-MboI-allreps-filtered.10kb.cool', 
-        'Rao2014-NHEK-MboI-allreps-filtered.10kb.cool']
-
+        'Rao2014-NHEK-MboI-allreps-filtered.10kb.cool']'''
+    raw_list = ['Shen2012-MouseCortex-HindIII-allreps-filtered.10kb.cool', 
+        'Selvaraj2013-F123-HindIII-allreps-filtered.10kb.cool']
     # 'Rao2014-GM12878-MboI-allreps-filtered.10kb.cool',
 
     idx = int(sys.argv[1])
     cool_file = raw_list[idx]
     cell_type = cool_file.split('-')[0] + '_' + cool_file.split('-')[1] + '_' + cool_file.split('-')[2] + '_' + cool_file.split('.')[1]
     destination_path = os.path.join('./experiment', 'evaluation', cell_type)
-    if cool_file == 'Rao2014-CH12LX-MboI-allreps-filtered.10kb.cool':
+    if 'Rao2014-CH12LX-MboI-allreps-filtered.10kb.cool' in cool_file or \
+    'Selvaraj2013-F123-HindIII-allreps-filtered.10kb.cool' in cool_file or \
+    'Shen2012-MouseCortex-HindIII-allreps-filtered.10kb.cool' in cool_file:
         chromosomes = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', 'X']
     else:
         chromosomes = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', 'X']
@@ -171,12 +173,12 @@ if __name__ == '__main__':
         source = os.path.join('.', 'data', m, cell_type, 'SR')
         gather(source=source, destination=destination_path, method=m, chromosomes=chromosomes)
 
-    '''for chro in chromosomes:
+    for chro in chromosomes:
         gather_high_low_mat(cooler_file=cool_file, 
                             path='./data/raw/', 
                             chromosome=chro, 
                             scale=4, 
-                            output_path=destination_path)'''
+                            output_path=destination_path)
 
     generate_prefile(input_path=destination_path,
                      chromosomes=chromosomes,
