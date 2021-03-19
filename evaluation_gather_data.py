@@ -161,12 +161,15 @@ if __name__ == '__main__':
     cool_file = raw_list[idx]
     cell_type = cool_file.split('-')[0] + '_' + cool_file.split('-')[1] + '_' + cool_file.split('-')[2] + '_' + cool_file.split('.')[1]
     destination_path = os.path.join('./experiment', 'evaluation', cell_type)
+    
     if 'Rao2014-CH12LX-MboI-allreps-filtered.10kb.cool' in cool_file or \
     'Selvaraj2013-F123-HindIII-allreps-filtered.10kb.cool' in cool_file or \
     'Shen2012-MouseCortex-HindIII-allreps-filtered.10kb.cool' in cool_file:
         chromosomes = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', 'X']
     else:
         chromosomes = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', 'X']
+
+    chromosomes[str(sys.argv[2])]
 
     for m in methods:
         source = os.path.join('.', 'data', m, cell_type, 'SR')

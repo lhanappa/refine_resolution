@@ -1,23 +1,10 @@
 #!/bin/bash -l
-#SBATCH --nodes=1
-#SBATCH --ntasks=1
-#SBATCH --cpus-per-task=1
-#SBATCH --mem=80G
-#SBATCH --time=10-10:15:00     # 10 day and 10 hours 15 minutes
-#SBATCH --job-name="gather data"
-#SBATCH -p wmalab 
-#SBATCH --output=slurm-gather-%J.out
-
-# Print current date
-date
-# Print name of node
-hostname
-
-
-source activate env_fr_test
 ID=${1} # 0 1
-echo python evaluation_gather_data.py ${ID}
-python evaluation_gather_data.py ${ID}
+chr=('1' '2' '3' '4' '5' '6' '7' '8' '9' '10' '11' '12' '13' '14' 'X' '15' '16' '17' '18' '19') #  '20' '21' '22'
+for c in "${chr[@]}"; do
+    echo sbatch bash_gather.sh ${ID} ${c}
+    sbatch bash_gather.sh ${ID} ${c}
+done
 
 # source activate env_fr_test
 # SCALE=${1} # 4,8,16,32,48,64
