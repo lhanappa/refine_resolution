@@ -80,14 +80,15 @@ for mc in metrics:
     
     fig, ax = plt.subplots()
     # ax = sns.catplot(y="cell type", x="value", hue="method", data=data, kind="violin", orient="h", height=12, aspect=.8, width=0.8, scale="width", scale_hue=False)
-    g = sns.catplot(ax = ax, y="cell type", x="value", hue="method", hue_order=methods, 
-                    data=data, kind="box", orient="h", height=12, aspect=.9)
+    g = sns.catplot(ax = ax, x="cell type", y="value", hue="method", hue_order=methods, 
+                    data=data, kind="box", orient="v", height=12, aspect=1.1)
     # ax.set(xlabel='cell type', ylabel='scores')
-    g.set_axis_labels("Score", "Cell type")
+    g.set_axis_labels("Cell type","Score")
+    g.set_xticklabels(rotation=30)
     if 'Genome' in mc:
-        plt.xlim(-.5, .9)
+        plt.ylim(-.5, .9)
     else:
-        plt.xlim(0.4, 1.0)
+        plt.ylim(0.4, 1.0)
     plt.gcf().subplots_adjust(bottom=0.05, top=0.95)
     plt.title('{} scores'.format(mc), size=24)
 
