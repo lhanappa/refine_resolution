@@ -14,12 +14,12 @@ date
 hostname
 
 
-# source activate env_fr_test
-# # ID=${1} # 22
-# echo python evaluation_gather_data.py ${ID}
-# python evaluation_gather_data.py ${ID}
-
 source activate env_fr_test
-SCALE=${1} # 4,8,16,32,48,64
-echo python evaluation_gather_data_seq.py ${SCALE}
-python evaluation_gather_data_seq.py ${SCALE}
+# ID=${1} # 0 1
+echo python evaluation_gather_data.py ${ID}
+python evaluation_gather_data.py ${ID}
+
+# source activate env_fr_test
+# SCALE=${1} # 4,8,16,32,48,64
+# echo python evaluation_gather_data_seq.py ${SCALE}
+# python evaluation_gather_data_seq.py ${SCALE}
