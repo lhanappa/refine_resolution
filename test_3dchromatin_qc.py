@@ -100,7 +100,7 @@ def run(
             "--metadata_samples",  'metadata_samples.txt', 
             "--bins", 'bins_chr{}.bed.gz'.format(chro), 
             "--outdir", './chromatin_qc/',
-            "--methods", "GenomeDISCO,HiC-Spector",  # HiCRep, ,QuASAR-Rep GenomeDISCO,HiC-Spector,
+            "--methods", "GGenomeDISCO,HiC-Spector,HiCRep",  # HiCRep, ,QuASAR-Rep GenomeDISCO,HiC-Spector,
             "--parameters_file", './qc_parameters.txt']
         process.append(subprocess.Popen(cmd, cwd=script_work_dir))
     for p in process:
@@ -117,7 +117,7 @@ def run(
         cmd = ["3DChromatin_ReplicateQC", "concordance", 
             "--metadata_pairs", 'metadata_pairs.txt',
             "--outdir", './chromatin_qc/',
-            "--methods", "GenomeDISCO,HiC-Spector"] # ,QuASAR-Rep GenomeDISCO,HiC-Spector,
+            "--methods", "GenomeDISCO,HiC-Spector,HiCRep"] # ,QuASAR-Rep GenomeDISCO,HiC-Spector,
         process.append(subprocess.Popen(cmd, cwd=script_work_dir))
     for p in process:
         p.wait()
@@ -136,7 +136,7 @@ def run(
             "--metadata_pairs", 'metadata_pairs.txt',
             "--metadata_samples", 'metadata_samples.txt', 
             "--bins", 'bins_chr{}.bed.gz'.format(chro), 
-            "--methods", "GenomeDISCO,HiCRep,HiC-Spector",
+            "--methods", "GenomeDISCO,HiC-Spector,HiCRep",
             "--outdir", './chromatin_qc/']
         process.append(subprocess.Popen(cmd, cwd=script_work_dir))
     for p in process:
@@ -145,7 +145,9 @@ def run(
 
 
 if __name__ == '__main__':
-    raw_list = ['Rao2014-CH12LX-MboI-allreps-filtered.10kb.cool', 
+    raw_list = ['Shen2012-MouseCortex-HindIII-allreps-filtered.10kb.cool', 
+        'Selvaraj2013-F123-HindIII-allreps-filtered.10kb.cool',
+        'Rao2014-CH12LX-MboI-allreps-filtered.10kb.cool', 
         'Rao2014-GM12878-DpnII-allreps-filtered.10kb.cool', 
         'Rao2014-HMEC-MboI-allreps-filtered.10kb.cool', 
         'Rao2014-HUVEC-MboI-allreps-filtered.10kb.cool', 
