@@ -23,11 +23,9 @@ raw_list = ['Shen2012-MouseCortex-HindIII-allreps-filtered.10kb.cool',
         'Rao2014-IMR90-MboI-allreps-filtered.10kb.cool', 
         'Rao2014-K562-MboI-allreps-filtered.10kb.cool', 
         'Rao2014-KBM7-MboI-allreps-filtered.10kb.cool', 
-        'Rao2014-NHEK-MboI-allreps-filtered.10kb.cool',
-        'Rao2014-GM12878-MboI-allreps-filtered.10kb.cool']
+        'Rao2014-NHEK-MboI-allreps-filtered.10kb.cool']
 
 # raw_list = ['Rao2014-CH12LX-MboI-allreps-filtered.10kb.cool']
-
 # 'Rao2014-GM12878-MboI-allreps-filtered.10kb.cool'
 
 methods = ['ours_400', 'low', 'deephic_40', 'hicsr_40']
