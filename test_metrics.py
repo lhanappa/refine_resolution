@@ -14,14 +14,17 @@ import warnings
 warnings.simplefilter(action='ignore', category=(FutureWarning, UserWarning, DeprecationWarning, RuntimeWarning))
 # using fithic to find significant interactions by CLI
 
-raw_list = ['Rao2014-CH12LX-MboI-allreps-filtered.10kb.cool', 
+raw_list = ['Shen2012-MouseCortex-HindIII-allreps-filtered.10kb.cool', 
+        'Selvaraj2013-F123-HindIII-allreps-filtered.10kb.cool',
+        'Rao2014-CH12LX-MboI-allreps-filtered.10kb.cool', 
         'Rao2014-GM12878-DpnII-allreps-filtered.10kb.cool', 
         'Rao2014-HMEC-MboI-allreps-filtered.10kb.cool', 
         'Rao2014-HUVEC-MboI-allreps-filtered.10kb.cool', 
         'Rao2014-IMR90-MboI-allreps-filtered.10kb.cool', 
         'Rao2014-K562-MboI-allreps-filtered.10kb.cool', 
         'Rao2014-KBM7-MboI-allreps-filtered.10kb.cool', 
-        'Rao2014-NHEK-MboI-allreps-filtered.10kb.cool']
+        'Rao2014-NHEK-MboI-allreps-filtered.10kb.cool',
+        'Rao2014-GM12878-MboI-allreps-filtered.10kb.cool']
 
 # raw_list = ['Rao2014-CH12LX-MboI-allreps-filtered.10kb.cool']
 
@@ -39,7 +42,7 @@ metrics = ['GenomeDISCO', 'HiC-Spector', 'HiCRep']
 data = list()
 for cell in raw_list:
     cl = cell.split('-')
-    if cl[1] == 'CH12LX':
+    if cl[1] == 'CH12LX' or cl[1] == 'F123' or cl[1] == 'MouseCortex':
         T = 'mm9'
     else:
         T = 'hg19'
