@@ -81,7 +81,7 @@ for mc in metrics:
     fig, ax = plt.subplots()
     # ax = sns.catplot(y="cell type", x="value", hue="method", data=data, kind="violin", orient="h", height=12, aspect=.8, width=0.8, scale="width", scale_hue=False)
     g = sns.catplot(ax = ax, x="cell type", y="value", hue="method", hue_order=methods, 
-                    data=data, kind="box", orient="v", height=12, aspect=1.2)
+                    data=data, kind="box", orient="v", height=12, aspect=2.4)
     # ax.set(xlabel='cell type', ylabel='scores')
     g.set_axis_labels("Cell type","Score")
     g.set_xticklabels(rotation=30)
