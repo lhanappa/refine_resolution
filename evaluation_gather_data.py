@@ -155,8 +155,7 @@ if __name__ == '__main__':
         'Rao2014-KBM7-MboI-allreps-filtered.10kb.cool', 
         'Rao2014-NHEK-MboI-allreps-filtered.10kb.cool']'''
     raw_list = ['Shen2012-MouseCortex-HindIII-allreps-filtered.10kb.cool', 
-        'Selvaraj2013-F123-HindIII-allreps-filtered.10kb.cool']
-    # 'Rao2014-GM12878-MboI-allreps-filtered.10kb.cool',
+    'Selvaraj2013-F123-HindIII-allreps-filtered.10kb.cool']
 
     idx = int(sys.argv[1])
     cool_file = raw_list[idx]

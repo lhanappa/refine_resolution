@@ -15,7 +15,7 @@ hostname
 
 
 source activate env_fr_test
-# ID=${1} # 0 1
+ID=${1} # 0 1
 echo python evaluation_gather_data.py ${ID}
 python evaluation_gather_data.py ${ID}
 
