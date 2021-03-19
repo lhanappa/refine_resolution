@@ -85,9 +85,8 @@ def generate_prefile(input_path='./experiment/evaluation', chromosomes=['22', '2
                 mat = filter_diag_boundary(mat, diag_k=2, boundary_k=k)
                 name = 'high'
                 print('mat shape: {}'.format(mat.shape))
-                generate_coo(mat, chromosome=chro,
-                             output_path=path, filename=name)
-                generate_bin(mat, chromosome=chro, output_path=path)
+                # generate_coo(mat, chromosome=chro, output_path=path, filename=name)
+                # generate_bin(mat, chromosome=chro, output_path=path)
                 high_mat = mat
                 print('sum high mat: {}'.format(high_mat.sum()))
 
@@ -157,12 +156,12 @@ if __name__ == '__main__':
         source = os.path.join('.', 'data', m, cell_type, 'SR')
         gather(source=source, destination=destination_path, method=m, chromosomes=chromosomes)
 
-    for chro in chromosomes:
+    '''for chro in chromosomes:
         gather_high_low_mat(cooler_file=cool_file, 
                             path='./data/raw/', 
                             chromosome=chro, 
                             scale=scale, # scale changed!
-                            output_path=destination_path)
+                            output_path=destination_path)'''
 
     generate_prefile(input_path=destination_path,
                      chromosomes=chromosomes,
