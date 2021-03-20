@@ -94,7 +94,7 @@ for mc in metrics:
     if 'Genome' in mc:
         plt.ylim(-.4, 1.0)
     else:
-        plt.ylim(0.55, 1.1)
+        plt.ylim(0.55, 1.05)
     plt.gcf().subplots_adjust(bottom=0.15, top=0.95, left=0.1, right=0.9)
     plt.title('{} scores'.format(mc), size=24)
 
