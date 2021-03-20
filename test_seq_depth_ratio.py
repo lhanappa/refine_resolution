@@ -29,7 +29,7 @@ raw_list = ['Rao2014-GM12878-MboI-allreps-filtered.10kb.cool']
 depth_ratio = [4,8,16,32,48,64]
 # 'Rao2014-GM12878-MboI-allreps-filtered.10kb.cool'
 
-methods = ['ours_400']
+methods = ['ours_400', 'low', 'deephic_40', 'hicsr_40']
 me_dict = {'deephic_40':'Deephic', 'hicsr_40':'HiCSR', 'ours_400':'EnHiC', 'low':'LR'}
 labels = [me_dict[f] for f in methods]
 
@@ -72,14 +72,44 @@ for dr in depth_ratio:
                 if me in methods:
                     # GenomeDISCO, HiC-Spector, HiCRep in order
                     for i, mc in enumerate(metrics):
-                        data.append([dr, T, chro, chrsize[chro], mc, l[i+2]])
+                        data.append([str(dr), T, me, chro, chrsize[chro], mc, l[i+2]])
         fin.close()
 
-s = pd.DataFrame(data, columns=["ratio", "base", "chromosome", "chromosome length", "metric", "value"])
+s = pd.DataFrame(data, columns=["ratio", "base", "method", "chromosome", "chromosome length", "metric", "value"])
 
 print(s)
 
-output_dir = os.path.join('.', 'experiment', 'seq_depth_ratio')
+output_dir = os.path.join('.', 'experiment', 'evaluation')
+for mc in metrics:
+    data = s.loc[s['metric']==mc]
+    data = data.explode('value')
+    data['value'] = data['value'].astype('float')
+    
+    fig, ax = plt.subplots()
+    g = sns.catplot(ax = ax, x="ratio", y="value", hue="method", hue_order=methods, 
+                    data=data, kind="box", orient="v", height=12, aspect=1.4)
+    # ax.set(xlabel='cell type', ylabel='scores')
+    g.set_axis_labels("Cell type","Score")
+    g.set_xticklabels(rotation=30)
+    if 'Genome' in mc:
+        plt.ylim(-.5, .9)
+    else:
+        plt.ylim(0.4, 1.0)
+    plt.gcf().subplots_adjust(bottom=0.15, top=0.95, left=0.1, right=0.9)
+    plt.title('{} scores'.format(mc), size=24)
+
+    # title
+    legend_title = 'Method'
+    g._legend.set_title(legend_title)
+    # replace labels
+    for t, l in zip(g._legend.texts, labels): t.set_text(l)
+
+    output = os.path.join(output_dir, 'figure-seq_depth')
+    os.makedirs(output, exist_ok=True)
+    output = os.path.join(output, 'metrics_{}_scores.pdf'.format(mc))
+    plt.savefig(output, format='pdf')
+
+'''output_dir = os.path.join('.', 'experiment', 'seq_depth_ratio')
 for mc in metrics:
     data = s.loc[s['metric']==mc]
     data = data.explode('value')
@@ -104,12 +134,12 @@ for mc in metrics:
     plt.title('{} scores'.format(mc), size=24)
 
     # title
-    '''legend_title = 'Method'
+    legend_title = 'Method'
     g._legend.set_title(legend_title)
     # replace labels
-    for t, l in zip(g._legend.texts, labels): t.set_text(l)'''
+    for t, l in zip(g._legend.texts, labels): t.set_text(l)
 
     output = os.path.join(output_dir, 'figure-seq_depth')
     os.makedirs(output, exist_ok=True)
     output = os.path.join(output, 'metrics_{}_scores.pdf'.format(mc))
-    plt.savefig(output, format='pdf')
+    plt.savefig(output, format='pdf')'''
