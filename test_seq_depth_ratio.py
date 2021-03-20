@@ -86,15 +86,15 @@ for mc in metrics:
     data['value'] = data['value'].astype('float')
     
     fig, ax = plt.subplots()
-    # g = sns.catplot(ax = ax, x="ratio", y="value", hue="method", hue_order=methods, data=data, kind="box", orient="v", height=12, aspect=1.4)
-    g = sns.lineplot(ax=ax, data=data, x="ratio", y="value", hue="method", style="base", markers=True)
-    # ax.set(xlabel='cell type', ylabel='scores')
+    g = sns.catplot(ax = ax, x="ratio", y="value", hue="method", hue_order=methods, data=data, kind="box", orient="v", height=12, aspect=1.4)
+    # g = sns.lineplot(ax=ax, data=data, x="ratio", y="value", hue="method", style="base", markers=True)
+    ax.set(xlabel='Downsampling ratio', ylabel='Scores')
     # g.set_axis_labels("Cell type","Score")
     # g.set_xticklabels(rotation=30)
     if 'Genome' in mc:
-        plt.ylim(-.5, .9)
+        plt.ylim(-.5, 1.0)
     else:
-        plt.ylim(0.4, 1.0)
+        plt.ylim(0.5, 1.0)
     plt.gcf().subplots_adjust(bottom=0.15, top=0.95, left=0.1, right=0.9)
     plt.title('{} scores'.format(mc), size=24)
 
