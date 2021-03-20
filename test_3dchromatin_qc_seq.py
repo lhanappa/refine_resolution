@@ -100,7 +100,7 @@ def run(
             "--metadata_samples",  'metadata_samples.txt', 
             "--bins", 'bins_chr{}.bed.gz'.format(chro), 
             "--outdir", './chromatin_qc/',
-            "--methods", "GenomeDISCO,HiCRep,HiC-Spector",  # HiCRep, ,QuASAR-Rep GenomeDISCO,HiC-Spector,
+            "--methods", "GenomeDISCO,HiC-Spector,HiCRep",  # HiCRep, ,QuASAR-Rep GenomeDISCO,HiC-Spector,
             "--parameters_file", './qc_parameters.txt']
         process.append(subprocess.Popen(cmd, cwd=script_work_dir))
     for p in process:
@@ -117,12 +117,14 @@ def run(
         cmd = ["3DChromatin_ReplicateQC", "concordance", 
             "--metadata_pairs", 'metadata_pairs.txt',
             "--outdir", './chromatin_qc/',
-            "--methods", "GenomeDISCO,HiCRep,HiC-Spector"] # ,QuASAR-Rep GenomeDISCO,HiC-Spector,
+            "--methods", "GenomeDISCO,HiC-Spector,HiCRep"] # ,QuASAR-Rep GenomeDISCO,HiC-Spector,
         process.append(subprocess.Popen(cmd, cwd=script_work_dir))
     for p in process:
         p.wait()
 
     process = []
+    methods.append('ours_400')
+    list2.append('ours_400')
     for chro in chromosomes:
         # 3DChromatin_ReplicateQC summary 
         # --running_mode sge 
@@ -131,12 +133,14 @@ def run(
         # --bins examples/Bins.w50000.bed.gz 
         # --outdir examples/output 
         # --methods GenomeDISCO,HiCRep,HiC-Spector,QuASAR-Rep    script_work_dir = './'
+        generate_metadata_samples(methods, chro, path=destination_path)
+        generate_pairs(list1, list2, chro, path=destination_path)
         script_work_dir = os.path.join(destination_path, 'chr{}'.format(chro))
         cmd = ["3DChromatin_ReplicateQC", "summary", 
             "--metadata_pairs", 'metadata_pairs.txt',
             "--metadata_samples", 'metadata_samples.txt', 
             "--bins", 'bins_chr{}.bed.gz'.format(chro), 
-            "--methods", "GenomeDISCO,HiCRep,HiC-Spector",
+            "--methods", "GenomeDISCO,HiC-Spector,HiCRep",
             "--outdir", './chromatin_qc/']
         process.append(subprocess.Popen(cmd, cwd=script_work_dir))
     for p in process:
@@ -151,9 +155,9 @@ if __name__ == '__main__':
     scale = int(sys.argv[1])
     chro = str(sys.argv[2])
     # methods = ['deephic_40', 'hicsr_40', 'ours_80', 'ours_200', 'ours_400', 'high', 'low']
-    methods = ['ours_400', 'high']
+    methods = ['deephic_40', 'hicsr_40', 'high', 'low'] # 'ours_400', 
     list1 = ['high']
-    list2 = ['ours_400']
+    list2 = ['deephic_40', 'hicsr_40', 'low']
     cool_file = raw_list[0]
 
     run(methods = methods, list1=list1, list2=list2, chromosomes = [chro], cool_file=cool_file, scale=scale)
