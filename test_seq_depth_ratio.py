@@ -88,8 +88,7 @@ for mc in metrics:
     fig, ax = plt.subplots()
     g = sns.catplot(ax = ax, x="ratio", y="value", hue="method", hue_order=methods, data=data, kind="box", orient="v", height=12, aspect=1.4)
     # g = sns.lineplot(ax=ax, data=data, x="ratio", y="value", hue="method", style="base", markers=True)
-    ax.set(xlabel='Downsampling ratio', ylabel='Scores')
-    # g.set_axis_labels("Cell type","Score")
+    g.set_axis_labels("Downsampling ratio","Score")
     # g.set_xticklabels(rotation=30)
     if 'Genome' in mc:
         plt.ylim(-.4, 1.0)
