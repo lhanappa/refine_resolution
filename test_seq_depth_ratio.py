@@ -79,7 +79,7 @@ s = pd.DataFrame(data, columns=["ratio", "base", "method", "chromosome", "chromo
 
 print(s)
 
-output_dir = os.path.join('.', 'experiment', 'evaluation')
+output_dir = os.path.join('.', 'experiment', 'seq_depth_ratio')
 for mc in metrics:
     data = s.loc[s['metric']==mc]
     data = data.explode('value')
