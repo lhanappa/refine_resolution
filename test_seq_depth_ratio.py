@@ -90,7 +90,7 @@ for mc in metrics:
     g = sns.lineplot(ax=ax, data=data, x="ratio", y="value", hue="method", style="base", markers=True)
     # ax.set(xlabel='cell type', ylabel='scores')
     # g.set_axis_labels("Cell type","Score")
-    g.set_xticklabels(rotation=30)
+    # g.set_xticklabels(rotation=30)
     if 'Genome' in mc:
         plt.ylim(-.5, .9)
     else:
