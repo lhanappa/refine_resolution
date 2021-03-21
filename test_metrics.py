@@ -102,5 +102,5 @@ for mc in metrics:
 
     output = os.path.join(output_dir, 'figure-cell_type')
     os.makedirs(output, exist_ok=True)
-    output = os.path.join(output, 'metrics_{}_scores.pdf'.format(mc))
+    output = os.path.join(output, 'selected_{}_scores.pdf'.format(mc))
     plt.savefig(output, format='pdf')
