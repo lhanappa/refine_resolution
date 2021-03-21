@@ -165,7 +165,7 @@ def gather_high_low_cool(cooler_file='Rao2014-GM12878-DpnII-allreps-filtered.10k
     cooler.create_cooler(cool_uri=uri, bins=bins, pixels=pixels)
 
 if __name__ == '__main__':
-    raw_list = [
+    raw_list = ['Rao2014-GM12878-MboI-allreps-filtered.10kb.cool',
             'Rao2014-GM12878-DpnII-allreps-filtered.10kb.cool', 
             'Rao2014-HMEC-MboI-allreps-filtered.10kb.cool', 
             'Rao2014-HUVEC-MboI-allreps-filtered.10kb.cool', 
@@ -189,50 +189,50 @@ if __name__ == '__main__':
     me_dict = {'deephic_40':'Deephic', 'hicsr_40':'HiCSR', 'ours_400':'EnHiC', 'low':'LR'}
     labels = [me_dict[f] for f in methods]
 
-
-    cool_file = 'Rao2014-IMR90-MboI-allreps-filtered.10kb.cool'
-    cell_type = cool_file.split('-')[0] + '_' + cool_file.split('-')[1] + '_' + cool_file.split('-')[2] + '_' + cool_file.split('.')[1]
-    hic_info = cooler.Cooler(os.path.join('.', 'data', 'raw', cool_file))
-    resolution = int(hic_info.binsize) # 10000, 10kb
-
-    # chromosomes = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', 'X']
-    # chromosomes = [str(sys.argv[1])] # ['17', '18', '19', '20', '21', '22', 'X']# [str(sys.argv[1])]
-    # [start, end] = [int(sys.argv[2]), int(sys.argv[3])]
-
     chromosomes = ['19']
     [start, end] = [1400*10000, 1600*10000]
 
     genome_dis = int(100)
     window_len = int(200)
 
-    destination_path = os.path.join('.','experiment', 'evaluation', cell_type)
-    for chro in chromosomes:
-        gather_high_low_cool(cooler_file=cool_file, 
-                            path='./data/raw/', 
-                            chromosome=chro, 
-                            scale=16, 
-                            output_path=destination_path)
+    for cool_file in raw_list:
+        # cool_file = 'Rao2014-IMR90-MboI-allreps-filtered.10kb.cool'
+        cell_type = cool_file.split('-')[0] + '_' + cool_file.split('-')[1] + '_' + cool_file.split('-')[2] + '_' + cool_file.split('.')[1]
+        hic_info = cooler.Cooler(os.path.join('.', 'data', 'raw', cool_file))
+        resolution = int(hic_info.binsize) # 10000, 10kb
 
-        generate_cool(input_path=destination_path,
-                    chromosomes=[chro],
-                    resolution=10000,
-                    genomic_distance=2000000)
+        # chromosomes = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', 'X']
+        # chromosomes = [str(sys.argv[1])] # ['17', '18', '19', '20', '21', '22', 'X']# [str(sys.argv[1])]
+        # [start, end] = [int(sys.argv[2]), int(sys.argv[3])]
 
-        path = os.path.join('.', 'experiment', 'evaluation', cell_type, 'chr{}'.format(chro))
-        files = [f for f in os.listdir(path) if '.cool' in f]
-        queue = []
-        print(start, end)
-        source_dir = path
-        for file in files:
-            m = file.split('_')[1:-1]
-            m = '_'.join(m)
+        destination_path = os.path.join('.','experiment', 'evaluation', cell_type)
+        for chro in chromosomes:
+            gather_high_low_cool(cooler_file=cool_file, 
+                                path='./data/raw/', 
+                                chromosome=chro, 
+                                scale=16, 
+                                output_path=destination_path)
 
-            # plot_significant_interactions(source_dir, chro, m, resolution, low_dis=low, up_dis=up, start=start, end=end)
-            destination_dir = os.path.join('.', 'experiment', 'evaluation', 'figure_sample', '{}_{}'.format(start, end), cell_type)
-            p = Process(target=plot_demo, args=(source_dir, chro, m, resolution, start, end, destination_dir))
-            queue.append(p)
-            p.start()
+            generate_cool(input_path=destination_path,
+                        chromosomes=[chro],
+                        resolution=10000,
+                        genomic_distance=2000000)
 
-        for p in queue:
-            p.join()
+            path = os.path.join('.', 'experiment', 'evaluation', cell_type, 'chr{}'.format(chro))
+            files = [f for f in os.listdir(path) if '.cool' in f]
+            queue = []
+            print(start, end)
+            source_dir = path
+            for file in files:
+                m = file.split('_')[1:-1]
+                m = '_'.join(m)
+
+                # plot_significant_interactions(source_dir, chro, m, resolution, low_dis=low, up_dis=up, start=start, end=end)
+                destination_dir = os.path.join('.', 'experiment', 'evaluation', 'figure_sample', '{}_{}'.format(start, end), cell_type)
+                p = Process(target=plot_demo, args=(source_dir, chro, m, resolution, start, end, destination_dir))
+                queue.append(p)
+                p.start()
+
+            for p in queue:
+                p.join()
 
