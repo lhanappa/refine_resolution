@@ -33,7 +33,7 @@ def filter_diag_boundary(hic, diag_k=1, boundary_k=None):
     return np.multiply(hic, filter_m)
 
 def plot_demo(source_dir, chromosome, model_name, resolution, start, end, destination_dir):
-    cool_file = os.path.join(source_dir, '{}_chr{}.cool'.format(model_name, chromosome))
+    cool_file = os.path.join(source_dir, 'sample_{}_chr{}.cool'.format(model_name, chromosome))
     hic = cooler.Cooler(cool_file)
     start = max(0, int(start))
     if end > hic.chromsizes['chr{}'.format(chromosome)]:
@@ -224,11 +224,11 @@ if __name__ == '__main__':
         print(start, end)
         source_dir = path
         for file in files:
-            m = file.split('_')[0:-1]
+            m = file.split('_')[1:-1]
             m = '_'.join(m)
 
             # plot_significant_interactions(source_dir, chro, m, resolution, low_dis=low, up_dis=up, start=start, end=end)
-            destination_dir = os.path.join('.', 'experiment', 'evaluation', 'sample_figure', '{}_{}'.format(start, end), cell_type)
+            destination_dir = os.path.join('.', 'experiment', 'evaluation', 'figure_sample', '{}_{}'.format(start, end), cell_type)
             p = Process(target=plot_demo, args=(source_dir, chro, m, resolution, start, end, destination_dir))
             queue.append(p)
             p.start()
