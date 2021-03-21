@@ -195,7 +195,7 @@ if __name__ == '__main__':
     genome_dis = int(100)
     window_len = int(200)
 
-    for cool_file in raw_list:
+    '''for cool_file in raw_list:
         # cool_file = 'Rao2014-IMR90-MboI-allreps-filtered.10kb.cool'
         cell_type = cool_file.split('-')[0] + '_' + cool_file.split('-')[1] + '_' + cool_file.split('-')[2] + '_' + cool_file.split('.')[1]
         hic_info = cooler.Cooler(os.path.join('.', 'data', 'raw', cool_file))
@@ -234,7 +234,7 @@ if __name__ == '__main__':
                 p.start()
 
             for p in queue:
-                p.join()
+                p.join()'''
 
     cool_file = 'Rao2014-GM12878-MboI-allreps-filtered.10kb.cool'
     cell_types = [4,8,16,32,48]
@@ -252,7 +252,7 @@ if __name__ == '__main__':
             gather_high_low_cool(cooler_file=cool_file, 
                                 path='./data/raw/', 
                                 chromosome=chro, 
-                                scale=16, 
+                                scale=ct, 
                                 output_path=destination_path)
 
             generate_cool(input_path=destination_path,
