@@ -103,6 +103,7 @@ for mc in metrics:
     # replace labels
     for t, l in zip(g._legend.texts, labels): t.set_text(l)
 
+    sns.set(font_scale=5)
     output = os.path.join(output_dir, 'figure-seq_depth')
     os.makedirs(output, exist_ok=True)
     output = os.path.join(output, 'metrics_{}_scores.pdf'.format(mc))
