@@ -32,7 +32,7 @@ def filter_diag_boundary(hic, diag_k=1, boundary_k=None):
     filter_m = filter_m + np.transpose(filter_m)
     return np.multiply(hic, filter_m)
 
-def plot_demo(source_dir, chromosome, model_name, resolution, start, end, destination_dir):
+def plot_demo(source_dir, chromosome, model_name, data_type, resolution, start, end, destination_dir):
     cool_file = os.path.join(source_dir, 'sample_{}_chr{}.cool'.format(model_name, chromosome))
     hic = cooler.Cooler(cool_file)
     start = max(0, int(start))
@@ -61,7 +61,7 @@ def plot_demo(source_dir, chromosome, model_name, resolution, start, end, destin
 
     legend = {'ours': 'EnHiC', 'deephic': 'Deephic', 'hicsr':'HiCSR', 'low':'LR', 'high':'HR'}
     name = model_name.split('_')[0]
-    ax0.set_title('{} log1p Scale'.format(legend[name]))
+    ax0.set_title('{}, {}'.format(legend[name], data_type))
     ax0.set_xlim(-1, hic_mat.shape[0])
     ax0.set_ylim(-1, hic_mat.shape[1])
     fig.tight_layout()
@@ -195,7 +195,7 @@ if __name__ == '__main__':
     genome_dis = int(100)
     window_len = int(200)
 
-    '''for cool_file in raw_list:
+    for cool_file in raw_list:
         # cool_file = 'Rao2014-IMR90-MboI-allreps-filtered.10kb.cool'
         cell_type = cool_file.split('-')[0] + '_' + cool_file.split('-')[1] + '_' + cool_file.split('-')[2] + '_' + cool_file.split('.')[1]
         hic_info = cooler.Cooler(os.path.join('.', 'data', 'raw', cool_file))
@@ -229,15 +229,15 @@ if __name__ == '__main__':
 
                 # plot_significant_interactions(source_dir, chro, m, resolution, low_dis=low, up_dis=up, start=start, end=end)
                 destination_dir = os.path.join('.', 'experiment', 'evaluation', 'figure_sample', '{}_{}'.format(start, end), cell_type)
-                p = Process(target=plot_demo, args=(source_dir, chro, m, resolution, start, end, destination_dir))
+                p = Process(target=plot_demo, args=(source_dir, chro, m, '{} {}'.format(cool_file.split('-')[1], cool_file.split('-')[2]), resolution, start, end, destination_dir))
                 queue.append(p)
                 p.start()
 
             for p in queue:
-                p.join()'''
+                p.join()
 
     cool_file = 'Rao2014-GM12878-MboI-allreps-filtered.10kb.cool'
-    cell_types = [4,8,16,32,48]
+    cell_types = [4,8,16,32,48,64]
     for ct in cell_types:
         cell_type = cool_file.split('-')[0] + '_' + cool_file.split('-')[1] + '_' + cool_file.split('-')[2] +'-' + str(ct) + '_' + cool_file.split('.')[1]
         hic_info = cooler.Cooler(os.path.join('.', 'data', 'raw', cool_file))
@@ -271,7 +271,7 @@ if __name__ == '__main__':
 
                 # plot_significant_interactions(source_dir, chro, m, resolution, low_dis=low, up_dis=up, start=start, end=end)
                 destination_dir = os.path.join('.', 'experiment', 'seq_depth_ratio', 'figure_sample', '{}_{}'.format(start, end), cell_type)
-                p = Process(target=plot_demo, args=(source_dir, chro, m, resolution, start, end, destination_dir))
+                p = Process(target=plot_demo, args=(source_dir, chro, m, 'x{} downsampling'.format(ct),resolution, start, end, destination_dir))
                 queue.append(p)
                 p.start()
 
