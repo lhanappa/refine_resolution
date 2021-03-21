@@ -47,17 +47,15 @@ if __name__ == '__main__':
 
 
     path='./data/raw/'
-    for cool_file in raw_list[0:1]:
+    for cool_file in raw_list:
         # cool_file = 'Rao2014-IMR90-MboI-allreps-filtered.10kb.cool'
         hic = cooler.Cooler(os.path.join(path, cool_file))
         chromosomes = hic.chromnames;
         cnt = 0
-        print(hic.info)
         for chro in chromosomes:
             c = hic.matrix(balance=False, sparse=True, as_pixels=True).fetch(chro)
             cnt += c['count'].sum()
-            print(chro, cnt)
-        print(cool_file, cnt)
+        print(cool_file, cnt, hic.info['metadata']['QC']['post-filtering']['cis'], hic.info['metadata']['QC']['post-filtering']['total'])
 
     '''cool_file = 'Rao2014-GM12878-MboI-allreps-filtered.10kb.cool'
     cell_types = [4,8,16,32,48,64]
