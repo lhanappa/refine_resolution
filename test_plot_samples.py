@@ -33,7 +33,7 @@ def filter_diag_boundary(hic, diag_k=1, boundary_k=None):
     return np.multiply(hic, filter_m)
 
 def plot_demo(source_dir, chromosome, model_name, resolution, start, end, destination_dir):
-    cool_file = os.path.join(source_dir, 'sample_{}_chr{}.cool'.format(model_name, chromosome))
+    cool_file = os.path.join(source_dir, '{}_chr{}.cool'.format(model_name, chromosome))
     hic = cooler.Cooler(cool_file)
     start = max(0, int(start))
     if end > hic.chromsizes['chr{}'.format(chromosome)]:
