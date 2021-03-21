@@ -199,8 +199,8 @@ if __name__ == '__main__':
     # chromosomes = [str(sys.argv[1])] # ['17', '18', '19', '20', '21', '22', 'X']# [str(sys.argv[1])]
     # [start, end] = [int(sys.argv[2]), int(sys.argv[3])]
 
-    chromosomes = ['17']
-    [start, end] = [7050*10000, 7275*10000]
+    chromosomes = ['19']
+    [start, end] = [1400*10000, 1600*10000]
 
     genome_dis = int(100)
     window_len = int(200)
