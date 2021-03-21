@@ -47,14 +47,14 @@ if __name__ == '__main__':
 
 
     path='./data/raw/'
-    for cool_file in raw_list:
+    for cool_file in raw_list[0:1]:
         # cool_file = 'Rao2014-IMR90-MboI-allreps-filtered.10kb.cool'
         hic = cooler.Cooler(os.path.join(path, cool_file))
         chromosomes = hic.chromnames;
         cnt = 0
         print(hic.info)
         for chro in chromosomes:
-            cnt += hic.matrix(balance=True).fetch('chr' + chro)
+            cnt += hic.matrix(balance=True).fetch(chro)
         print(cool_file, cnt)
 
     '''cool_file = 'Rao2014-GM12878-MboI-allreps-filtered.10kb.cool'
