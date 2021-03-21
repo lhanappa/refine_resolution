@@ -236,3 +236,45 @@ if __name__ == '__main__':
             for p in queue:
                 p.join()
 
+    cool_file = 'Rao2014-GM12878-MboI-allreps-filtered.10kb.cool'
+    cell_types = [4,8,16,32,48]
+    for ct in cell_types:
+        cell_type = cool_file.split('-')[0] + '_' + cool_file.split('-')[1] + '_' + cool_file.split('-')[2] +'-' + str(ct) + '_' + cool_file.split('.')[1]
+        hic_info = cooler.Cooler(os.path.join('.', 'data', 'raw', cool_file))
+        resolution = int(hic_info.binsize) # 10000, 10kb
+
+        # chromosomes = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', 'X']
+        # chromosomes = [str(sys.argv[1])] # ['17', '18', '19', '20', '21', '22', 'X']# [str(sys.argv[1])]
+        # [start, end] = [int(sys.argv[2]), int(sys.argv[3])]
+
+        destination_path = os.path.join('.','experiment', 'seq_depth_ratio', cell_type)
+        for chro in chromosomes:
+            gather_high_low_cool(cooler_file=cool_file, 
+                                path='./data/raw/', 
+                                chromosome=chro, 
+                                scale=16, 
+                                output_path=destination_path)
+
+            generate_cool(input_path=destination_path,
+                        chromosomes=[chro],
+                        resolution=10000,
+                        genomic_distance=2000000)
+
+            path = os.path.join('.', 'experiment', 'seq_depth_ratio', cell_type, 'chr{}'.format(chro))
+            files = [f for f in os.listdir(path) if '.cool' in f]
+            queue = []
+            print(start, end)
+            source_dir = path
+            for file in files:
+                m = file.split('_')[1:-1]
+                m = '_'.join(m)
+
+                # plot_significant_interactions(source_dir, chro, m, resolution, low_dis=low, up_dis=up, start=start, end=end)
+                destination_dir = os.path.join('.', 'experiment', 'seq_depth_ratio', 'figure_sample', '{}_{}'.format(start, end), cell_type)
+                p = Process(target=plot_demo, args=(source_dir, chro, m, resolution, start, end, destination_dir))
+                queue.append(p)
+                p.start()
+
+            for p in queue:
+                p.join()
+
