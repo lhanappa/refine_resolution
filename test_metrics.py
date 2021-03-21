@@ -14,7 +14,7 @@ import warnings
 warnings.simplefilter(action='ignore', category=(FutureWarning, UserWarning, DeprecationWarning, RuntimeWarning))
 # using fithic to find significant interactions by CLI
 
-'''raw_list = ['Shen2012-MouseCortex-HindIII-allreps-filtered.10kb.cool', 
+raw_list = ['Shen2012-MouseCortex-HindIII-allreps-filtered.10kb.cool', 
         'Selvaraj2013-F123-HindIII-allreps-filtered.10kb.cool',
         'Rao2014-CH12LX-MboI-allreps-filtered.10kb.cool', 
         'Rao2014-GM12878-DpnII-allreps-filtered.10kb.cool', 
@@ -23,16 +23,16 @@ warnings.simplefilter(action='ignore', category=(FutureWarning, UserWarning, Dep
         'Rao2014-IMR90-MboI-allreps-filtered.10kb.cool', 
         'Rao2014-K562-MboI-allreps-filtered.10kb.cool', 
         'Rao2014-KBM7-MboI-allreps-filtered.10kb.cool', 
-        'Rao2014-NHEK-MboI-allreps-filtered.10kb.cool']'''
+        'Rao2014-NHEK-MboI-allreps-filtered.10kb.cool']
 
 # raw_list = ['Rao2014-CH12LX-MboI-allreps-filtered.10kb.cool']
 # 'Rao2014-GM12878-MboI-allreps-filtered.10kb.cool'
 
-raw_list = [
+'''raw_list = [
         'Selvaraj2013-F123-HindIII-allreps-filtered.10kb.cool',
         'Rao2014-IMR90-MboI-allreps-filtered.10kb.cool', 
         'Rao2014-K562-MboI-allreps-filtered.10kb.cool', 
-        'Rao2014-NHEK-MboI-allreps-filtered.10kb.cool']
+        'Rao2014-NHEK-MboI-allreps-filtered.10kb.cool']'''
 
 methods = ['ours_400', 'low', 'deephic_40', 'hicsr_40']
 me_dict = {'deephic_40':'Deephic', 'hicsr_40':'HiCSR', 'ours_400':'EnHiC', 'low':'LR'}
@@ -102,5 +102,5 @@ for mc in metrics:
 
     output = os.path.join(output_dir, 'figure-cell_type')
     os.makedirs(output, exist_ok=True)
-    output = os.path.join(output, 'selected_{}_scores.pdf'.format(mc))
+    output = os.path.join(output, 'all_{}_scores.pdf'.format(mc))
     plt.savefig(output, format='pdf')
