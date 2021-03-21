@@ -32,8 +32,8 @@ def filter_diag_boundary(hic, diag_k=1, boundary_k=None):
     filter_m = filter_m + np.transpose(filter_m)
     return np.multiply(hic, filter_m)
 
-def plot_demo(source_dir, chromosome, model_name, resolution, start, end):
-    cool_file = os.path.join(source_dir, '{}_chr{}.cool'.format(model_name, chromosome))
+def plot_demo(source_dir, chromosome, model_name, resolution, start, end, destination_dir):
+    cool_file = os.path.join(source_dir, 'sample_{}_chr{}.cool'.format(model_name, chromosome))
     hic = cooler.Cooler(cool_file)
     start = max(0, int(start))
     if end > hic.chromsizes['chr{}'.format(chromosome)]:
@@ -65,7 +65,7 @@ def plot_demo(source_dir, chromosome, model_name, resolution, start, end):
     ax0.set_xlim(-1, hic_mat.shape[0])
     ax0.set_ylim(-1, hic_mat.shape[1])
     fig.tight_layout()
-    output = os.path.join(source_dir, 'figure', '{}_{}'.format(start, end))
+    output = destination_dir
     os.makedirs(output, exist_ok=True)
     plt.savefig(os.path.join(output, 'demo_{}.pdf'.format(legend[name])), format='pdf')
     plt.savefig(os.path.join(output, 'demo_{}.jpg'.format(legend[name])), format='jpg')
@@ -74,7 +74,7 @@ def generate_cool(input_path='./experiment/significant_interactions', chromosome
     k = np.ceil(genomic_distance/resolution).astype(int)
     for chro in chromosomes:
         path = os.path.join(input_path, 'chr{}'.format(chro))
-        hicfile = 'high_chr{}.cool'.format(chro)
+        hicfile = 'sample_high_chr{}.cool'.format(chro)
         cool_hic = cooler.Cooler(os.path.join(path, hicfile))
         mat = cool_hic.matrix(balance=True).fetch('chr' + chro)
         bins = cool_hic.bins().fetch('chr' + chro)
@@ -119,7 +119,7 @@ def generate_cool(input_path='./experiment/significant_interactions', chromosome
             mat = filter_diag_boundary(mat, diag_k=0, boundary_k=k)
             # mat = ICE_normalization(mat)
             print('{} matrix shape: {}'.format(name, mat.shape))
-            uri = os.path.join(path, '{}_chr{}.cool'.format(name, chro))
+            uri = os.path.join(path, 'sample_{}_chr{}.cool'.format(name, chro))
             mat = triu(mat, format='coo')
             # p = {'bin1_id': mat.row, 'bin2_id': mat.col, 'count': mat.data}
             p = {'bin1_id': num_idx[mat.row], 'bin2_id': num_idx[mat.col], 'count': mat.data}
@@ -150,14 +150,14 @@ def gather_high_low_cool(cooler_file='Rao2014-GM12878-DpnII-allreps-filtered.10k
     output_path = os.path.join(output_path, 'chr{}'.format(chromosome))
     os.makedirs(output_path, exist_ok=True)
 
-    outfile = 'high_chr{}.cool'.format(chromosome)
+    outfile = 'sample_high_chr{}.cool'.format(chromosome)
     print('saving file {}'.format(os.path.join(output_path, outfile)))
     uri = os.path.join(output_path, outfile)
     p = {'bin1_id': num_idx[high_hic.row], 'bin2_id': num_idx[high_hic.col], 'count': high_hic.data}
     pixels = pd.DataFrame(data = p)
     cooler.create_cooler(cool_uri=uri, bins=bins, pixels=pixels)
 
-    outfile = 'low_chr{}.cool'.format(chromosome)
+    outfile = 'sample_low_chr{}.cool'.format(chromosome)
     print('saving file {}'.format(os.path.join(output_path, outfile)))
     uri = os.path.join(output_path, outfile)
     p = {'bin1_id': num_idx[low_hic.row], 'bin2_id': num_idx[low_hic.col], 'count': low_hic.data}
@@ -228,7 +228,8 @@ if __name__ == '__main__':
             m = '_'.join(m)
 
             # plot_significant_interactions(source_dir, chro, m, resolution, low_dis=low, up_dis=up, start=start, end=end)
-            p = Process(target=plot_demo, args=(source_dir, chro, m, resolution, start, end))
+            destination_dir = os.path.join('.', 'experiment', 'evaluation', 'sample_figure', '{}_{}'.format(start, end), cell_type)
+            p = Process(target=plot_demo, args=(source_dir, chro, m, resolution, start, end, destination_dir))
             queue.append(p)
             p.start()
 
