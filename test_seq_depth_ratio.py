@@ -88,7 +88,7 @@ for mc in metrics:
     data['value'] = data['value'].astype('float')
     
     fig, ax = plt.subplots()
-    g = sns.catplot(ax = ax, x="ratio", y="value", hue="method", hue_order=methods, data=data, kind="point", orient="v", height=12, aspect=1.6)
+    g = sns.catplot(ax = ax, x="ratio", y="value", hue="method", hue_order=methods, data=data, kind="point", capsize=.1, orient="v", height=12, aspect=1.6)
     # g = sns.lineplot(ax=ax, data=data, x="ratio", y="value", hue="method", style="base", markers=True)
     g.set_axis_labels("Downsampling ratio","Score")
     # g.set_xticklabels(rotation=30)
