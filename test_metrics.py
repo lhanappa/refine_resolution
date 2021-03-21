@@ -72,6 +72,8 @@ s = pd.DataFrame(data, columns=["type", "cell type", "chromosome", "metric", "me
 
 print(s)
 
+
+sns.set(font_scale=2)
 output_dir = os.path.join('.', 'experiment', 'evaluation')
 for mc in metrics:
     data = s.loc[s['metric']==mc]
