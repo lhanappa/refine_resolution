@@ -54,7 +54,8 @@ if __name__ == '__main__':
         cnt = 0
         print(hic.info)
         for chro in chromosomes:
-            cnt += np.nan_to_num(hic.matrix(balance=False, sparse=True).fetch(chro)).sum()
+            c = hic.matrix(balance=False, sparse=True).fetch(chro)
+            cnt += c.sum()
             print(chro, cnt)
         print(cool_file, cnt)
 
