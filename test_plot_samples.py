@@ -148,7 +148,7 @@ if __name__ == '__main__':
     labels = [me_dict[f] for f in methods]
 
 
-    cool_file = 'Rao2014-GM12878-MboI-allreps-filtered.10kb.cool'
+    cool_file = 'Rao2014-IMR90-MboI-allreps-filtered.10kb.cool'
     cell_type = cool_file.split('-')[0] + '_' + cool_file.split('-')[1] + '_' + cool_file.split('-')[2] + '_' + cool_file.split('.')[1]
     hic_info = cooler.Cooler(os.path.join('.', 'data', 'raw', cool_file))
     resolution = int(hic_info.binsize) # 10000, 10kb
