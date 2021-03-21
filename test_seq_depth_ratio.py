@@ -88,7 +88,7 @@ for mc in metrics:
     data['value'] = data['value'].astype('float')
     
     fig, ax = plt.subplots()
-    g = sns.catplot(ax = ax, x="ratio", y="value", hue="method", hue_order=methods, data=data, kind="box", orient="v", height=12, aspect=1.6)
+    g = sns.catplot(ax = ax, x="ratio", y="value", hue="method", hue_order=methods, data=data, kind="point", orient="v", height=12, aspect=1.6)
     # g = sns.lineplot(ax=ax, data=data, x="ratio", y="value", hue="method", style="base", markers=True)
     g.set_axis_labels("Downsampling ratio","Score")
     # g.set_xticklabels(rotation=30)
@@ -107,7 +107,7 @@ for mc in metrics:
 
     output = os.path.join(output_dir, 'figure-seq_depth')
     os.makedirs(output, exist_ok=True)
-    output = os.path.join(output, 'metrics_{}_scores.pdf'.format(mc))
+    output = os.path.join(output, 'line_{}_scores.pdf'.format(mc))
     plt.savefig(output, format='pdf')
 
 '''output_dir = os.path.join('.', 'experiment', 'seq_depth_ratio')
