@@ -88,7 +88,7 @@ for mc in metrics:
     data['value'] = data['value'].astype('float')
     
     fig, ax = plt.subplots()
-    g = sns.catplot(ax = ax, x="ratio", y="value", hue="method", hue_order=methods, data=data, kind="box", orient="v", height=12, aspect=1.4)
+    g = sns.catplot(ax = ax, x="ratio", y="value", hue="method", hue_order=methods, data=data, kind="box", orient="v", height=12, aspect=1.6)
     # g = sns.lineplot(ax=ax, data=data, x="ratio", y="value", hue="method", style="base", markers=True)
     g.set_axis_labels("Downsampling ratio","Score")
     # g.set_xticklabels(rotation=30)
@@ -96,7 +96,7 @@ for mc in metrics:
         plt.ylim(-.4, 1.0)
     else:
         plt.ylim(0.55, 1.05)
-    plt.gcf().subplots_adjust(bottom=0.15, top=0.95, left=0.1, right=0.9)
+    plt.gcf().subplots_adjust(bottom=0.15, top=0.95, left=0.1, right=0.85)
     plt.title('{} scores'.format(mc), size=24)
 
     # title
