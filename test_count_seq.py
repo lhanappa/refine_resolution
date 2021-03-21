@@ -54,7 +54,8 @@ if __name__ == '__main__':
         cnt = 0
         print(hic.info)
         for chro in chromosomes:
-            cnt += hic.matrix(balance=True).fetch(chro)
+            cnt += (hic.matrix(balance=True).fetch(chro)).sum()
+            print(chro, cnt)
         print(cool_file, cnt)
 
     '''cool_file = 'Rao2014-GM12878-MboI-allreps-filtered.10kb.cool'
