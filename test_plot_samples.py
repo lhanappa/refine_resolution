@@ -62,9 +62,9 @@ def plot_demo(source_dir, chromosome, model_name, data_type, resolution, start, 
     legend = {'ours': 'EnHiC', 'deephic': 'Deephic', 'hicsr':'HiCSR', 'low':'LR', 'high':'HR'}
     name = model_name.split('_')[0]
     if name == 'high' and 'down' in data_type:
-        ax0.set_title('{}'.format(legend[name]), fontsize=16)
+        ax0.set_title('{}'.format(legend[name]), fontsize=24)
     else:
-        ax0.set_title('{}, {}'.format(legend[name], data_type), fontsize=16)
+        ax0.set_title('{}, {}'.format(legend[name], data_type), fontsize=24)
     ax0.set_xlim(-1, hic_mat.shape[0])
     ax0.set_ylim(-1, hic_mat.shape[1])
     fig.tight_layout()
