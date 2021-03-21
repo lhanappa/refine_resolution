@@ -205,7 +205,7 @@ if __name__ == '__main__':
     genome_dis = int(100)
     window_len = int(200)
 
-    destination_path = os.path.join('.','experiment', 'evalution', cell_type)
+    destination_path = os.path.join('.','experiment', 'evaluation', cell_type)
     for chro in chromosomes:
         gather_high_low_cool(cooler_file=cool_file, 
                             path='./data/raw/', 
@@ -217,7 +217,8 @@ if __name__ == '__main__':
                     chromosomes=[chro],
                     resolution=10000,
                     genomic_distance=2000000)
-        path = os.path.join('.', 'experiment', 'evalution', cell_type, 'chr{}'.format(chro))
+
+        path = os.path.join('.', 'experiment', 'evaluation', cell_type, 'chr{}'.format(chro))
         files = [f for f in os.listdir(path) if '.cool' in f]
         queue = []
         print(start, end)
