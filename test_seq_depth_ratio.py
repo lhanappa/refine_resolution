@@ -80,6 +80,8 @@ s = pd.DataFrame(data, columns=["ratio", "base", "method", "chromosome", "chromo
 print(s)
 
 output_dir = os.path.join('.', 'experiment', 'seq_depth_ratio')
+
+sns.set(font_scale=2)
 for mc in metrics:
     data = s.loc[s['metric']==mc]
     data = data.explode('value')
@@ -103,7 +105,6 @@ for mc in metrics:
     # replace labels
     for t, l in zip(g._legend.texts, labels): t.set_text(l)
 
-    g.set(font_scale=5)
     output = os.path.join(output_dir, 'figure-seq_depth')
     os.makedirs(output, exist_ok=True)
     output = os.path.join(output, 'metrics_{}_scores.pdf'.format(mc))
