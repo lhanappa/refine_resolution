@@ -19,6 +19,10 @@ import warnings
 warnings.simplefilter(action='ignore', category=(FutureWarning, UserWarning, DeprecationWarning, RuntimeWarning))
 # using fithic to find significant interactions by CLI
 
+from our_model.utils.operations import remove_zeros, sampling_hic
+from our_model.utils.operations import scn_normalization, scn_recover
+from iced.normalization import ICE_normalization
+
 def filter_diag_boundary(hic, diag_k=1, boundary_k=None):
     if boundary_k is None:
         boundary_k = hic.shape[0]-1
@@ -122,6 +126,44 @@ def generate_cool(input_path='./experiment/significant_interactions', chromosome
             pixels = pd.DataFrame(data = p)
             cooler.create_cooler(cool_uri=uri, bins=bins, pixels=pixels)
 
+def gather_high_low_cool(cooler_file='Rao2014-GM12878-DpnII-allreps-filtered.10kb.cool', path='./data/raw/', chromosome='22', scale=16, output_path='./experiment/significant_interactions/'):
+    file = os.path.join(path, cooler_file)
+    cool_hic = cooler.Cooler(file)
+    resolution = cool_hic.binsize
+    mat = cool_hic.matrix(balance=True).fetch('chr' + chromosome)
+    high_hic, idx = remove_zeros(mat)
+    bool_idx = np.array(idx).flatten()
+    num_idx = np.array(np.where(idx)).flatten()
+    low_hic = sampling_hic(high_hic, scale, fix_seed=True)
+    print('high hic shape: {}.'.format(high_hic.shape), end=' ')
+    print('low hic shape: {}.'.format(low_hic.shape))
+
+    b = {'chrom': ['chr{}'.format(chromosome)]*len(bool_idx), 'start': resolution*np.arange(len(bool_idx)), 'end': resolution*(np.arange(1,(len(bool_idx)+1))), 'weight': 1.0*bool_idx}
+    bins = pd.DataFrame(data = b)
+
+    # high_hic = ICE_normalization(high_hic)
+    # low_hic = ICE_normalization(low_hic)
+
+    high_hic = triu(high_hic, format='coo')
+    low_hic = triu(low_hic, format='coo')
+
+    output_path = os.path.join(output_path, 'chr{}'.format(chromosome))
+    os.makedirs(output_path, exist_ok=True)
+
+    outfile = 'high_chr{}.cool'.format(chromosome)
+    print('saving file {}'.format(os.path.join(output_path, outfile)))
+    uri = os.path.join(output_path, outfile)
+    p = {'bin1_id': num_idx[high_hic.row], 'bin2_id': num_idx[high_hic.col], 'count': high_hic.data}
+    pixels = pd.DataFrame(data = p)
+    cooler.create_cooler(cool_uri=uri, bins=bins, pixels=pixels)
+
+    outfile = 'low_chr{}.cool'.format(chromosome)
+    print('saving file {}'.format(os.path.join(output_path, outfile)))
+    uri = os.path.join(output_path, outfile)
+    p = {'bin1_id': num_idx[low_hic.row], 'bin2_id': num_idx[low_hic.col], 'count': low_hic.data}
+    pixels = pd.DataFrame(data = p)
+    cooler.create_cooler(cool_uri=uri, bins=bins, pixels=pixels)
+
 if __name__ == '__main__':
     raw_list = [
             'Rao2014-GM12878-DpnII-allreps-filtered.10kb.cool', 
@@ -165,6 +207,12 @@ if __name__ == '__main__':
 
     destination_path = os.path.join('.','experiment', 'evalution', cell_type)
     for chro in chromosomes:
+        gather_high_low_cool(cooler_file=cool_file, 
+                            path='./data/raw/', 
+                            chromosome=chro, 
+                            scale=16, 
+                            output_path=destination_path)
+
         generate_cool(input_path=destination_path,
                     chromosomes=[chro],
                     resolution=10000,
