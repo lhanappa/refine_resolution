@@ -24,14 +24,18 @@ from our_model.utils.operations import scn_normalization, scn_recover
 from iced.normalization import ICE_normalization
 
 if __name__ == '__main__':
-    raw_list = ['Rao2014-GM12878-MboI-allreps-filtered.10kb.cool',
+    raw_list = [
+        'Shen2012-MouseCortex-HindIII-allreps-filtered.10kb.cool', 
+        'Selvaraj2013-F123-HindIII-allreps-filtered.10kb.cool',
+        'Rao2014-CH12LX-MboI-allreps-filtered.10kb.cool', 
             'Rao2014-GM12878-DpnII-allreps-filtered.10kb.cool', 
             'Rao2014-HMEC-MboI-allreps-filtered.10kb.cool', 
             'Rao2014-HUVEC-MboI-allreps-filtered.10kb.cool', 
             'Rao2014-IMR90-MboI-allreps-filtered.10kb.cool', 
             'Rao2014-K562-MboI-allreps-filtered.10kb.cool', 
             'Rao2014-KBM7-MboI-allreps-filtered.10kb.cool', 
-            'Rao2014-NHEK-MboI-allreps-filtered.10kb.cool']
+            'Rao2014-NHEK-MboI-allreps-filtered.10kb.cool',
+            'Rao2014-GM12878-MboI-allreps-filtered.10kb.cool']
 
 
     '''
@@ -51,11 +55,11 @@ if __name__ == '__main__':
         # cool_file = 'Rao2014-IMR90-MboI-allreps-filtered.10kb.cool'
         hic = cooler.Cooler(os.path.join(path, cool_file))
         chromosomes = hic.chromnames;
-        cnt = 0
+        '''cnt = 0
         for chro in chromosomes:
             c = hic.matrix(balance=False, sparse=True, as_pixels=True).fetch(chro)
-            cnt += c['count'].sum()
-        print(cool_file, cnt, hic.info['metadata']['QC']['post-filtering']['cis'], hic.info['metadata']['QC']['post-filtering']['total'])
+            cnt += c['count'].sum()'''
+        print(cool_file, hic.info['metadata']['QC']['post-filtering']['cis'], hic.info['metadata']['QC']['post-filtering']['total'])
 
     '''cool_file = 'Rao2014-GM12878-MboI-allreps-filtered.10kb.cool'
     cell_types = [4,8,16,32,48,64]
