@@ -85,7 +85,7 @@ for mc in metrics:
                     data=data, kind="box", orient="v", height=12, aspect=1.4)
     # ax.set(xlabel='cell type', ylabel='scores')
     g.set_axis_labels("Cell type","Score")
-    g.set_xticklabels(rotation=60)
+    g.set_xticklabels(rotation=0)
     if 'Genome' in mc:
         plt.ylim(-.5, .9)
     else:
