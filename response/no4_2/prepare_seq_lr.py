@@ -114,9 +114,8 @@ def split_chrom(path, name, ftype, chrom, resolution):
     filename = os.path.join(output, '{}_contact.gz'.format(ftype, chrom))
     format_contact(hic, resolution=resolution, chrm=chrom, save_file=True, filename=filename)
 
-def prepare():
-    chromosomes = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', 'X']
-    chromosomes = ['22']
+def prepare(chromosomes = ['22']):
+    # chromosomes = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', 'X']
     resolution = 10000
     for i, chrom in enumerate(chromosomes):
         for j, t in enumerate(list(replication.keys())):
@@ -128,4 +127,4 @@ def prepare():
             split_chrom(path, name, t, 'chr'+chrom, resolution)
 
 if __name__ == '__main__':
-    prepare()
+    prepare(str(sys.argv[1]))
