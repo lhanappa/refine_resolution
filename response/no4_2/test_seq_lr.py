@@ -103,13 +103,10 @@ def load_hic_pixel(path, name, chrom):
     return hic.matrix(balance=False, as_pixels=False).fetch(chrom)
 
 def split_chrom(path, name, ftype, chrom, resolution):
+    hic = load_hic_pixel(path, name, chrom)
     if ftype == 'multiple': 
         sampling_ratio = 4
-        name = name + '::resolutions/{}'.format(resolution)
-        hic = load_hic_pixel(path, name, chrom)
         hic = sampling_hic(hic, sampling_ratio, fix_seed=True)
-    else:
-        hic = load_hic_pixel(path, name, chrom)
     output = os.path.join('.', 'data')
     os.makedirs(output, exist_ok=True)
     filename = os.path.join(output, '{}_{}_bed.gz'.format(ftype, chrom))
@@ -124,7 +121,10 @@ def prepare():
     for i, chrom in enumerate(chromosomes):
         for j, t in enumerate(['rep4', 'multiple']): # list(replication.keys())
             path = os.path.join('.', t)
-            name = 'hic.cool'
+            if t == 'multiple':
+                name = '4DNFI9PIEPQA.mcool::resolutions/{}'.format(resolution)
+            else:
+                name = 'hic.cool'
             split_chrom(path, name, t, 'chr'+chrom, resolution)
 
 if __name__ == '__main__':
