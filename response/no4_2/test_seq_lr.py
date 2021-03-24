@@ -104,14 +104,14 @@ def load_hic_pixel(path, name, chrom):
 
 def split_chrom(path, name, ftype, chrom, resolution):
     hic = load_hic_pixel(path, name, chrom)
+    output = os.path.join('.', 'data', chrom)
+    os.makedirs(output, exist_ok=True)
     if ftype == 'multiple': 
         sampling_ratio = 4
         hic = sampling_hic(hic, sampling_ratio, fix_seed=True)
-    output = os.path.join('.', 'data')
-    os.makedirs(output, exist_ok=True)
-    filename = os.path.join(output, '{}_{}_bed.gz'.format(ftype, chrom))
-    format_bin(hic, resolution=resolution, chrm=chrom, save_file=True, filename=filename)
-    filename = os.path.join(output, '{}_{}_contact.gz'.format(ftype, chrom))
+        filename = os.path.join(output, 'bed.gz')
+        format_bin(hic, resolution=resolution, chrm=chrom, save_file=True, filename=filename)
+    filename = os.path.join(output, '{}_contact.gz'.format(ftype, chrom))
     format_contact(hic, resolution=resolution, chrm=chrom, save_file=True, filename=filename)
 
 def prepare():
@@ -119,7 +119,7 @@ def prepare():
     chromosomes = ['22']
     resolution = 10000
     for i, chrom in enumerate(chromosomes):
-        for j, t in enumerate(['multiple']): # list(replication.keys())
+        for j, t in enumerate(list(replication.keys())):
             path = os.path.join('.', t)
             if t == 'multiple':
                 name = '4DNFI9PIEPQA.mcool::resolutions/{}'.format(resolution)
