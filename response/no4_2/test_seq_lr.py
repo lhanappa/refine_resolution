@@ -24,7 +24,7 @@ replication = {'rep1':'4DNFIA32ODXZ',
 
 def sampling_hic(hic_matrix, sampling_ratio, fix_seed=False):
     """sampling dense hic matrix"""
-    m = np.matrix(hic_matrix)
+    m = np.matrix(hic_matrix, dtype='float')
     all_sum = m.sum(dtype='float')
     idx_prob = np.divide(m, all_sum, out=np.zeros_like(m), where=all_sum != 0)
     idx_prob = np.asarray(idx_prob.reshape(
@@ -119,7 +119,7 @@ def prepare():
     chromosomes = ['22']
     resolution = 10000
     for i, chrom in enumerate(chromosomes):
-        for j, t in enumerate(['rep4', 'multiple']): # list(replication.keys())
+        for j, t in enumerate(['multiple']): # list(replication.keys())
             path = os.path.join('.', t)
             if t == 'multiple':
                 name = '4DNFI9PIEPQA.mcool::resolutions/{}'.format(resolution)
