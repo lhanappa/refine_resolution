@@ -100,7 +100,7 @@ def format_bin(matrix, resolution=10000, chrm='1', save_file=True, filename=None
 
 def load_hic_pixel(path, name, chrom):
     hic = cooler.Cooler(os.path.join(path, name))
-    return hic.matrix(balance=False, as_pixels=True).fetch(chrom)
+    return hic.matrix(balance=False, as_pixels=False).fetch(chrom)
 
 def split_chrom(path, name, ftype, chrom, resolution):
     hic = load_hic_pixel(path, name, chrom)
