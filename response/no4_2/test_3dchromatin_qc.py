@@ -46,7 +46,8 @@ def generate_metadata_samples(methods, chromosome, path='./data/'):
     for file in files:
         f = os.path.join(path, file)
         absolute_path = os.path.abspath(f)
-        method = '_'.join(file.split('_')[0:-2])
+
+        method = file.split('_')[0]
         if method in methods:
             print(method, absolute_path)
             line = '{}\t{}\n'.format(method, absolute_path)
@@ -95,7 +96,7 @@ def run( methods, list1 , list2, chromosomes):
             "--metadata_samples",  'metadata_samples.txt', 
             "--bins", 'bed.gz'.format(chro), 
             "--outdir", './chromatin_qc/',
-            "--methods", "GGenomeDISCO,HiC-Spector,HiCRep",  # HiCRep, ,QuASAR-Rep GenomeDISCO,HiC-Spector,
+            "--methods", "GenomeDISCO,HiC-Spector,HiCRep",  # HiCRep, ,QuASAR-Rep GenomeDISCO,HiC-Spector,
             "--parameters_file", './qc_parameters.txt']
         process.append(subprocess.Popen(cmd, cwd=script_work_dir))
     for p in process:
