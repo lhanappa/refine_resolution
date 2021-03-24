@@ -93,7 +93,7 @@ def run( methods, list1 , list2, chromosomes):
         script_work_dir = os.path.join(destination_path, 'chr{}'.format(chro))
         cmd = ["3DChromatin_ReplicateQC", "preprocess", 
             "--metadata_samples",  'metadata_samples.txt', 
-            "--bins", 'bins_chr{}.bed.gz'.format(chro), 
+            "--bins", 'bed.gz'.format(chro), 
             "--outdir", './chromatin_qc/',
             "--methods", "GGenomeDISCO,HiC-Spector,HiCRep",  # HiCRep, ,QuASAR-Rep GenomeDISCO,HiC-Spector,
             "--parameters_file", './qc_parameters.txt']
