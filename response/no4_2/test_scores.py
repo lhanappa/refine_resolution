@@ -23,8 +23,11 @@ def run(methods):
                 print(l)
                 if '#' in l[0]:
                     continue
-                me1 = np.where(l[0]==methods)[0]
-                me2 = np.where(l[1]==methods)[0]
+                for i,m in enumerate(methods):
+                    if m == l[0]:
+                        me1 = i
+                    if m == l[1]:
+                        me2 = i
                 disco_data[me1, me2] = float(l[2])
                 hicrep_data[me1, me2] = float(l[3])
                 cnt[me1, me2] = cnt[me1, me2]+1
