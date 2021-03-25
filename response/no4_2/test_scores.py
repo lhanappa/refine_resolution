@@ -32,6 +32,8 @@ def run(methods):
                 hicrep_data[me1, me2] = float(l[3])
                 cnt[me1, me2] = cnt[me1, me2]+1
                 cnt[me2, me1] = cnt[me1, me2]
+                hicrep_data[me2, me1] = hicrep_data[me1, me2]
+                disco_data[me2, me1] = disco_data[me1, me2]
         fin.close()
 
     mean = hicrep_data/cnt
