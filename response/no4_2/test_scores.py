@@ -44,7 +44,8 @@ def run(methods):
     mask[np.triu_indices_from(mask)] = True
     with sns.axes_style("white"):
         f, ax = plt.subplots(figsize=(7, 5))
-        ax = sns.heatmap(mean, mask=mask, square=True)
+        g = sns.heatmap(ax=ax, data=mean, mask=mask, vmin=0.9, annot=True, square=True)
+        g.set(xticklabels=methods)
     output_dir = os.path.join('.')
     output = os.path.join(output_dir, 'figure')
     os.makedirs(output, exist_ok=True)
