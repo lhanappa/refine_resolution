@@ -19,10 +19,11 @@ def run(methods):
         with open(inpath, 'r') as fin:
             for line in fin:
                 l = line.split()
+                print(l)
                 me1 = np.where(l[0]==methods)[0]
                 me2 = np.where(l[1]==methods)[0]
-                disco_data[me1, me2] = l[2]
-                hicrep_data[me1, me2] = l[3]
+                disco_data[me1, me2] = float(l[2])
+                hicrep_data[me1, me2] = float(l[3])
                 cnt[me1, me2] = cnt[me1, me2]+1
                 cnt[me2, me1] = cnt[me1, me2]
         fin.close()
