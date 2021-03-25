@@ -90,13 +90,13 @@ for mc in metrics:
     fig, ax = plt.subplots()
     g = sns.catplot(ax = ax, x="ratio", y="value", hue="method", hue_order=methods, data=data, kind="point", capsize=.1, orient="v", height=6, aspect=2)
     # g = sns.lineplot(ax=ax, data=data, x="ratio", y="value", hue="method", style="base", markers=True)
-    g.set_axis_labels("Downsampling ratio","Score")
+    g.set_axis_labels("Downsampled ratio","Score")
     # g.set_xticklabels(rotation=30)
     if 'Genome' in mc:
         plt.ylim(-.2, 1.0)
     else:
         plt.ylim(0.7, 1.01)
-    plt.gcf().subplots_adjust(bottom=0.1, top=0.92, left=0.06, right=0.85)
+    plt.gcf().subplots_adjust(bottom=0.15, top=0.92, left=0.06, right=0.85)
     plt.title('{} scores'.format(mc), size=30)
 
     # title
