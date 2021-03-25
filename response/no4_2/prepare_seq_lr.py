@@ -106,6 +106,7 @@ def split_chrom(path, name, ftype, chrom, resolution):
     hic = load_hic_pixel(path, name, chrom)
     output = os.path.join('.', 'data', chrom)
     os.makedirs(output, exist_ok=True)
+    print(output)
     if ftype == 'multiple': 
         sampling_ratio = 4
         hic = sampling_hic(hic, sampling_ratio, fix_seed=True)
@@ -118,6 +119,7 @@ def prepare(chromosomes = ['22']):
     # chromosomes = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', 'X']
     resolution = 10000
     for i, chrom in enumerate(chromosomes):
+        print(chrom)
         for j, t in enumerate(list(replication.keys())):
             path = os.path.join('.', t)
             if t == 'multiple':
