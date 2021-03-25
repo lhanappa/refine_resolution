@@ -54,8 +54,8 @@ def format_contact(matrix, resolution=10000, chrm='1', save_file=True, filename=
             value = float(matrix[i, j])
             if value <= 1.0e-10:
                 continue
-            chr1 = chrm
-            chr2 = chrm
+            chr1 = 'chr{}'.format(chrm)
+            chr2 = 'chr{}'.format(chrm)
             # print('i: {}, j: {}, nhf: {}, int(i/nhf): {}, int(j/nhf): {}'.format(i, j, nhf, int(i/nhf), int(j/nhf)))
             # bin1 = (i - int(i/nhf)*nhf + coordinate[int(i/nhf)]*nhf)*resolution
             # bin2 = (j - int(j/nhf)*nhf + coordinate[int(j/nhf)]*nhf)*resolution
@@ -82,7 +82,7 @@ def format_bin(matrix, resolution=10000, chrm='1', save_file=True, filename=None
     bins = list()
 
     for i in np.arange(n):
-        chr1 = chrm
+        chr1 = 'chr{}'.format(chrm)
         start = int(i*resolution)
         # start = int((i - int(i/nhf)*nhf + coordinate[int(i/nhf)]*nhf)*resolution)
         end = int(start + resolution)
@@ -104,29 +104,27 @@ def load_hic_pixel(path, name, chrom):
 
 def split_chrom(path, name, ftype, chrom, resolution):
     hic = load_hic_pixel(path, name, chrom)
-    output = os.path.join('.', 'data', chrom)
+    output = os.path.join('.', 'data', 'chr{}'.format(chrom))
     os.makedirs(output, exist_ok=True)
-    print(output)
     if ftype == 'multiple': 
         sampling_ratio = 4
         hic = sampling_hic(hic, sampling_ratio, fix_seed=True)
         filename = os.path.join(output, 'bed.gz')
         format_bin(hic, resolution=resolution, chrm=chrom, save_file=True, filename=filename)
-    filename = os.path.join(output, '{}_contact.gz'.format(ftype, chrom))
+    filename = os.path.join(output, '{}_contact.gz'.format(ftype))
     format_contact(hic, resolution=resolution, chrm=chrom, save_file=True, filename=filename)
 
 def prepare(chromosomes = ['22']):
     # chromosomes = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', 'X']
     resolution = 10000
     for i, chrom in enumerate(chromosomes):
-        print(chrom)
         for j, t in enumerate(list(replication.keys())):
             path = os.path.join('.', t)
             if t == 'multiple':
                 name = '4DNFI9PIEPQA.mcool::resolutions/{}'.format(resolution)
             else:
                 name = 'hic.cool'
-            split_chrom(path, name, t, 'chr'+chrom, resolution)
+            split_chrom(path, name, t, chrom, resolution)
 
 if __name__ == '__main__':
-    prepare(str(sys.argv[1]))
+    prepare([str(sys.argv[1])])
