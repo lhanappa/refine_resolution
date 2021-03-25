@@ -123,10 +123,10 @@ def split_chrom(path, name, ftype, chrom, resolution):
     cmap = plt.get_cmap('RdBu_r')
     Z = np.log1p(hic)
 
-    bounds = np.append(np.arange(0,7,0.06), np.arange(7,12,0.3))
-    norm = matplotlib.colors.BoundaryNorm(boundaries=bounds, ncolors=256)
-    im = ax0.imshow(Z, cmap=cmap, norm=norm) #, vmin=0, vmax=8
-    fig.colorbar(im, ax=ax0, ticks=np.arange(0,8))
+    # bounds = np.append(np.arange(0,7,0.06), np.arange(7,12,0.3))
+    # norm = matplotlib.colors.BoundaryNorm(boundaries=bounds, ncolors=256)
+    im = ax0.imshow(Z, cmap=cmap) #, vmin=0, vmax=8 , norm=norm
+    # fig.colorbar(im, ax=ax0, ticks=np.arange(0,8))
     fig.tight_layout()
     output = os.path.join(output, 'figure')
     os.makedirs(output, exist_ok=True)
