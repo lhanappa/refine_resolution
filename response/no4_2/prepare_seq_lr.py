@@ -11,6 +11,10 @@ import numpy as np
 import pandas
 import gzip
 
+from iced import normalization
+from matplotlib import pyplot as plt
+import matplotlib
+
 # bash hg38
 # >> pairix 4DNFIA32ODXZ.pairs.gz
 # >> cooler cload pairix hg38.chrom.sizes:10000 4DNFIA32ODXZ.pairs.gz hic.cool
@@ -111,8 +115,24 @@ def split_chrom(path, name, ftype, chrom, resolution):
         hic = sampling_hic(hic, sampling_ratio, fix_seed=True)
         filename = os.path.join(output, 'bed.gz')
         format_bin(hic, resolution=resolution, chrm=chrom, save_file=True, filename=filename)
+    hic = normalization.ICE_normalization(hic)
     filename = os.path.join(output, '{}_contact.gz'.format(ftype))
     format_contact(hic, resolution=resolution, chrm=chrom, save_file=True, filename=filename)
+
+    fig, ax0 = plt.subplots()
+    cmap = plt.get_cmap('RdBu_r')
+    Z = np.log1p(hic)
+
+    bounds = np.append(np.arange(0,7,0.06), np.arange(7,12,0.3))
+    norm = matplotlib.colors.BoundaryNorm(boundaries=bounds, ncolors=256)
+    im = ax0.imshow(Z, cmap=cmap, norm=norm) #, vmin=0, vmax=8
+    fig.colorbar(im, ax=ax0, ticks=np.arange(0,8))
+    fig.tight_layout()
+    output = os.path.join(output, 'figure')
+    os.makedirs(output, exist_ok=True)
+    # plt.savefig(os.path.join(output, 'demo_{}.pdf'.format(ftype)), format='pdf')
+    plt.savefig(os.path.join(output, 'demo_{}.jpg'.format(ftype)), format='jpg')
+
 
 def prepare(chromosomes = ['22']):
     # chromosomes = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', 'X']
