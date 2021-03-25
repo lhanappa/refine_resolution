@@ -20,13 +20,13 @@ QuASAR|rebinning	resolution
 """
 
 parameters = '''GenomeDISCO|subsampling	lowest
-GenomeDISCO|tmin	1
-GenomeDISCO|tmax	1
+GenomeDISCO|tmin	3
+GenomeDISCO|tmax	3
 GenomeDISCO|norm	sqrtvc
 GenomeDISCO|scoresByStep	yes
 GenomeDISCO|removeDiag	yes
 GenomeDISCO|transition	yes
-HiCRep|h	2
+HiCRep|h	8
 HiCRep|maxdist	2000000
 HiC-Spector|n	1
 QuASAR|rebinning	resolution
@@ -96,7 +96,7 @@ def run( methods, list1 , list2, chromosomes):
             "--metadata_samples",  'metadata_samples.txt', 
             "--bins", 'bed.gz', 
             "--outdir", './chromatin_qc/',
-            "--methods", "HiCRep",  # HiCRep, ,QuASAR-Rep GenomeDISCO,HiC-Spector,
+            "--methods", "GenomeDISCO,HiCRep",  # HiCRep, ,QuASAR-Rep GenomeDISCO,HiC-Spector,
             "--parameters_file", './qc_parameters.txt']
         process.append(subprocess.Popen(cmd, cwd=script_work_dir))
     for p in process:
@@ -113,7 +113,7 @@ def run( methods, list1 , list2, chromosomes):
         cmd = ["3DChromatin_ReplicateQC", "concordance", 
             "--metadata_pairs", 'metadata_pairs.txt',
             "--outdir", './chromatin_qc/',
-            "--methods", "HiCRep"] # ,QuASAR-Rep GenomeDISCO,HiC-Spector,
+            "--methods", "GenomeDISCO,HiCRep"] # ,QuASAR-Rep GenomeDISCO,HiC-Spector,
         process.append(subprocess.Popen(cmd, cwd=script_work_dir))
     for p in process:
         p.wait()
@@ -132,7 +132,7 @@ def run( methods, list1 , list2, chromosomes):
             "--metadata_pairs", 'metadata_pairs.txt',
             "--metadata_samples", 'metadata_samples.txt', 
             "--bins", 'bed.gz', 
-            "--methods", "HiCRep",
+            "--methods", "GenomeDISCO,HiCRep",
             "--outdir", './chromatin_qc/']
         process.append(subprocess.Popen(cmd, cwd=script_work_dir))
     for p in process:
