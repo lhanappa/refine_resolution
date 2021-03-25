@@ -108,11 +108,12 @@ def load_hic_pixel(path, name, chrom):
 
 def split_chrom(path, name, ftype, chrom, resolution):
     hic = load_hic_pixel(path, name, chrom)
+    print(hic.sum())
     output = os.path.join('.', 'data', 'chr{}'.format(chrom))
     os.makedirs(output, exist_ok=True)
     if ftype == 'multiple': 
         # sampling_ratio = 4
-        hic = sampling_hic(hic, sampling_ratio, fix_seed=True)
+        # hic = sampling_hic(hic, sampling_ratio, fix_seed=True)
         filename = os.path.join(output, 'bed.gz')
         format_bin(hic, resolution=resolution, chrm=chrom, save_file=True, filename=filename)
     # hic = normalization.ICE_normalization(hic)
