@@ -17,7 +17,8 @@ import matplotlib
 
 # bash hg38
 # >> pairix 4DNFIA32ODXZ.pairs.gz
-# >> cooler cload pairix hg38.chrom.sizes:10000 4DNFIA32ODXZ.pairs.gz hic.cool
+# >> cooler cload pairix ../hg38.chrom.sizes:1000000 4DNFIA32ODXZ.pairs.gz hic.cool
+
 
 
 replication = {'rep1':'4DNFIA32ODXZ', 
@@ -116,7 +117,7 @@ def split_chrom(path, name, ftype, chrom, resolution):
         # hic = sampling_hic(hic, sampling_ratio, fix_seed=True)
         filename = os.path.join(output, 'bed.gz')
         format_bin(hic, resolution=resolution, chrm=chrom, save_file=True, filename=filename)
-    # hic = normalization.ICE_normalization(hic)
+    hic = normalization.ICE_normalization(hic)
     filename = os.path.join(output, '{}_contact.gz'.format(ftype))
     format_contact(hic, resolution=resolution, chrm=chrom, save_file=True, filename=filename)
 
@@ -137,7 +138,7 @@ def split_chrom(path, name, ftype, chrom, resolution):
 
 def prepare(chromosomes = ['22']):
     # chromosomes = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', 'X']
-    resolution = 10000
+    resolution = 1000000
     for i, chrom in enumerate(chromosomes):
         for j, t in enumerate(list(replication.keys())):
             path = os.path.join('.', t)
