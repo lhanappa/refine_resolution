@@ -12,14 +12,17 @@ def run(methods):
     cnt = np.zeros((len(methods), len(methods)))
     for chrom in chromosomes:
         path = os.path.join('.', 'data', 'chr{}'.format(chrom), 'chromatin_qc', 'scores')
-        file = 'reporducibility.chr{}.txt'.format(chrom)
+        file = 'reproducibility.chr{}.txt'.format(chrom)
         inpath = os.path.join(path, file)
+        print(inpath)
         if not os.path.exists(inpath):
             continue
         with open(inpath, 'r') as fin:
             for line in fin:
                 l = line.split()
                 print(l)
+                if '#' in l[0]:
+                    continue
                 me1 = np.where(l[0]==methods)[0]
                 me2 = np.where(l[1]==methods)[0]
                 disco_data[me1, me2] = float(l[2])
