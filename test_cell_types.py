@@ -87,9 +87,9 @@ for mc in metrics:
     g.set_axis_labels("Cell type","Score")
     g.set_xticklabels(rotation=0)
     if 'Genome' in mc:
-        plt.ylim(-.5, .9)
+        plt.ylim(-.2, .9)
     else:
-        plt.ylim(0.4, 1.0)
+        plt.ylim(0.65, 1.0)
     plt.gcf().subplots_adjust(bottom=0.15, top=0.9, left=0.1, right=0.80)
     plt.title('{} scores'.format(mc), size=24)
 
