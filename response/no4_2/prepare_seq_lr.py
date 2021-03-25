@@ -113,11 +113,11 @@ def split_chrom(path, name, ftype, chrom, resolution):
     output = os.path.join('.', 'data', 'chr{}'.format(chrom))
     os.makedirs(output, exist_ok=True)
     if ftype == 'multiple': 
-        # sampling_ratio = 4
-        # hic = sampling_hic(hic, sampling_ratio, fix_seed=True)
+        sampling_ratio = 4
+        hic = sampling_hic(hic, sampling_ratio, fix_seed=True)
         filename = os.path.join(output, 'bed.gz')
         format_bin(hic, resolution=resolution, chrm=chrom, save_file=True, filename=filename)
-    hic = normalization.ICE_normalization(hic)
+    # hic = normalization.ICE_normalization(hic)
     filename = os.path.join(output, '{}_contact.gz'.format(ftype))
     format_contact(hic, resolution=resolution, chrm=chrom, save_file=True, filename=filename)
 
