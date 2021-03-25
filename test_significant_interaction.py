@@ -348,7 +348,7 @@ def plot_boxplot(output_dir, chrom_js):
                 js_array[legend[name]] = [y]
     plt.subplots()
     data = pd.DataFrame.from_dict(js_array)
-    ax = sns.boxplot(data=data, palette="tab10")
+    ax = sns.boxplot(data=data, palette="tab10", order=['EnHiC', 'Deephic', 'HiCSR', 'LR'])
     ax.set(xlabel='Models', ylabel='Jaccard Score')
     output = os.path.join(output_dir, 'figure')
     os.makedirs(output, exist_ok=True)
@@ -437,10 +437,10 @@ if __name__ == '__main__':
                 m = file.split('_')[0:-1]
                 m = '_'.join(m)
 
-                # plot_significant_interactions(source_dir, chro, m, resolution, low_dis=low, up_dis=up, start=start, end=end)
+                '''# plot_significant_interactions(source_dir, chro, m, resolution, low_dis=low, up_dis=up, start=start, end=end)
                 p = Process(target=plot_significant_interactions, args=(source_dir, chro, m, resolution, low, up, start, end))
                 queue.append(p)
-                p.start()
+                p.start()'''
 
                 if 'high' not in m:
                     model_si = load_si(source_dir, chro, m, resolution, low_dis=low, up_dis=up, start=start, end=end)
@@ -456,12 +456,12 @@ if __name__ == '__main__':
         plot_jaccard_score(output_dir=source_dir, model_js=model_js)
         chrom_js[chro] = model_js
 
-        for p in queue:
-            p.join()
+        '''for p in queue:
+            p.join()'''
 
     calculate_p_value(chrom_js)
     out_dir = os.path.join('.', 'experiment', 'significant_interactions', cell_type)
-    plot_all_js(out_dir, chrom_js)
+    # plot_all_js(out_dir, chrom_js)
     plot_boxplot(out_dir, chrom_js)
 
 
