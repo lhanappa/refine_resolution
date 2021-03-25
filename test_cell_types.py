@@ -33,7 +33,7 @@ raw_list = [
         'Rao2014-K562-MboI-allreps-filtered.10kb.cool', 
 ]
 
-methods = ['ours_400', 'low', 'deephic_40', 'hicsr_40']
+methods = ['ours_400', 'deephic_40', 'hicsr_40', 'low']
 me_dict = {'deephic_40':'Deephic', 'hicsr_40':'HiCSR', 'ours_400':'EnHiC', 'low':'LR'}
 labels = [me_dict[f] for f in methods]
 
@@ -90,7 +90,7 @@ for mc in metrics:
         plt.ylim(-.5, .9)
     else:
         plt.ylim(0.4, 1.0)
-    plt.gcf().subplots_adjust(bottom=0.15, top=0.9, left=0.1, right=0.85)
+    plt.gcf().subplots_adjust(bottom=0.15, top=0.9, left=0.1, right=0.80)
     plt.title('{} scores'.format(mc), size=24)
 
     # title
