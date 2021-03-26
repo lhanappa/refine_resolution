@@ -53,6 +53,9 @@ for w in sorted_keys:
         chrsize[w[3:]] = dict1[w]
 print(chrsize)
 
+hicrep_enhic_4 = []
+hicrep_hicsr_4 = []
+
 for dr in depth_ratio:
     if dr == 16:
         T = 'Y'
@@ -73,11 +76,17 @@ for dr in depth_ratio:
                     # GenomeDISCO, HiC-Spector, HiCRep in order
                     for i, mc in enumerate(metrics):
                         data.append([dr, T, me, chro, chrsize[chro], mc, l[i+2]])
+                        if dr == 4 and me == 'ours_400' and mc == 'HiCRep':
+                            hicrep_enhic_4.append(l[i+2])
+                        if dr == 4 and me == 'hicsr_40' and mc == 'HiCRep':
+                            hicrep_hicsr_4.append(l[i+2])
         fin.close()
 
 s = pd.DataFrame(data, columns=["ratio", "base", "method", "chromosome", "chromosome length", "metric", "value"])
 
 print(s)
+print('enhic 4 hicrep', hicrep_enhic_4)
+print('hicsr 4 hicrep', hicrep_hicsr_4)
 
 output_dir = os.path.join('.', 'experiment', 'seq_depth_ratio')
 
