@@ -9,12 +9,32 @@ from iced import normalization
 from matplotlib import pyplot as plt
 import matplotlib
 import seaborn as sns
+from scipy import stats
 
 import cooler
 
 import warnings
 warnings.simplefilter(action='ignore', category=(FutureWarning, UserWarning, DeprecationWarning, RuntimeWarning))
 # using fithic to find significant interactions by CLI
+def ttest_greater(a, b):
+    #For unbiased max likelihood estimate we have to divide the var by N-1, and therefore the parameter ddof = 1
+    a = np.array(a).flatten()
+    b = np.array(b).flatten()
+    N = len(a)
+    var_a = np.array(a).var(ddof=1)
+    var_b = np.array(b).var(ddof=1)
+    # std deviation
+    s = np.sqrt((var_a + var_b)/2)
+    ## Calculate the t-statistics
+    t = (a.mean() - b.mean())/(s*np.sqrt(2/N))
+    ## Compare with the critical t-value
+    # Degrees of freedom
+    df = 2*N - 2
+    # p-value after comparison with the t 
+    p = 1 - stats.t.cdf(t,df=df)
+    print("t = " + str(t))
+    print("p = " + str(p))
+    return p
 
 '''raw_list = ['Rao2014-CH12LX-MboI-allreps-filtered.10kb.cool', 
         'Rao2014-GM12878-DpnII-allreps-filtered.10kb.cool', 
@@ -77,9 +97,9 @@ for dr in depth_ratio:
                     for i, mc in enumerate(metrics):
                         data.append([dr, T, me, chro, chrsize[chro], mc, l[i+2]])
                         if dr == 4 and me == 'ours_400' and mc == 'HiCRep':
-                            hicrep_enhic_4.append(l[i+2])
+                            hicrep_enhic_4.append(float(l[i+2]))
                         if dr == 4 and me == 'hicsr_40' and mc == 'HiCRep':
-                            hicrep_hicsr_4.append(l[i+2])
+                            hicrep_hicsr_4.append(float(l[i+2]))
         fin.close()
 
 s = pd.DataFrame(data, columns=["ratio", "base", "method", "chromosome", "chromosome length", "metric", "value"])
@@ -87,6 +107,7 @@ s = pd.DataFrame(data, columns=["ratio", "base", "method", "chromosome", "chromo
 print(s)
 print('enhic 4 hicrep', hicrep_enhic_4)
 print('hicsr 4 hicrep', hicrep_hicsr_4)
+ttest_greater(hicrep_hicsr_4, hicrep_enhic_4)
 
 output_dir = os.path.join('.', 'experiment', 'seq_depth_ratio')
 
