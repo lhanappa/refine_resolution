@@ -107,7 +107,9 @@ s = pd.DataFrame(data, columns=["ratio", "base", "method", "chromosome", "chromo
 print(s)
 print('enhic 8 hicrep', hicrep_enhic)
 print('hicsr 8 hicrep', hicrep_hicsr)
-ttest_greater(hicrep_hicsr, hicrep_enhic)
+stats.ttest_ind(hicrep_hicsr, hicrep_enhic, alternative='two-sided')
+stats.ttest_ind(hicrep_hicsr, hicrep_enhic, alternative='greater')
+# ttest_greater(hicrep_hicsr, hicrep_enhic)
 
 output_dir = os.path.join('.', 'experiment', 'seq_depth_ratio')
 
